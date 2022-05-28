@@ -1,0 +1,17 @@
+# Game Concept - Risky Stars
+
+## What It Is
+
+- Single-Player
+- Multi-Player
+- Sci-Fi Themed
+- Strategy
+- Deterministic (a sequence of events always results in the same outcome)
+- Turn-Based
+- Collect Resources
+- Buy Armies
+- Individual Heroes provide Bonuses
+- Cards for Planets provide Heroes and Armies
+- Game Maps are made of Star Systems that are interconnected via Hyperspace Lanes
+- Star Systems are made of Planets, Planetoids and Comets (Bodies)
+
