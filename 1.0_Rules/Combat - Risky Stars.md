@@ -1,0 +1,95 @@
+# Combat
+
+- Each Unit in all armies participate in combat each round.
+- Each Unit rolls a number from 1 to 10.  
+- The rolled numbers for each faction are sorted descending and paired to the same rank of the opposing faction.  Unpaired numbers are discarded.
+
+> **Example Combat Turn: Attacker Loses 2 Units, Defender Loses 1 Unit**
+>
+> | Attacking Faction | Defending Faction | Winner |
+> |:-:|:-:|---|
+> |10|10|Defender Wins|
+> |10|9|Attacker Wins|
+> |7|8|Defender Wins|
+> | | _7_ | _Discarded_ |
+> 
+> | Start | End | Player |
+> |:-:|:-:|---|
+> |3|2| Attacker |
+> |4|2| Defender |
+
+- Once combat is initiated, it does not end until all players have completed their turn for the round.  If an Ally of the Attacker arrives as reinforcements, they roll 1 to 10.  If the Defending Faction has units remaining, the also roll 1 to 10.
+
+> **Example Combat Turn: Reinforcements Lose 1 Unit, Defender Loses 2 Units**
+>
+> | Reinforcing Ally | Defending Faction | Winner |
+> |:-:|:-:|---|
+> |10|9| Attacking Reinforcements Win |
+> |9|9| Defender Wins |
+> |3| | _Discarded_
+> 
+> | Start | End | Player |
+> |:-:|:-:|---|
+> |2|2| Attacker (Non-Combatant) |
+> |3|2| Attacking Reinforcements |
+> |2|1| Defender |
+
+- An Ally of the defender may also send reinforcements to an ongoing battle at their turn.  
+- If the reinforced Defending Faction is attacked by the Attacker's Ally or Allies, then all defending casualties are applied to the Defending Reinforcements first.
+
+> ### Defender is Reinforced by an Ally with an army of 2 units, then Attacking Ally Arrives with an army of 4 Units
+> **Example Combat Turn: Reinforcements Lose 2 Units, Defender Loses 1 Unit**
+>
+> | Reinforcing Ally | Defending Faction | Winner |
+> |:-:|:-:|---|
+> |10|9| AttRein Wins, DefRein -1 |
+> |9|9| DefRein Wins, AttRein -1 |
+> |8|7| AttRein Wins, DefRein -1 |
+> |3|2| AttRein Wins, Defender -1 |
+> 
+> **Remaining Armies at end of turn**
+> 
+> | Start | End | Player |
+> |:-:|:-:|---|
+> |2|2| Attacker (Non-Combatant) |
+> |4|3| Attacking Reinforcements |
+> |2|0| Defending Reinforcements |
+> |1|0| Defender |
+
+- If the Defending Faction loses all units, then the Attacking Player gains possession of the Location if the Attacking Player has remaining units to defend the Location.
+- If the Defending Faction loses all units and the Attacking Player also loses all units, then the first Reinforcing Player with remaining units gains possession of the Location. 
+
+> ### Complete Combat Round
+> - Defender has 4 Units
+> - Attacker Arrives with 3 Units
+>
+> | Attacking Faction | Defending Faction | Winner |
+> |:-:|:-:|---|
+> |10|10|Defender Wins|
+> |10|9|Attacker Wins|
+> |7|8|Defender Wins|
+> | | _7_ | _Discarded_ |
+>
+> | Start | End | Player |
+> |:-:|:-:|---|
+> |4|2| Defender |
+> |3|1| Attacker |
+>
+> - Defending Ally Arrives with 2 Units
+> - Attacking Ally Arrives with 4 Units
+>
+> | Reinforcing Ally | Defending Faction | Winner |
+> |:-:|:-:|---|
+> |10|9| AttRein Wins, DefRein -1 |
+> |9|9| DefRein Wins, AttRein -1 |
+> |8|7| AttRein Wins, DefRein -1 |
+> |3|2| AttRein Wins, Defender -1 |
+>
+> | Start | End | Player (Order of Arrival) |
+> |:-:|:-:|---|
+> |2|1| Defender |
+> |1|1| Attacker (Non-Combatant) |
+> |2|0| Defending Reinforcements |
+> |4|3| Attacking Reinforcements |
+> 
+> #### Defenders Remain, Attackers return to Launch Location
