@@ -99,6 +99,18 @@ builder.Services.AddTransient(sp => new CombatManager(sp.GetRequiredService<Comb
 // Register stellar body upgrade system
 builder.Services.AddSingleton<StellarBodyUpgradeSystem>();
 
+// Register AI services
+builder.Services.AddSingleton<RiskyStars.Server.Entities.GameStateEvaluator>();
+builder.Services.AddSingleton<CombatPredictor>();
+builder.Services.AddSingleton<AIPurchaseDecisionMaker>();
+builder.Services.AddSingleton(sp => new RiskyStars.Server.Entities.AIReinforcementPlanner(
+    sp.GetRequiredService<RiskyStars.Server.Entities.GameStateEvaluator>()));
+builder.Services.AddSingleton(sp => new RiskyStars.Server.Entities.AIMovementPlanner(
+    sp.GetRequiredService<RiskyStars.Server.Entities.GameStateEvaluator>(),
+    sp.GetRequiredService<CombatPredictor>()));
+builder.Services.AddSingleton<AIEconomicManager>();
+builder.Services.AddSingleton<AIPlayerController>();
+
 // Register hosted background services
 builder.Services.AddHostedService<SessionCleanupService>();
 builder.Services.AddHostedService<GameRecoveryService>();
