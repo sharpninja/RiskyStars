@@ -123,11 +123,11 @@ public class ConnectionScreen
         spriteBatch.Draw(_pixelTexture, panel, Color.Black * 0.9f);
         DrawRectangleOutline(spriteBatch, panel, Color.Cyan, 3);
 
-        var titleText = "RiskyStars - Connect";
+        var titleText = "Multiplayer - Connect to Server";
         var titleSize = _font.MeasureString(titleText);
         spriteBatch.DrawString(_font, titleText,
             new Vector2(panelX + (panelWidth - titleSize.X) / 2, panelY + 20),
-            Color.Cyan, 0f, Vector2.Zero, 1.2f, SpriteEffects.None, 0f);
+            Color.Cyan, 0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0f);
 
         _playerNameField.Draw(spriteBatch, _pixelTexture, _font);
         _serverAddressField.Draw(spriteBatch, _pixelTexture, _font);

@@ -519,3 +519,153 @@ public class DropdownField
         }
     }
 }
+
+public class RadioButton
+{
+    private Rectangle _bounds;
+    private string _label;
+    private string _groupName;
+    private bool _isSelected;
+    private bool _isHovered;
+    private bool _wasPressed;
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => _isSelected = value;
+    }
+
+    public bool IsClicked { get; private set; }
+    public string GroupName => _groupName;
+
+    public RadioButton(Rectangle bounds, string label, string groupName)
+    {
+        _bounds = bounds;
+        _label = label;
+        _groupName = groupName;
+    }
+
+    public void Update(MouseState mouseState)
+    {
+        IsClicked = false;
+        
+        var radioBounds = new Rectangle(_bounds.X, _bounds.Y, _bounds.Height, _bounds.Height);
+        _isHovered = radioBounds.Contains(mouseState.Position);
+
+        if (_isHovered && mouseState.LeftButton == ButtonState.Pressed)
+        {
+            _wasPressed = true;
+        }
+        else if (_wasPressed && mouseState.LeftButton == ButtonState.Released && _isHovered)
+        {
+            IsClicked = true;
+            _wasPressed = false;
+        }
+        else if (mouseState.LeftButton == ButtonState.Released)
+        {
+            _wasPressed = false;
+        }
+    }
+
+    public void Draw(SpriteBatch spriteBatch, Texture2D pixelTexture, SpriteFont font)
+    {
+        var labelSize = font.MeasureString(_label);
+        spriteBatch.DrawString(font, _label,
+            new Vector2(_bounds.X, _bounds.Y - labelSize.Y - 5),
+            Color.White, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+
+        var radioBounds = new Rectangle(_bounds.X, _bounds.Y, _bounds.Height, _bounds.Height);
+        Color backgroundColor = _isHovered ? new Color(40, 40, 60) : new Color(30, 30, 40);
+        Color borderColor = _isHovered ? Color.Cyan : Color.Gray;
+
+        spriteBatch.Draw(pixelTexture, radioBounds, backgroundColor);
+
+        int thickness = 2;
+        int centerX = radioBounds.X + radioBounds.Width / 2;
+        int centerY = radioBounds.Y + radioBounds.Height / 2;
+        int radius = radioBounds.Width / 2 - thickness;
+
+        for (int angle = 0; angle < 360; angle += 5)
+        {
+            float radian = angle * (float)Math.PI / 180f;
+            int x1 = centerX + (int)(radius * Math.Cos(radian));
+            int y1 = centerY + (int)(radius * Math.Sin(radian));
+            int x2 = centerX + (int)((radius + thickness) * Math.Cos(radian));
+            int y2 = centerY + (int)((radius + thickness) * Math.Sin(radian));
+            
+            var lineRect = new Rectangle(x1, y1, Math.Max(1, Math.Abs(x2 - x1)), Math.Max(1, Math.Abs(y2 - y1)));
+            spriteBatch.Draw(pixelTexture, lineRect, borderColor);
+        }
+
+        if (_isSelected)
+        {
+            int innerRadius = radius - 4;
+            for (int dy = -innerRadius; dy <= innerRadius; dy++)
+            {
+                for (int dx = -innerRadius; dx <= innerRadius; dx++)
+                {
+                    if (dx * dx + dy * dy <= innerRadius * innerRadius)
+                    {
+                        var dotRect = new Rectangle(centerX + dx, centerY + dy, 1, 1);
+                        spriteBatch.Draw(pixelTexture, dotRect, Color.Cyan);
+                    }
+                }
+            }
+        }
+
+        var labelPosition = new Vector2(_bounds.X + _bounds.Height + 15, _bounds.Y + (_bounds.Height - labelSize.Y) / 2);
+        spriteBatch.DrawString(font, _label, labelPosition, Color.White, 0f, Vector2.Zero, 0.9f, SpriteEffects.None, 0f);
+    }
+}
+
+public class RadioButtonGroup
+{
+    private List<RadioButton> _radioButtons = new();
+    private int _selectedIndex = -1;
+
+    public int SelectedIndex => _selectedIndex;
+
+    public void AddRadioButton(RadioButton radioButton)
+    {
+        _radioButtons.Add(radioButton);
+    }
+
+    public void Update(MouseState mouseState)
+    {
+        for (int i = 0; i < _radioButtons.Count; i++)
+        {
+            _radioButtons[i].Update(mouseState);
+            
+            if (_radioButtons[i].IsClicked)
+            {
+                _selectedIndex = i;
+                
+                for (int j = 0; j < _radioButtons.Count; j++)
+                {
+                    _radioButtons[j].IsSelected = (j == i);
+                }
+            }
+        }
+    }
+
+    public void Draw(SpriteBatch spriteBatch, Texture2D pixelTexture, SpriteFont font)
+    {
+        foreach (var radioButton in _radioButtons)
+        {
+            radioButton.Draw(spriteBatch, pixelTexture, font);
+        }
+    }
+
+    public void SetSelected(int index)
+    {
+        if (index >= 0 && index < _radioButtons.Count)
+        {
+            _selectedIndex = index;
+            
+            for (int i = 0; i < _radioButtons.Count; i++)
+            {
+                _radioButtons[i].IsSelected = (i == index);
+            }
+        }
+    }
+}

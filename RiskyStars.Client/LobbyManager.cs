@@ -7,6 +7,8 @@ namespace RiskyStars.Client;
 
 public enum LobbyState
 {
+    ModeSelection,
+    SinglePlayerLobby,
     Connection,
     Browser,
     CreateLobby,
@@ -22,12 +24,15 @@ public class LobbyManager
     private readonly int _screenHeight;
 
     private LobbyClient? _lobbyClient;
+    private GameModeSelector _modeSelectorScreen;
+    private SinglePlayerLobbyScreen _singlePlayerLobbyScreen;
     private ConnectionScreen _connectionScreen;
     private LobbyBrowserScreen _browserScreen;
     private CreateLobbyScreen _createLobbyScreen;
     private LobbyScreen _lobbyScreen;
 
-    private LobbyState _state = LobbyState.Connection;
+    private LobbyState _state = LobbyState.ModeSelection;
+    private GameMode _selectedGameMode = GameMode.Multiplayer;
     private string? _currentLobbyId;
     private string? _playerName;
     private string? _sessionId;
@@ -36,6 +41,7 @@ public class LobbyManager
     private Task? _pendingTask;
 
     public LobbyState State => _state;
+    public GameMode SelectedGameMode => _selectedGameMode;
     public string? SessionId => _sessionId;
     public string? PlayerName => _playerName;
     public bool IsInGame => _state == LobbyState.InGame;
@@ -46,6 +52,8 @@ public class LobbyManager
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
 
+        _modeSelectorScreen = new GameModeSelector(graphicsDevice, screenWidth, screenHeight);
+        _singlePlayerLobbyScreen = new SinglePlayerLobbyScreen(graphicsDevice, screenWidth, screenHeight);
         _connectionScreen = new ConnectionScreen(graphicsDevice, screenWidth, screenHeight);
         _browserScreen = new LobbyBrowserScreen(graphicsDevice, screenWidth, screenHeight);
         _createLobbyScreen = new CreateLobbyScreen(graphicsDevice, screenWidth, screenHeight);
@@ -54,6 +62,8 @@ public class LobbyManager
 
     public void LoadContent(SpriteFont font)
     {
+        _modeSelectorScreen.LoadContent(font);
+        _singlePlayerLobbyScreen.LoadContent(font);
         _connectionScreen.LoadContent(font);
         _browserScreen.LoadContent(font);
         _createLobbyScreen.LoadContent(font);
@@ -67,6 +77,14 @@ public class LobbyManager
 
         switch (_state)
         {
+            case LobbyState.ModeSelection:
+                UpdateModeSelection(gameTime, mouseState);
+                break;
+
+            case LobbyState.SinglePlayerLobby:
+                UpdateSinglePlayerLobby(gameTime, mouseState, keyState);
+                break;
+
             case LobbyState.Connection:
                 UpdateConnection(gameTime, mouseState, keyState);
                 break;
@@ -91,6 +109,50 @@ public class LobbyManager
         }
 
         _previousKeyState = keyState;
+    }
+
+    private void UpdateModeSelection(GameTime gameTime, MouseState mouseState)
+    {
+        _modeSelectorScreen.Update(gameTime, mouseState);
+
+        if (_modeSelectorScreen.ShouldProceed && _modeSelectorScreen.SelectedMode.HasValue)
+        {
+            _selectedGameMode = _modeSelectorScreen.SelectedMode.Value;
+            _modeSelectorScreen.Reset();
+
+            if (_selectedGameMode == GameMode.Multiplayer)
+            {
+                _state = LobbyState.Connection;
+            }
+            else if (_selectedGameMode == GameMode.SinglePlayer)
+            {
+                _state = LobbyState.SinglePlayerLobby;
+            }
+        }
+
+        if (_modeSelectorScreen.ShouldGoBack)
+        {
+            _modeSelectorScreen.Reset();
+        }
+    }
+
+    private void UpdateSinglePlayerLobby(GameTime gameTime, MouseState mouseState, KeyboardState keyState)
+    {
+        _singlePlayerLobbyScreen.Update(gameTime, mouseState, keyState);
+
+        if (_singlePlayerLobbyScreen.ShouldStartGame)
+        {
+            _playerName = _singlePlayerLobbyScreen.PlayerName;
+            _sessionId = "single-player-session";
+            _singlePlayerLobbyScreen.Reset();
+            _state = LobbyState.InGame;
+        }
+
+        if (_singlePlayerLobbyScreen.ShouldGoBack)
+        {
+            _singlePlayerLobbyScreen.Reset();
+            _state = LobbyState.ModeSelection;
+        }
     }
 
     private void UpdateConnection(GameTime gameTime, MouseState mouseState, KeyboardState keyState)
@@ -351,6 +413,14 @@ public class LobbyManager
     {
         switch (_state)
         {
+            case LobbyState.ModeSelection:
+                _modeSelectorScreen.Draw(spriteBatch);
+                break;
+
+            case LobbyState.SinglePlayerLobby:
+                _singlePlayerLobbyScreen.Draw(spriteBatch);
+                break;
+
             case LobbyState.Connection:
                 _connectionScreen.Draw(spriteBatch);
                 break;
