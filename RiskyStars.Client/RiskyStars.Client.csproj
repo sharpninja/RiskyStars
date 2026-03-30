@@ -10,10 +10,12 @@
   <ItemGroup>
     <PackageReference Include="Grpc.Net.Client" Version="2.76.0" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.76.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RiskyStars.Shared\RiskyStars.Shared.csproj" />
+    <ProjectReference Include="..\RiskyStars.Server\RiskyStars.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>
