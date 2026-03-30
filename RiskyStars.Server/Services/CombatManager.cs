@@ -318,4 +318,14 @@ public class CombatManager
 
         return allEvents;
     }
+
+    public void RestoreCombatSession(CombatSession session)
+    {
+        if (_activeCombats.ContainsKey(session.LocationId))
+        {
+            throw new InvalidOperationException($"Combat already active at location {session.LocationId}");
+        }
+
+        _activeCombats[session.LocationId] = session;
+    }
 }

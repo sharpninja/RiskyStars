@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+using Microsoft.Extensions.Options;
 using RiskyStars.Server.Entities;
 
 namespace RiskyStars.Server.Services;
@@ -10,6 +11,16 @@ public class GameStateManager
     private readonly ConcurrentDictionary<string, List<Channel<Shared.TurnBasedGameStateUpdate>>> _gameSubscribers = new();
     private readonly ConcurrentDictionary<string, CombatManager> _combatManagers = new();
     private readonly object _gameLock = new();
+    private readonly GameRepository _gameRepository;
+    private readonly ILogger<GameStateManager> _logger;
+    private readonly bool _autoSaveEnabled;
+
+    public GameStateManager(GameRepository gameRepository, ILogger<GameStateManager> logger, IOptions<GamePersistenceOptions> options)
+    {
+        _gameRepository = gameRepository;
+        _logger = logger;
+        _autoSaveEnabled = options.Value.AutoSaveEnabled;
+    }
 
     public Game? GetGame(string gameId)
     {
@@ -25,6 +36,11 @@ public class GameStateManager
         
         InitializePlayerOwnership(game);
         BroadcastGameStateUpdate(game, "Game created");
+
+        if (_autoSaveEnabled)
+        {
+            _ = Task.Run(async () => await SaveGameStateAsync(game.Id));
+        }
     }
 
     public CombatManager? GetCombatManager(string gameId)
@@ -109,6 +125,11 @@ public class GameStateManager
                     
                     AdvanceToNextPlayer(game);
                     eventMessage = $"Turn ended. Now {game.CurrentPlayer.Name}'s turn.";
+                    
+                    if (_autoSaveEnabled)
+                    {
+                        _ = Task.Run(async () => await SaveGameStateAsync(gameId));
+                    }
                     break;
             }
 
@@ -571,5 +592,128 @@ public class GameStateManager
             Entities.LocationType.HyperspaceLaneMouth => Shared.LocationType.HyperspaceLaneMouth,
             _ => Shared.LocationType.Region
         };
+    }
+
+    public async Task<bool> SaveGameStateAsync(string gameId)
+    {
+        var game = GetGame(gameId);
+        if (game == null)
+        {
+            _logger.LogWarning("Cannot save game {GameId}: game not found", gameId);
+            return false;
+        }
+
+        var combatManager = GetCombatManager(gameId);
+        return await _gameRepository.SaveGameStateAsync(game, combatManager);
+    }
+
+    public async Task<bool> LoadGameStateAsync(string gameId)
+    {
+        try
+        {
+            var result = await _gameRepository.LoadGameStateAsync(gameId);
+            if (result == null)
+            {
+                _logger.LogWarning("Failed to load game state for {GameId}", gameId);
+                return false;
+            }
+
+            var (game, combatSnapshots) = result.Value;
+            
+            if (game == null)
+            {
+                _logger.LogError("Loaded game is null for {GameId}", gameId);
+                return false;
+            }
+            
+            _games[game.Id] = game;
+            _gameSubscribers[game.Id] = new List<Channel<Shared.TurnBasedGameStateUpdate>>();
+            
+            var combatManager = new CombatManager(new CombatResolver());
+            _combatManagers[game.Id] = combatManager;
+
+            foreach (var combatSnapshot in combatSnapshots)
+            {
+                var session = combatSnapshot.ToCombatSession();
+                
+                var allArmies = game.GetAllArmies().ToDictionary(a => a.Id);
+                
+                var arrivals = new List<ReinforcementArrival>();
+                foreach (var arrivalSnapshot in combatSnapshot.ReinforcementArrivals)
+                {
+                    if (allArmies.TryGetValue(arrivalSnapshot.ArmyId, out var army))
+                    {
+                        arrivals.Add(new ReinforcementArrival
+                        {
+                            Army = army,
+                            IsAttacker = arrivalSnapshot.IsAttacker,
+                            ArrivalOrder = arrivalSnapshot.ArrivalOrder
+                        });
+                    }
+                }
+                session.ReinforcementArrivals = arrivals;
+
+                combatManager.RestoreCombatSession(session);
+            }
+
+            _logger.LogInformation("Successfully loaded game {GameId} at turn {TurnNumber}", game.Id, game.TurnNumber);
+            BroadcastGameStateUpdate(game, "Game loaded from saved state");
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading game state for {GameId}", gameId);
+            return false;
+        }
+    }
+
+    public async Task<List<GameStateMetadata>> GetSavedGamesAsync()
+    {
+        return await _gameRepository.GetAllGameMetadataAsync();
+    }
+
+    public async Task<bool> RecoverGameAsync(string gameId)
+    {
+        if (_games.ContainsKey(gameId))
+        {
+            _logger.LogWarning("Game {GameId} is already loaded", gameId);
+            return false;
+        }
+
+        return await LoadGameStateAsync(gameId);
+    }
+
+    public async Task RecoverAllGamesAsync()
+    {
+        _logger.LogInformation("Starting auto-recovery of saved games...");
+        
+        var savedGameIds = await _gameRepository.GetAllSavedGameIdsAsync();
+        var recoveredCount = 0;
+
+        foreach (var gameId in savedGameIds)
+        {
+            if (!_games.ContainsKey(gameId))
+            {
+                var success = await LoadGameStateAsync(gameId);
+                if (success)
+                {
+                    recoveredCount++;
+                }
+            }
+        }
+
+        _logger.LogInformation("Auto-recovery complete: {Count} game(s) recovered", recoveredCount);
+    }
+
+    public async Task<bool> DeleteGameAsync(string gameId)
+    {
+        if (_games.TryRemove(gameId, out _))
+        {
+            _gameSubscribers.TryRemove(gameId, out _);
+            _combatManagers.TryRemove(gameId, out _);
+        }
+
+        return await _gameRepository.DeleteGameStateAsync(gameId);
     }
 }

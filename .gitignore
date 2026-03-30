@@ -45,3 +45,7 @@ bld/
 .project
 .settings/
 *.sublime-workspace
+
+# Game persistence
+GameSaves/
+*.json.backup
