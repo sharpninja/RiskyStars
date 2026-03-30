@@ -8,6 +8,7 @@ public class GameStateManager
 {
     private readonly ConcurrentDictionary<string, Game> _games = new();
     private readonly ConcurrentDictionary<string, List<Channel<Shared.TurnBasedGameStateUpdate>>> _gameSubscribers = new();
+    private readonly ConcurrentDictionary<string, CombatManager> _combatManagers = new();
     private readonly object _gameLock = new();
 
     public Game? GetGame(string gameId)
@@ -20,9 +21,16 @@ public class GameStateManager
     {
         _games[game.Id] = game;
         _gameSubscribers[game.Id] = new List<Channel<Shared.TurnBasedGameStateUpdate>>();
+        _combatManagers[game.Id] = new CombatManager(new CombatResolver());
         
         InitializePlayerOwnership(game);
         BroadcastGameStateUpdate(game, "Game created");
+    }
+
+    public CombatManager? GetCombatManager(string gameId)
+    {
+        _combatManagers.TryGetValue(gameId, out var combatManager);
+        return combatManager;
     }
 
     public Channel<Shared.TurnBasedGameStateUpdate> SubscribeToGameUpdates(string gameId)
@@ -88,6 +96,17 @@ public class GameStateManager
                     break;
 
                 case Entities.TurnPhase.Movement:
+                    // Resolve all active combats before advancing to next player
+                    var combatManager = GetCombatManager(gameId);
+                    if (combatManager != null)
+                    {
+                        var combatEvents = combatManager.ResolveAllActiveCombatsForTurnEnd();
+                        foreach (var combatEvent in combatEvents)
+                        {
+                            BroadcastCombatEvent(game, combatEvent);
+                        }
+                    }
+                    
                     AdvanceToNextPlayer(game);
                     eventMessage = $"Turn ended. Now {game.CurrentPlayer.Name}'s turn.";
                     break;
@@ -412,6 +431,31 @@ public class GameStateManager
     {
         var update = GenerateGameStateUpdate(game, eventMessage);
         
+        if (_gameSubscribers.TryGetValue(game.Id, out var subscribers))
+        {
+            lock (subscribers)
+            {
+                foreach (var channel in subscribers.ToList())
+                {
+                    channel.Writer.TryWrite(update);
+                }
+            }
+        }
+    }
+
+    private void BroadcastCombatEvent(Game game, Shared.CombatEvent combatEvent)
+    {
+        var update = new Shared.TurnBasedGameStateUpdate
+        {
+            GameId = game.Id,
+            TurnNumber = game.TurnNumber,
+            CurrentPhase = ConvertTurnPhase(game.CurrentPhase),
+            CurrentPlayerId = game.CurrentPlayer.Id,
+            EventMessage = $"Combat event: {combatEvent.EventType}"
+        };
+
+        update.CombatEvents.Add(combatEvent);
+
         if (_gameSubscribers.TryGetValue(game.Id, out var subscribers))
         {
             lock (subscribers)

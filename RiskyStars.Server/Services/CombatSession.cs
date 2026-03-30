@@ -14,6 +14,8 @@ public class CombatSession
     public List<CombatEvent> CombatHistory { get; set; } = new();
     public bool IsActive { get; set; } = true;
     public int RoundNumber { get; set; } = 0;
+    public List<ReinforcementArrival> ReinforcementArrivals { get; set; } = new();
+    public int NextReinforcementOrder { get; set; } = 0;
 
     public bool HasDefendersRemaining()
     {
@@ -37,6 +39,14 @@ public class CombatSession
             army.CombatRole = CombatRole.DefendingReinforcement;
             DefendingArmies.Add(army);
         }
+
+        // Track reinforcement arrival order
+        ReinforcementArrivals.Add(new ReinforcementArrival
+        {
+            Army = army,
+            IsAttacker = isAttacker,
+            ArrivalOrder = NextReinforcementOrder++
+        });
     }
 
     public void RemoveDestroyedArmies()
@@ -53,7 +63,21 @@ public class CombatSession
         if (!defendersRemain && !attackersRemain)
         {
             // First reinforcing player with remaining units gains possession
-            // For now, simplified to no winner
+            // Check reinforcement arrivals in order
+            var firstReinforcementWithUnits = ReinforcementArrivals
+                .OrderBy(r => r.ArrivalOrder)
+                .FirstOrDefault(r => r.Army.UnitCount > 0);
+
+            if (firstReinforcementWithUnits != null)
+            {
+                return new CombatOutcome
+                {
+                    IsComplete = true,
+                    WinningSide = firstReinforcementWithUnits.IsAttacker ? CombatSide.Attacker : CombatSide.Defender,
+                    SurvivingArmies = new List<Army> { firstReinforcementWithUnits.Army }
+                };
+            }
+
             return new CombatOutcome
             {
                 IsComplete = true,
@@ -88,6 +112,15 @@ public class CombatSession
                 SurvivingArmies = new List<Army>()
             };
         }
+    }
+
+    public ReinforcementArrivalOrder GetCurrentReinforcementOrder(bool isAttacker)
+    {
+        return new ReinforcementArrivalOrder
+        {
+            ReinforcementArrivalIndex = NextReinforcementOrder - 1,
+            IsAttackerReinforcement = isAttacker
+        };
     }
 }
 

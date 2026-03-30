@@ -256,91 +256,310 @@ public class CombatResolver
 
     public CombatEvent ResolveReinforcementCombat(
         string locationId,
-        List<Army> reinforcingAttackers,
-        List<Army> reinforcingDefenders,
-        List<Army> existingDefenders)
+        List<Army> attackingArmies,
+        List<Army> defendingArmies,
+        ReinforcementArrivalOrder arrivalOrder)
     {
-        // When reinforcements arrive, apply casualties to reinforcements first
-        // According to 1.1.02: "all defending casualties are applied to the Defending Reinforcements first"
-        
-        var allAttackers = reinforcingAttackers.ToList();
-        var allDefenders = reinforcingDefenders.Concat(existingDefenders).ToList();
-
-        var combatEvent = ResolveCombatRound(
-            locationId,
-            allAttackers,
-            allDefenders,
-            CombatEvent.Types.CombatEventType.ReinforcementsArrived);
-
-        // After calculating casualties, apply them to reinforcements first
-        if (reinforcingDefenders.Any())
+        var combatEvent = new CombatEvent
         {
-            ApplyCasualtiesReinforcementsFirst(
-                combatEvent.RoundResults[0],
-                reinforcingDefenders,
-                existingDefenders);
+            EventId = Guid.NewGuid().ToString(),
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            EventType = CombatEvent.Types.CombatEventType.ReinforcementsArrived,
+            LocationId = locationId
+        };
+
+        var roundResult = new CombatRoundResult();
+
+        // Roll dice for all units in attacking armies
+        var attackerRolls = new List<DiceRoll>();
+        foreach (var army in attackingArmies)
+        {
+            for (int i = 0; i < army.UnitCount; i++)
+            {
+                var roll = new DiceRoll
+                {
+                    ArmyId = army.Id,
+                    Roll = RollDice(),
+                    UnitIndex = i
+                };
+                attackerRolls.Add(roll);
+            }
+        }
+
+        // Roll dice for all units in defending armies
+        var defenderRolls = new List<DiceRoll>();
+        foreach (var army in defendingArmies)
+        {
+            for (int i = 0; i < army.UnitCount; i++)
+            {
+                var roll = new DiceRoll
+                {
+                    ArmyId = army.Id,
+                    Roll = RollDice(),
+                    UnitIndex = i
+                };
+                defenderRolls.Add(roll);
+            }
+        }
+
+        // Sort descending
+        attackerRolls = attackerRolls.OrderByDescending(r => r.Roll).ToList();
+        defenderRolls = defenderRolls.OrderByDescending(r => r.Roll).ToList();
+
+        roundResult.AttackerRolls.AddRange(attackerRolls);
+        roundResult.DefenderRolls.AddRange(defenderRolls);
+
+        // Pair rolls
+        var pairings = PairRolls(attackerRolls, defenderRolls);
+        roundResult.Pairings.AddRange(pairings);
+
+        // Calculate total casualties for each side
+        int totalAttackerCasualties = 0;
+        int totalDefenderCasualties = 0;
+
+        foreach (var pairing in pairings.Where(p => !p.IsDiscarded))
+        {
+            if (pairing.WinnerArmyId == pairing.AttackerRoll.ArmyId)
+            {
+                totalDefenderCasualties++;
+            }
+            else
+            {
+                totalAttackerCasualties++;
+            }
+        }
+
+        // Apply casualties based on reinforcement arrival order
+        ApplyCasualtiesWithReinforcementOrder(
+            attackingArmies,
+            defendingArmies,
+            totalAttackerCasualties,
+            totalDefenderCasualties,
+            arrivalOrder,
+            roundResult);
+
+        // Add round result to combat event
+        combatEvent.RoundResults.Add(roundResult);
+
+        // Add army states after casualties
+        foreach (var army in attackingArmies)
+        {
+            combatEvent.ArmyStates.Add(new CombatArmyState
+            {
+                ArmyId = army.Id,
+                PlayerId = army.OwnerId,
+                CombatRole = army.CombatRole?.ToString() ?? "Attacker",
+                UnitCount = army.UnitCount
+            });
+        }
+
+        foreach (var army in defendingArmies)
+        {
+            combatEvent.ArmyStates.Add(new CombatArmyState
+            {
+                ArmyId = army.Id,
+                PlayerId = army.OwnerId,
+                CombatRole = army.CombatRole?.ToString() ?? "Defender",
+                UnitCount = army.UnitCount
+            });
         }
 
         return combatEvent;
     }
 
-    private void ApplyCasualtiesReinforcementsFirst(
-        CombatRoundResult roundResult,
-        List<Army> reinforcingDefenders,
-        List<Army> existingDefenders)
+    private void ApplyCasualtiesWithReinforcementOrder(
+        List<Army> attackingArmies,
+        List<Army> defendingArmies,
+        int totalAttackerCasualties,
+        int totalDefenderCasualties,
+        ReinforcementArrivalOrder arrivalOrder,
+        CombatRoundResult roundResult)
     {
-        // Get total defender casualties
-        int totalDefenderCasualties = roundResult.Casualties
-            .Where(c => c.CombatRole == "Defender" || c.CombatRole == "DefendingReinforcement")
-            .Sum(c => c.Casualties);
+        var casualties = new List<ArmyCasualty>();
 
-        // Apply to reinforcements first
-        int remainingCasualties = totalDefenderCasualties;
+        // Apply attacker casualties
+        int remainingAttackerCasualties = totalAttackerCasualties;
         
-        foreach (var army in reinforcingDefenders)
+        // Apply to attacking reinforcements first
+        foreach (var army in attackingArmies.Where(a => a.CombatRole == CombatRole.AttackingReinforcement))
         {
-            if (remainingCasualties <= 0) break;
+            if (remainingAttackerCasualties <= 0) break;
             
-            int casualties = Math.Min(army.UnitCount, remainingCasualties);
-            army.UnitCount -= casualties;
-            remainingCasualties -= casualties;
-        }
-
-        // Apply remaining casualties to existing defenders
-        foreach (var army in existingDefenders)
-        {
-            if (remainingCasualties <= 0) break;
+            int armyCasualties = Math.Min(army.UnitCount, remainingAttackerCasualties);
+            army.UnitCount -= armyCasualties;
+            remainingAttackerCasualties -= armyCasualties;
             
-            int casualties = Math.Min(army.UnitCount, remainingCasualties);
-            army.UnitCount -= casualties;
-            remainingCasualties -= casualties;
-        }
-
-        // Update casualty records to reflect actual distribution
-        roundResult.Casualties.Clear();
-        
-        foreach (var army in reinforcingDefenders)
-        {
-            roundResult.Casualties.Add(new ArmyCasualty
+            casualties.Add(new ArmyCasualty
             {
                 ArmyId = army.Id,
                 PlayerId = army.OwnerId,
-                CombatRole = army.CombatRole?.ToString() ?? "DefendingReinforcement",
-                Casualties = totalDefenderCasualties - remainingCasualties,
+                CombatRole = army.CombatRole.ToString(),
+                Casualties = armyCasualties,
                 RemainingUnits = army.UnitCount
             });
         }
 
-        foreach (var army in existingDefenders)
+        // Apply remaining to original attackers
+        foreach (var army in attackingArmies.Where(a => a.CombatRole == CombatRole.Attacker))
         {
-            roundResult.Casualties.Add(new ArmyCasualty
+            if (remainingAttackerCasualties <= 0)
+            {
+                casualties.Add(new ArmyCasualty
+                {
+                    ArmyId = army.Id,
+                    PlayerId = army.OwnerId,
+                    CombatRole = army.CombatRole.ToString(),
+                    Casualties = 0,
+                    RemainingUnits = army.UnitCount
+                });
+            }
+            else
+            {
+                int armyCasualties = Math.Min(army.UnitCount, remainingAttackerCasualties);
+                army.UnitCount -= armyCasualties;
+                remainingAttackerCasualties -= armyCasualties;
+                
+                casualties.Add(new ArmyCasualty
+                {
+                    ArmyId = army.Id,
+                    PlayerId = army.OwnerId,
+                    CombatRole = army.CombatRole.ToString(),
+                    Casualties = armyCasualties,
+                    RemainingUnits = army.UnitCount
+                });
+            }
+        }
+
+        // Apply defender casualties - always apply to defending reinforcements first
+        int remainingDefenderCasualties = totalDefenderCasualties;
+        
+        // Apply to defending reinforcements first
+        foreach (var army in defendingArmies.Where(a => a.CombatRole == CombatRole.DefendingReinforcement))
+        {
+            if (remainingDefenderCasualties <= 0) break;
+            
+            int armyCasualties = Math.Min(army.UnitCount, remainingDefenderCasualties);
+            army.UnitCount -= armyCasualties;
+            remainingDefenderCasualties -= armyCasualties;
+            
+            casualties.Add(new ArmyCasualty
             {
                 ArmyId = army.Id,
                 PlayerId = army.OwnerId,
-                CombatRole = army.CombatRole?.ToString() ?? "Defender",
-                Casualties = 0,
+                CombatRole = army.CombatRole.ToString(),
+                Casualties = armyCasualties,
                 RemainingUnits = army.UnitCount
             });
         }
+
+        // Apply remaining to original defenders
+        foreach (var army in defendingArmies.Where(a => a.CombatRole == CombatRole.Defender))
+        {
+            if (remainingDefenderCasualties <= 0)
+            {
+                casualties.Add(new ArmyCasualty
+                {
+                    ArmyId = army.Id,
+                    PlayerId = army.OwnerId,
+                    CombatRole = army.CombatRole.ToString(),
+                    Casualties = 0,
+                    RemainingUnits = army.UnitCount
+                });
+            }
+            else
+            {
+                int armyCasualties = Math.Min(army.UnitCount, remainingDefenderCasualties);
+                army.UnitCount -= armyCasualties;
+                remainingDefenderCasualties -= armyCasualties;
+                
+                casualties.Add(new ArmyCasualty
+                {
+                    ArmyId = army.Id,
+                    PlayerId = army.OwnerId,
+                    CombatRole = army.CombatRole.ToString(),
+                    Casualties = armyCasualties,
+                    RemainingUnits = army.UnitCount
+                });
+            }
+        }
+
+        roundResult.Casualties.AddRange(casualties);
     }
+
+    public List<CombatEvent> ResolveMultiRoundCombat(
+        string locationId,
+        List<Army> attackingArmies,
+        List<Army> defendingArmies,
+        List<ReinforcementArrival> reinforcementSchedule)
+    {
+        var combatEvents = new List<CombatEvent>();
+
+        // Initial combat round between attacker and defender
+        if (attackingArmies.Any(a => a.UnitCount > 0) && defendingArmies.Any(d => d.UnitCount > 0))
+        {
+            var initialEvent = ResolveCombatRound(
+                locationId,
+                attackingArmies,
+                defendingArmies,
+                CombatEvent.Types.CombatEventType.CombatInitiated);
+            
+            combatEvents.Add(initialEvent);
+        }
+
+        // Process reinforcements in arrival order
+        foreach (var reinforcement in reinforcementSchedule.OrderBy(r => r.ArrivalOrder))
+        {
+            // Add reinforcement to appropriate side
+            if (reinforcement.IsAttacker)
+            {
+                reinforcement.Army.CombatRole = CombatRole.AttackingReinforcement;
+                reinforcement.Army.IsInCombat = true;
+                attackingArmies.Add(reinforcement.Army);
+            }
+            else
+            {
+                reinforcement.Army.CombatRole = CombatRole.DefendingReinforcement;
+                reinforcement.Army.IsInCombat = true;
+                defendingArmies.Add(reinforcement.Army);
+            }
+
+            // Check if there are opposing forces
+            bool hasAttackers = attackingArmies.Any(a => a.UnitCount > 0);
+            bool hasDefenders = defendingArmies.Any(d => d.UnitCount > 0);
+
+            if (hasAttackers && hasDefenders)
+            {
+                var reinforcementEvent = ResolveReinforcementCombat(
+                    locationId,
+                    attackingArmies,
+                    defendingArmies,
+                    new ReinforcementArrivalOrder
+                    {
+                        ReinforcementArrivalIndex = reinforcement.ArrivalOrder,
+                        IsAttackerReinforcement = reinforcement.IsAttacker
+                    });
+                
+                combatEvents.Add(reinforcementEvent);
+            }
+
+            // Remove destroyed armies after each reinforcement round
+            attackingArmies.RemoveAll(a => a.UnitCount <= 0);
+            defendingArmies.RemoveAll(d => d.UnitCount <= 0);
+        }
+
+        return combatEvents;
+    }
+}
+
+public class ReinforcementArrivalOrder
+{
+    public int ReinforcementArrivalIndex { get; set; }
+    public bool IsAttackerReinforcement { get; set; }
+}
+
+public class ReinforcementArrival
+{
+    public Army Army { get; set; } = null!;
+    public bool IsAttacker { get; set; }
+    public int ArrivalOrder { get; set; }
 }

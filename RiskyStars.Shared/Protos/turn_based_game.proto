@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option csharp_namespace = "RiskyStars.Shared";
 
+import "Protos/risky_stars.proto";
+
 package turn_based_game;
 
 service TurnBasedGameService {
@@ -22,6 +24,7 @@ message TurnBasedGameStateUpdate {
   repeated HyperspaceLaneMouthOwnership hyperspace_lane_mouth_ownerships = 7;
   repeated ArmyState army_states = 8;
   string event_message = 9;
+  repeated risky_stars.CombatEvent combat_events = 10;
 }
 
 message PlayerState {

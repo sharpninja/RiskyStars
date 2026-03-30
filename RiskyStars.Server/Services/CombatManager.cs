@@ -144,47 +144,89 @@ public class CombatManager
         reinforcement.IsInCombat = true;
         session.AddReinforcements(reinforcement, isAttacker);
 
-        // Reinforcements immediately participate in combat
-        if (isAttacker)
+        // Check if there are opposing forces to fight
+        bool hasAttackers = session.AttackingArmies.Any(a => a.UnitCount > 0);
+        bool hasDefenders = session.DefendingArmies.Any(d => d.UnitCount > 0);
+
+        if (hasAttackers && hasDefenders)
         {
-            // Attacking reinforcements fight existing defenders
-            var combatEvent = _combatResolver.ResolveCombatRound(
+            // Get the current reinforcement order for this arrival
+            var arrivalOrder = session.GetCurrentReinforcementOrder(isAttacker);
+
+            // Resolve reinforcement combat with proper casualty application
+            var combatEvent = _combatResolver.ResolveReinforcementCombat(
                 locationId,
-                new List<Army> { reinforcement },
+                session.AttackingArmies,
                 session.DefendingArmies,
-                CombatEvent.Types.CombatEventType.ReinforcementsArrived);
+                arrivalOrder);
 
             events.Add(combatEvent);
             session.CombatHistory.Add(combatEvent);
-        }
-        else
-        {
-            // Defending reinforcements - casualties applied to reinforcements first
-            if (session.AttackingArmies.Any(a => a.UnitCount > 0))
-            {
-                var defendingReinforcements = session.DefendingArmies
-                    .Where(a => a.CombatRole == CombatRole.DefendingReinforcement)
-                    .ToList();
-                
-                var existingDefenders = session.DefendingArmies
-                    .Where(a => a.CombatRole == CombatRole.Defender)
-                    .ToList();
-
-                var combatEvent = _combatResolver.ResolveReinforcementCombat(
-                    locationId,
-                    session.AttackingArmies,
-                    defendingReinforcements,
-                    existingDefenders);
-
-                events.Add(combatEvent);
-                session.CombatHistory.Add(combatEvent);
-            }
+            session.RoundNumber++;
         }
 
-        session.RoundNumber++;
         session.RemoveDestroyedArmies();
 
         // Check if combat is complete
+        var outcome = session.DetermineCombatOutcome();
+        if (outcome.IsComplete)
+        {
+            var endEvent = new CombatEvent
+            {
+                EventId = Guid.NewGuid().ToString(),
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                EventType = CombatEvent.Types.CombatEventType.CombatEnded,
+                LocationId = locationId
+            };
+
+            foreach (var army in outcome.SurvivingArmies)
+            {
+                endEvent.ArmyStates.Add(new CombatArmyState
+                {
+                    ArmyId = army.Id,
+                    PlayerId = army.OwnerId,
+                    CombatRole = army.CombatRole?.ToString() ?? "",
+                    UnitCount = army.UnitCount
+                });
+                
+                army.IsInCombat = false;
+                army.CombatRole = null;
+            }
+
+            events.Add(endEvent);
+            session.CombatHistory.Add(endEvent);
+            session.IsActive = false;
+            _activeCombats.Remove(locationId);
+        }
+
+        return events;
+    }
+
+    public IEnumerable<CombatEvent> ResolveAllCombatsForTurnEnd(string locationId)
+    {
+        if (!_activeCombats.TryGetValue(locationId, out var session))
+        {
+            throw new InvalidOperationException($"No active combat at location {locationId}");
+        }
+
+        var events = new List<CombatEvent>();
+
+        // Continue combat rounds until one side is eliminated or no more units remain
+        while (session.HasAttackersRemaining() && session.HasDefendersRemaining())
+        {
+            var combatEvent = _combatResolver.ResolveCombatRound(
+                locationId,
+                session.AttackingArmies,
+                session.DefendingArmies);
+
+            events.Add(combatEvent);
+            session.CombatHistory.Add(combatEvent);
+            session.RoundNumber++;
+
+            session.RemoveDestroyedArmies();
+        }
+
+        // Determine final outcome
         var outcome = session.DetermineCombatOutcome();
         if (outcome.IsComplete)
         {
@@ -230,6 +272,11 @@ public class CombatManager
         return session;
     }
 
+    public IEnumerable<string> GetActiveCombatLocations()
+    {
+        return _activeCombats.Keys.ToList();
+    }
+
     public void EndCombat(string locationId)
     {
         if (_activeCombats.TryGetValue(locationId, out var session))
@@ -243,5 +290,19 @@ public class CombatManager
             session.IsActive = false;
             _activeCombats.Remove(locationId);
         }
+    }
+
+    public IEnumerable<CombatEvent> ResolveAllActiveCombatsForTurnEnd()
+    {
+        var allEvents = new List<CombatEvent>();
+        var locations = GetActiveCombatLocations().ToList();
+
+        foreach (var location in locations)
+        {
+            var events = ResolveAllCombatsForTurnEnd(location);
+            allEvents.AddRange(events);
+        }
+
+        return allEvents;
     }
 }
