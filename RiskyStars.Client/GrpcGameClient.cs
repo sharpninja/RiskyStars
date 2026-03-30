@@ -10,6 +10,7 @@ public class GrpcGameClient : IDisposable
     private readonly GrpcChannel _channel;
     private readonly GameService.GameServiceClient _client;
     private readonly ConcurrentQueue<GameUpdate> _gameStateUpdateQueue;
+    private readonly bool _ownsChannel;
     private AsyncDuplexStreamingCall<GamePlayerAction, GameUpdate>? _stream;
     private CancellationTokenSource? _cancellationTokenSource;
     private Task? _receiveTask;
@@ -19,11 +20,31 @@ public class GrpcGameClient : IDisposable
 
     public int QueuedUpdateCount => _gameStateUpdateQueue.Count;
 
-    public GrpcGameClient(string serverAddress)
+    private GrpcGameClient(GrpcChannel channel, bool ownsChannel)
     {
-        _channel = GrpcChannel.ForAddress(serverAddress);
+        _channel = channel;
         _client = new GameService.GameServiceClient(_channel);
         _gameStateUpdateQueue = new ConcurrentQueue<GameUpdate>();
+        _ownsChannel = ownsChannel;
+    }
+
+    public GrpcGameClient(string serverAddress) : this(GrpcChannel.ForAddress(serverAddress), true)
+    {
+    }
+
+    public static GrpcGameClient CreateForSinglePlayer(EmbeddedServerHost embeddedServerHost)
+    {
+        if (embeddedServerHost?.Channel == null)
+        {
+            throw new ArgumentException("EmbeddedServerHost must be started and have a valid channel", nameof(embeddedServerHost));
+        }
+
+        return new GrpcGameClient(embeddedServerHost.Channel, false);
+    }
+
+    public static GrpcGameClient CreateForMultiplayer(string serverAddress)
+    {
+        return new GrpcGameClient(serverAddress);
     }
 
     public async Task ConnectAsync(string playerId, string playerName, string sessionId)
@@ -275,7 +296,11 @@ public class GrpcGameClient : IDisposable
 
         _stream?.Dispose();
         _cancellationTokenSource?.Dispose();
-        _channel.Dispose();
+        
+        if (_ownsChannel)
+        {
+            _channel.Dispose();
+        }
 
         GC.SuppressFinalize(this);
     }
