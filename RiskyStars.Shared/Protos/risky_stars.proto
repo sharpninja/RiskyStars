@@ -8,6 +8,17 @@ service RiskyStarsGame {
   rpc PlayGame (stream PlayerAction) returns (stream GameStateUpdate);
 }
 
+service LobbyService {
+  rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
+  rpc CreateLobby (CreateLobbyRequest) returns (CreateLobbyResponse);
+  rpc JoinLobby (JoinLobbyRequest) returns (JoinLobbyResponse);
+  rpc LeaveLobby (LeaveLobbyRequest) returns (LeaveLobbyResponse);
+  rpc SetReady (SetReadyRequest) returns (SetReadyResponse);
+  rpc StartGame (StartGameRequest) returns (StartGameResponse);
+  rpc ListLobbies (ListLobbiesRequest) returns (ListLobbiesResponse);
+  rpc GetLobby (GetLobbyRequest) returns (GetLobbyResponse);
+}
+
 message PlayerAction {
   string player_id = 1;
   int64 timestamp = 2;
@@ -235,4 +246,106 @@ message GameEvent {
     GAME_PAUSED = 9;
     GAME_RESUMED = 10;
   }
+}
+
+message AuthenticateRequest {
+  string player_name = 1;
+  string password = 2;
+}
+
+message AuthenticateResponse {
+  bool success = 1;
+  string auth_token = 2;
+  string message = 3;
+}
+
+message CreateLobbyRequest {
+  string player_name = 1;
+  LobbySettingsProto settings = 2;
+}
+
+message CreateLobbyResponse {
+  bool success = 1;
+  string lobby_id = 2;
+  string message = 3;
+}
+
+message JoinLobbyRequest {
+  string lobby_id = 1;
+  string player_name = 2;
+}
+
+message JoinLobbyResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message LeaveLobbyRequest {
+  string lobby_id = 1;
+}
+
+message LeaveLobbyResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message SetReadyRequest {
+  string lobby_id = 1;
+  bool is_ready = 2;
+}
+
+message SetReadyResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message StartGameRequest {
+  string lobby_id = 1;
+}
+
+message StartGameResponse {
+  bool success = 1;
+  string session_id = 2;
+  string message = 3;
+}
+
+message ListLobbiesRequest {
+}
+
+message ListLobbiesResponse {
+  bool success = 1;
+  repeated LobbyInfo lobbies = 2;
+  string message = 3;
+}
+
+message GetLobbyRequest {
+  string lobby_id = 1;
+}
+
+message GetLobbyResponse {
+  bool success = 1;
+  LobbyInfo lobby = 2;
+  string message = 3;
+}
+
+message LobbyInfo {
+  string lobby_id = 1;
+  string host_player_name = 2;
+  int32 current_players = 3;
+  int32 max_players = 4;
+  string game_mode = 5;
+  string map_name = 6;
+  repeated string player_names = 7;
+}
+
+message LobbySettingsProto {
+  int32 min_players = 1;
+  int32 max_players = 2;
+  string game_mode = 3;
+  string map_name = 4;
+  int32 starting_population = 5;
+  int32 starting_metal = 6;
+  int32 starting_fuel = 7;
+  bool allow_spectators = 8;
+  int32 turn_time_limit = 9;
 }
