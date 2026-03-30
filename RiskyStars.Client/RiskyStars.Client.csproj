@@ -16,4 +16,10 @@
     <ProjectReference Include="..\RiskyStars.Shared\RiskyStars.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Tools\**" />
+    <EmbeddedResource Remove="Tools\**" />
+    <None Remove="Tools\**" />
+  </ItemGroup>
+
 </Project>
