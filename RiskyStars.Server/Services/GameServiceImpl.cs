@@ -75,6 +75,12 @@ public class GameServiceImpl : GameService.GameServiceBase
                 return;
             }
 
+            if (_sessionManager.IsAIPlayer(playerId))
+            {
+                await SendConnectionError(responseStream, "AI players cannot connect to game streams");
+                return;
+            }
+
             gameId = session.GameId;
             var game = _gameStateManager.GetGame(gameId);
             if (game == null)
@@ -224,6 +230,16 @@ public class GameServiceImpl : GameService.GameServiceBase
 
                 case GamePlayerAction.ActionOneofCase.AdvancePhase:
                     _gameStateManager.AdvancePhase(gameId);
+                    
+                    var session = _sessionManager.GetSessionByGameId(gameId);
+                    if (session != null)
+                    {
+                        _ = Task.Run(async () => 
+                        {
+                            await Task.Delay(500);
+                            await _sessionManager.ProcessAITurnIfNeededAsync(session.SessionId);
+                        });
+                    }
                     break;
 
                 case GamePlayerAction.ActionOneofCase.Disconnect:

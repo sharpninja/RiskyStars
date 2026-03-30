@@ -1,4 +1,5 @@
 using Grpc.Core;
+using RiskyStars.Server.Entities;
 using RiskyStars.Shared;
 
 namespace RiskyStars.Server.Services;
@@ -223,7 +224,12 @@ public class LobbyServiceImpl : LobbyService.LobbyServiceBase
 
                 foreach (var player in lobby.Players)
                 {
-                    lobbyInfo.PlayerNames.Add(player.PlayerName);
+                    var playerName = player.PlayerName;
+                    if (player.IsAI)
+                    {
+                        playerName += $" [AI - {player.AIDifficulty}]";
+                    }
+                    lobbyInfo.PlayerNames.Add(playerName);
                 }
 
                 response.Lobbies.Add(lobbyInfo);
@@ -268,7 +274,12 @@ public class LobbyServiceImpl : LobbyService.LobbyServiceBase
 
             foreach (var player in lobby.Players)
             {
-                lobbyInfo.PlayerNames.Add(player.PlayerName);
+                var playerName = player.PlayerName;
+                if (player.IsAI)
+                {
+                    playerName += $" [AI - {player.AIDifficulty}]";
+                }
+                lobbyInfo.PlayerNames.Add(playerName);
             }
 
             return Task.FromResult(new GetLobbyResponse

@@ -1,6 +1,14 @@
-# AIPlayerController
+# AI Player System
 
 ## Overview
+
+The AI Player System enables computer-controlled players in RiskyStars games. It consists of three main components:
+
+1. **AIPlayer Entity** - Represents an AI-controlled player with difficulty settings
+2. **AIPlayerController** - Orchestrates AI turn execution through all game phases
+3. **GameSessionManager** - Manages AI player lifecycle during lobby setup and game sessions
+
+## AIPlayerController
 
 The `AIPlayerController` orchestrates AI turn execution in the RiskyStars game by coordinating multiple AI decision-making components to execute complete turns for AI players.
 
@@ -93,40 +101,100 @@ if (aiPlayer != null)
 }
 ```
 
+## GameSessionManager Integration
+
+### Lobby Setup with AI Players
+
+The `GameSessionManager` provides methods to add and manage AI players during lobby setup:
+
+```csharp
+// Add an AI player to a lobby
+var success = _sessionManager.AddAIPlayerToLobby(lobbyId, "AI Commander", DifficultyLevel.Hard);
+
+// Remove an AI player from a lobby
+var removed = _sessionManager.RemoveAIPlayerFromLobby(lobbyId, aiPlayerId);
+
+// Check if a player is AI
+var isAI = _sessionManager.IsAIPlayer(playerId);
+
+// Get AI player counts
+var (humanCount, aiCount) = _sessionManager.GetLobbyPlayerCounts(lobbyId);
+```
+
+### Game Session Lifecycle
+
+When a game starts from a lobby:
+
+1. **Game Creation**: AI players are initialized with their difficulty settings
+2. **Session Tracking**: AI player IDs are stored in `GameSession.AIPlayerIds`
+3. **Turn Triggering**: After game start, AI turns are automatically triggered
+4. **Cleanup**: AI players are removed from tracking when session ends
+
+### Automatic AI Turn Triggering
+
+AI turns are automatically triggered in two scenarios:
+
+1. **Game Start**: If the first player is AI
+```csharp
+// In GameSessionManager.StartGame()
+_ = Task.Run(async () =>
+{
+    await Task.Delay(1000);
+    await ProcessAITurnIfNeededAsync(session.SessionId);
+});
+```
+
+2. **Phase Advancement**: After any player advances phase
+```csharp
+// In GameServiceImpl.ProcessPlayerAction()
+case GamePlayerAction.ActionOneofCase.AdvancePhase:
+    _gameStateManager.AdvancePhase(gameId);
+    
+    var session = _sessionManager.GetSessionByGameId(gameId);
+    if (session != null)
+    {
+        _ = Task.Run(async () => 
+        {
+            await Task.Delay(500);
+            await _sessionManager.ProcessAITurnIfNeededAsync(session.SessionId);
+        });
+    }
+    break;
+```
+
+### AI Player Restrictions
+
+AI players have the following restrictions enforced by GameSessionManager:
+
+- Cannot use `LeaveLobby` (only host can remove them via `RemoveAIPlayerFromLobby`)
+- Cannot use `SetPlayerReady` (always ready by default)
+- Cannot connect to game streams (no network connection needed)
+- Cannot be promoted to lobby host (host reassignment skips AI players)
+
 ## Integration Points
 
-### GameStateManager Integration
+### Direct API Integration
 
-To automatically trigger AI turns when the turn advances to an AI player, integrate with GameStateManager's `AdvancePhase` method:
-
-```csharp
-public void AdvancePhase(string gameId)
-{
-    // ... existing phase advancement logic ...
-    
-    // After phase advancement
-    var aiController = serviceProvider.GetRequiredService<AIPlayerController>();
-    _ = Task.Run(async () => await aiController.ProcessAITurnIfNeededAsync(gameId));
-}
-```
-
-### gRPC Service Integration
-
-For turn-based game services:
+The `GameSessionManager` provides direct API methods for AI player management:
 
 ```csharp
-public override async Task<AdvancePhaseResponse> AdvancePhase(
-    AdvancePhaseRequest request, 
-    ServerCallContext context)
-{
-    _gameStateManager.AdvancePhase(request.GameId);
-    
-    // Trigger AI turn if needed
-    await _aiController.ProcessAITurnIfNeededAsync(request.GameId);
-    
-    return new AdvancePhaseResponse { Success = true };
-}
+// Add AI player via direct API
+var success = _sessionManager.AddAIPlayerToLobby(lobbyId, "AI Commander", DifficultyLevel.Hard);
+
+// Remove AI player via direct API
+var success = _sessionManager.RemoveAIPlayerFromLobby(lobbyId, aiPlayerId);
+
+// Note: gRPC endpoints would require proto file updates and are not currently implemented
 ```
+
+### Human vs AI Matchups
+
+The system supports all matchup types:
+
+- **Human vs Human**: Traditional multiplayer (no AI players)
+- **Human vs AI**: Mixed lobbies with both human and AI players
+- **AI vs AI**: Pure AI lobbies for simulation or testing
+- **Single Player**: One human vs multiple AI opponents
 
 ## Decision Flow
 
