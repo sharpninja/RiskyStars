@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+option csharp_namespace = "RiskyStars.Shared";
+
+import "Protos/risky_stars.proto";
+
+package turn_based_game;
+
+service TurnBasedGameService {
+  rpc StreamTurnBasedGameState (TurnBasedGameStateRequest) returns (stream TurnBasedGameStateUpdate);
+}
+
+message TurnBasedGameStateRequest {
+  string game_id = 1;
+}
+
+message TurnBasedGameStateUpdate {
+  string game_id = 1;
+  int32 turn_number = 2;
+  TurnPhase current_phase = 3;
+  string current_player_id = 4;
+  repeated PlayerState player_states = 5;
+  repeated RegionOwnership region_ownerships = 6;
+  repeated HyperspaceLaneMouthOwnership hyperspace_lane_mouth_ownerships = 7;
+  repeated ArmyState army_states = 8;
+  string event_message = 9;
+  repeated risky_stars.CombatEvent combat_events = 10;
+}
+
+message PlayerState {
+  string player_id = 1;
+  string player_name = 2;
+  int32 population_stockpile = 3;
+  int32 metal_stockpile = 4;
+  int32 fuel_stockpile = 5;
+  int32 turn_order = 6;
+}
+
+message RegionOwnership {
+  string region_id = 1;
+  string owner_id = 2;
+}
+
+message HyperspaceLaneMouthOwnership {
+  string hyperspace_lane_mouth_id = 1;
+  string owner_id = 2;
+}
+
+message ArmyState {
+  string army_id = 1;
+  string owner_id = 2;
+  int32 unit_count = 3;
+  string location_id = 4;
+  LocationType location_type = 5;
+  bool has_moved_this_turn = 6;
+  bool is_in_combat = 7;
+}
+
+enum TurnPhase {
+  PRODUCTION = 0;
+  PURCHASE = 1;
+  REINFORCEMENT = 2;
+  MOVEMENT = 3;
+}
+
+enum LocationType {
+  REGION = 0;
+  HYPERSPACE_LANE_MOUTH = 1;
+}

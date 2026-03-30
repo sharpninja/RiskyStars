@@ -1,0 +1,4 @@
+# This directory contains sprite assets for the game
+# Run the CreatePlaceholders tool to generate placeholder PNG files:
+# cd RiskyStars.Client/Tools
+# dotnet run --project CreatePlaceholders.csproj

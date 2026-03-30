@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+option csharp_namespace = "RiskyStars.Shared";
+
+import "Protos/risky_stars.proto";
+import "Protos/turn_based_game.proto";
+
+package game;
+
+service GameService {
+  rpc Ping (PingRequest) returns (PingResponse);
+  rpc PlayGame (stream GamePlayerAction) returns (stream GameUpdate);
+}
+
+message PingRequest {
+  string message = 1;
+}
+
+message PingResponse {
+  string message = 1;
+}
+
+message GamePlayerAction {
+  string player_id = 1;
+  int64 timestamp = 2;
+  
+  oneof action {
+    GameConnectAction connect = 3;
+    GameDisconnectAction disconnect = 4;
+    MoveArmyAction move_army = 5;
+    ProduceResourcesAction produce_resources = 6;
+    PurchaseArmiesAction purchase_armies = 7;
+    ReinforceLocationAction reinforce_location = 8;
+    AdvancePhaseAction advance_phase = 9;
+  }
+}
+
+message GameConnectAction {
+  string player_name = 1;
+  string session_id = 2;
+}
+
+message GameDisconnectAction {
+  string reason = 1;
+}
+
+message MoveArmyAction {
+  string army_id = 1;
+  string target_location_id = 2;
+  turn_based_game.LocationType target_location_type = 3;
+}
+
+message ProduceResourcesAction {
+  string game_id = 1;
+}
+
+message PurchaseArmiesAction {
+  string game_id = 1;
+  int32 count = 2;
+}
+
+message ReinforceLocationAction {
+  string game_id = 1;
+  string location_id = 2;
+  turn_based_game.LocationType location_type = 3;
+  int32 unit_count = 4;
+}
+
+message AdvancePhaseAction {
+  string game_id = 1;
+}
+
+message GameUpdate {
+  int64 timestamp = 1;
+  string game_id = 2;
+  
+  oneof update {
+    GameConnectionStatus connection_status = 3;
+    turn_based_game.TurnBasedGameStateUpdate game_state = 4;
+    GameEventMessage game_event = 5;
+    GameErrorMessage error = 6;
+  }
+}
+
+message GameConnectionStatus {
+  string player_id = 1;
+  ConnectionState status = 2;
+  string message = 3;
+  
+  enum ConnectionState {
+    UNKNOWN = 0;
+    CONNECTED = 1;
+    DISCONNECTED = 2;
+    ERROR = 3;
+  }
+}
+
+message GameEventMessage {
+  string event_id = 1;
+  int64 timestamp = 2;
+  string event_type = 3;
+  string description = 4;
+  repeated string affected_players = 5;
+}
+
+message GameErrorMessage {
+  string error_code = 1;
+  string error_message = 2;
+  string details = 3;
+}

@@ -1,0 +1,351 @@
+syntax = "proto3";
+
+option csharp_namespace = "RiskyStars.Shared";
+
+package risky_stars;
+
+service RiskyStarsGame {
+  rpc PlayGame (stream PlayerAction) returns (stream GameStateUpdate);
+}
+
+service LobbyService {
+  rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
+  rpc CreateLobby (CreateLobbyRequest) returns (CreateLobbyResponse);
+  rpc JoinLobby (JoinLobbyRequest) returns (JoinLobbyResponse);
+  rpc LeaveLobby (LeaveLobbyRequest) returns (LeaveLobbyResponse);
+  rpc SetReady (SetReadyRequest) returns (SetReadyResponse);
+  rpc StartGame (StartGameRequest) returns (StartGameResponse);
+  rpc ListLobbies (ListLobbiesRequest) returns (ListLobbiesResponse);
+  rpc GetLobby (GetLobbyRequest) returns (GetLobbyResponse);
+}
+
+message PlayerAction {
+  string player_id = 1;
+  int64 timestamp = 2;
+  
+  oneof action {
+    ConnectAction connect = 3;
+    DisconnectAction disconnect = 4;
+    MoveAction move = 5;
+    AttackAction attack = 6;
+    BuildAction build = 7;
+    ResearchAction research = 8;
+    TradeAction trade = 9;
+  }
+}
+
+message ConnectAction {
+  string player_name = 1;
+  string version = 2;
+}
+
+message DisconnectAction {
+  string reason = 1;
+}
+
+message MoveAction {
+  string unit_id = 1;
+  Position destination = 2;
+}
+
+message AttackAction {
+  string attacker_id = 1;
+  string target_id = 2;
+  string weapon_type = 3;
+}
+
+message BuildAction {
+  string structure_type = 1;
+  Position location = 2;
+}
+
+message ResearchAction {
+  string technology_id = 1;
+}
+
+message TradeAction {
+  string resource_type = 1;
+  int32 amount = 2;
+  string target_player_id = 3;
+}
+
+message Position {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message GameStateUpdate {
+  int64 timestamp = 1;
+  int32 tick = 2;
+  
+  oneof update {
+    ConnectionStatusUpdate connection_status = 3;
+    EntityUpdate entity_update = 4;
+    CombatEvent combat_event = 5;
+    ResourceUpdate resource_update = 6;
+    GameEvent game_event = 7;
+  }
+}
+
+message ConnectionStatusUpdate {
+  string player_id = 1;
+  ConnectionStatus status = 2;
+  string message = 3;
+  
+  enum ConnectionStatus {
+    UNKNOWN = 0;
+    CONNECTED = 1;
+    DISCONNECTED = 2;
+    RECONNECTING = 3;
+    ERROR = 4;
+  }
+}
+
+message EntityUpdate {
+  repeated Entity entities = 1;
+}
+
+message Entity {
+  string entity_id = 1;
+  string entity_type = 2;
+  string owner_id = 3;
+  Position position = 4;
+  EntityState state = 5;
+  map<string, float> attributes = 6;
+}
+
+message EntityState {
+  float health = 1;
+  float max_health = 2;
+  float shield = 3;
+  float max_shield = 4;
+  string current_action = 5;
+  bool is_active = 6;
+}
+
+message CombatEvent {
+  string event_id = 1;
+  int64 timestamp = 2;
+  CombatEventType event_type = 3;
+  string location_id = 4;
+  repeated CombatRoundResult round_results = 5;
+  repeated CombatArmyState army_states = 6;
+  
+  enum CombatEventType {
+    UNKNOWN_EVENT = 0;
+    COMBAT_INITIATED = 1;
+    COMBAT_ROUND_COMPLETE = 2;
+    COMBAT_ENDED = 3;
+    REINFORCEMENTS_ARRIVED = 4;
+  }
+}
+
+message CombatRoundResult {
+  repeated DiceRoll attacker_rolls = 1;
+  repeated DiceRoll defender_rolls = 2;
+  repeated RollPairing pairings = 3;
+  repeated ArmyCasualty casualties = 4;
+}
+
+message DiceRoll {
+  string army_id = 1;
+  int32 roll = 2;
+  int32 unit_index = 3;
+}
+
+message RollPairing {
+  DiceRoll attacker_roll = 1;
+  DiceRoll defender_roll = 2;
+  string winner_army_id = 3;
+  bool is_discarded = 4;
+}
+
+message ArmyCasualty {
+  string army_id = 1;
+  string player_id = 2;
+  string combat_role = 3;
+  int32 casualties = 4;
+  int32 remaining_units = 5;
+}
+
+message CombatArmyState {
+  string army_id = 1;
+  string player_id = 2;
+  string combat_role = 3;
+  int32 unit_count = 4;
+}
+
+message DamageInfo {
+  float raw_damage = 1;
+  float actual_damage = 2;
+  DamageType damage_type = 3;
+  bool is_critical = 4;
+  float shield_damage = 5;
+  float health_damage = 6;
+  
+  enum DamageType {
+    UNKNOWN_DAMAGE = 0;
+    KINETIC = 1;
+    ENERGY = 2;
+    EXPLOSIVE = 3;
+    THERMAL = 4;
+  }
+}
+
+message ResourceUpdate {
+  string player_id = 1;
+  int64 timestamp = 2;
+  repeated ResourceAmount resources = 3;
+  ResourceChange change = 4;
+}
+
+message ResourceAmount {
+  string resource_type = 1;
+  int32 amount = 2;
+  int32 capacity = 3;
+  float production_rate = 4;
+}
+
+message ResourceChange {
+  string resource_type = 1;
+  int32 delta = 2;
+  ResourceChangeReason reason = 3;
+  string source = 4;
+  
+  enum ResourceChangeReason {
+    UNKNOWN_REASON = 0;
+    PRODUCTION = 1;
+    CONSUMPTION = 2;
+    TRADE = 3;
+    CONSTRUCTION = 4;
+    RESEARCH = 5;
+    COMBAT_LOSS = 6;
+    SALVAGE = 7;
+  }
+}
+
+message GameEvent {
+  string event_id = 1;
+  int64 timestamp = 2;
+  GameEventType event_type = 3;
+  string description = 4;
+  repeated string affected_players = 5;
+  map<string, string> metadata = 6;
+  
+  enum GameEventType {
+    UNKNOWN_GAME_EVENT = 0;
+    PLAYER_JOINED = 1;
+    PLAYER_LEFT = 2;
+    RESEARCH_COMPLETED = 3;
+    CONSTRUCTION_COMPLETED = 4;
+    TERRITORY_CAPTURED = 5;
+    ALLIANCE_FORMED = 6;
+    ALLIANCE_BROKEN = 7;
+    VICTORY_CONDITION_MET = 8;
+    GAME_PAUSED = 9;
+    GAME_RESUMED = 10;
+  }
+}
+
+message AuthenticateRequest {
+  string player_name = 1;
+  string password = 2;
+}
+
+message AuthenticateResponse {
+  bool success = 1;
+  string auth_token = 2;
+  string message = 3;
+}
+
+message CreateLobbyRequest {
+  string player_name = 1;
+  LobbySettingsProto settings = 2;
+}
+
+message CreateLobbyResponse {
+  bool success = 1;
+  string lobby_id = 2;
+  string message = 3;
+}
+
+message JoinLobbyRequest {
+  string lobby_id = 1;
+  string player_name = 2;
+}
+
+message JoinLobbyResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message LeaveLobbyRequest {
+  string lobby_id = 1;
+}
+
+message LeaveLobbyResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message SetReadyRequest {
+  string lobby_id = 1;
+  bool is_ready = 2;
+}
+
+message SetReadyResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message StartGameRequest {
+  string lobby_id = 1;
+}
+
+message StartGameResponse {
+  bool success = 1;
+  string session_id = 2;
+  string message = 3;
+}
+
+message ListLobbiesRequest {
+}
+
+message ListLobbiesResponse {
+  bool success = 1;
+  repeated LobbyInfo lobbies = 2;
+  string message = 3;
+}
+
+message GetLobbyRequest {
+  string lobby_id = 1;
+}
+
+message GetLobbyResponse {
+  bool success = 1;
+  LobbyInfo lobby = 2;
+  string message = 3;
+}
+
+message LobbyInfo {
+  string lobby_id = 1;
+  string host_player_name = 2;
+  int32 current_players = 3;
+  int32 max_players = 4;
+  string game_mode = 5;
+  string map_name = 6;
+  repeated string player_names = 7;
+}
+
+message LobbySettingsProto {
+  int32 min_players = 1;
+  int32 max_players = 2;
+  string game_mode = 3;
+  string map_name = 4;
+  int32 starting_population = 5;
+  int32 starting_metal = 6;
+  int32 starting_fuel = 7;
+  bool allow_spectators = 8;
+  int32 turn_time_limit = 9;
+}
