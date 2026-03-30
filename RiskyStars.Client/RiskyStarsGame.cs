@@ -10,6 +10,7 @@ public class RiskyStarsGame : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch? _spriteBatch;
     private GrpcGameClient? _gameClient;
+    private GameStateCache? _gameStateCache;
 
     public RiskyStarsGame()
     {
@@ -21,6 +22,7 @@ public class RiskyStarsGame : Game
     protected override void Initialize()
     {
         _gameClient = new GrpcGameClient("http://localhost:5000");
+        _gameStateCache = new GameStateCache();
         
         base.Initialize();
     }
@@ -56,6 +58,12 @@ public class RiskyStarsGame : Game
 
     private void ProcessGameUpdate(GameUpdate update)
     {
+        if (_gameStateCache == null)
+        {
+            return;
+        }
+
+        _gameStateCache.ApplyUpdate(update);
     }
 
     protected override void Dispose(bool disposing)
