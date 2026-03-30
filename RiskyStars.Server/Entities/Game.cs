@@ -5,6 +5,7 @@ public class Game
     public string Id { get; set; } = string.Empty;
     public List<Player> Players { get; set; } = new();
     public List<StarSystem> StarSystems { get; set; } = new();
+    public List<Alliance> Alliances { get; set; } = new();
     public int TurnNumber { get; set; } = 1;
     public TurnPhase CurrentPhase { get; set; } = TurnPhase.Production;
     public int CurrentPlayerIndex { get; set; } = 0;

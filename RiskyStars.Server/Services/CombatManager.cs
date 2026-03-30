@@ -21,11 +21,24 @@ public class CombatManager
     {
     }
 
-    public IEnumerable<CombatEvent> InitiateCombat(string locationId, Army attacker, Army defender)
+    public IEnumerable<CombatEvent> InitiateCombat(string locationId, Army attacker, Army defender, Player attackerPlayer, Player defenderPlayer)
     {
         if (_activeCombats.ContainsKey(locationId))
         {
             throw new InvalidOperationException($"Combat already active at location {locationId}");
+        }
+
+        if (!attackerPlayer.CanAttack(defenderPlayer))
+        {
+            if (attackerPlayer.IsAlliedWith(defenderPlayer))
+            {
+                throw new InvalidOperationException("Cannot attack allied players");
+            }
+            else if (attackerPlayer.TurnsSinceLeftAlliance > 0 && attackerPlayer.TurnsSinceLeftAlliance <= 3)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot attack for {4 - attackerPlayer.TurnsSinceLeftAlliance} more turn(s) after leaving alliance");
+            }
         }
 
         attacker.CombatRole = CombatRole.Attacker;

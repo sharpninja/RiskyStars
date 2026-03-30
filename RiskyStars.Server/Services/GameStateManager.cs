@@ -353,6 +353,14 @@ public class GameStateManager
         {
             game.CurrentPlayerIndex = 0;
             game.TurnNumber++;
+            
+            foreach (var player in game.Players)
+            {
+                if (player.AllianceId == null && player.TurnsSinceLeftAlliance > 0 && player.TurnsSinceLeftAlliance < 4)
+                {
+                    player.TurnsSinceLeftAlliance++;
+                }
+            }
         }
 
         game.CurrentPhase = Entities.TurnPhase.Production;
