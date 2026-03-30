@@ -15,9 +15,12 @@ public class Camera2D
     private const float MaxZoom = 5.0f;
     private const float ZoomSpeed = 0.1f;
     private const float PanSpeed = 5.0f;
+    private const float SmoothSpeed = 0.1f;
 
     private Vector2? _lastMousePosition;
     private bool _isPanning;
+    private Vector2? _targetPosition;
+    private bool _isTracking;
 
     public Camera2D(int viewportWidth, int viewportHeight)
     {
@@ -43,6 +46,8 @@ public class Camera2D
         var mouseState = Mouse.GetState();
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+        bool userInput = false;
+
         float moveSpeed = PanSpeed / _zoom;
         if (keyState.IsKeyDown(Keys.LeftShift) || keyState.IsKeyDown(Keys.RightShift))
         {
@@ -50,13 +55,25 @@ public class Camera2D
         }
 
         if (keyState.IsKeyDown(Keys.W) || keyState.IsKeyDown(Keys.Up))
+        {
             _position.Y -= moveSpeed;
+            userInput = true;
+        }
         if (keyState.IsKeyDown(Keys.S) || keyState.IsKeyDown(Keys.Down))
+        {
             _position.Y += moveSpeed;
+            userInput = true;
+        }
         if (keyState.IsKeyDown(Keys.A) || keyState.IsKeyDown(Keys.Left))
+        {
             _position.X -= moveSpeed;
+            userInput = true;
+        }
         if (keyState.IsKeyDown(Keys.D) || keyState.IsKeyDown(Keys.Right))
+        {
             _position.X += moveSpeed;
+            userInput = true;
+        }
 
         if (mouseState.MiddleButton == ButtonState.Pressed)
         {
@@ -66,6 +83,7 @@ public class Camera2D
                 _position -= delta / _zoom;
             }
             _isPanning = true;
+            userInput = true;
         }
         else
         {
@@ -85,6 +103,23 @@ public class Camera2D
             _zoom = MathHelper.Clamp(_zoom + ZoomSpeed * deltaTime, MinZoom, MaxZoom);
         if (keyState.IsKeyDown(Keys.OemMinus) || keyState.IsKeyDown(Keys.Subtract))
             _zoom = MathHelper.Clamp(_zoom - ZoomSpeed * deltaTime, MinZoom, MaxZoom);
+
+        if (userInput)
+        {
+            _isTracking = false;
+            _targetPosition = null;
+        }
+
+        if (_isTracking && _targetPosition.HasValue)
+        {
+            _position = Vector2.Lerp(_position, _targetPosition.Value, SmoothSpeed);
+            
+            if (Vector2.Distance(_position, _targetPosition.Value) < 1f)
+            {
+                _isTracking = false;
+                _targetPosition = null;
+            }
+        }
     }
 
     public Vector2 ScreenToWorld(Vector2 screenPosition)
@@ -97,6 +132,14 @@ public class Camera2D
     public void CenterOn(Vector2 position)
     {
         _position = position;
+        _isTracking = false;
+        _targetPosition = null;
+    }
+
+    public void SmoothCenterOn(Vector2 position)
+    {
+        _targetPosition = position;
+        _isTracking = true;
     }
 
     public void SetZoom(float zoom)

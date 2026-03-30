@@ -251,13 +251,13 @@ public class RegionRenderer
             SpriteEffects.None, 0f);
     }
 
-    private Color GetPlayerColor(string playerId)
-    {
-        return _playerColors.TryGetValue(playerId, out var color) ? color : Color.White;
-    }
-
     public void SetPlayerColor(string playerId, Color color)
     {
         _playerColors[playerId] = color;
+    }
+
+    public Color GetPlayerColor(string playerId)
+    {
+        return _playerColors.TryGetValue(playerId, out var color) ? color : Color.White;
     }
 }

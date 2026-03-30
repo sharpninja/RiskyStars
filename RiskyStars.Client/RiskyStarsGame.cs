@@ -30,6 +30,8 @@ public class RiskyStarsGame : Game
     private PlayerDashboard? _playerDashboard;
     private LobbyManager? _lobbyManager;
     private MainMenu? _mainMenu;
+    private AIActionIndicator? _aiActionIndicator;
+    private AIActionTracker? _aiActionTracker;
     
     private MapData? _mapData;
     private SpriteFont? _defaultFont;
@@ -74,8 +76,14 @@ public class RiskyStarsGame : Game
         _combatScreen = new CombatScreen(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _lobbyManager = new LobbyManager(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _mainMenu = new MainMenu(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight, _settings);
+        _aiActionIndicator = new AIActionIndicator(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         
         _mapData = MapLoader.CreateSampleMap();
+        
+        if (_aiActionIndicator != null && _mapData != null && _gameStateCache != null && _regionRenderer != null)
+        {
+            _aiActionTracker = new AIActionTracker(_aiActionIndicator, _mapData, _gameStateCache, _regionRenderer);
+        }
         
         base.Initialize();
     }
@@ -103,6 +111,7 @@ public class RiskyStarsGame : Game
             _playerDashboard?.LoadContent(_defaultFont);
             _lobbyManager?.LoadContent(_defaultFont);
             _mainMenu?.LoadContent(_defaultFont);
+            _aiActionIndicator?.LoadContent(_defaultFont);
         }
     }
 
@@ -229,9 +238,19 @@ public class RiskyStarsGame : Game
             _inputController?.Update(gameTime);
             _selectionRenderer?.Update(gameTime);
             
-            if (_gameStateCache != null)
+            if (_gameStateCache != null && _mapData != null)
             {
                 _playerDashboard?.Update(gameTime, _gameStateCache);
+                _aiActionIndicator?.Update(gameTime, _gameStateCache, _mapData, _currentPlayerId);
+                
+                if (_aiActionIndicator != null && _camera != null)
+                {
+                    var activeAnimation = _aiActionIndicator.GetFirstMovementAnimation();
+                    if (activeAnimation != null)
+                    {
+                        _aiActionIndicator.TrackArmyMovement(_camera, activeAnimation);
+                    }
+                }
             }
         }
         
@@ -241,6 +260,7 @@ public class RiskyStarsGame : Game
             foreach (var update in updates)
             {
                 ProcessGameUpdate(update);
+                _aiActionTracker?.ProcessGameUpdate(update, _currentPlayerId);
             }
         }
     }
@@ -353,6 +373,12 @@ public class RiskyStarsGame : Game
         _inputController = null;
         _playerDashboard = null;
         _gameStateCache = new GameStateCache();
+        
+        if (_aiActionIndicator != null && _mapData != null && _gameStateCache != null && _regionRenderer != null)
+        {
+            _aiActionTracker = new AIActionTracker(_aiActionIndicator, _mapData, _gameStateCache, _regionRenderer);
+        }
+        
         _gameState = GameState.MainMenu;
     }
 
@@ -418,6 +444,8 @@ public class RiskyStarsGame : Game
                 {
                     _selectionRenderer?.Draw(spriteBatch, _mapData, _gameStateCache, _inputController, _camera);
                 }
+                
+                _aiActionIndicator?.Draw(spriteBatch, _camera, _mapData);
             }
 
             _uiRenderer?.Draw(spriteBatch, _gameStateCache, _currentPlayerId);
