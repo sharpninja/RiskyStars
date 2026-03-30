@@ -1,0 +1,208 @@
+syntax = "proto3";
+
+option csharp_namespace = "RiskyStars.Shared";
+
+package risky_stars;
+
+service RiskyStarsGame {
+  rpc PlayGame (stream PlayerAction) returns (stream GameStateUpdate);
+}
+
+message PlayerAction {
+  string player_id = 1;
+  int64 timestamp = 2;
+  
+  oneof action {
+    ConnectAction connect = 3;
+    DisconnectAction disconnect = 4;
+    MoveAction move = 5;
+    AttackAction attack = 6;
+    BuildAction build = 7;
+    ResearchAction research = 8;
+    TradeAction trade = 9;
+  }
+}
+
+message ConnectAction {
+  string player_name = 1;
+  string version = 2;
+}
+
+message DisconnectAction {
+  string reason = 1;
+}
+
+message MoveAction {
+  string unit_id = 1;
+  Position destination = 2;
+}
+
+message AttackAction {
+  string attacker_id = 1;
+  string target_id = 2;
+  string weapon_type = 3;
+}
+
+message BuildAction {
+  string structure_type = 1;
+  Position location = 2;
+}
+
+message ResearchAction {
+  string technology_id = 1;
+}
+
+message TradeAction {
+  string resource_type = 1;
+  int32 amount = 2;
+  string target_player_id = 3;
+}
+
+message Position {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message GameStateUpdate {
+  int64 timestamp = 1;
+  int32 tick = 2;
+  
+  oneof update {
+    ConnectionStatusUpdate connection_status = 3;
+    EntityUpdate entity_update = 4;
+    CombatEvent combat_event = 5;
+    ResourceUpdate resource_update = 6;
+    GameEvent game_event = 7;
+  }
+}
+
+message ConnectionStatusUpdate {
+  string player_id = 1;
+  ConnectionStatus status = 2;
+  string message = 3;
+  
+  enum ConnectionStatus {
+    UNKNOWN = 0;
+    CONNECTED = 1;
+    DISCONNECTED = 2;
+    RECONNECTING = 3;
+    ERROR = 4;
+  }
+}
+
+message EntityUpdate {
+  repeated Entity entities = 1;
+}
+
+message Entity {
+  string entity_id = 1;
+  string entity_type = 2;
+  string owner_id = 3;
+  Position position = 4;
+  EntityState state = 5;
+  map<string, float> attributes = 6;
+}
+
+message EntityState {
+  float health = 1;
+  float max_health = 2;
+  float shield = 3;
+  float max_shield = 4;
+  string current_action = 5;
+  bool is_active = 6;
+}
+
+message CombatEvent {
+  string event_id = 1;
+  int64 timestamp = 2;
+  CombatEventType event_type = 3;
+  string attacker_id = 4;
+  string target_id = 5;
+  DamageInfo damage = 6;
+  Position location = 7;
+  
+  enum CombatEventType {
+    UNKNOWN_EVENT = 0;
+    ATTACK_INITIATED = 1;
+    HIT = 2;
+    MISS = 3;
+    CRITICAL_HIT = 4;
+    SHIELD_ABSORBED = 5;
+    ARMOR_REDUCED = 6;
+    UNIT_DESTROYED = 7;
+    STRUCTURE_DESTROYED = 8;
+  }
+}
+
+message DamageInfo {
+  float raw_damage = 1;
+  float actual_damage = 2;
+  DamageType damage_type = 3;
+  bool is_critical = 4;
+  float shield_damage = 5;
+  float health_damage = 6;
+  
+  enum DamageType {
+    UNKNOWN_DAMAGE = 0;
+    KINETIC = 1;
+    ENERGY = 2;
+    EXPLOSIVE = 3;
+    THERMAL = 4;
+  }
+}
+
+message ResourceUpdate {
+  string player_id = 1;
+  int64 timestamp = 2;
+  repeated ResourceAmount resources = 3;
+  ResourceChange change = 4;
+}
+
+message ResourceAmount {
+  string resource_type = 1;
+  int32 amount = 2;
+  int32 capacity = 3;
+  float production_rate = 4;
+}
+
+message ResourceChange {
+  string resource_type = 1;
+  int32 delta = 2;
+  ResourceChangeReason reason = 3;
+  string source = 4;
+  
+  enum ResourceChangeReason {
+    UNKNOWN_REASON = 0;
+    PRODUCTION = 1;
+    CONSUMPTION = 2;
+    TRADE = 3;
+    CONSTRUCTION = 4;
+    RESEARCH = 5;
+    COMBAT_LOSS = 6;
+    SALVAGE = 7;
+  }
+}
+
+message GameEvent {
+  string event_id = 1;
+  int64 timestamp = 2;
+  GameEventType event_type = 3;
+  string description = 4;
+  repeated string affected_players = 5;
+  map<string, string> metadata = 6;
+  
+  enum GameEventType {
+    UNKNOWN_GAME_EVENT = 0;
+    PLAYER_JOINED = 1;
+    PLAYER_LEFT = 2;
+    RESEARCH_COMPLETED = 3;
+    CONSTRUCTION_COMPLETED = 4;
+    TERRITORY_CAPTURED = 5;
+    ALLIANCE_FORMED = 6;
+    ALLIANCE_BROKEN = 7;
+    VICTORY_CONDITION_MET = 8;
+    GAME_PAUSED = 9;
+    GAME_RESUMED = 10;
+  }
+}

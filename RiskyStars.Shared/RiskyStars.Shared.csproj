@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Protobuf Include="Protos\game.proto" GrpcServices="Both" />
+    <Protobuf Include="Protos\risky_stars.proto" GrpcServices="Both" />
   </ItemGroup>
 
 </Project>
