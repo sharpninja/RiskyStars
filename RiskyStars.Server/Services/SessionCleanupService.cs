@@ -1,21 +1,29 @@
+using Microsoft.Extensions.Options;
+
 namespace RiskyStars.Server.Services;
 
 public class SessionCleanupService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<SessionCleanupService> _logger;
-    private readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(5);
-    private readonly TimeSpan _inactivityThreshold = TimeSpan.FromMinutes(30);
+    private readonly TimeSpan _cleanupInterval;
+    private readonly TimeSpan _inactivityThreshold;
 
-    public SessionCleanupService(IServiceProvider serviceProvider, ILogger<SessionCleanupService> logger)
+    public SessionCleanupService(
+        IServiceProvider serviceProvider, 
+        ILogger<SessionCleanupService> logger,
+        IOptions<SessionManagementOptions> sessionOptions)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _cleanupInterval = TimeSpan.FromMinutes(sessionOptions.Value.CleanupIntervalMinutes);
+        _inactivityThreshold = TimeSpan.FromMinutes(sessionOptions.Value.SessionTimeoutMinutes);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Session Cleanup Service started");
+        _logger.LogInformation("Session Cleanup Service started - Cleanup Interval: {Interval}, Inactivity Threshold: {Threshold}", 
+            _cleanupInterval, _inactivityThreshold);
 
         while (!stoppingToken.IsCancellationRequested)
         {
