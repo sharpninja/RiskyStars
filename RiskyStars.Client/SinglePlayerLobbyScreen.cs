@@ -5,22 +5,6 @@ using System.Linq;
 
 namespace RiskyStars.Client;
 
-public class AIPlayerSlot
-{
-    public int SlotIndex { get; set; }
-    public bool IsEnabled { get; set; }
-    public string AIName { get; set; }
-    public string Difficulty { get; set; }
-
-    public AIPlayerSlot(int slotIndex)
-    {
-        SlotIndex = slotIndex;
-        IsEnabled = false;
-        AIName = $"AI Player {slotIndex}";
-        Difficulty = "Normal";
-    }
-}
-
 public class SinglePlayerLobbyScreen
 {
     private readonly GraphicsDevice _graphicsDevice;
@@ -34,23 +18,23 @@ public class SinglePlayerLobbyScreen
     private Button _startGameButton;
     private Button _backButton;
 
-    private List<AIPlayerSlot> _aiPlayerSlots;
-    private List<CheckboxField> _aiEnabledCheckboxes;
-    private List<TextInputField> _aiNameFields;
-    private List<DropdownField> _aiDifficultyDropdowns;
+    private List<PlayerSlot> _playerSlots;
+    private List<DropdownField> _playerTypeDropdowns;
+    private List<Button> _regenerateNameButtons;
 
     private KeyboardState _previousKeyState;
     private int _scrollOffset = 0;
-    private const int MaxVisibleSlots = 3;
+    private const int MaxVisibleSlots = 4;
     private string? _errorMessage;
     private float _errorDisplayTime;
     private const float ErrorDisplayDuration = 5.0f;
+    private const int MaxPlayers = 8;
 
     public bool ShouldStartGame { get; private set; }
     public bool ShouldGoBack { get; private set; }
     public string PlayerName { get; private set; } = "Player";
     public string SelectedMap { get; private set; } = "Default";
-    public List<AIPlayerSlot> AIPlayers => _aiPlayerSlots.Where(s => s.IsEnabled).ToList();
+    public List<PlayerSlot> PlayerSlots => _playerSlots;
 
     public SinglePlayerLobbyScreen(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
@@ -60,7 +44,7 @@ public class SinglePlayerLobbyScreen
 
         CreatePixelTexture();
 
-        int panelWidth = 500;
+        int panelWidth = 600;
         int centerX = (_screenWidth - panelWidth) / 2;
         int startY = 180;
         int fieldSpacing = 70;
@@ -75,39 +59,34 @@ public class SinglePlayerLobbyScreen
             new Rectangle(centerX, startY + fieldSpacing, panelWidth, 40),
             "Map", maps);
 
-        _aiPlayerSlots = new List<AIPlayerSlot>();
-        _aiEnabledCheckboxes = new List<CheckboxField>();
-        _aiNameFields = new List<TextInputField>();
-        _aiDifficultyDropdowns = new List<DropdownField>();
+        _playerSlots = new List<PlayerSlot>();
+        _playerTypeDropdowns = new List<DropdownField>();
+        _regenerateNameButtons = new List<Button>();
 
         int aiSectionY = startY + fieldSpacing * 2 + 40;
-        int slotHeight = 100;
-        var difficulties = new List<string> { "Easy", "Normal", "Hard" };
+        int slotHeight = 60;
+        var playerTypeOptions = new List<string> { "Human", "Easy AI", "Medium AI", "Hard AI" };
 
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < MaxPlayers; i++)
         {
-            var aiSlot = new AIPlayerSlot(i + 1);
-            _aiPlayerSlots.Add(aiSlot);
+            var slot = new PlayerSlot(i + 1);
+            slot.IsHost = (i == 0);
+            _playerSlots.Add(slot);
 
             int slotY = aiSectionY + i * slotHeight;
 
-            var checkbox = new CheckboxField(
-                new Rectangle(centerX, slotY, 40, 40),
-                $"AI Player {i + 1}");
-            _aiEnabledCheckboxes.Add(checkbox);
+            var dropdown = new DropdownField(
+                new Rectangle(centerX, slotY, 160, 40),
+                "", playerTypeOptions);
+            _playerTypeDropdowns.Add(dropdown);
 
-            var nameField = new TextInputField(
-                new Rectangle(centerX + 150, slotY, 200, 40),
-                "", 15);
-            nameField.Text = $"AI Player {i + 1}";
-            _aiNameFields.Add(nameField);
-
-            var difficultyDropdown = new DropdownField(
-                new Rectangle(centerX + 370, slotY, 130, 40),
-                "", difficulties);
-            difficultyDropdown.SelectedIndex = 1;
-            _aiDifficultyDropdowns.Add(difficultyDropdown);
+            var regenButton = new Button(
+                new Rectangle(centerX + 170, slotY, 40, 40),
+                "↻");
+            _regenerateNameButtons.Add(regenButton);
         }
+
+        _playerSlots[0].PlayerType = PlayerType.Human;
 
         int buttonWidth = 150;
         int buttonY = aiSectionY + MaxVisibleSlots * slotHeight + 20;
@@ -149,18 +128,51 @@ public class SinglePlayerLobbyScreen
         _playerNameField.Update(mouseState, keyState, _previousKeyState);
         _mapDropdown.Update(mouseState);
 
-        for (int i = 0; i < _aiPlayerSlots.Count; i++)
+        for (int i = 0; i < _playerSlots.Count; i++)
         {
-            _aiEnabledCheckboxes[i].Update(mouseState);
-            _aiPlayerSlots[i].IsEnabled = _aiEnabledCheckboxes[i].IsChecked;
+            _playerTypeDropdowns[i].Update(mouseState);
 
-            if (_aiPlayerSlots[i].IsEnabled)
+            var selectedType = _playerTypeDropdowns[i].SelectedValue;
+            var newPlayerType = selectedType switch
             {
-                _aiNameFields[i].Update(mouseState, keyState, _previousKeyState);
-                _aiDifficultyDropdowns[i].Update(mouseState);
-                
-                _aiPlayerSlots[i].AIName = _aiNameFields[i].Text;
-                _aiPlayerSlots[i].Difficulty = _aiDifficultyDropdowns[i].SelectedValue;
+                "Easy AI" => PlayerType.EasyAI,
+                "Medium AI" => PlayerType.MediumAI,
+                "Hard AI" => PlayerType.HardAI,
+                _ => PlayerType.Human
+            };
+
+            if (_playerSlots[i].PlayerType != newPlayerType)
+            {
+                var oldType = _playerSlots[i].PlayerType;
+                _playerSlots[i].PlayerType = newPlayerType;
+
+                if (oldType == PlayerType.Human && newPlayerType != PlayerType.Human)
+                {
+                    _playerSlots[i].PlayerName = AINameGenerator.GenerateNameWithSeed(
+                        i + 1, 
+                        _playerSlots[i].GetDifficultyLevel());
+                }
+                else if (oldType != PlayerType.Human && newPlayerType != PlayerType.Human)
+                {
+                    _playerSlots[i].PlayerName = AINameGenerator.GenerateNameWithSeed(
+                        i + 1, 
+                        _playerSlots[i].GetDifficultyLevel());
+                }
+                else if (newPlayerType == PlayerType.Human && i > 0)
+                {
+                    _playerSlots[i].PlayerName = $"Player {i + 1}";
+                }
+            }
+
+            if (_playerSlots[i].IsAI)
+            {
+                _regenerateNameButtons[i].Update(mouseState);
+                if (_regenerateNameButtons[i].IsClicked)
+                {
+                    _playerSlots[i].PlayerName = AINameGenerator.GenerateName(
+                        i + 1,
+                        _playerSlots[i].GetDifficultyLevel());
+                }
             }
         }
 
@@ -173,6 +185,7 @@ public class SinglePlayerLobbyScreen
             {
                 PlayerName = _playerNameField.Text.Trim();
                 SelectedMap = _mapDropdown.SelectedValue;
+                _playerSlots[0].PlayerName = PlayerName;
                 ShouldStartGame = true;
             }
         }
@@ -192,6 +205,22 @@ public class SinglePlayerLobbyScreen
         _scrollOffset = 0;
         _errorMessage = null;
         _errorDisplayTime = 0;
+
+        for (int i = 0; i < _playerSlots.Count; i++)
+        {
+            if (i == 0)
+            {
+                _playerSlots[i].PlayerType = PlayerType.Human;
+                _playerSlots[i].PlayerName = "Player";
+                _playerTypeDropdowns[i].SelectedIndex = 0;
+            }
+            else
+            {
+                _playerSlots[i].PlayerType = PlayerType.Human;
+                _playerSlots[i].PlayerName = $"Player {i + 1}";
+                _playerTypeDropdowns[i].SelectedIndex = 0;
+            }
+        }
     }
 
     public void SetError(string errorMessage)
@@ -216,7 +245,7 @@ public class SinglePlayerLobbyScreen
 
         spriteBatch.DrawString(_font, titleText, titlePosition, Color.Cyan, 0f, Vector2.Zero, titleScale, SpriteEffects.None, 0f);
 
-        int panelWidth = 600;
+        int panelWidth = 700;
         int panelHeight = 620;
         int panelX = (_screenWidth - panelWidth) / 2;
         int panelY = 140;
@@ -235,33 +264,82 @@ public class SinglePlayerLobbyScreen
         _mapDropdown.Draw(spriteBatch, _pixelTexture, _font);
 
         int aiSectionY = panelY + 200;
-        var aiHeaderText = "AI Opponents";
+        var aiHeaderText = "Player Slots";
         var aiHeaderSize = _font.MeasureString(aiHeaderText);
         spriteBatch.DrawString(_font, aiHeaderText,
             new Vector2(panelX + 20, aiSectionY - 25),
             Color.Yellow, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
 
-        int aiPanelHeight = 320;
+        int aiPanelHeight = 360;
         var aiPanel = new Rectangle(panelX + 10, aiSectionY, panelWidth - 20, aiPanelHeight);
         spriteBatch.Draw(_pixelTexture, aiPanel, Color.Black * 0.7f);
         DrawRectangleOutline(spriteBatch, aiPanel, Color.Gray, 2);
 
-        for (int i = 0; i < Math.Min(MaxVisibleSlots, _aiPlayerSlots.Count); i++)
+        int slotHeight = 60;
+        int innerPadding = 10;
+
+        for (int i = 0; i < Math.Min(MaxVisibleSlots, _playerSlots.Count); i++)
         {
             int slotIndex = _scrollOffset + i;
-            if (slotIndex >= _aiPlayerSlots.Count) break;
+            if (slotIndex >= _playerSlots.Count) break;
 
-            _aiEnabledCheckboxes[slotIndex].Draw(spriteBatch, _pixelTexture, _font);
+            var slot = _playerSlots[slotIndex];
+            int slotY = aiSectionY + innerPadding + i * slotHeight;
 
-            if (_aiPlayerSlots[slotIndex].IsEnabled)
+            Color slotColor = slot.IsAI ? new Color(40, 60, 80) : new Color(30, 40, 50);
+            var slotBounds = new Rectangle(panelX + 20, slotY, panelWidth - 40, slotHeight - 10);
+            spriteBatch.Draw(_pixelTexture, slotBounds, slotColor);
+            DrawRectangleOutline(spriteBatch, slotBounds, Color.Gray, 1);
+
+            string slotLabel = slotIndex == 0 ? "YOU:" : $"Slot {slotIndex + 1}:";
+            spriteBatch.DrawString(_font, slotLabel,
+                new Vector2(panelX + 30, slotY + 5),
+                Color.LightGray, 0f, Vector2.Zero, 0.6f, SpriteEffects.None, 0f);
+
+            string displayName = slotIndex == 0 ? _playerNameField.Text : slot.PlayerName;
+            Color nameColor = slot.IsAI ? Color.LightBlue : Color.White;
+
+            spriteBatch.DrawString(_font, displayName,
+                new Vector2(panelX + 30, slotY + 22),
+                nameColor, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+
+            if (slot.IsAI)
             {
-                _aiNameFields[slotIndex].Draw(spriteBatch, _pixelTexture, _font);
-                _aiDifficultyDropdowns[slotIndex].Draw(spriteBatch, _pixelTexture, _font);
+                int badgeWidth = 60;
+                int badgeHeight = 20;
+                int badgeX = panelX + 230;
+                int badgeY = slotY + 25;
+
+                Color badgeColor = slot.PlayerType switch
+                {
+                    PlayerType.EasyAI => new Color(100, 180, 100),
+                    PlayerType.MediumAI => new Color(200, 180, 100),
+                    PlayerType.HardAI => new Color(200, 100, 100),
+                    _ => Color.Gray
+                };
+
+                var badgeBounds = new Rectangle(badgeX, badgeY, badgeWidth, badgeHeight);
+                spriteBatch.Draw(_pixelTexture, badgeBounds, badgeColor * 0.8f);
+                DrawRectangleOutline(spriteBatch, badgeBounds, badgeColor, 1);
+
+                var difficultyText = slot.GetDifficultyLevel().ToUpper();
+                var difficultySize = _font.MeasureString(difficultyText);
+                var difficultyPos = new Vector2(
+                    badgeX + (badgeWidth - difficultySize.X * 0.5f) / 2,
+                    badgeY + (badgeHeight - difficultySize.Y * 0.5f) / 2);
+
+                spriteBatch.DrawString(_font, difficultyText, difficultyPos,
+                    Color.White, 0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0f);
+
+                _regenerateNameButtons[slotIndex].Draw(spriteBatch, _pixelTexture, _font);
             }
+
+            _playerTypeDropdowns[slotIndex].Draw(spriteBatch, _pixelTexture, _font);
         }
 
-        int enabledCount = _aiPlayerSlots.Count(s => s.IsEnabled);
-        var countText = $"AI Players: {enabledCount}/7";
+        int aiCount = _playerSlots.Count(s => s.IsAI);
+        int totalPlayers = _playerSlots.Count(s => s.PlayerType != PlayerType.Human || s.IsHost);
+        var countText = $"AI Players: {aiCount} | Total: {totalPlayers}/{MaxPlayers}";
         var countSize = _font.MeasureString(countText);
         spriteBatch.DrawString(_font, countText,
             new Vector2(panelX + panelWidth - countSize.X * 0.7f - 20, aiSectionY - 25),

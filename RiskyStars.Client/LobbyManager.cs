@@ -155,7 +155,19 @@ public class LobbyManager
         {
             _playerName = _singlePlayerLobbyScreen.PlayerName;
             var selectedMap = _singlePlayerLobbyScreen.SelectedMap;
-            var aiPlayers = _singlePlayerLobbyScreen.AIPlayers;
+            var playerSlots = _singlePlayerLobbyScreen.PlayerSlots;
+            
+            int humanPlayerCount = playerSlots.Count(s => s.PlayerType == PlayerType.Human);
+            int aiPlayerCount = playerSlots.Count(s => s.IsAI);
+            
+            System.Console.WriteLine($"Starting single player game: {_playerName}");
+            System.Console.WriteLine($"Map: {selectedMap}");
+            System.Console.WriteLine($"Human Players: {humanPlayerCount}, AI Players: {aiPlayerCount}");
+            
+            foreach (var slot in playerSlots.Where(s => s.IsAI))
+            {
+                System.Console.WriteLine($"  - {slot.PlayerName} ({slot.GetDifficultyLevel()} AI)");
+            }
             
             _singlePlayerLobbyScreen.Reset();
             _state = LobbyState.InitializingSinglePlayer;

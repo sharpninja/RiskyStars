@@ -24,12 +24,17 @@ public class LobbyScreen
     private Button _startGameButton;
     private Button _leaveLobbyButton;
 
+    private List<PlayerSlot> _playerSlots;
+    private List<DropdownField> _playerTypeDropdowns;
+    private int _maxPlayers = 4;
+
     public bool ShouldToggleReady { get; private set; }
     public bool ShouldStartGame { get; private set; }
     public bool ShouldLeaveLobby { get; private set; }
     public bool ShouldRefresh { get; private set; }
     public bool GameStarted { get; private set; }
     public string? SessionId { get; private set; }
+    public List<PlayerSlot> PlayerSlots => _playerSlots;
 
     public LobbyScreen(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
@@ -38,6 +43,11 @@ public class LobbyScreen
         _screenHeight = screenHeight;
 
         CreatePixelTexture();
+
+        _playerSlots = new List<PlayerSlot>();
+        _playerTypeDropdowns = new List<DropdownField>();
+
+        InitializePlayerSlots();
 
         int buttonWidth = 150;
         int buttonHeight = 40;
@@ -57,6 +67,29 @@ public class LobbyScreen
             "Leave Lobby");
     }
 
+    private void InitializePlayerSlots()
+    {
+        _playerSlots.Clear();
+        _playerTypeDropdowns.Clear();
+
+        int panelX = 100;
+        int panelY = 240;
+        int slotHeight = 50;
+
+        var playerTypeOptions = new List<string> { "Human", "Easy AI", "Medium AI", "Hard AI" };
+
+        for (int i = 0; i < 8; i++)
+        {
+            var slot = new PlayerSlot(i + 1);
+            _playerSlots.Add(slot);
+
+            var dropdown = new DropdownField(
+                new Rectangle(panelX + 350, panelY + i * slotHeight + 5, 150, 35),
+                "", playerTypeOptions);
+            _playerTypeDropdowns.Add(dropdown);
+        }
+    }
+
     private void CreatePixelTexture()
     {
         _pixelTexture = new Texture2D(_graphicsDevice, 1, 1);
@@ -72,6 +105,7 @@ public class LobbyScreen
     {
         _lobbyInfo = lobbyInfo;
         _currentPlayerId = playerId;
+        _maxPlayers = lobbyInfo.MaxPlayers;
         
         if (_lobbyInfo != null)
         {
@@ -101,7 +135,9 @@ public class LobbyScreen
     {
         if (_lobbyInfo == null)
             return false;
-        return _lobbyInfo.CurrentPlayers >= 2;
+
+        int occupiedSlots = _playerSlots.Count(s => s.PlayerType == PlayerType.Human || s.IsAI);
+        return occupiedSlots >= 2;
     }
 
     private string GetPlayerName(string playerId)
@@ -126,6 +162,48 @@ public class LobbyScreen
             _refreshTimer = 0;
         }
 
+        if (_isHost)
+        {
+            for (int i = 0; i < Math.Min(_maxPlayers, _playerSlots.Count); i++)
+            {
+                _playerTypeDropdowns[i].Update(mouseState);
+
+                var selectedType = _playerTypeDropdowns[i].SelectedValue;
+                var newPlayerType = selectedType switch
+                {
+                    "Easy AI" => PlayerType.EasyAI,
+                    "Medium AI" => PlayerType.MediumAI,
+                    "Hard AI" => PlayerType.HardAI,
+                    _ => PlayerType.Human
+                };
+
+                if (_playerSlots[i].PlayerType != newPlayerType)
+                {
+                    var oldType = _playerSlots[i].PlayerType;
+                    _playerSlots[i].PlayerType = newPlayerType;
+
+                    if (oldType == PlayerType.Human && newPlayerType != PlayerType.Human)
+                    {
+                        _playerSlots[i].PlayerName = AINameGenerator.GenerateNameWithSeed(
+                            i + 1, 
+                            _playerSlots[i].GetDifficultyLevel());
+                        _playerSlots[i].IsReady = true;
+                    }
+                    else if (oldType != PlayerType.Human && newPlayerType != PlayerType.Human)
+                    {
+                        _playerSlots[i].PlayerName = AINameGenerator.GenerateNameWithSeed(
+                            i + 1, 
+                            _playerSlots[i].GetDifficultyLevel());
+                    }
+                    else if (newPlayerType == PlayerType.Human)
+                    {
+                        _playerSlots[i].PlayerName = $"Player {i + 1}";
+                        _playerSlots[i].IsReady = false;
+                    }
+                }
+            }
+        }
+
         _readyButton.Update(mouseState);
         _startGameButton.Update(mouseState);
         _leaveLobbyButton.Update(mouseState);
@@ -144,6 +222,19 @@ public class LobbyScreen
         {
             ShouldLeaveLobby = true;
         }
+
+        if (_isHost)
+        {
+            int occupiedSlots = 0;
+            for (int i = 0; i < Math.Min(_maxPlayers, _playerSlots.Count); i++)
+            {
+                if (_playerSlots[i].PlayerType != PlayerType.Human || _playerSlots[i].IsReady)
+                {
+                    occupiedSlots++;
+                }
+            }
+            _startGameButton.IsEnabled = occupiedSlots >= 2;
+        }
     }
 
     public void Reset()
@@ -156,6 +247,15 @@ public class LobbyScreen
         SessionId = null;
         _isReady = false;
         _readyButton.IsEnabled = true;
+
+        for (int i = 0; i < _playerSlots.Count; i++)
+        {
+            _playerSlots[i].PlayerType = PlayerType.Human;
+            _playerSlots[i].PlayerName = $"Player {i + 1}";
+            _playerSlots[i].IsReady = false;
+            _playerSlots[i].IsHost = false;
+            _playerTypeDropdowns[i].SelectedIndex = 0;
+        }
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -174,7 +274,7 @@ public class LobbyScreen
         int panelX = 100;
         int panelY = 100;
         int panelWidth = _screenWidth - 200;
-        int panelHeight = 350;
+        int panelHeight = 500;
 
         var panel = new Rectangle(panelX, panelY, panelWidth, panelHeight);
         spriteBatch.Draw(_pixelTexture, panel, Color.Black * 0.7f);
@@ -198,30 +298,84 @@ public class LobbyScreen
             Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
 
         textY += 40;
-        spriteBatch.DrawString(_font, $"Players ({_lobbyInfo.CurrentPlayers}/{_lobbyInfo.MaxPlayers}):",
+        spriteBatch.DrawString(_font, $"Player Slots:",
             new Vector2(textX, textY),
             Color.Cyan, 0f, Vector2.Zero, 0.9f, SpriteEffects.None, 0f);
 
         textY += 35;
-        int playerIndex = 1;
-        foreach (var playerName in _lobbyInfo.PlayerNames)
+        int slotHeight = 50;
+
+        for (int i = 0; i < Math.Min(_maxPlayers, _playerSlots.Count); i++)
         {
-            bool isCurrentPlayer = playerName == GetPlayerName(_currentPlayerId ?? "");
-            Color playerColor = isCurrentPlayer ? Color.Yellow : Color.White;
-            string readyStatus = isCurrentPlayer && _isReady ? " [READY]" : "";
-            
-            spriteBatch.DrawString(_font, $"{playerIndex}. {playerName}{readyStatus}",
-                new Vector2(textX + 20, textY),
-                playerColor, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
-            
-            textY += 28;
-            playerIndex++;
+            var slot = _playerSlots[i];
+            int slotY = textY + i * slotHeight;
+
+            Color slotColor = Color.DarkGray * 0.5f;
+            if (slot.PlayerType != PlayerType.Human || slot.IsReady)
+            {
+                slotColor = Color.DarkGreen * 0.6f;
+            }
+
+            var slotBounds = new Rectangle(panelX + 20, slotY, panelWidth - 40, slotHeight - 5);
+            spriteBatch.Draw(_pixelTexture, slotBounds, slotColor);
+            DrawRectangleOutline(spriteBatch, slotBounds, Color.Gray, 1);
+
+            string slotText = $"{i + 1}. {slot.PlayerName}";
+            Color textColor = Color.White;
+
+            if (slot.IsAI)
+            {
+                textColor = Color.LightBlue;
+            }
+            else if (slot.IsReady)
+            {
+                slotText += " [READY]";
+                textColor = Color.LightGreen;
+            }
+
+            spriteBatch.DrawString(_font, slotText,
+                new Vector2(panelX + 30, slotY + 10),
+                textColor, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+
+            if (slot.IsAI)
+            {
+                int badgeWidth = 60;
+                int badgeHeight = 22;
+                int badgeX = panelX + 250;
+                int badgeY = slotY + 12;
+
+                Color badgeColor = slot.PlayerType switch
+                {
+                    PlayerType.EasyAI => new Color(100, 180, 100),
+                    PlayerType.MediumAI => new Color(200, 180, 100),
+                    PlayerType.HardAI => new Color(200, 100, 100),
+                    _ => Color.Gray
+                };
+
+                var badgeBounds = new Rectangle(badgeX, badgeY, badgeWidth, badgeHeight);
+                spriteBatch.Draw(_pixelTexture, badgeBounds, badgeColor * 0.8f);
+                DrawRectangleOutline(spriteBatch, badgeBounds, badgeColor, 1);
+
+                var difficultyText = slot.GetDifficultyLevel().ToUpper();
+                var difficultySize = _font.MeasureString(difficultyText);
+                var difficultyPos = new Vector2(
+                    badgeX + (badgeWidth - difficultySize.X * 0.5f) / 2,
+                    badgeY + (badgeHeight - difficultySize.Y * 0.5f) / 2);
+
+                spriteBatch.DrawString(_font, difficultyText, difficultyPos,
+                    Color.White, 0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0f);
+            }
+
+            if (_isHost)
+            {
+                _playerTypeDropdowns[i].Draw(spriteBatch, _pixelTexture, _font);
+            }
         }
 
         if (_isHost)
         {
             textY = panelY + panelHeight - 60;
-            var hostText = "You are the host. Start the game when ready!";
+            var hostText = "Configure player slots and start when ready!";
             var hostSize = _font.MeasureString(hostText);
             spriteBatch.DrawString(_font, hostText,
                 new Vector2(panelX + (panelWidth - hostSize.X * 0.7f) / 2, textY),
