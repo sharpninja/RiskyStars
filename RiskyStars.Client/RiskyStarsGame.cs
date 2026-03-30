@@ -19,6 +19,7 @@ public class RiskyStarsGame : Game
     private SelectionRenderer? _selectionRenderer;
     private InputController? _inputController;
     private CombatScreen? _combatScreen;
+    private PlayerDashboard? _playerDashboard;
     
     private MapData? _mapData;
     private SpriteFont? _defaultFont;
@@ -47,6 +48,7 @@ public class RiskyStarsGame : Game
         _uiRenderer = new UIRenderer(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _selectionRenderer = new SelectionRenderer(GraphicsDevice);
         _combatScreen = new CombatScreen(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        _playerDashboard = new PlayerDashboard(GraphicsDevice, _gameClient, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         
         _mapData = MapLoader.CreateSampleMap();
         
@@ -75,6 +77,7 @@ public class RiskyStarsGame : Game
             _uiRenderer?.LoadContent(_defaultFont);
             _selectionRenderer?.LoadContent(_defaultFont);
             _combatScreen?.LoadContent(_defaultFont);
+            _playerDashboard?.LoadContent(_defaultFont);
         }
     }
 
@@ -87,6 +90,12 @@ public class RiskyStarsGame : Game
 
         if (keyState.IsKeyDown(Keys.F1) && _previousKeyState.IsKeyUp(Keys.F1))
             _showDebug = !_showDebug;
+        
+        if (keyState.IsKeyDown(Keys.F2) && _previousKeyState.IsKeyUp(Keys.F2))
+        {
+            if (_playerDashboard != null)
+                _playerDashboard.IsVisible = !_playerDashboard.IsVisible;
+        }
 
         if (_combatScreen != null && _combatScreen.IsActive)
         {
@@ -102,6 +111,11 @@ public class RiskyStarsGame : Game
             _camera?.Update(gameTime);
             _inputController?.Update(gameTime);
             _selectionRenderer?.Update(gameTime);
+            
+            if (_gameStateCache != null)
+            {
+                _playerDashboard?.Update(gameTime, _gameStateCache);
+            }
         }
         
         _previousKeyState = keyState;
@@ -143,6 +157,7 @@ public class RiskyStarsGame : Game
             }
 
             _uiRenderer?.Draw(_spriteBatch, _gameStateCache, _currentPlayerId);
+            _playerDashboard?.Draw(_spriteBatch, _gameStateCache);
             
             if (_inputController != null)
             {
@@ -175,6 +190,7 @@ public class RiskyStarsGame : Game
             {
                 _currentPlayerId = connStatus.PlayerId;
                 _inputController?.SetCurrentPlayer(_currentPlayerId);
+                _playerDashboard?.SetCurrentPlayer(_currentPlayerId);
             }
         }
         

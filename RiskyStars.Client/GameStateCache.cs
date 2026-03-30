@@ -410,6 +410,26 @@ public class GameStateCache
             return _gameId != null && _playerStates.Count > 0;
         }
     }
+    
+    public int GetProductionRate(string playerId, string resourceType)
+    {
+        lock (_lock)
+        {
+            var playerState = GetPlayerState(playerId);
+            if (playerState == null)
+                return 0;
+            
+            int regionCount = GetRegionsOwnedByPlayer(playerId).Count;
+            
+            return resourceType switch
+            {
+                "population" => regionCount * 2,
+                "metal" => regionCount * 1,
+                "fuel" => regionCount * 1,
+                _ => 0
+            };
+        }
+    }
 }
 
 public class GameStateSnapshot

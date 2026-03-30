@@ -123,37 +123,6 @@ public class UIRenderer
 
     private void DrawResourcePanel(SpriteBatch spriteBatch, GameStateCache gameStateCache, string? playerId)
     {
-        if (_pixelTexture == null || _font == null || string.IsNullOrEmpty(playerId)) return;
-
-        var playerState = gameStateCache.GetPlayerState(playerId);
-        if (playerState == null) return;
-
-        int panelWidth = 300;
-        int panelHeight = 150;
-        int panelX = _screenWidth - panelWidth - 10;
-        int panelY = 50;
-
-        Rectangle panel = new Rectangle(panelX, panelY, panelWidth, panelHeight);
-        spriteBatch.Draw(_pixelTexture, panel, Color.Black * 0.7f);
-
-        DrawRectangleOutline(spriteBatch, panel, Color.White, 2);
-
-        int yOffset = panelY + 10;
-        spriteBatch.DrawString(_font, $"Player: {playerState.PlayerName}",
-            new Vector2(panelX + 10, yOffset), Color.White);
-
-        yOffset += 30;
-        DrawResourceDisplay(spriteBatch, panelX + 10, yOffset, "Population", playerState.PopulationStockpile, new Color(100, 200, 100));
-        yOffset += 30;
-        DrawResourceDisplay(spriteBatch, panelX + 10, yOffset, "Metal", playerState.MetalStockpile, new Color(150, 150, 150));
-        yOffset += 30;
-        DrawResourceDisplay(spriteBatch, panelX + 10, yOffset, "Fuel", playerState.FuelStockpile, new Color(200, 150, 100));
-
-        int regionCount = gameStateCache.GetRegionsOwnedByPlayer(playerId).Count;
-        int armyCount = gameStateCache.GetArmiesOwnedByPlayer(playerId).Count;
-        yOffset += 35;
-        spriteBatch.DrawString(_font, $"Regions: {regionCount} | Armies: {armyCount}",
-            new Vector2(panelX + 10, yOffset), Color.LightGray, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
     }
 
     private void DrawResourceDisplay(SpriteBatch spriteBatch, int x, int y, string resourceName, int amount, Color color)
@@ -339,6 +308,7 @@ public class UIRenderer
             ("R", "Reinforce location"),
             ("Esc", "Clear selection"),
             ("F1", "Toggle debug info"),
+            ("F2", "Toggle dashboard"),
             ("H", "Toggle this help")
         };
 
