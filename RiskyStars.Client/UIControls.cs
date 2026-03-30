@@ -316,3 +316,206 @@ public class NumericInputField
         spriteBatch.DrawString(font, valueText, textPosition, Color.White, 0f, Vector2.Zero, 0.9f, SpriteEffects.None, 0f);
     }
 }
+
+public class CheckboxField
+{
+    private Rectangle _bounds;
+    private string _label;
+    private bool _isChecked;
+    private bool _isHovered;
+    private bool _wasPressed;
+
+    public bool IsChecked
+    {
+        get => _isChecked;
+        set => _isChecked = value;
+    }
+
+    public CheckboxField(Rectangle bounds, string label)
+    {
+        _bounds = bounds;
+        _label = label;
+    }
+
+    public void Update(MouseState mouseState)
+    {
+        var checkboxBounds = new Rectangle(_bounds.X, _bounds.Y, _bounds.Height, _bounds.Height);
+        _isHovered = checkboxBounds.Contains(mouseState.Position);
+
+        if (_isHovered && mouseState.LeftButton == ButtonState.Pressed)
+        {
+            _wasPressed = true;
+        }
+        else if (_wasPressed && mouseState.LeftButton == ButtonState.Released && _isHovered)
+        {
+            _isChecked = !_isChecked;
+            _wasPressed = false;
+        }
+        else if (mouseState.LeftButton == ButtonState.Released)
+        {
+            _wasPressed = false;
+        }
+    }
+
+    public void Draw(SpriteBatch spriteBatch, Texture2D pixelTexture, SpriteFont font)
+    {
+        var labelSize = font.MeasureString(_label);
+        spriteBatch.DrawString(font, _label,
+            new Vector2(_bounds.X, _bounds.Y - labelSize.Y - 5),
+            Color.White, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+
+        var checkboxBounds = new Rectangle(_bounds.X, _bounds.Y, _bounds.Height, _bounds.Height);
+        Color backgroundColor = _isHovered ? new Color(40, 40, 60) : new Color(30, 30, 40);
+        Color borderColor = _isHovered ? Color.Cyan : Color.Gray;
+
+        spriteBatch.Draw(pixelTexture, checkboxBounds, backgroundColor);
+
+        int thickness = 2;
+        spriteBatch.Draw(pixelTexture, new Rectangle(checkboxBounds.X, checkboxBounds.Y, checkboxBounds.Width, thickness), borderColor);
+        spriteBatch.Draw(pixelTexture, new Rectangle(checkboxBounds.X, checkboxBounds.Y, thickness, checkboxBounds.Height), borderColor);
+        spriteBatch.Draw(pixelTexture, new Rectangle(checkboxBounds.Right - thickness, checkboxBounds.Y, thickness, checkboxBounds.Height), borderColor);
+        spriteBatch.Draw(pixelTexture, new Rectangle(checkboxBounds.X, checkboxBounds.Bottom - thickness, checkboxBounds.Width, thickness), borderColor);
+
+        if (_isChecked)
+        {
+            int padding = 6;
+            var checkBounds = new Rectangle(
+                checkboxBounds.X + padding,
+                checkboxBounds.Y + padding,
+                checkboxBounds.Width - padding * 2,
+                checkboxBounds.Height - padding * 2);
+            spriteBatch.Draw(pixelTexture, checkBounds, Color.Cyan);
+        }
+
+        var labelPosition = new Vector2(_bounds.X + _bounds.Height + 15, _bounds.Y + (_bounds.Height - labelSize.Y) / 2);
+        spriteBatch.DrawString(font, _label, labelPosition, Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
+    }
+}
+
+public class DropdownField
+{
+    private Rectangle _bounds;
+    private string _label;
+    private List<string> _options;
+    private int _selectedIndex;
+    private bool _isExpanded;
+    private bool _isHovered;
+    private int _hoveredOptionIndex = -1;
+    private bool _wasPressed;
+
+    public List<string> Options => _options;
+    public int SelectedIndex
+    {
+        get => _selectedIndex;
+        set => _selectedIndex = Math.Clamp(value, 0, _options.Count - 1);
+    }
+
+    public string SelectedValue => _selectedIndex >= 0 && _selectedIndex < _options.Count ? _options[_selectedIndex] : "";
+
+    public DropdownField(Rectangle bounds, string label, List<string> options)
+    {
+        _bounds = bounds;
+        _label = label;
+        _options = options;
+        _selectedIndex = 0;
+    }
+
+    public void Update(MouseState mouseState)
+    {
+        _isHovered = _bounds.Contains(mouseState.Position);
+        _hoveredOptionIndex = -1;
+
+        if (_isExpanded)
+        {
+            for (int i = 0; i < _options.Count; i++)
+            {
+                var optionBounds = new Rectangle(
+                    _bounds.X,
+                    _bounds.Y + _bounds.Height * (i + 1),
+                    _bounds.Width,
+                    _bounds.Height);
+
+                if (optionBounds.Contains(mouseState.Position))
+                {
+                    _hoveredOptionIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (mouseState.LeftButton == ButtonState.Pressed)
+        {
+            _wasPressed = true;
+        }
+        else if (_wasPressed && mouseState.LeftButton == ButtonState.Released)
+        {
+            if (_isExpanded)
+            {
+                if (_hoveredOptionIndex >= 0)
+                {
+                    _selectedIndex = _hoveredOptionIndex;
+                }
+                _isExpanded = false;
+            }
+            else if (_isHovered)
+            {
+                _isExpanded = true;
+            }
+            _wasPressed = false;
+        }
+    }
+
+    public void Draw(SpriteBatch spriteBatch, Texture2D pixelTexture, SpriteFont font)
+    {
+        var labelSize = font.MeasureString(_label);
+        spriteBatch.DrawString(font, _label,
+            new Vector2(_bounds.X, _bounds.Y - labelSize.Y - 5),
+            Color.White, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+
+        Color backgroundColor = _isHovered || _isExpanded ? new Color(40, 40, 60) : new Color(30, 30, 40);
+        Color borderColor = _isHovered || _isExpanded ? Color.Cyan : Color.Gray;
+
+        spriteBatch.Draw(pixelTexture, _bounds, backgroundColor);
+
+        int thickness = 2;
+        spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.X, _bounds.Y, _bounds.Width, thickness), borderColor);
+        spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.X, _bounds.Y, thickness, _bounds.Height), borderColor);
+        spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.Right - thickness, _bounds.Y, thickness, _bounds.Height), borderColor);
+        spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.X, _bounds.Bottom - thickness, _bounds.Width, thickness), borderColor);
+
+        var selectedText = SelectedValue;
+        var textSize = font.MeasureString(selectedText);
+        var textPosition = new Vector2(_bounds.X + 10, _bounds.Y + (_bounds.Height - textSize.Y) / 2);
+        spriteBatch.DrawString(font, selectedText, textPosition, Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
+
+        var arrowText = _isExpanded ? "▲" : "▼";
+        var arrowSize = font.MeasureString(arrowText);
+        var arrowPosition = new Vector2(_bounds.Right - arrowSize.X - 10, _bounds.Y + (_bounds.Height - arrowSize.Y) / 2);
+        spriteBatch.DrawString(font, arrowText, arrowPosition, Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
+
+        if (_isExpanded)
+        {
+            for (int i = 0; i < _options.Count; i++)
+            {
+                var optionBounds = new Rectangle(
+                    _bounds.X,
+                    _bounds.Y + _bounds.Height * (i + 1),
+                    _bounds.Width,
+                    _bounds.Height);
+
+                Color optionBgColor = i == _hoveredOptionIndex ? new Color(50, 80, 120) : new Color(25, 25, 35);
+                spriteBatch.Draw(pixelTexture, optionBounds, optionBgColor);
+
+                spriteBatch.Draw(pixelTexture, new Rectangle(optionBounds.X, optionBounds.Y, optionBounds.Width, thickness), borderColor);
+                spriteBatch.Draw(pixelTexture, new Rectangle(optionBounds.X, optionBounds.Y, thickness, optionBounds.Height), borderColor);
+                spriteBatch.Draw(pixelTexture, new Rectangle(optionBounds.Right - thickness, optionBounds.Y, thickness, optionBounds.Height), borderColor);
+                spriteBatch.Draw(pixelTexture, new Rectangle(optionBounds.X, optionBounds.Bottom - thickness, optionBounds.Width, thickness), borderColor);
+
+                var optionText = _options[i];
+                var optionTextSize = font.MeasureString(optionText);
+                var optionTextPosition = new Vector2(optionBounds.X + 10, optionBounds.Y + (optionBounds.Height - optionTextSize.Y) / 2);
+                spriteBatch.DrawString(font, optionText, optionTextPosition, Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
+            }
+        }
+    }
+}

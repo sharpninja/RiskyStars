@@ -49,3 +49,6 @@ bld/
 # Game persistence
 GameSaves/
 *.json.backup
+
+# Client settings
+settings.json
