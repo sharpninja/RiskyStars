@@ -2,6 +2,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RiskyStars.Shared;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RiskyStars.Client;
 
@@ -9,6 +12,7 @@ public enum LobbyState
 {
     ModeSelection,
     SinglePlayerLobby,
+    InitializingSinglePlayer,
     Connection,
     Browser,
     CreateLobby,
@@ -24,6 +28,8 @@ public class LobbyManager
     private readonly int _screenHeight;
 
     private LobbyClient? _lobbyClient;
+    private EmbeddedServerHost? _embeddedServerHost;
+    private SpriteFont? _font;
     private GameModeSelector _modeSelectorScreen;
     private SinglePlayerLobbyScreen _singlePlayerLobbyScreen;
     private ConnectionScreen _connectionScreen;
@@ -45,6 +51,7 @@ public class LobbyManager
     public string? SessionId => _sessionId;
     public string? PlayerName => _playerName;
     public bool IsInGame => _state == LobbyState.InGame;
+    public EmbeddedServerHost? EmbeddedServer => _embeddedServerHost;
 
     public LobbyManager(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
@@ -62,6 +69,7 @@ public class LobbyManager
 
     public void LoadContent(SpriteFont font)
     {
+        _font = font;
         _modeSelectorScreen.LoadContent(font);
         _singlePlayerLobbyScreen.LoadContent(font);
         _connectionScreen.LoadContent(font);
@@ -83,6 +91,9 @@ public class LobbyManager
 
             case LobbyState.SinglePlayerLobby:
                 UpdateSinglePlayerLobby(gameTime, mouseState, keyState);
+                break;
+
+            case LobbyState.InitializingSinglePlayer:
                 break;
 
             case LobbyState.Connection:
@@ -140,12 +151,37 @@ public class LobbyManager
     {
         _singlePlayerLobbyScreen.Update(gameTime, mouseState, keyState);
 
-        if (_singlePlayerLobbyScreen.ShouldStartGame)
+        if (_singlePlayerLobbyScreen.ShouldStartGame && _pendingTask == null)
         {
             _playerName = _singlePlayerLobbyScreen.PlayerName;
-            _sessionId = "single-player-session";
+            var selectedMap = _singlePlayerLobbyScreen.SelectedMap;
+            var aiPlayers = _singlePlayerLobbyScreen.AIPlayers;
+            
             _singlePlayerLobbyScreen.Reset();
-            _state = LobbyState.InGame;
+            _state = LobbyState.InitializingSinglePlayer;
+
+            _pendingTask = Task.Run(async () =>
+            {
+                try
+                {
+                    _embeddedServerHost = new EmbeddedServerHost();
+                    await _embeddedServerHost.StartAsync();
+
+                    _sessionId = Guid.NewGuid().ToString();
+                    
+                    _state = LobbyState.InGame;
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine($"Failed to start embedded server: {ex.Message}");
+                    _embeddedServerHost = null;
+                    _state = LobbyState.SinglePlayerLobby;
+                }
+                finally
+                {
+                    _pendingTask = null;
+                }
+            });
         }
 
         if (_singlePlayerLobbyScreen.ShouldGoBack)
@@ -421,6 +457,10 @@ public class LobbyManager
                 _singlePlayerLobbyScreen.Draw(spriteBatch);
                 break;
 
+            case LobbyState.InitializingSinglePlayer:
+                DrawInitializingScreen(spriteBatch);
+                break;
+
             case LobbyState.Connection:
                 _connectionScreen.Draw(spriteBatch);
                 break;
@@ -443,8 +483,53 @@ public class LobbyManager
         }
     }
 
-    public void Dispose()
+    private void DrawInitializingScreen(SpriteBatch spriteBatch)
+    {
+        if (_font == null) return;
+
+        spriteBatch.Begin();
+
+        var loadingText = "Initializing single player game...";
+        var textSize = _font.MeasureString(loadingText);
+        var textPosition = new Vector2(
+            (_screenWidth - textSize.X) / 2,
+            (_screenHeight - textSize.Y) / 2);
+
+        spriteBatch.DrawString(_font, loadingText, textPosition, Color.White);
+
+        spriteBatch.End();
+    }
+
+    public async Task DisposeAsync()
     {
         _lobbyClient?.Dispose();
+        
+        if (_embeddedServerHost != null)
+        {
+            try
+            {
+                await _embeddedServerHost.StopAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error stopping embedded server: {ex.Message}");
+            }
+            finally
+            {
+                _embeddedServerHost = null;
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        try
+        {
+            Task.Run(async () => await DisposeAsync()).Wait(TimeSpan.FromSeconds(5));
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"Error disposing LobbyManager: {ex.Message}");
+        }
     }
 }

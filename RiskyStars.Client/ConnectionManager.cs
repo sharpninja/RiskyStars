@@ -1,5 +1,8 @@
 using Grpc.Core;
 using RiskyStars.Shared;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RiskyStars.Client;
 
@@ -44,6 +47,12 @@ public class ConnectionManager
         _serverAddress = serverAddress;
     }
 
+    public ConnectionManager(GrpcGameClient gameClient)
+    {
+        _gameClient = gameClient;
+        _serverAddress = "embedded";
+    }
+
     public void UpdateServerAddress(string serverAddress)
     {
         _serverAddress = serverAddress;
@@ -77,12 +86,18 @@ public class ConnectionManager
 
         try
         {
-            _gameClient?.Dispose();
-            _gameClient = new GrpcGameClient(_serverAddress);
+            if (_serverAddress != "embedded")
+            {
+                _gameClient?.Dispose();
+                _gameClient = new GrpcGameClient(_serverAddress);
+            }
             
             _currentPlayerId = Guid.NewGuid().ToString();
             
-            await _gameClient.ConnectAsync(_currentPlayerId, _currentPlayerName!, _currentSessionId!);
+            if (_gameClient != null)
+            {
+                await _gameClient.ConnectAsync(_currentPlayerId, _currentPlayerName!, _currentSessionId!);
+            }
 
             _status = ConnectionStatus.Connected;
             _reconnectAttempts = 0;
@@ -157,7 +172,10 @@ public class ConnectionManager
             {
             }
 
-            _gameClient.Dispose();
+            if (_serverAddress != "embedded")
+            {
+                _gameClient.Dispose();
+            }
             _gameClient = null;
         }
 
@@ -200,6 +218,10 @@ public class ConnectionManager
     public void Dispose()
     {
         _cancellationTokenSource?.Cancel();
-        _gameClient?.Dispose();
+        
+        if (_gameClient != null && _serverAddress != "embedded")
+        {
+            _gameClient.Dispose();
+        }
     }
 }

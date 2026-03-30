@@ -175,7 +175,14 @@ public class RiskyStarsGame : Game
         
         if (_lobbyManager.IsInGame && _lobbyManager.SessionId != null)
         {
-            InitializeGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player");
+            if (_lobbyManager.SelectedGameMode == GameMode.SinglePlayer)
+            {
+                InitializeSinglePlayerGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player");
+            }
+            else
+            {
+                InitializeGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player");
+            }
             _gameState = GameState.InGame;
         }
     }
@@ -273,15 +280,65 @@ public class RiskyStarsGame : Game
         });
     }
 
+    private void InitializeSinglePlayerGame(string sessionId, string playerName)
+    {
+        if (_lobbyManager?.EmbeddedServer == null) return;
+
+        var gameClient = GrpcGameClient.CreateForSinglePlayer(_lobbyManager.EmbeddedServer);
+        _connectionManager = new ConnectionManager(gameClient);
+
+        _playerDashboard = new PlayerDashboard(GraphicsDevice, gameClient, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        _inputController = new InputController(gameClient, _gameStateCache, _mapData, _camera);
+        
+        if (_defaultFont != null)
+        {
+            _playerDashboard?.LoadContent(_defaultFont);
+        }
+        
+        Task.Run(async () =>
+        {
+            try
+            {
+                var success = await _connectionManager.ConnectAsync(playerName, sessionId);
+                if (success && _connectionManager.CurrentPlayerId != null)
+                {
+                    _currentPlayerId = _connectionManager.CurrentPlayerId;
+                    _inputController?.SetCurrentPlayer(_currentPlayerId);
+                    _playerDashboard?.SetCurrentPlayer(_currentPlayerId);
+                }
+                else
+                {
+                    System.Console.WriteLine($"Failed to connect to embedded server: {_connectionManager.ErrorMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Failed to initialize single player game: {ex.Message}");
+            }
+        });
+    }
+
     private void ReturnToMainMenu()
     {
         Task.Run(async () =>
         {
-            if (_connectionManager != null)
+            try
             {
-                await _connectionManager.DisconnectAsync();
-                _connectionManager.Dispose();
-                _connectionManager = null;
+                if (_connectionManager != null)
+                {
+                    await _connectionManager.DisconnectAsync();
+                    _connectionManager.Dispose();
+                    _connectionManager = null;
+                }
+
+                if (_lobbyManager?.EmbeddedServer != null)
+                {
+                    await _lobbyManager.EmbeddedServer.StopAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error during cleanup: {ex.Message}");
             }
         });
 
@@ -414,7 +471,11 @@ public class RiskyStarsGame : Game
         if (disposing)
         {
             _connectionManager?.Dispose();
-            _lobbyManager?.Dispose();
+            
+            if (_lobbyManager != null)
+            {
+                Task.Run(async () => await _lobbyManager.DisposeAsync()).Wait();
+            }
         }
         base.Dispose(disposing);
     }
