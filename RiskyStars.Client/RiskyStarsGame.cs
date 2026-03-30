@@ -18,6 +18,7 @@ public class RiskyStarsGame : Game
     private UIRenderer? _uiRenderer;
     private SelectionRenderer? _selectionRenderer;
     private InputController? _inputController;
+    private CombatScreen? _combatScreen;
     
     private MapData? _mapData;
     private SpriteFont? _defaultFont;
@@ -45,6 +46,7 @@ public class RiskyStarsGame : Game
         _regionRenderer = new RegionRenderer(GraphicsDevice);
         _uiRenderer = new UIRenderer(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _selectionRenderer = new SelectionRenderer(GraphicsDevice);
+        _combatScreen = new CombatScreen(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         
         _mapData = MapLoader.CreateSampleMap();
         
@@ -72,6 +74,7 @@ public class RiskyStarsGame : Game
             _regionRenderer?.LoadContent(_defaultFont);
             _uiRenderer?.LoadContent(_defaultFont);
             _selectionRenderer?.LoadContent(_defaultFont);
+            _combatScreen?.LoadContent(_defaultFont);
         }
     }
 
@@ -85,9 +88,21 @@ public class RiskyStarsGame : Game
         if (keyState.IsKeyDown(Keys.F1) && _previousKeyState.IsKeyUp(Keys.F1))
             _showDebug = !_showDebug;
 
-        _camera?.Update(gameTime);
-        _inputController?.Update(gameTime);
-        _selectionRenderer?.Update(gameTime);
+        if (_combatScreen != null && _combatScreen.IsActive)
+        {
+            _combatScreen.Update(gameTime);
+            
+            if (_combatScreen.IsComplete)
+            {
+                _combatScreen.Close();
+            }
+        }
+        else
+        {
+            _camera?.Update(gameTime);
+            _inputController?.Update(gameTime);
+            _selectionRenderer?.Update(gameTime);
+        }
         
         _previousKeyState = keyState;
 
@@ -110,28 +125,35 @@ public class RiskyStarsGame : Game
         if (_spriteBatch == null || _mapData == null || _gameStateCache == null)
             return;
 
-        if (_camera != null)
+        if (_combatScreen != null && _combatScreen.IsActive)
         {
-            _mapRenderer?.Draw(_spriteBatch, _mapData, _camera);
-            _regionRenderer?.Draw(_spriteBatch, _mapData, _gameStateCache, _camera);
+            _combatScreen.Draw(_spriteBatch);
+        }
+        else
+        {
+            if (_camera != null)
+            {
+                _mapRenderer?.Draw(_spriteBatch, _mapData, _camera);
+                _regionRenderer?.Draw(_spriteBatch, _mapData, _gameStateCache, _camera);
+                
+                if (_inputController != null)
+                {
+                    _selectionRenderer?.Draw(_spriteBatch, _mapData, _gameStateCache, _inputController, _camera);
+                }
+            }
+
+            _uiRenderer?.Draw(_spriteBatch, _gameStateCache, _currentPlayerId);
             
             if (_inputController != null)
             {
-                _selectionRenderer?.Draw(_spriteBatch, _mapData, _gameStateCache, _inputController, _camera);
+                _uiRenderer?.DrawSelectionInfo(_spriteBatch, _inputController.Selection, _gameStateCache);
+                _uiRenderer?.DrawKeyboardShortcuts(_spriteBatch, _inputController.ShowHelp);
             }
-        }
 
-        _uiRenderer?.Draw(_spriteBatch, _gameStateCache, _currentPlayerId);
-        
-        if (_inputController != null)
-        {
-            _uiRenderer?.DrawSelectionInfo(_spriteBatch, _inputController.Selection, _gameStateCache);
-            _uiRenderer?.DrawKeyboardShortcuts(_spriteBatch, _inputController.ShowHelp);
-        }
-
-        if (_showDebug && _camera != null)
-        {
-            _uiRenderer?.DrawDebugInfo(_spriteBatch, _camera);
+            if (_showDebug && _camera != null)
+            {
+                _uiRenderer?.DrawDebugInfo(_spriteBatch, _camera);
+            }
         }
 
         base.Draw(gameTime);
@@ -153,6 +175,22 @@ public class RiskyStarsGame : Game
             {
                 _currentPlayerId = connStatus.PlayerId;
                 _inputController?.SetCurrentPlayer(_currentPlayerId);
+            }
+        }
+        
+        if (update.UpdateCase == GameUpdate.UpdateOneofCase.GameState)
+        {
+            var gameState = update.GameState;
+            if (gameState != null && gameState.CombatEvents.Count > 0)
+            {
+                foreach (var combatEvent in gameState.CombatEvents)
+                {
+                    if (_combatScreen != null && !_combatScreen.IsActive)
+                    {
+                        _combatScreen.StartCombat(combatEvent);
+                        break;
+                    }
+                }
             }
         }
     }
