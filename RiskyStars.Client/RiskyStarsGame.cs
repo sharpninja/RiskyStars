@@ -333,7 +333,14 @@ public class RiskyStarsGame : Game
 
                 if (_lobbyManager?.EmbeddedServer != null)
                 {
-                    await _lobbyManager.EmbeddedServer.StopAsync();
+                    try
+                    {
+                        await _lobbyManager.EmbeddedServer.DisposeAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine($"Error disposing embedded server: {ex.Message}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -470,11 +477,37 @@ public class RiskyStarsGame : Game
     {
         if (disposing)
         {
-            _connectionManager?.Dispose();
+            try
+            {
+                if (_connectionManager != null)
+                {
+                    Task.Run(async () => await _connectionManager.DisconnectAsync()).Wait(TimeSpan.FromSeconds(5));
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error disconnecting: {ex.Message}");
+            }
+
+            try
+            {
+                _connectionManager?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error disposing connection manager: {ex.Message}");
+            }
             
             if (_lobbyManager != null)
             {
-                Task.Run(async () => await _lobbyManager.DisposeAsync()).Wait();
+                try
+                {
+                    Task.Run(async () => await _lobbyManager.DisposeAsync()).Wait(TimeSpan.FromSeconds(10));
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine($"Error disposing lobby manager: {ex.Message}");
+                }
             }
         }
         base.Dispose(disposing);

@@ -13,17 +13,21 @@ using System.Net;
 
 namespace RiskyStars.Client;
 
-public class EmbeddedServerHost
+public class EmbeddedServerHost : IAsyncDisposable, IDisposable
 {
     private WebApplication? _app;
     private Task? _runTask;
     private CancellationTokenSource? _cts;
     private GrpcChannel? _channel;
+    private SocketsHttpHandler? _httpHandler;
     private readonly string _serverUrl;
     private readonly int _port;
+    private bool _disposed;
+    private readonly object _lock = new object();
 
     public GrpcChannel? Channel => _channel;
     public bool IsRunning => _app != null && _runTask != null && !_runTask.IsCompleted;
+    public string? LastError { get; private set; }
 
     public EmbeddedServerHost(int port = 0)
     {
@@ -31,76 +35,174 @@ public class EmbeddedServerHost
         _serverUrl = $"http://localhost:{_port}";
     }
 
-    public async Task StartAsync()
+    public async Task<bool> StartAsync()
     {
-        if (IsRunning)
+        if (_disposed)
         {
-            throw new InvalidOperationException("Server is already running");
+            LastError = "Cannot start a disposed server host";
+            return false;
         }
 
-        _cts = new CancellationTokenSource();
-
-        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        if (IsRunning)
         {
-            EnvironmentName = Environments.Development
-        });
+            LastError = "Server is already running";
+            return false;
+        }
 
-        ConfigureServices(builder);
-        ConfigureKestrel(builder);
-
-        _app = builder.Build();
-
-        ConfigureMiddleware(_app);
-        MapEndpoints(_app);
-
-        _channel = GrpcChannel.ForAddress(_serverUrl, new GrpcChannelOptions
+        try
         {
-            HttpHandler = new SocketsHttpHandler
+            _cts = new CancellationTokenSource();
+
+            var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+            {
+                EnvironmentName = Environments.Development
+            });
+
+            ConfigureServices(builder);
+            ConfigureKestrel(builder);
+
+            _app = builder.Build();
+
+            ConfigureMiddleware(_app);
+            MapEndpoints(_app);
+
+            _httpHandler = new SocketsHttpHandler
             {
                 PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
                 KeepAlivePingDelay = TimeSpan.FromSeconds(60),
                 KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
                 EnableMultipleHttp2Connections = true
-            }
-        });
+            };
 
-        _runTask = Task.Run(async () =>
+            _channel = GrpcChannel.ForAddress(_serverUrl, new GrpcChannelOptions
+            {
+                HttpHandler = _httpHandler
+            });
+
+            _runTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await _app.RunAsync(_serverUrl);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    LastError = $"Server runtime error: {ex.Message}";
+                    Console.WriteLine($"Embedded server error: {ex.Message}");
+                }
+            }, _cts.Token);
+
+            await WaitForServerReady();
+            LastError = null;
+            return true;
+        }
+        catch (TimeoutException ex)
         {
-            try
-            {
-                await _app.RunAsync(_serverUrl);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Embedded server error: {ex.Message}");
-            }
-        }, _cts.Token);
-
-        await WaitForServerReady();
+            LastError = "Server failed to start within the expected time. The port may be in use or the server configuration is incorrect.";
+            Console.WriteLine($"Server initialization failed: {ex.Message}");
+            await CleanupResources();
+            return false;
+        }
+        catch (IOException ex)
+        {
+            LastError = $"Server initialization failed due to I/O error: {ex.Message}. The port {_port} may already be in use.";
+            Console.WriteLine($"Server initialization failed: {ex.Message}");
+            await CleanupResources();
+            return false;
+        }
+        catch (Exception ex)
+        {
+            LastError = $"Server initialization failed: {ex.Message}";
+            Console.WriteLine($"Server initialization failed: {ex.Message}");
+            await CleanupResources();
+            return false;
+        }
     }
 
     public async Task StopAsync()
     {
-        if (!IsRunning)
+        if (_disposed)
         {
             return;
+        }
+
+        await CleanupResources();
+    }
+
+    private async Task CleanupResources()
+    {
+        lock (_lock)
+        {
+            if (_disposed)
+            {
+                return;
+            }
         }
 
         try
         {
             if (_channel != null)
             {
-                await _channel.ShutdownAsync();
-                _channel.Dispose();
+                try
+                {
+                    await _channel.ShutdownAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error shutting down gRPC channel: {ex.Message}");
+                }
+
+                try
+                {
+                    _channel.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error disposing gRPC channel: {ex.Message}");
+                }
+
                 _channel = null;
+            }
+
+            if (_httpHandler != null)
+            {
+                try
+                {
+                    _httpHandler.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error disposing HTTP handler: {ex.Message}");
+                }
+
+                _httpHandler = null;
             }
 
             _cts?.Cancel();
 
             if (_app != null)
             {
-                await _app.StopAsync();
-                await _app.DisposeAsync();
+                try
+                {
+                    await _app.StopAsync(TimeSpan.FromSeconds(5));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error stopping embedded server: {ex.Message}");
+                }
+
+                try
+                {
+                    await _app.DisposeAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error disposing embedded server: {ex.Message}");
+                }
+
                 _app = null;
             }
 
@@ -108,20 +210,40 @@ public class EmbeddedServerHost
             {
                 try
                 {
-                    await _runTask;
+                    await _runTask.WaitAsync(TimeSpan.FromSeconds(5));
                 }
                 catch (OperationCanceledException)
                 {
                 }
+                catch (TimeoutException)
+                {
+                    Console.WriteLine("Server run task did not complete within timeout");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error waiting for server task: {ex.Message}");
+                }
+
+                _runTask = null;
             }
 
-            _cts?.Dispose();
-            _cts = null;
-            _runTask = null;
+            if (_cts != null)
+            {
+                try
+                {
+                    _cts.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error disposing cancellation token source: {ex.Message}");
+                }
+
+                _cts = null;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error stopping embedded server: {ex.Message}");
+            Console.WriteLine($"Error during resource cleanup: {ex.Message}");
         }
     }
 
@@ -240,6 +362,7 @@ public class EmbeddedServerHost
             try
             {
                 using var httpClient = new HttpClient();
+                httpClient.Timeout = TimeSpan.FromMilliseconds(500);
                 var response = await httpClient.GetAsync($"{_serverUrl}/health");
                 if (response.IsSuccessStatusCode)
                 {
@@ -263,5 +386,46 @@ public class EmbeddedServerHost
         var port = ((IPEndPoint)listener.LocalEndpoint).Port;
         listener.Stop();
         return port;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        await CleanupResources();
+
+        lock (_lock)
+        {
+            _disposed = true;
+        }
+
+        GC.SuppressFinalize(this);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        try
+        {
+            CleanupResources().GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during synchronous disposal: {ex.Message}");
+        }
+
+        lock (_lock)
+        {
+            _disposed = true;
+        }
+
+        GC.SuppressFinalize(this);
     }
 }

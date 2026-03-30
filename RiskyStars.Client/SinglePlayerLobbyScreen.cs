@@ -42,6 +42,9 @@ public class SinglePlayerLobbyScreen
     private KeyboardState _previousKeyState;
     private int _scrollOffset = 0;
     private const int MaxVisibleSlots = 3;
+    private string? _errorMessage;
+    private float _errorDisplayTime;
+    private const float ErrorDisplayDuration = 5.0f;
 
     public bool ShouldStartGame { get; private set; }
     public bool ShouldGoBack { get; private set; }
@@ -134,6 +137,15 @@ public class SinglePlayerLobbyScreen
         ShouldStartGame = false;
         ShouldGoBack = false;
 
+        if (_errorDisplayTime > 0)
+        {
+            _errorDisplayTime -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_errorDisplayTime <= 0)
+            {
+                _errorMessage = null;
+            }
+        }
+
         _playerNameField.Update(mouseState, keyState, _previousKeyState);
         _mapDropdown.Update(mouseState);
 
@@ -178,6 +190,14 @@ public class SinglePlayerLobbyScreen
         ShouldStartGame = false;
         ShouldGoBack = false;
         _scrollOffset = 0;
+        _errorMessage = null;
+        _errorDisplayTime = 0;
+    }
+
+    public void SetError(string errorMessage)
+    {
+        _errorMessage = errorMessage;
+        _errorDisplayTime = ErrorDisplayDuration;
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -250,7 +270,57 @@ public class SinglePlayerLobbyScreen
         _startGameButton.Draw(spriteBatch, _pixelTexture, _font);
         _backButton.Draw(spriteBatch, _pixelTexture, _font);
 
+        if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            int errorPanelWidth = 550;
+            int errorPanelHeight = 80;
+            int errorPanelX = (_screenWidth - errorPanelWidth) / 2;
+            int errorPanelY = panelY + panelHeight + 20;
+
+            var errorPanel = new Rectangle(errorPanelX, errorPanelY, errorPanelWidth, errorPanelHeight);
+            spriteBatch.Draw(_pixelTexture, errorPanel, Color.DarkRed * 0.9f);
+            DrawRectangleOutline(spriteBatch, errorPanel, Color.Red, 3);
+
+            var errorText = WrapText(_errorMessage, errorPanelWidth - 40, _font);
+            var errorTextSize = _font.MeasureString(errorText);
+            var errorTextPosition = new Vector2(
+                errorPanelX + (errorPanelWidth - errorTextSize.X * 0.7f) / 2,
+                errorPanelY + (errorPanelHeight - errorTextSize.Y * 0.7f) / 2);
+
+            spriteBatch.DrawString(_font, errorText, errorTextPosition, Color.Yellow, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+        }
+
         spriteBatch.End();
+    }
+
+    private string WrapText(string text, float maxWidth, SpriteFont font)
+    {
+        var words = text.Split(' ');
+        var lines = new List<string>();
+        var currentLine = "";
+
+        foreach (var word in words)
+        {
+            var testLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
+            var size = font.MeasureString(testLine);
+
+            if (size.X * 0.7f > maxWidth && !string.IsNullOrEmpty(currentLine))
+            {
+                lines.Add(currentLine);
+                currentLine = word;
+            }
+            else
+            {
+                currentLine = testLine;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(currentLine))
+        {
+            lines.Add(currentLine);
+        }
+
+        return string.Join("\n", lines);
     }
 
     private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)

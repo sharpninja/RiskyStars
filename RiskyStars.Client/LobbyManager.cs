@@ -165,16 +165,42 @@ public class LobbyManager
                 try
                 {
                     _embeddedServerHost = new EmbeddedServerHost();
-                    await _embeddedServerHost.StartAsync();
+                    bool success = await _embeddedServerHost.StartAsync();
 
-                    _sessionId = Guid.NewGuid().ToString();
-                    
-                    _state = LobbyState.InGame;
+                    if (success)
+                    {
+                        _sessionId = Guid.NewGuid().ToString();
+                        _state = LobbyState.InGame;
+                    }
+                    else
+                    {
+                        string errorMessage = _embeddedServerHost.LastError ?? "Unknown error occurred";
+                        System.Console.WriteLine($"Failed to start embedded server: {errorMessage}");
+                        _singlePlayerLobbyScreen.SetError($"Failed to start game server: {errorMessage}");
+                        
+                        await _embeddedServerHost.DisposeAsync();
+                        _embeddedServerHost = null;
+                        _state = LobbyState.SinglePlayerLobby;
+                    }
                 }
                 catch (Exception ex)
                 {
                     System.Console.WriteLine($"Failed to start embedded server: {ex.Message}");
-                    _embeddedServerHost = null;
+                    _singlePlayerLobbyScreen.SetError($"Failed to start game server: {ex.Message}");
+                    
+                    if (_embeddedServerHost != null)
+                    {
+                        try
+                        {
+                            await _embeddedServerHost.DisposeAsync();
+                        }
+                        catch (Exception disposeEx)
+                        {
+                            System.Console.WriteLine($"Error disposing server after failure: {disposeEx.Message}");
+                        }
+                        _embeddedServerHost = null;
+                    }
+                    
                     _state = LobbyState.SinglePlayerLobby;
                 }
                 finally
@@ -508,15 +534,27 @@ public class LobbyManager
         {
             try
             {
-                await _embeddedServerHost.StopAsync();
+                await _embeddedServerHost.DisposeAsync();
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error stopping embedded server: {ex.Message}");
+                System.Console.WriteLine($"Error disposing embedded server: {ex.Message}");
             }
             finally
             {
                 _embeddedServerHost = null;
+            }
+        }
+
+        if (_pendingTask != null)
+        {
+            try
+            {
+                await _pendingTask;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error waiting for pending task: {ex.Message}");
             }
         }
     }
@@ -525,7 +563,7 @@ public class LobbyManager
     {
         try
         {
-            Task.Run(async () => await DisposeAsync()).Wait(TimeSpan.FromSeconds(5));
+            Task.Run(async () => await DisposeAsync()).Wait(TimeSpan.FromSeconds(10));
         }
         catch (Exception ex)
         {
