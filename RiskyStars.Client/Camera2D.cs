@@ -1,0 +1,109 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+
+namespace RiskyStars.Client;
+
+public class Camera2D
+{
+    private Vector2 _position;
+    private float _zoom;
+    private float _rotation;
+    private readonly int _viewportWidth;
+    private readonly int _viewportHeight;
+
+    private const float MinZoom = 0.1f;
+    private const float MaxZoom = 5.0f;
+    private const float ZoomSpeed = 0.1f;
+    private const float PanSpeed = 5.0f;
+
+    private Vector2? _lastMousePosition;
+    private bool _isPanning;
+
+    public Camera2D(int viewportWidth, int viewportHeight)
+    {
+        _viewportWidth = viewportWidth;
+        _viewportHeight = viewportHeight;
+        _position = Vector2.Zero;
+        _zoom = 1.0f;
+        _rotation = 0f;
+    }
+
+    public Matrix GetTransformMatrix()
+    {
+        return
+            Matrix.CreateTranslation(new Vector3(-_position.X, -_position.Y, 0)) *
+            Matrix.CreateRotationZ(_rotation) *
+            Matrix.CreateScale(new Vector3(_zoom, _zoom, 1)) *
+            Matrix.CreateTranslation(new Vector3(_viewportWidth * 0.5f, _viewportHeight * 0.5f, 0));
+    }
+
+    public void Update(GameTime gameTime)
+    {
+        var keyState = Keyboard.GetState();
+        var mouseState = Mouse.GetState();
+        var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        float moveSpeed = PanSpeed / _zoom;
+        if (keyState.IsKeyDown(Keys.LeftShift) || keyState.IsKeyDown(Keys.RightShift))
+        {
+            moveSpeed *= 3.0f;
+        }
+
+        if (keyState.IsKeyDown(Keys.W) || keyState.IsKeyDown(Keys.Up))
+            _position.Y -= moveSpeed;
+        if (keyState.IsKeyDown(Keys.S) || keyState.IsKeyDown(Keys.Down))
+            _position.Y += moveSpeed;
+        if (keyState.IsKeyDown(Keys.A) || keyState.IsKeyDown(Keys.Left))
+            _position.X -= moveSpeed;
+        if (keyState.IsKeyDown(Keys.D) || keyState.IsKeyDown(Keys.Right))
+            _position.X += moveSpeed;
+
+        if (mouseState.MiddleButton == ButtonState.Pressed)
+        {
+            if (!_isPanning && _lastMousePosition.HasValue)
+            {
+                var delta = new Vector2(mouseState.X, mouseState.Y) - _lastMousePosition.Value;
+                _position -= delta / _zoom;
+            }
+            _isPanning = true;
+        }
+        else
+        {
+            _isPanning = false;
+        }
+
+        _lastMousePosition = new Vector2(mouseState.X, mouseState.Y);
+
+        if (mouseState.ScrollWheelValue != 0)
+        {
+            float previousZoom = _zoom;
+            _zoom += mouseState.ScrollWheelValue * ZoomSpeed * 0.001f;
+            _zoom = MathHelper.Clamp(_zoom, MinZoom, MaxZoom);
+        }
+
+        if (keyState.IsKeyDown(Keys.OemPlus) || keyState.IsKeyDown(Keys.Add))
+            _zoom = MathHelper.Clamp(_zoom + ZoomSpeed * deltaTime, MinZoom, MaxZoom);
+        if (keyState.IsKeyDown(Keys.OemMinus) || keyState.IsKeyDown(Keys.Subtract))
+            _zoom = MathHelper.Clamp(_zoom - ZoomSpeed * deltaTime, MinZoom, MaxZoom);
+    }
+
+    public Vector2 ScreenToWorld(Vector2 screenPosition)
+    {
+        var transform = GetTransformMatrix();
+        Matrix.Invert(ref transform, out var invertedMatrix);
+        return Vector2.Transform(screenPosition, invertedMatrix);
+    }
+
+    public void CenterOn(Vector2 position)
+    {
+        _position = position;
+    }
+
+    public void SetZoom(float zoom)
+    {
+        _zoom = MathHelper.Clamp(zoom, MinZoom, MaxZoom);
+    }
+
+    public Vector2 Position => _position;
+    public float Zoom => _zoom;
+}

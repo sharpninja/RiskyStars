@@ -28,7 +28,14 @@ dotnet restore RiskyStars.sln
   - `Program.cs` - Server configuration
 - `RiskyStars.Client/` - MonoGame game client
   - `RiskyStarsGame.cs` - Main game class
+  - `Camera2D.cs` - 2D camera with pan/zoom controls
+  - `MapRenderer.cs` - Renders star systems and stellar bodies
+  - `RegionRenderer.cs` - Renders ownership and armies
+  - `UIRenderer.cs` - Renders HUD and resource displays
+  - `MapData.cs` - Map data structures
+  - `MapLoader.cs` - Sample map creation
   - `Content/` - Game assets directory
+  - `RENDERING.md` - Rendering system documentation
 - `0.0_Concept/` - Game concept documentation
 - `1.0_Rules/` - Gameplay and combat rules
 - `2.0_Design/` - Design documentation
@@ -60,12 +67,29 @@ No tests currently configured.
 ## Lint Commands
 No linter currently configured.
 
+## Rendering System
+
+The MonoGame client uses a three-renderer architecture:
+- **MapRenderer**: Displays static map elements (star systems, stellar bodies, hyperspace lanes)
+- **RegionRenderer**: Displays dynamic game state (ownership, armies)
+- **UIRenderer**: Displays HUD elements (resources, turn info, player list)
+
+### Camera Controls
+- **WASD/Arrow Keys**: Pan camera
+- **Shift + Movement**: Fast pan
+- **Mouse Wheel**: Zoom
+- **Middle Mouse**: Pan by dragging
+- **F1**: Toggle debug info
+
+See `RiskyStars.Client/RENDERING.md` for detailed documentation.
+
 ## Conventions
 ### Code
 - C# projects follow standard .NET conventions
 - Proto files use proto3 syntax
 - gRPC services defined in `RiskyStars.Shared/Protos/`
 - Service implementations in `RiskyStars.Server/Services/`
+- MonoGame content in `RiskyStars.Client/Content/`
 
 ### Documentation
 - Documentation files use Markdown format with `.md` extension
