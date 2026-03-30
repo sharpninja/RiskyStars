@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Grpc.Net.Client;
 using RiskyStars.Shared;
 
 namespace RiskyStars.Client;
@@ -10,8 +9,7 @@ public class RiskyStarsGame : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch? _spriteBatch;
-    private GrpcChannel? _channel;
-    private GameService.GameServiceClient? _client;
+    private GrpcGameClient? _gameClient;
 
     public RiskyStarsGame()
     {
@@ -22,8 +20,7 @@ public class RiskyStarsGame : Game
 
     protected override void Initialize()
     {
-        _channel = GrpcChannel.ForAddress("http://localhost:5000");
-        _client = new GameService.GameServiceClient(_channel);
+        _gameClient = new GrpcGameClient("http://localhost:5000");
         
         base.Initialize();
     }
@@ -38,6 +35,15 @@ public class RiskyStarsGame : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+        if (_gameClient != null && _gameClient.IsConnected)
+        {
+            var updates = _gameClient.DequeueAllUpdates();
+            foreach (var update in updates)
+            {
+                ProcessGameUpdate(update);
+            }
+        }
+
         base.Update(gameTime);
     }
 
@@ -48,11 +54,15 @@ public class RiskyStarsGame : Game
         base.Draw(gameTime);
     }
 
+    private void ProcessGameUpdate(GameUpdate update)
+    {
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            _channel?.Dispose();
+            _gameClient?.Dispose();
         }
         base.Dispose(disposing);
     }
