@@ -4,6 +4,8 @@
 
 The `CombatScreen` class provides a full-featured combat visualization UI that displays streamed `CombatEvent` messages from the server. It shows dice roll animations, attacker/defender pairings, casualty updates, and reinforcement arrivals in an engaging and informative way.
 
+![Combat Screen Overview](screenshots/combat_overview.png)
+
 ## Features
 
 ### 1. Combat Event Types
@@ -18,17 +20,23 @@ The `CombatScreen` class provides a full-featured combat visualization UI that d
 - Unrevealed dice show "?" placeholder
 - Staggered animation timing (0.1s delay between each die)
 
+![Combat Dice Rolling](screenshots/combat_dice_rolling.png)
+
 ### 3. Roll Pairing Visualization
 - Shows which attacker rolls paired with which defender rolls
 - Color-codes winners (Red for attacker win, Blue for defender win)
 - Marks discarded rolls clearly
 - Sequential reveal animation
 
+![Combat Roll Pairings](screenshots/combat_pairings.png)
+
 ### 4. Casualty Display
 - Shows casualties for each army after each round
 - Displays remaining unit counts
 - Color-coded for impact (OrangeRed for casualties)
 - Per-player breakdown with combat role
+
+![Combat Casualties](screenshots/combat_casualties.png)
 
 ### 5. Army State Tracking
 - Side-by-side display of attackers (left panel, red) and defenders (right panel, blue)
@@ -38,6 +46,8 @@ The `CombatScreen` class provides a full-featured combat visualization UI that d
 ### 6. Reinforcement Messages
 - Special green-bordered message panel
 - Highlights when new units arrive at the battlefield
+
+![Combat Reinforcements](screenshots/combat_reinforcements.png)
 
 ## Animation States
 
@@ -51,6 +61,8 @@ The combat screen uses a state machine to control animation flow:
 6. **ShowingCasualties**: Casualty reveal animation
 7. **RoundComplete**: Brief pause before next round
 8. **ShowingOutro**: Final results screen
+
+![Combat Final Results](screenshots/combat_results.png)
 
 ## User Controls
 
@@ -150,3 +162,31 @@ The system can be extended with:
 - Army/unit portraits instead of text
 - Animated transitions between states
 - Combat statistics summary screen
+
+## Screenshots Needed
+
+The following screenshots are required for complete documentation:
+
+1. **Combat Screen Overview** (`screenshots/combat_overview.png`)
+   - Capture: Initial combat screen showing attacker/defender army states and location info
+   - Requirements: Combat initiated, ShowingIntro state, display both panels clearly
+
+2. **Combat Dice Rolling** (`screenshots/combat_dice_rolling.png`)
+   - Capture: Mid-animation with some dice revealed and some showing "?" placeholders
+   - Requirements: RollingDice state, capture during sequential reveal animation
+
+3. **Combat Roll Pairings** (`screenshots/combat_pairings.png`)
+   - Capture: Pairing panel showing attacker vs defender dice matches with winner highlighting
+   - Requirements: ShowingPairings state, clear color-coded winners visible
+
+4. **Combat Casualties** (`screenshots/combat_casualties.png`)
+   - Capture: Casualty report showing units lost for each army with remaining counts
+   - Requirements: ShowingCasualties state, multiple armies with casualties
+
+5. **Combat Reinforcements** (`screenshots/combat_reinforcements.png`)
+   - Capture: Green-bordered reinforcement arrival message panel
+   - Requirements: Combat with reinforcements arriving, REINFORCEMENTS_ARRIVED event
+
+6. **Combat Final Results** (`screenshots/combat_results.png`)
+   - Capture: Final outcome screen showing surviving armies and victory/defeat status
+   - Requirements: ShowingOutro state, combat completed with clear winner

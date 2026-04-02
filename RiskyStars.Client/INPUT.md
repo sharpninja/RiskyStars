@@ -4,6 +4,8 @@
 
 The RiskyStars client implements a comprehensive input handling system that processes mouse clicks, keyboard shortcuts, and sends player actions to the server via gRPC.
 
+![Input Selection Example](screenshots/input_selection.png)
+
 ## Components
 
 ### InputController
@@ -72,6 +74,8 @@ Tracks the currently selected object, which can be:
 - **WASD/Arrow Keys**: Pan camera (handled by Camera2D)
 - **Shift + Movement**: Fast pan (handled by Camera2D)
 - **+/-**: Zoom in/out (handled by Camera2D)
+
+![Keyboard Shortcuts Help Panel](screenshots/input_shortcuts_help.png)
 
 ## Click Detection
 
@@ -145,6 +149,8 @@ Displayed at bottom center when an object is selected:
 - Stellar Body: Name, type, region count
 - Star System: Name, type, body count
 
+![Selection Info Panel](screenshots/input_selection_info.png)
+
 ## Error Handling
 
 All gRPC commands are executed asynchronously with error handling:
@@ -181,3 +187,27 @@ Potential improvements:
 - Hotkey groups (Ctrl+1-9 to create groups)
 - Double-click to select all armies at location
 - Smart targeting (auto-select nearest valid target)
+
+## Screenshots Needed
+
+The following screenshots are required for complete documentation:
+
+1. **Input Selection Example** (`screenshots/input_selection.png`)
+   - Capture: Army selected with pulsing white highlight circle visible
+   - Requirements: In-game, click on an army to select it, show clear selection highlight
+
+2. **Selection Info Panel** (`screenshots/input_selection_info.png`)
+   - Capture: Bottom-center info panel showing selected object details (army info preferred)
+   - Requirements: Army selected, panel showing ID, owner, unit count, and location
+
+3. **Keyboard Shortcuts Help Panel** (`screenshots/input_shortcuts_help.png`)
+   - Capture: Full keyboard shortcuts help overlay displayed on screen
+   - Requirements: Press H key to display help panel, show all shortcut categories
+
+4. **Army Movement Command** (`screenshots/input_movement_command.png`)
+   - Capture: Visual feedback during right-click move command (if applicable)
+   - Requirements: Army selected, right-click on destination, capture any visual indicators
+
+5. **Camera Pan and Zoom** (`screenshots/input_camera_controls.png`)
+   - Capture: Map view showing camera position with debug info (F1) displaying zoom level
+   - Requirements: F1 debug enabled, moderate zoom level, multiple objects visible
