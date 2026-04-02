@@ -9,6 +9,8 @@ The dashboard is rendered on the right side of the screen and consists of three 
 2. **Army Purchase Panel** - Interactive buttons to purchase armies
 3. **Hero Assignment Panel** - Controls for managing heroes (coming soon)
 
+![Player Dashboard Overview](screenshots/player_dashboard_overview.png)
+
 ## Architecture
 
 ### PlayerDashboard Class
@@ -55,6 +57,8 @@ The dashboard is integrated into the main game loop:
 
 **Data Source**: `GameStateCache.GetPlayerState()`, `GameStateCache.GetProductionRate()`
 
+![Resource Panel](screenshots/player_dashboard_resources.png)
+
 ### 2. Army Purchase Panel
 
 **Location**: Middle-right (width: 300px, height: 150px)
@@ -83,6 +87,10 @@ The dashboard is integrated into the main game loop:
 
 **Actions**: Sends `PurchaseArmiesAction` to server via `GrpcGameClient.SendPurchaseArmiesAsync()`
 
+![Army Purchase Panel](screenshots/player_dashboard_purchase.png)
+
+![Purchase Tooltip](screenshots/player_dashboard_purchase_tooltip.png)
+
 ### 3. Hero Assignment Panel
 
 **Location**: Bottom-right (width: 300px, height: 180px)
@@ -103,6 +111,8 @@ The dashboard is integrated into the main game loop:
 - Purple border and header (180, 100, 200)
 - Gray disabled buttons
 - Placeholder text indicating upcoming feature
+
+![Hero Assignment Panel](screenshots/player_dashboard_heroes.png)
 
 ## User Interactions
 
@@ -306,3 +316,31 @@ When hovering over purchase buttons:
 - Tooltip rendering only on hover
 - Resource queries use cached GameStateCache (thread-safe locks)
 - Async purchases don't block main game thread
+
+## Screenshots Needed
+
+The following screenshots are required for complete documentation:
+
+1. **Player Dashboard Overview** (`screenshots/player_dashboard_overview.png`)
+   - Capture: Full dashboard showing all three panels (resources, purchase, heroes) on right side of screen
+   - Requirements: In-game, dashboard visible (F2 if hidden), sufficient resources to enable buttons
+
+2. **Resource Panel** (`screenshots/player_dashboard_resources.png`)
+   - Capture: Close-up of resource stockpiles panel showing population, metal, fuel with production rates
+   - Requirements: In-game with positive production rates, multiple territories owned
+
+3. **Army Purchase Panel** (`screenshots/player_dashboard_purchase.png`)
+   - Capture: Purchase panel during Purchase phase with enabled buttons
+   - Requirements: Purchase phase active, sufficient resources to show enabled state
+
+4. **Purchase Tooltip** (`screenshots/player_dashboard_purchase_tooltip.png`)
+   - Capture: Mouse hovering over a purchase button showing cost breakdown tooltip
+   - Requirements: Hover over "Buy 5" or "Buy 10" button to show detailed cost display
+
+5. **Hero Assignment Panel** (`screenshots/player_dashboard_heroes.png`)
+   - Capture: Hero panel showing placeholder state with disabled buttons
+   - Requirements: In-game, dashboard visible
+
+6. **Phase Warning** (`screenshots/player_dashboard_phase_warning.png`)
+   - Capture: Purchase panel during non-Purchase phase showing orange warning message
+   - Requirements: Switch to Movement, Combat, or Production phase to display warning

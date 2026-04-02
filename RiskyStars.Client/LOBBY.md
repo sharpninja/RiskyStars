@@ -9,6 +9,8 @@ The RiskyStars client features a complete lobby system that allows players to:
 - Join existing lobbies
 - Ready-up and start games
 
+![Lobby Browser Screen](screenshots/lobby_browser.png)
+
 ## Architecture
 
 The lobby system consists of several components:
@@ -33,6 +35,8 @@ The lobby system consists of several components:
    - Player name and server address input
    - Authenticates with lobby service
 
+![Connection Screen](screenshots/lobby_connection.png)
+
 2. **LobbyBrowserScreen** (`LobbyBrowserScreen.cs`)
    - Displays list of available game lobbies
    - Shows lobby info: host, map, mode, player count
@@ -46,6 +50,8 @@ The lobby system consists of several components:
      - Max Players (2-6, numeric input with +/- buttons)
      - Default settings: Standard mode, 100 population, 50 metal/fuel
 
+![Create Lobby Screen](screenshots/lobby_create.png)
+
 4. **LobbyScreen** (`LobbyScreen.cs`)
    - In-lobby player list and ready-up interface
    - Shows lobby info and player list
@@ -53,6 +59,8 @@ The lobby system consists of several components:
    - Start Game button for host (enabled when all players ready)
    - Leave Lobby button
    - Auto-refreshes lobby state every 1 second
+
+![In-Lobby Screen](screenshots/lobby_waiting_room.png)
 
 ### UI Controls
 
@@ -189,3 +197,23 @@ Potential improvements:
 - Player color selection
 - Lobby password protection
 - Friend/invite system
+
+## Screenshots Needed
+
+The following screenshots are required for complete documentation:
+
+1. **Connection Screen** (`screenshots/lobby_connection.png`)
+   - Capture: Initial connection screen with player name field and "Connect" button
+   - Requirements: Fresh application start, before authentication
+
+2. **Lobby Browser Screen** (`screenshots/lobby_browser.png`)
+   - Capture: Lobby browser showing multiple available lobbies with player counts and map names
+   - Requirements: Connected to server, multiple lobbies created, show selection highlighting
+
+3. **Create Lobby Screen** (`screenshots/lobby_create.png`)
+   - Capture: Lobby creation interface with all settings visible (map name, max players selector)
+   - Requirements: Click "Create Lobby" button from browser
+
+4. **In-Lobby Screen** (`screenshots/lobby_waiting_room.png`)
+   - Capture: Inside a lobby showing player list, ready status indicators, and host controls
+   - Requirements: Multiple players in lobby, some ready/some not ready, show from host perspective
