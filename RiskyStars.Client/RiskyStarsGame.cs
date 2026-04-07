@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RiskyStars.Shared;
+using Myra;
 
 namespace RiskyStars.Client;
 
@@ -50,6 +51,9 @@ public class RiskyStarsGame : Game
         ApplySettings();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        
+        // Initialize Myra
+        MyraEnvironment.Game = this;
     }
 
     private void ApplySettings()
