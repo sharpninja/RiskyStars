@@ -14,6 +14,8 @@ public class AIActionTracker
     private Dictionary<string, RegionOwnership> _previousRegionOwnerships = new();
     private Dictionary<string, HyperspaceLaneMouthOwnership> _previousHyperspaceLaneMouthOwnerships = new();
     private Dictionary<string, PlayerState> _previousPlayerStates = new();
+    
+    private AIVisualizationWindow? _aiVisualizationWindow;
 
     public AIActionTracker(AIActionIndicator aiActionIndicator, MapData mapData, GameStateCache gameStateCache, RegionRenderer regionRenderer)
     {
@@ -21,6 +23,11 @@ public class AIActionTracker
         _mapData = mapData;
         _gameStateCache = gameStateCache;
         _regionRenderer = regionRenderer;
+    }
+    
+    public void SetAIVisualizationWindow(AIVisualizationWindow? window)
+    {
+        _aiVisualizationWindow = window;
     }
 
     public void ProcessGameUpdate(GameUpdate update, string? currentPlayerId)
@@ -84,6 +91,7 @@ public class AIActionTracker
             {
                 string message = $"{playerName} purchased {armiesPurchased} {(armiesPurchased == 1 ? "army" : "armies")}";
                 _aiActionIndicator.AddLogEntry(message, playerColor);
+                _aiVisualizationWindow?.LogActivity(message);
             }
         }
     }
@@ -98,8 +106,13 @@ public class AIActionTracker
                 {
                     string message = $"{playerName} reinforced with {currentArmy.UnitCount} units";
                     _aiActionIndicator.AddLogEntry(message, playerColor);
-                    _aiActionIndicator.ShowReinforcement(currentArmy.LocationId, currentArmy.LocationType, 
-                        currentArmy.UnitCount, playerColor);
+                    _aiVisualizationWindow?.LogActivity(message);
+                    
+                    if (_aiVisualizationWindow?.ShowReinforcementHighlights ?? true)
+                    {
+                        _aiActionIndicator.ShowReinforcement(currentArmy.LocationId, currentArmy.LocationType, 
+                            currentArmy.UnitCount, playerColor);
+                    }
                 }
                 continue;
             }
@@ -110,8 +123,13 @@ public class AIActionTracker
                 int unitsAdded = currentArmy.UnitCount - previousArmy.UnitCount;
                 string message = $"{playerName} reinforced with {unitsAdded} units";
                 _aiActionIndicator.AddLogEntry(message, playerColor);
-                _aiActionIndicator.ShowReinforcement(currentArmy.LocationId, currentArmy.LocationType, 
-                    unitsAdded, playerColor);
+                _aiVisualizationWindow?.LogActivity(message);
+                
+                if (_aiVisualizationWindow?.ShowReinforcementHighlights ?? true)
+                {
+                    _aiActionIndicator.ShowReinforcement(currentArmy.LocationId, currentArmy.LocationType, 
+                        unitsAdded, playerColor);
+                }
             }
         }
     }
@@ -138,8 +156,13 @@ public class AIActionTracker
                     
                     string message = $"{playerName} moved {currentArmy.UnitCount} units: {startName} → {endName}";
                     _aiActionIndicator.AddLogEntry(message, playerColor);
-                    _aiActionIndicator.ShowArmyMovement(startPos.Value, endPos.Value, 
-                        currentArmy.UnitCount, playerColor, currentArmy.ArmyId);
+                    _aiVisualizationWindow?.LogActivity(message);
+                    
+                    if (_aiVisualizationWindow?.ShowMovementAnimations ?? true)
+                    {
+                        _aiActionIndicator.ShowArmyMovement(startPos.Value, endPos.Value, 
+                            currentArmy.UnitCount, playerColor, currentArmy.ArmyId);
+                    }
                 }
             }
         }
@@ -155,6 +178,7 @@ public class AIActionTracker
                 string regionName = GetLocationName(currentOwnership.RegionId, LocationType.Region);
                 string message = $"{playerName} captured {regionName}";
                 _aiActionIndicator.AddLogEntry(message, playerColor);
+                _aiVisualizationWindow?.LogActivity(message);
             }
         }
 
@@ -166,6 +190,7 @@ public class AIActionTracker
                 string laneMouthName = GetLocationName(currentOwnership.HyperspaceLaneMouthId, LocationType.HyperspaceLaneMouth);
                 string message = $"{playerName} captured {laneMouthName}";
                 _aiActionIndicator.AddLogEntry(message, playerColor);
+                _aiVisualizationWindow?.LogActivity(message);
             }
         }
     }

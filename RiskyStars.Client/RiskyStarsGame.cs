@@ -20,6 +20,7 @@ public class RiskyStarsGame : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch? _spriteBatch;
     private Settings _settings;
+    private WindowPreferences _windowPreferences;
     private ConnectionManager? _connectionManager;
     private GameStateCache? _gameStateCache;
     
@@ -40,6 +41,10 @@ public class RiskyStarsGame : Game
     private DialogManager? _inGameDialogManager;
     private CombatEventDialog? _combatEventDialog;
     
+    private PlayerDashboardWindow? _playerDashboardWindow;
+    private AIVisualizationWindow? _aiVisualizationWindow;
+    private DebugInfoWindow? _debugInfoWindow;
+    
     private MapData? _mapData;
     private SpriteFont? _defaultFont;
     
@@ -54,6 +59,7 @@ public class RiskyStarsGame : Game
     {
         _graphics = new GraphicsDeviceManager(this);
         _settings = Settings.Load();
+        _windowPreferences = WindowPreferences.Load();
         ApplySettings();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -222,12 +228,18 @@ public class RiskyStarsGame : Game
         }
 
         if (keyState.IsKeyDown(Keys.F1) && _previousKeyState.IsKeyUp(Keys.F1))
-            _showDebug = !_showDebug;
+        {
+            _debugInfoWindow?.Toggle();
+        }
         
         if (keyState.IsKeyDown(Keys.F2) && _previousKeyState.IsKeyUp(Keys.F2))
         {
-            if (_playerDashboard != null)
-                _playerDashboard.IsVisible = !_playerDashboard.IsVisible;
+            _playerDashboardWindow?.Toggle();
+        }
+        
+        if (keyState.IsKeyDown(Keys.F3) && _previousKeyState.IsKeyUp(Keys.F3))
+        {
+            _aiVisualizationWindow?.Toggle();
         }
 
         _connectionManager?.Update();
@@ -260,6 +272,8 @@ public class RiskyStarsGame : Game
             if (_gameStateCache != null && _mapData != null)
             {
                 _playerDashboard?.Update(gameTime, _gameStateCache);
+                _playerDashboardWindow?.UpdateContent(_gameStateCache);
+                
                 _aiActionIndicator?.Update(gameTime, _gameStateCache, _mapData, _currentPlayerId);
                 
                 if (_aiActionIndicator != null && _camera != null)
@@ -267,9 +281,14 @@ public class RiskyStarsGame : Game
                     var activeAnimation = _aiActionIndicator.GetFirstMovementAnimation();
                     if (activeAnimation != null)
                     {
-                        _aiActionIndicator.TrackArmyMovement(_camera, activeAnimation);
+                        if (_aiVisualizationWindow?.AutoFollowAIActions ?? false)
+                        {
+                            _aiActionIndicator.TrackArmyMovement(_camera, activeAnimation);
+                        }
                     }
                 }
+                
+                UpdateDebugInfo(gameTime);
             }
         }
         
@@ -291,6 +310,23 @@ public class RiskyStarsGame : Game
         _playerDashboard = new PlayerDashboard(GraphicsDevice, _connectionManager.GameClient, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _inputController = new InputController(_connectionManager.GameClient, _gameStateCache, _mapData, _camera);
         
+        _playerDashboardWindow = new PlayerDashboardWindow(_connectionManager.GameClient, _windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        _aiVisualizationWindow = new AIVisualizationWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        _debugInfoWindow = new DebugInfoWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        
+        if (_aiActionTracker != null)
+        {
+            _aiActionTracker.SetAIVisualizationWindow(_aiVisualizationWindow);
+        }
+        
+        if (_inGameDesktop != null)
+        {
+            _inGameDesktop.Root = null;
+            _inGameDesktop.Widgets.Add(_playerDashboardWindow.Window);
+            _inGameDesktop.Widgets.Add(_aiVisualizationWindow.Window);
+            _inGameDesktop.Widgets.Add(_debugInfoWindow.Window);
+        }
+        
         if (_defaultFont != null)
         {
             _playerDashboard?.LoadContent(_defaultFont);
@@ -306,6 +342,7 @@ public class RiskyStarsGame : Game
                     _currentPlayerId = _connectionManager.CurrentPlayerId;
                     _inputController?.SetCurrentPlayer(_currentPlayerId);
                     _playerDashboard?.SetCurrentPlayer(_currentPlayerId);
+                    _playerDashboardWindow?.SetCurrentPlayer(_currentPlayerId);
                 }
                 else
                 {
@@ -329,6 +366,23 @@ public class RiskyStarsGame : Game
         _playerDashboard = new PlayerDashboard(GraphicsDevice, gameClient, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _inputController = new InputController(gameClient, _gameStateCache, _mapData, _camera);
         
+        _playerDashboardWindow = new PlayerDashboardWindow(gameClient, _windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        _aiVisualizationWindow = new AIVisualizationWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        _debugInfoWindow = new DebugInfoWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        
+        if (_aiActionTracker != null)
+        {
+            _aiActionTracker.SetAIVisualizationWindow(_aiVisualizationWindow);
+        }
+        
+        if (_inGameDesktop != null)
+        {
+            _inGameDesktop.Root = null;
+            _inGameDesktop.Widgets.Add(_playerDashboardWindow.Window);
+            _inGameDesktop.Widgets.Add(_aiVisualizationWindow.Window);
+            _inGameDesktop.Widgets.Add(_debugInfoWindow.Window);
+        }
+        
         if (_defaultFont != null)
         {
             _playerDashboard?.LoadContent(_defaultFont);
@@ -344,6 +398,7 @@ public class RiskyStarsGame : Game
                     _currentPlayerId = _connectionManager.CurrentPlayerId;
                     _inputController?.SetCurrentPlayer(_currentPlayerId);
                     _playerDashboard?.SetCurrentPlayer(_currentPlayerId);
+                    _playerDashboardWindow?.SetCurrentPlayer(_currentPlayerId);
                 }
                 else
                 {
@@ -391,7 +446,16 @@ public class RiskyStarsGame : Game
         _currentPlayerId = null;
         _inputController = null;
         _playerDashboard = null;
+        _playerDashboardWindow = null;
+        _aiVisualizationWindow = null;
+        _debugInfoWindow = null;
         _gameStateCache = new GameStateCache();
+        
+        if (_inGameDesktop != null)
+        {
+            _inGameDesktop.Root = null;
+            _inGameDesktop.Widgets.Clear();
+        }
         
         if (_aiActionIndicator != null && _mapData != null && _gameStateCache != null && _regionRenderer != null)
         {
@@ -475,11 +539,6 @@ public class RiskyStarsGame : Game
                 _uiRenderer?.DrawSelectionInfo(spriteBatch, _inputController.Selection, _gameStateCache);
                 _uiRenderer?.DrawKeyboardShortcuts(spriteBatch, _inputController.ShowHelp);
             }
-
-            if (_showDebug && _camera != null)
-            {
-                _uiRenderer?.DrawDebugInfo(spriteBatch, _camera);
-            }
         }
 
         _inGameDesktop?.Render();
@@ -522,6 +581,46 @@ public class RiskyStarsGame : Game
         }
     }
 
+    private void UpdateDebugInfo(GameTime gameTime)
+    {
+        if (_debugInfoWindow == null)
+            return;
+        
+        _debugInfoWindow.Update(gameTime);
+        
+        if (_camera != null)
+        {
+            _debugInfoWindow.UpdateCameraInfo(_camera);
+        }
+        
+        if (_gameStateCache != null)
+        {
+            _debugInfoWindow.UpdateGameStateInfo(_gameStateCache, _connectionManager);
+        }
+        
+        if (_inputController != null)
+        {
+            _debugInfoWindow.UpdateSelectionInfo(_inputController.Selection);
+        }
+        
+        if (_aiVisualizationWindow != null && _gameStateCache != null)
+        {
+            var currentPlayerId = _gameStateCache.GetCurrentPlayerId();
+            if (currentPlayerId != _currentPlayerId && !string.IsNullOrEmpty(currentPlayerId))
+            {
+                var playerState = _gameStateCache.GetPlayerState(currentPlayerId);
+                if (playerState != null)
+                {
+                    _aiVisualizationWindow.UpdateAIStatus(playerState.PlayerName, true);
+                }
+            }
+            else
+            {
+                _aiVisualizationWindow.UpdateAIStatus("", false);
+            }
+        }
+    }
+    
     private void ShowCombatEventNotification(CombatEvent combatEvent)
     {
         if (_combatEventDialog == null)

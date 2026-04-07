@@ -88,9 +88,16 @@ The MonoGame client uses a three-renderer architecture:
 - **Shift + Movement**: Fast pan
 - **Mouse Wheel**: Zoom
 - **Middle Mouse**: Pan by dragging
-- **F1**: Toggle debug info
+
+### Window Management
+- **F1**: Toggle Debug Info Window
+- **F2**: Toggle Player Dashboard Window
+- **F3**: Toggle AI Visualization Window
+- All windows are resizable and dockable
+- Window positions and sizes are saved automatically
 
 See `RiskyStars.Client/RENDERING.md` for detailed documentation.
+See `RiskyStars.Client/DOCKABLE_WINDOWS.md` for window system documentation.
 
 ## Sprite Assets
 
@@ -142,6 +149,25 @@ ThemeManager.ApplyButtonTheme(button, ButtonTheme.Success);
 ```
 
 See `RiskyStars.Client/UI_THEME.md` for complete documentation.
+
+## Dockable Window System
+
+The client uses resizable and dockable UI panels for game information:
+
+- **WindowPreferences.cs** - User preference persistence for window states
+- **DockableWindow.cs** - Base class for all dockable windows
+- **PlayerDashboardWindow.cs** - Resource management and army purchasing
+- **AIVisualizationWindow.cs** - AI action tracking and visualization controls
+- **DebugInfoWindow.cs** - Performance metrics and debug information
+- **DOCKABLE_WINDOWS.md** - Complete documentation of the window system
+
+### Features
+- Resizable windows with drag handles
+- Dockable to screen edges and corners
+- Automatic state persistence (position, size, visibility)
+- Keyboard shortcuts (F1-F3) for quick access
+- Themed styling using ThemeManager
+- Integration with AI action tracking
 
 ## Dialog System
 
@@ -236,6 +262,7 @@ See `RiskyStars.Client/INPUT_VALIDATION.md` for complete documentation.
 - Sprite assets in `RiskyStars.Client/Content/Sprites/`
 - **UI styling uses ThemeManager constants and ThemedUIFactory - no hardcoded colors/spacing**
 - **Input validation uses InputValidator and ValidatedTextBox/ValidatedTextInputField - validate all user inputs**
+- **Dockable windows extend DockableWindow base class and use WindowPreferences for persistence**
 
 ### Documentation
 - Documentation files use Markdown format with `.md` extension
