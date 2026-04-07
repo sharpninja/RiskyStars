@@ -116,6 +116,33 @@ dotnet run --project CreatePlaceholders.csproj
 
 See `RiskyStars.Client/SPRITES.md` for detailed sprite specifications.
 
+## UI Theme System
+
+The client uses a Myra-based theme system for consistent UI styling:
+
+- **UITheme.xml** - XML stylesheet defining colors, fonts, borders, and spacing for all widgets
+- **ThemeManager.cs** - Centralized theme constants and helper methods
+- **ThemedUIFactory.cs** - Factory for creating pre-styled UI widgets
+- **UI_THEME.md** - Complete documentation of the theme system
+
+### Usage Examples
+```csharp
+// Use ThemeManager constants
+ThemeManager.Colors.AccentCyan
+ThemeManager.Spacing.Medium
+ThemeManager.FontScale.Title
+
+// Create themed widgets
+var button = ThemedUIFactory.CreateButton("OK", ButtonTheme.Primary);
+var panel = ThemedUIFactory.CreateResourcePanel();
+var label = ThemedUIFactory.CreateTitleLabel("Game Title");
+
+// Apply themes to existing widgets
+ThemeManager.ApplyButtonTheme(button, ButtonTheme.Success);
+```
+
+See `RiskyStars.Client/UI_THEME.md` for complete documentation.
+
 ## Conventions
 ### Code
 - C# projects follow standard .NET conventions
@@ -124,6 +151,7 @@ See `RiskyStars.Client/SPRITES.md` for detailed sprite specifications.
 - Service implementations in `RiskyStars.Server/Services/`
 - MonoGame content in `RiskyStars.Client/Content/`
 - Sprite assets in `RiskyStars.Client/Content/Sprites/`
+- **UI styling uses ThemeManager constants and ThemedUIFactory - no hardcoded colors/spacing**
 
 ### Documentation
 - Documentation files use Markdown format with `.md` extension

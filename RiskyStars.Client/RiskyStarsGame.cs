@@ -54,6 +54,9 @@ public class RiskyStarsGame : Game
         
         // Initialize Myra
         MyraEnvironment.Game = this;
+        
+        // Initialize Theme Manager
+        ThemeManager.Initialize();
     }
 
     private void ApplySettings()
