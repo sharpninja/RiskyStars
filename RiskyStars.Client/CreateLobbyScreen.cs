@@ -18,7 +18,7 @@ public class CreateLobbyScreen
 
     private Desktop? _desktop;
     private Panel? _mainPanel;
-    private TextBox? _mapNameTextBox;
+    private ValidatedTextBox? _mapNameTextBox;
     private SpinButton? _maxPlayersSpinButton;
     private TextButton? _createButton;
     private TextButton? _cancelButton;
@@ -129,14 +129,12 @@ public class CreateLobbyScreen
         };
         grid.Widgets.Add(label);
 
-        _mapNameTextBox = new TextBox
-        {
-            Text = "Default",
-            Width = 450,
-            GridRow = 1,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
-        grid.Widgets.Add(_mapNameTextBox);
+        _mapNameTextBox = new ValidatedTextBox(450, "Enter map name", showErrorLabel: true);
+        _mapNameTextBox.Text = "Default";
+        _mapNameTextBox.SetValidator(InputValidator.ValidateMapName);
+        _mapNameTextBox.Container.GridRow = 1;
+        _mapNameTextBox.Container.HorizontalAlignment = HorizontalAlignment.Stretch;
+        grid.Widgets.Add(_mapNameTextBox.Container);
 
         var panel = new Panel
         {
@@ -208,6 +206,12 @@ public class CreateLobbyScreen
         };
         _createButton.Click += (s, a) =>
         {
+            // Validate all inputs before creating
+            if (_mapNameTextBox == null || !_mapNameTextBox.IsValid)
+            {
+                return;
+            }
+
             if (TryCreateLobbySettings(out var settings))
             {
                 LobbySettings = settings;
@@ -239,13 +243,24 @@ public class CreateLobbyScreen
     {
         settings = null;
 
-        if (string.IsNullOrWhiteSpace(_mapNameTextBox?.Text))
+        if (_mapNameTextBox == null || !_mapNameTextBox.IsValid)
             return false;
+
+        if (string.IsNullOrWhiteSpace(_mapNameTextBox.Text))
+            return false;
+
+        // Validate player count
+        int maxPlayers = (int)(_maxPlayersSpinButton?.Value ?? 4);
+        var playerCountValidation = InputValidator.ValidatePlayerCount(maxPlayers, 2, 6);
+        if (!playerCountValidation.IsValid)
+        {
+            return false;
+        }
 
         settings = new LobbySettingsProto
         {
             MinPlayers = 2,
-            MaxPlayers = (int)(_maxPlayersSpinButton?.Value ?? 4),
+            MaxPlayers = maxPlayers,
             GameMode = "Standard",
             MapName = _mapNameTextBox.Text.Trim(),
             StartingPopulation = 100,
@@ -278,7 +293,10 @@ public class CreateLobbyScreen
         LobbySettings = null;
 
         if (_mapNameTextBox != null)
+        {
             _mapNameTextBox.Text = "Default";
+            _mapNameTextBox.ValidateInput();
+        }
         if (_maxPlayersSpinButton != null)
             _maxPlayersSpinButton.Value = 4;
     }

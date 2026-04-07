@@ -141,6 +141,33 @@ public static class ThemedUIFactory
         return textBox;
     }
 
+    // ValidatedTextBox factory methods
+    public static ValidatedTextBox CreateValidatedTextBox(int width, string placeholder = "", bool showErrorLabel = false)
+    {
+        return new ValidatedTextBox(width, placeholder, showErrorLabel);
+    }
+
+    public static ValidatedTextBox CreateValidatedPlayerNameBox(int width = 400, bool showErrorLabel = true)
+    {
+        var validatedBox = new ValidatedTextBox(width, "Enter your name", showErrorLabel);
+        validatedBox.SetValidator(InputValidator.ValidatePlayerName);
+        return validatedBox;
+    }
+
+    public static ValidatedTextBox CreateValidatedServerAddressBox(int width = 400, bool showErrorLabel = true)
+    {
+        var validatedBox = new ValidatedTextBox(width, "http://localhost:5000", showErrorLabel);
+        validatedBox.SetValidator(InputValidator.ValidateServerAddress);
+        return validatedBox;
+    }
+
+    public static ValidatedTextBox CreateValidatedMapNameBox(int width = 400, bool showErrorLabel = true)
+    {
+        var validatedBox = new ValidatedTextBox(width, "Enter map name", showErrorLabel);
+        validatedBox.SetValidator(InputValidator.ValidateMapName);
+        return validatedBox;
+    }
+
     // ComboBox factory methods
     public static ComboBox CreateComboBox()
     {

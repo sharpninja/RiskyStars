@@ -19,7 +19,7 @@ public class SinglePlayerLobbyScreen
     private Desktop? _desktop;
     private DialogManager? _dialogManager;
     private Panel? _mainPanel;
-    private TextBox? _playerNameTextBox;
+    private ValidatedTextBox? _playerNameTextBox;
     private ComboBox? _mapComboBox;
     private Grid? _playerSlotsGrid;
     private TextButton? _startGameButton;
@@ -162,13 +162,11 @@ public class SinglePlayerLobbyScreen
         };
         grid.Widgets.Add(label);
 
-        _playerNameTextBox = new TextBox
-        {
-            Text = "Player",
-            Width = 400,
-            GridColumn = 1
-        };
-        grid.Widgets.Add(_playerNameTextBox);
+        _playerNameTextBox = new ValidatedTextBox(400, "Enter your name", showErrorLabel: true);
+        _playerNameTextBox.Text = "Player";
+        _playerNameTextBox.SetValidator(InputValidator.ValidatePlayerName);
+        _playerNameTextBox.Container.GridColumn = 1;
+        grid.Widgets.Add(_playerNameTextBox.Container);
 
         var panel = new Panel
         {
@@ -465,6 +463,12 @@ public class SinglePlayerLobbyScreen
             nameLabel.TextColor = slot.IsAI ? Color.LightBlue : Color.White;
         }
 
+        // Update player name in real-time for slot 0
+        if (slotIndex == 0 && _playerNameTextBox != null && !string.IsNullOrWhiteSpace(_playerNameTextBox.Text))
+        {
+            slot.PlayerName = _playerNameTextBox.Text.Trim();
+        }
+
         // Update badge visibility and content
         var badgePanel = _playerSlotsGrid.Widgets.FirstOrDefault(w => w.Id == $"Badge_{slotIndex}") as Panel;
         if (badgePanel != null)
@@ -567,13 +571,17 @@ public class SinglePlayerLobbyScreen
         };
         _startGameButton.Click += (s, a) =>
         {
-            if (!string.IsNullOrWhiteSpace(_playerNameTextBox?.Text))
+            // Validate player name before starting
+            if (_playerNameTextBox == null || !_playerNameTextBox.IsValid)
             {
-                PlayerName = _playerNameTextBox.Text.Trim();
-                SelectedMap = _mapComboBox?.SelectedItem?.Text ?? "Default";
-                _playerSlots[0].PlayerName = PlayerName;
-                ShouldStartGame = true;
+                _dialogManager?.ShowError("Validation Error", "Please enter a valid player name (2-20 characters, letters and numbers only).");
+                return;
             }
+
+            PlayerName = _playerNameTextBox.Text.Trim();
+            SelectedMap = _mapComboBox?.SelectedItem?.Text ?? "Default";
+            _playerSlots[0].PlayerName = PlayerName;
+            ShouldStartGame = true;
         };
         grid.Widgets.Add(_startGameButton);
 

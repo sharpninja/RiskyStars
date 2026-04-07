@@ -184,6 +184,48 @@ _combatEventDialog.ShowCombatInitiated(combatEvent, () =>
 
 See `RiskyStars.Client/DIALOG_SYSTEM.md` for complete documentation.
 
+## Input Validation System
+
+The client implements comprehensive input validation with visual error feedback:
+
+- **InputValidator.cs** - Static validation methods for all input types
+- **ValidatedTextBox.cs** - Myra TextBox wrapper with validation and error display
+- **ValidatedTextInputField.cs** - Custom TextInputField wrapper with validation
+- **INPUT_VALIDATION.md** - Complete documentation of the validation system
+
+### Features
+- Real-time validation on text input
+- Visual error indicators (red borders, error messages)
+- Myra tooltip error feedback on hover
+- Optional inline error labels
+- Pre-configured validators for common fields (player name, server address, map name)
+
+### Usage Examples
+```csharp
+// Create validated text box for player name
+var playerNameBox = ThemedUIFactory.CreateValidatedPlayerNameBox();
+playerNameBox.Text = "Player";
+grid.Widgets.Add(playerNameBox.Container);
+
+// Validate before submitting
+if (!playerNameBox.IsValid)
+{
+    _dialogManager.ShowError("Validation Error", playerNameBox.ErrorMessage);
+    return;
+}
+
+// Custom validation
+var customBox = new ValidatedTextBox(400, "Enter value", showErrorLabel: true);
+customBox.SetValidator(text => 
+{
+    if (text.Length < 5)
+        return new ValidationResult(false, "Must be at least 5 characters");
+    return new ValidationResult(true, "Valid");
+});
+```
+
+See `RiskyStars.Client/INPUT_VALIDATION.md` for complete documentation.
+
 ## Conventions
 ### Code
 - C# projects follow standard .NET conventions
@@ -193,6 +235,7 @@ See `RiskyStars.Client/DIALOG_SYSTEM.md` for complete documentation.
 - MonoGame content in `RiskyStars.Client/Content/`
 - Sprite assets in `RiskyStars.Client/Content/Sprites/`
 - **UI styling uses ThemeManager constants and ThemedUIFactory - no hardcoded colors/spacing**
+- **Input validation uses InputValidator and ValidatedTextBox/ValidatedTextInputField - validate all user inputs**
 
 ### Documentation
 - Documentation files use Markdown format with `.md` extension

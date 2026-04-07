@@ -33,7 +33,7 @@ public class MainMenu
 
     // Settings screen widgets
     private Panel? _settingsPanel;
-    private TextBox? _serverAddressTextBox;
+    private ValidatedTextBox? _serverAddressTextBox;
     private ComboBox? _resolutionComboBox;
     private CheckButton? _fullscreenCheckButton;
     private TextButton? _saveSettingsButton;
@@ -178,14 +178,12 @@ public class MainMenu
         };
         mainGrid.Widgets.Add(serverLabel);
 
-        // Server Address TextBox
-        _serverAddressTextBox = new TextBox
-        {
-            Text = _settings.ServerAddress,
-            Width = 500,
-            GridRow = 2
-        };
-        mainGrid.Widgets.Add(_serverAddressTextBox);
+        // Server Address TextBox with validation
+        _serverAddressTextBox = new ValidatedTextBox(500, "http://localhost:5000", showErrorLabel: true);
+        _serverAddressTextBox.Text = _settings.ServerAddress;
+        _serverAddressTextBox.SetValidator(InputValidator.ValidateServerAddress);
+        _serverAddressTextBox.Container.GridRow = 2;
+        mainGrid.Widgets.Add(_serverAddressTextBox.Container);
 
         // Resolution Label
         var resolutionLabel = new Label
@@ -335,7 +333,10 @@ public class MainMenu
     private void ShowSettingsUI()
     {
         if (_serverAddressTextBox != null)
+        {
             _serverAddressTextBox.Text = _settings.ServerAddress;
+            _serverAddressTextBox.ValidateInput();
+        }
 
         if (_resolutionComboBox != null)
         {
@@ -410,6 +411,13 @@ public class MainMenu
 
     private void OnSaveSettingsClicked()
     {
+        // Validate all inputs before saving
+        if (_serverAddressTextBox != null && !_serverAddressTextBox.IsValid)
+        {
+            _dialogManager?.ShowError("Validation Error", "Please fix the server address before saving.");
+            return;
+        }
+
         if (_serverAddressTextBox != null)
             _settings.ServerAddress = _serverAddressTextBox.Text.Trim();
 
@@ -442,7 +450,10 @@ public class MainMenu
     {
         // Restore original settings
         if (_serverAddressTextBox != null)
+        {
             _serverAddressTextBox.Text = _settings.ServerAddress;
+            _serverAddressTextBox.ClearValidation();
+        }
 
         if (_resolutionComboBox != null)
         {
