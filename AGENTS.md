@@ -279,6 +279,50 @@ customBox.SetValidator(text =>
 
 See `RiskyStars.Client/INPUT_VALIDATION.md` for complete documentation.
 
+## Context Menu System
+
+The client implements a comprehensive context menu system using Myra.Menu for right-click interactions:
+
+- **ContextMenuManager.cs** - Central manager for all context menu operations
+- **CONTEXT_MENU.md** - Complete documentation of the context menu system
+
+### Features
+- Right-click context menus for armies, regions, stellar bodies, and hyperspace lane mouths
+- Context-aware actions based on ownership and game state
+- Army actions: split, merge, move, assign hero
+- Region actions: view info, reinforce, merge all armies, diplomacy
+- Stellar body actions: view info, upgrade
+- Hyperspace lane mouth actions: view info, reinforce portal
+- Diplomacy actions: form alliance, break alliance, view player info
+- Information dialogs for game objects
+- Themed styling using ThemeManager
+
+### Usage Examples
+```csharp
+// Initialize context menu manager
+_contextMenuManager = new ContextMenuManager(gameClient, _gameStateCache, _mapData, _camera, _inGameDesktop);
+_inputController.SetContextMenuManager(_contextMenuManager);
+
+// Set current player for ownership checks
+_contextMenuManager?.SetCurrentPlayer(_currentPlayerId);
+
+// Right-click opens context menu automatically
+// Left-click or ESC closes menu
+```
+
+### Implemented Actions
+- ✓ Reinforce Location (full server integration)
+- ✓ Split Army (UI complete, server pending)
+- ✓ Merge Armies (UI complete, server pending)
+- ✓ Merge All Armies (UI complete, server pending)
+- ✓ Assign Hero (UI complete, server pending)
+- ✓ Upgrade Stellar Body (UI complete, server pending)
+- ✓ Form Alliance (UI complete, server pending)
+- ✓ Break Alliance (UI complete, server pending)
+- ✓ View Info Dialogs (fully implemented)
+
+See `RiskyStars.Client/CONTEXT_MENU.md` for complete documentation.
+
 ## Conventions
 ### Code
 - C# projects follow standard .NET conventions
@@ -290,6 +334,7 @@ See `RiskyStars.Client/INPUT_VALIDATION.md` for complete documentation.
 - **UI styling uses ThemeManager constants and ThemedUIFactory - no hardcoded colors/spacing**
 - **Input validation uses InputValidator and ValidatedTextBox/ValidatedTextInputField - validate all user inputs**
 - **Dockable windows extend DockableWindow base class and use WindowPreferences for persistence**
+- **Context menus use ContextMenuManager for right-click interactions - integrate with InputController**
 
 ### Documentation
 - Documentation files use Markdown format with `.md` extension

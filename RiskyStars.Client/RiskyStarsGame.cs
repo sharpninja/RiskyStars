@@ -36,6 +36,7 @@ public class RiskyStarsGame : Game
     private MainMenu? _mainMenu;
     private AIActionIndicator? _aiActionIndicator;
     private AIActionTracker? _aiActionTracker;
+    private ContextMenuManager? _contextMenuManager;
     
     private Desktop? _inGameDesktop;
     private DialogManager? _inGameDialogManager;
@@ -228,7 +229,14 @@ public class RiskyStarsGame : Game
     {
         if (keyState.IsKeyDown(Keys.Escape) && _previousKeyState.IsKeyUp(Keys.Escape))
         {
-            ReturnToMainMenu();
+            if (_contextMenuManager != null && _contextMenuManager.IsMenuOpen)
+            {
+                _contextMenuManager.CloseContextMenu();
+            }
+            else
+            {
+                ReturnToMainMenu();
+            }
             return;
         }
 
@@ -360,6 +368,12 @@ public class RiskyStarsGame : Game
         _aiVisualizationWindow = new AIVisualizationWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _debugInfoWindow = new DebugInfoWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         
+        if (_inGameDesktop != null && _mapData != null && _gameStateCache != null && _camera != null)
+        {
+            _contextMenuManager = new ContextMenuManager(_connectionManager.GameClient, _gameStateCache, _mapData, _camera, _inGameDesktop);
+            _inputController.SetContextMenuManager(_contextMenuManager);
+        }
+        
         if (_aiActionTracker != null)
         {
             _aiActionTracker.SetAIVisualizationWindow(_aiVisualizationWindow);
@@ -389,6 +403,7 @@ public class RiskyStarsGame : Game
                     _inputController?.SetCurrentPlayer(_currentPlayerId);
                     _playerDashboard?.SetCurrentPlayer(_currentPlayerId);
                     _playerDashboardWindow?.SetCurrentPlayer(_currentPlayerId);
+                    _contextMenuManager?.SetCurrentPlayer(_currentPlayerId);
                 }
                 else
                 {
@@ -416,6 +431,12 @@ public class RiskyStarsGame : Game
         _aiVisualizationWindow = new AIVisualizationWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _debugInfoWindow = new DebugInfoWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         
+        if (_inGameDesktop != null && _mapData != null && _gameStateCache != null && _camera != null)
+        {
+            _contextMenuManager = new ContextMenuManager(gameClient, _gameStateCache, _mapData, _camera, _inGameDesktop);
+            _inputController.SetContextMenuManager(_contextMenuManager);
+        }
+        
         if (_aiActionTracker != null)
         {
             _aiActionTracker.SetAIVisualizationWindow(_aiVisualizationWindow);
@@ -445,6 +466,7 @@ public class RiskyStarsGame : Game
                     _inputController?.SetCurrentPlayer(_currentPlayerId);
                     _playerDashboard?.SetCurrentPlayer(_currentPlayerId);
                     _playerDashboardWindow?.SetCurrentPlayer(_currentPlayerId);
+                    _contextMenuManager?.SetCurrentPlayer(_currentPlayerId);
                 }
                 else
                 {
@@ -495,6 +517,7 @@ public class RiskyStarsGame : Game
         _playerDashboardWindow = null;
         _aiVisualizationWindow = null;
         _debugInfoWindow = null;
+        _contextMenuManager = null;
         _gameStateCache = new GameStateCache();
         
         if (_inGameDesktop != null)
