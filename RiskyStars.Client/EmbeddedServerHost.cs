@@ -13,6 +13,15 @@ using System.Net;
 
 namespace RiskyStars.Client;
 
+public enum ServerStatus
+{
+    Stopped,
+    Starting,
+    Running,
+    Error,
+    Reconnecting
+}
+
 public class EmbeddedServerHost : IAsyncDisposable, IDisposable
 {
     private WebApplication? _app;
@@ -24,10 +33,13 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
     private readonly int _port;
     private bool _disposed;
     private readonly object _lock = new object();
+    private ServerHealthMonitor? _healthMonitor;
 
     public GrpcChannel? Channel => _channel;
     public bool IsRunning => _app != null && _runTask != null && !_runTask.IsCompleted;
     public string? LastError { get; private set; }
+    public ServerStatus Status { get; private set; } = ServerStatus.Stopped;
+    public ServerHealthMonitor? HealthMonitor => _healthMonitor;
 
     public EmbeddedServerHost(int port = 0)
     {
@@ -40,6 +52,7 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
         if (_disposed)
         {
             LastError = "Cannot start a disposed server host";
+            Status = ServerStatus.Error;
             return false;
         }
 
@@ -51,6 +64,7 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
 
         try
         {
+            Status = ServerStatus.Starting;
             _cts = new CancellationTokenSource();
 
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -91,17 +105,24 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
                 catch (Exception ex)
                 {
                     LastError = $"Server runtime error: {ex.Message}";
+                    Status = ServerStatus.Error;
                     Console.WriteLine($"Embedded server error: {ex.Message}");
                 }
             }, _cts.Token);
 
             await WaitForServerReady();
+            Status = ServerStatus.Running;
             LastError = null;
+            
+            _healthMonitor = new ServerHealthMonitor(_serverUrl, OnHealthStatusChanged);
+            _healthMonitor.Start();
+            
             return true;
         }
         catch (TimeoutException ex)
         {
             LastError = "Server failed to start within the expected time. The port may be in use or the server configuration is incorrect.";
+            Status = ServerStatus.Error;
             Console.WriteLine($"Server initialization failed: {ex.Message}");
             await CleanupResources();
             return false;
@@ -109,6 +130,7 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
         catch (IOException ex)
         {
             LastError = $"Server initialization failed due to I/O error: {ex.Message}. The port {_port} may already be in use.";
+            Status = ServerStatus.Error;
             Console.WriteLine($"Server initialization failed: {ex.Message}");
             await CleanupResources();
             return false;
@@ -116,9 +138,26 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
         catch (Exception ex)
         {
             LastError = $"Server initialization failed: {ex.Message}";
+            Status = ServerStatus.Error;
             Console.WriteLine($"Server initialization failed: {ex.Message}");
             await CleanupResources();
             return false;
+        }
+    }
+    
+    private void OnHealthStatusChanged(bool isHealthy, string? errorMessage)
+    {
+        if (!isHealthy && Status == ServerStatus.Running)
+        {
+            Status = ServerStatus.Reconnecting;
+            LastError = errorMessage ?? "Server health check failed";
+            Console.WriteLine($"Server health degraded: {LastError}");
+        }
+        else if (isHealthy && Status == ServerStatus.Reconnecting)
+        {
+            Status = ServerStatus.Running;
+            LastError = null;
+            Console.WriteLine("Server health restored");
         }
     }
 
@@ -129,6 +168,7 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
             return;
         }
 
+        Status = ServerStatus.Stopped;
         await CleanupResources();
     }
 
@@ -144,6 +184,20 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
 
         try
         {
+            if (_healthMonitor != null)
+            {
+                try
+                {
+                    _healthMonitor.Stop();
+                    _healthMonitor = null;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error stopping health monitor: {ex.Message}");
+                }
+            }
+            
+
             if (_channel != null)
             {
                 try

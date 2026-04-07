@@ -28,6 +28,8 @@ public class SinglePlayerLobbyScreen
     private List<PlayerSlot> _playerSlots;
     private List<ComboBox> _playerTypeComboBoxes;
     private List<TextButton> _regenerateNameButtons;
+    private ServerStatusIndicator? _serverStatusIndicator;
+    private EmbeddedServerHost? _embeddedServerHost;
 
     private KeyboardState _previousKeyState;
     private const int MaxPlayers = 8;
@@ -80,6 +82,7 @@ public class SinglePlayerLobbyScreen
 
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Subtitle
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Server status
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Player name
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Map selection
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Fill)); // Player slots
@@ -105,28 +108,35 @@ public class SinglePlayerLobbyScreen
             Scale = new Vector2(0.8f, 0.8f),
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 1,
-            Margin = new Thickness(0, 0, 0, 15)
+            Margin = new Thickness(0, 0, 0, 10)
         };
         rootGrid.Widgets.Add(subtitleLabel);
 
+        // Server status indicator
+        _serverStatusIndicator = new ServerStatusIndicator(600);
+        _serverStatusIndicator.Container.GridRow = 2;
+        _serverStatusIndicator.Container.HorizontalAlignment = HorizontalAlignment.Center;
+        _serverStatusIndicator.Container.Margin = new Thickness(0, 0, 0, 15);
+        rootGrid.Widgets.Add(_serverStatusIndicator.Container);
+
         // Player name input
         var namePanel = BuildPlayerNamePanel();
-        namePanel.GridRow = 2;
+        namePanel.GridRow = 3;
         rootGrid.Widgets.Add(namePanel);
 
         // Map selection
         var mapPanel = BuildMapSelectionPanel();
-        mapPanel.GridRow = 3;
+        mapPanel.GridRow = 4;
         rootGrid.Widgets.Add(mapPanel);
 
         // Player slots
         var slotsPanel = BuildPlayerSlotsPanel();
-        slotsPanel.GridRow = 4;
+        slotsPanel.GridRow = 5;
         rootGrid.Widgets.Add(slotsPanel);
 
         // Buttons
         var buttonsPanel = BuildButtonsPanel();
-        buttonsPanel.GridRow = 5;
+        buttonsPanel.GridRow = 6;
         rootGrid.Widgets.Add(buttonsPanel);
 
         _mainPanel = new Panel
@@ -615,7 +625,18 @@ public class SinglePlayerLobbyScreen
             ShouldGoBack = true;
         }
 
+        _serverStatusIndicator?.Update();
+
         _previousKeyState = keyState;
+    }
+    
+    public void SetEmbeddedServerHost(EmbeddedServerHost? serverHost)
+    {
+        _embeddedServerHost = serverHost;
+        if (_serverStatusIndicator != null && serverHost != null)
+        {
+            _serverStatusIndicator.SetServerHost(serverHost);
+        }
     }
 
     public void Reset()

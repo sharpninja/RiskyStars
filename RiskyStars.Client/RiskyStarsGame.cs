@@ -46,6 +46,7 @@ public class RiskyStarsGame : Game
     private AIVisualizationWindow? _aiVisualizationWindow;
     private DebugInfoWindow? _debugInfoWindow;
     private SettingsWindow? _settingsWindow;
+    private ServerStatusIndicator? _serverStatusIndicator;
     
     private MapData? _mapData;
     private SpriteFont? _defaultFont;
@@ -257,6 +258,7 @@ public class RiskyStarsGame : Game
 
         _connectionManager?.Update();
         _inGameDialogManager?.Update();
+        _serverStatusIndicator?.Update();
 
         if (_connectionManager?.Status == ConnectionStatus.Error && 
             _connectionManager.ReconnectAttempts >= _connectionManager.MaxAttempts)
@@ -431,6 +433,9 @@ public class RiskyStarsGame : Game
         _aiVisualizationWindow = new AIVisualizationWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _debugInfoWindow = new DebugInfoWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         
+        _serverStatusIndicator = new ServerStatusIndicator(500);
+        _serverStatusIndicator.SetServerHost(_lobbyManager.EmbeddedServer);
+        
         if (_inGameDesktop != null && _mapData != null && _gameStateCache != null && _camera != null)
         {
             _contextMenuManager = new ContextMenuManager(gameClient, _gameStateCache, _mapData, _camera, _inGameDesktop);
@@ -448,6 +453,14 @@ public class RiskyStarsGame : Game
             _inGameDesktop.Widgets.Add(_playerDashboardWindow.Window);
             _inGameDesktop.Widgets.Add(_aiVisualizationWindow.Window);
             _inGameDesktop.Widgets.Add(_debugInfoWindow.Window);
+            
+            if (_serverStatusIndicator != null)
+            {
+                _serverStatusIndicator.Container.HorizontalAlignment = HorizontalAlignment.Center;
+                _serverStatusIndicator.Container.VerticalAlignment = VerticalAlignment.Bottom;
+                _serverStatusIndicator.Container.Top = _graphics.PreferredBackBufferHeight - 35;
+                _inGameDesktop.Widgets.Add(_serverStatusIndicator.Container);
+            }
         }
         
         if (_defaultFont != null)
@@ -517,6 +530,7 @@ public class RiskyStarsGame : Game
         _playerDashboardWindow = null;
         _aiVisualizationWindow = null;
         _debugInfoWindow = null;
+        _serverStatusIndicator = null;
         _contextMenuManager = null;
         _gameStateCache = new GameStateCache();
         

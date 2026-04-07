@@ -279,6 +279,24 @@ customBox.SetValidator(text =>
 
 See `RiskyStars.Client/INPUT_VALIDATION.md` for complete documentation.
 
+## Embedded Server Health Monitoring
+
+The client implements comprehensive health monitoring for the embedded single-player server:
+
+- **ServerHealthMonitor.cs** - Periodic health checks with exponential backoff reconnection
+- **ServerStatusIndicator.cs** - Visual UI component showing server state
+- **EmbeddedServerHost.cs** - Enhanced with ServerStatus enum and health monitoring integration
+- **EMBEDDED_SERVER_MONITORING.md** - Complete documentation of the monitoring system
+
+### Features
+- Periodic connectivity checks every 5 seconds
+- Automatic reconnection with exponential backoff (1s → 2s → 4s → 8s → 16s → 30s max)
+- Visual status indicators showing: Starting, Running, Reconnecting, Error states
+- Displayed in single-player lobby and in-game UI
+- Real-time health metrics (time since last check, reconnect attempts)
+
+See `RiskyStars.Client/EMBEDDED_SERVER_MONITORING.md` for complete documentation.
+
 ## Context Menu System
 
 The client implements a comprehensive context menu system using Myra.Menu for right-click interactions:
