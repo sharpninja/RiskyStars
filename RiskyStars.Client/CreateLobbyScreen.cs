@@ -2,6 +2,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RiskyStars.Shared;
+using Myra;
+using Myra.Graphics2D;
+using Myra.Graphics2D.UI;
+using Myra.Graphics2D.Brushes;
 
 namespace RiskyStars.Client;
 
@@ -10,13 +14,14 @@ public class CreateLobbyScreen
     private readonly GraphicsDevice _graphicsDevice;
     private readonly int _screenWidth;
     private readonly int _screenHeight;
-    private Texture2D? _pixelTexture;
     private SpriteFont? _font;
 
-    private TextInputField _mapNameField;
-    private NumericInputField _maxPlayersField;
-    private Button _createButton;
-    private Button _cancelButton;
+    private Desktop? _desktop;
+    private Panel? _mainPanel;
+    private TextBox? _mapNameTextBox;
+    private SpinButton? _maxPlayersSpinButton;
+    private TextButton? _createButton;
+    private TextButton? _cancelButton;
 
     private KeyboardState _previousKeyState;
 
@@ -29,85 +34,220 @@ public class CreateLobbyScreen
         _graphicsDevice = graphicsDevice;
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
-
-        CreatePixelTexture();
-
-        int panelWidth = 400;
-        int centerX = (_screenWidth - panelWidth) / 2;
-        int centerY = _screenHeight / 2 - 120;
-
-        _mapNameField = new TextInputField(
-            new Rectangle(centerX, centerY, panelWidth, 40),
-            "Map Name", 30);
-        _mapNameField.Text = "Default";
-
-        _maxPlayersField = new NumericInputField(
-            new Rectangle(centerX, centerY + 80, panelWidth, 40),
-            "Max Players (2-6)", 4, 2, 6);
-
-        int buttonWidth = 150;
-        int buttonY = centerY + 160;
-        
-        _createButton = new Button(
-            new Rectangle(centerX + 50, buttonY, buttonWidth, 50),
-            "Create");
-
-        _cancelButton = new Button(
-            new Rectangle(centerX + panelWidth - buttonWidth - 50, buttonY, buttonWidth, 50),
-            "Cancel");
-    }
-
-    private void CreatePixelTexture()
-    {
-        _pixelTexture = new Texture2D(_graphicsDevice, 1, 1);
-        _pixelTexture.SetData(new[] { Color.White });
     }
 
     public void LoadContent(SpriteFont font)
     {
         _font = font;
+        _desktop = new Desktop();
+        BuildUI();
     }
 
-    public void Update(GameTime gameTime, MouseState mouseState, KeyboardState keyState)
+    private void BuildUI()
     {
-        ShouldCreate = false;
-        ShouldCancel = false;
+        var rootGrid = new Grid
+        {
+            RowSpacing = 20,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
 
-        _mapNameField.Update(mouseState, keyState, _previousKeyState);
-        _maxPlayersField.Update(mouseState);
-        _createButton.Update(mouseState);
-        _cancelButton.Update(mouseState);
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Map name
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Max players
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
 
-        if (_createButton.IsClicked)
+        // Title
+        var titleLabel = new Label
+        {
+            Text = "Create Lobby",
+            TextColor = Color.Cyan,
+            Scale = new Vector2(1.5f, 1.5f),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 0,
+            Margin = new Thickness(0, 0, 0, 20)
+        };
+        rootGrid.Widgets.Add(titleLabel);
+
+        // Map name field
+        var mapNamePanel = BuildMapNameField();
+        mapNamePanel.GridRow = 1;
+        rootGrid.Widgets.Add(mapNamePanel);
+
+        // Max players field
+        var maxPlayersPanel = BuildMaxPlayersField();
+        maxPlayersPanel.GridRow = 2;
+        rootGrid.Widgets.Add(maxPlayersPanel);
+
+        // Buttons
+        var buttonsPanel = BuildButtonsPanel();
+        buttonsPanel.GridRow = 3;
+        rootGrid.Widgets.Add(buttonsPanel);
+
+        // Main container
+        var containerPanel = new Panel
+        {
+            Width = 550,
+            Padding = new Thickness(40, 30),
+            Background = new SolidBrush(new Color(0, 0, 0, 220)),
+            Border = new SolidBrush(Color.Cyan),
+            BorderThickness = new Thickness(3),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        containerPanel.Widgets.Add(rootGrid);
+
+        _mainPanel = new Panel
+        {
+            Width = _screenWidth,
+            Height = _screenHeight,
+            Background = new SolidBrush(new Color(10, 10, 20))
+        };
+        _mainPanel.Widgets.Add(containerPanel);
+
+        if (_desktop != null)
+            _desktop.Root = _mainPanel;
+    }
+
+    private Panel BuildMapNameField()
+    {
+        var grid = new Grid
+        {
+            RowSpacing = 8,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+
+        var label = new Label
+        {
+            Text = "Map Name",
+            TextColor = Color.White,
+            Scale = new Vector2(0.9f, 0.9f),
+            GridRow = 0
+        };
+        grid.Widgets.Add(label);
+
+        _mapNameTextBox = new TextBox
+        {
+            Text = "Default",
+            Width = 450,
+            GridRow = 1,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+        grid.Widgets.Add(_mapNameTextBox);
+
+        var panel = new Panel
+        {
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+        panel.Widgets.Add(grid);
+
+        return panel;
+    }
+
+    private Panel BuildMaxPlayersField()
+    {
+        var grid = new Grid
+        {
+            RowSpacing = 8,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+
+        var label = new Label
+        {
+            Text = "Max Players (2-6)",
+            TextColor = Color.White,
+            Scale = new Vector2(0.9f, 0.9f),
+            GridRow = 0
+        };
+        grid.Widgets.Add(label);
+
+        _maxPlayersSpinButton = new SpinButton
+        {
+            Width = 450,
+            GridRow = 1,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            Minimum = 2,
+            Maximum = 6,
+            Value = 4
+        };
+        grid.Widgets.Add(_maxPlayersSpinButton);
+
+        var panel = new Panel
+        {
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+        panel.Widgets.Add(grid);
+
+        return panel;
+    }
+
+    private Panel BuildButtonsPanel()
+    {
+        var grid = new Grid
+        {
+            ColumnSpacing = 20,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 20, 0, 0)
+        };
+
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+
+        _createButton = new TextButton
+        {
+            Text = "Create",
+            Width = 180,
+            Height = 50,
+            GridColumn = 0
+        };
+        _createButton.Click += (s, a) =>
         {
             if (TryCreateLobbySettings(out var settings))
             {
                 LobbySettings = settings;
                 ShouldCreate = true;
             }
-        }
+        };
+        grid.Widgets.Add(_createButton);
 
-        if (_cancelButton.IsClicked || (keyState.IsKeyDown(Keys.Escape) && _previousKeyState.IsKeyUp(Keys.Escape)))
+        _cancelButton = new TextButton
         {
-            ShouldCancel = true;
-        }
+            Text = "Cancel",
+            Width = 180,
+            Height = 50,
+            GridColumn = 1
+        };
+        _cancelButton.Click += (s, a) => { ShouldCancel = true; };
+        grid.Widgets.Add(_cancelButton);
 
-        _previousKeyState = keyState;
+        var panel = new Panel
+        {
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+        panel.Widgets.Add(grid);
+
+        return panel;
     }
 
     private bool TryCreateLobbySettings(out LobbySettingsProto? settings)
     {
         settings = null;
 
-        if (string.IsNullOrWhiteSpace(_mapNameField.Text))
+        if (string.IsNullOrWhiteSpace(_mapNameTextBox?.Text))
             return false;
 
         settings = new LobbySettingsProto
         {
             MinPlayers = 2,
-            MaxPlayers = _maxPlayersField.Value,
+            MaxPlayers = (int)(_maxPlayersSpinButton?.Value ?? 4),
             GameMode = "Standard",
-            MapName = _mapNameField.Text.Trim(),
+            MapName = _mapNameTextBox.Text.Trim(),
             StartingPopulation = 100,
             StartingMetal = 50,
             StartingFuel = 50,
@@ -118,50 +258,33 @@ public class CreateLobbyScreen
         return true;
     }
 
+    public void Update(GameTime gameTime, MouseState mouseState, KeyboardState keyState)
+    {
+        ShouldCreate = false;
+        ShouldCancel = false;
+
+        if (keyState.IsKeyDown(Keys.Escape) && _previousKeyState.IsKeyUp(Keys.Escape))
+        {
+            ShouldCancel = true;
+        }
+
+        _previousKeyState = keyState;
+    }
+
     public void Reset()
     {
         ShouldCreate = false;
         ShouldCancel = false;
         LobbySettings = null;
+
+        if (_mapNameTextBox != null)
+            _mapNameTextBox.Text = "Default";
+        if (_maxPlayersSpinButton != null)
+            _maxPlayersSpinButton.Value = 4;
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        if (_pixelTexture == null || _font == null)
-            return;
-
-        spriteBatch.Begin(sortMode: SpriteSortMode.Deferred, blendState: BlendState.AlphaBlend);
-
-        int panelWidth = 500;
-        int panelHeight = 350;
-        int panelX = (_screenWidth - panelWidth) / 2;
-        int panelY = (_screenHeight - panelHeight) / 2;
-
-        var panel = new Rectangle(panelX, panelY, panelWidth, panelHeight);
-        spriteBatch.Draw(_pixelTexture, panel, Color.Black * 0.95f);
-        DrawRectangleOutline(spriteBatch, panel, Color.Cyan, 3);
-
-        var titleText = "Create Lobby";
-        var titleSize = _font.MeasureString(titleText);
-        spriteBatch.DrawString(_font, titleText,
-            new Vector2(panelX + (panelWidth - titleSize.X) / 2, panelY + 20),
-            Color.Cyan, 0f, Vector2.Zero, 1.2f, SpriteEffects.None, 0f);
-
-        _mapNameField.Draw(spriteBatch, _pixelTexture, _font);
-        _maxPlayersField.Draw(spriteBatch, _pixelTexture, _font);
-        _createButton.Draw(spriteBatch, _pixelTexture, _font);
-        _cancelButton.Draw(spriteBatch, _pixelTexture, _font);
-
-        spriteBatch.End();
-    }
-
-    private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
-    {
-        if (_pixelTexture == null) return;
-
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.Right - thickness, rect.Y, thickness, rect.Height), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Bottom - thickness, rect.Width, thickness), color);
+        _desktop?.Render();
     }
 }
