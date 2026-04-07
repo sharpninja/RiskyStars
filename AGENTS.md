@@ -90,6 +90,7 @@ The MonoGame client uses a three-renderer architecture:
 - **Middle Mouse**: Pan by dragging
 
 ### Window Management
+- **ESC**: Open/Close In-Game Settings Window
 - **F1**: Toggle Debug Info Window
 - **F2**: Toggle Player Dashboard Window
 - **F3**: Toggle AI Visualization Window
@@ -98,6 +99,7 @@ The MonoGame client uses a three-renderer architecture:
 
 See `RiskyStars.Client/RENDERING.md` for detailed documentation.
 See `RiskyStars.Client/DOCKABLE_WINDOWS.md` for window system documentation.
+See `RiskyStars.Client/SETTINGS_WINDOW.md` for settings window documentation.
 
 ## Sprite Assets
 
@@ -209,6 +211,31 @@ _combatEventDialog.ShowCombatInitiated(combatEvent, () =>
 ```
 
 See `RiskyStars.Client/DIALOG_SYSTEM.md` for complete documentation.
+
+## In-Game Settings Window
+
+The client features a comprehensive settings overlay accessible via the Escape key:
+
+- **SettingsWindow.cs** - Tabbed settings interface for in-game configuration
+- **Settings.cs** - Extended settings class with graphics, audio, controls, and server options
+- **SETTINGS_WINDOW.md** - Complete documentation of the settings system
+
+### Features
+- **Graphics Settings**: Resolution, fullscreen, VSync, frame rate, debug options
+- **Audio Settings**: Master, music, and SFX volume controls (placeholder for future)
+- **Controls Settings**: Camera pan/zoom speed, invert zoom, keyboard shortcuts reference
+- **Server Settings**: Server address configuration with validation
+- **Runtime Changes**: Apply settings without returning to main menu
+
+### Usage
+```csharp
+// Press ESC in-game to open settings
+// Make changes in any tab
+// Click Apply to save and apply
+// Click Cancel to discard changes
+```
+
+See `RiskyStars.Client/SETTINGS_WINDOW.md` for complete documentation.
 
 ## Input Validation System
 

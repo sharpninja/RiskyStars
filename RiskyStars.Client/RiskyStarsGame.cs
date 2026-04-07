@@ -44,6 +44,7 @@ public class RiskyStarsGame : Game
     private PlayerDashboardWindow? _playerDashboardWindow;
     private AIVisualizationWindow? _aiVisualizationWindow;
     private DebugInfoWindow? _debugInfoWindow;
+    private SettingsWindow? _settingsWindow;
     
     private MapData? _mapData;
     private SpriteFont? _defaultFont;
@@ -88,6 +89,9 @@ public class RiskyStarsGame : Game
         _gameStateCache = new GameStateCache();
         
         _camera = new Camera2D(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        _camera.PanSpeed = _settings.CameraPanSpeed;
+        _camera.ZoomSpeed = _settings.CameraZoomSpeed;
+        
         _mapRenderer = new MapRenderer(GraphicsDevice);
         _regionRenderer = new RegionRenderer(GraphicsDevice);
         _uiRenderer = new UIRenderer(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
@@ -100,6 +104,7 @@ public class RiskyStarsGame : Game
         _inGameDesktop = new Desktop();
         _inGameDialogManager = new DialogManager(_inGameDesktop);
         _combatEventDialog = new CombatEventDialog(_inGameDesktop);
+        _settingsWindow = new SettingsWindow(_graphics, _settings, OnSettingsApplied);
         
         _mapData = MapLoader.CreateSampleMap();
         
@@ -263,7 +268,7 @@ public class RiskyStarsGame : Game
                 _combatScreen.Close();
             }
         }
-        else if (!(_combatEventDialog?.IsOpen ?? false))
+        else if (!(_combatEventDialog?.IsOpen ?? false) && !(_settingsWindow?.IsOpen ?? false))
         {
             _camera?.Update(gameTime);
             _inputController?.Update(gameTime);
@@ -300,6 +305,47 @@ public class RiskyStarsGame : Game
                 ProcessGameUpdate(update);
                 _aiActionTracker?.ProcessGameUpdate(update, _currentPlayerId);
             }
+        }
+    }
+    
+    private void OnSettingsApplied(Settings settings)
+    {
+        bool resolutionChanged = settings.ResolutionWidth != _graphics.PreferredBackBufferWidth ||
+                                settings.ResolutionHeight != _graphics.PreferredBackBufferHeight ||
+                                settings.Fullscreen != _graphics.IsFullScreen;
+        
+        if (resolutionChanged)
+        {
+            ApplySettings();
+            
+            if (_camera != null)
+            {
+                _camera = new Camera2D(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+                _camera.PanSpeed = settings.CameraPanSpeed;
+                _camera.ZoomSpeed = settings.CameraZoomSpeed;
+            }
+        }
+        
+        if (_graphics.SynchronizeWithVerticalRetrace != settings.VSync)
+        {
+            _graphics.SynchronizeWithVerticalRetrace = settings.VSync;
+            _graphics.ApplyChanges();
+        }
+        
+        if (settings.TargetFrameRate > 0)
+        {
+            TargetElapsedTime = TimeSpan.FromSeconds(1.0 / settings.TargetFrameRate);
+            IsFixedTimeStep = true;
+        }
+        else
+        {
+            IsFixedTimeStep = false;
+        }
+        
+        if (_camera != null)
+        {
+            _camera.PanSpeed = settings.CameraPanSpeed;
+            _camera.ZoomSpeed = settings.CameraZoomSpeed;
         }
     }
 
@@ -542,6 +588,7 @@ public class RiskyStarsGame : Game
         }
 
         _inGameDesktop?.Render();
+        _settingsWindow?.Render();
     }
 
     private void ProcessGameUpdate(GameUpdate update)

@@ -13,14 +13,15 @@ public class Camera2D
 
     private const float MinZoom = 0.1f;
     private const float MaxZoom = 5.0f;
-    private const float ZoomSpeed = 0.1f;
-    private const float PanSpeed = 5.0f;
     private const float SmoothSpeed = 0.1f;
 
     private Vector2? _lastMousePosition;
     private bool _isPanning;
     private Vector2? _targetPosition;
     private bool _isTracking;
+    
+    public float PanSpeed { get; set; } = 5.0f;
+    public float ZoomSpeed { get; set; } = 0.1f;
 
     public Camera2D(int viewportWidth, int viewportHeight)
     {
