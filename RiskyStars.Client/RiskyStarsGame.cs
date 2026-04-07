@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RiskyStars.Shared;
 using Myra;
+using Myra.Graphics2D;
+using Myra.Graphics2D.UI;
 
 namespace RiskyStars.Client;
 
@@ -33,6 +35,10 @@ public class RiskyStarsGame : Game
     private MainMenu? _mainMenu;
     private AIActionIndicator? _aiActionIndicator;
     private AIActionTracker? _aiActionTracker;
+    
+    private Desktop? _inGameDesktop;
+    private DialogManager? _inGameDialogManager;
+    private CombatEventDialog? _combatEventDialog;
     
     private MapData? _mapData;
     private SpriteFont? _defaultFont;
@@ -84,6 +90,10 @@ public class RiskyStarsGame : Game
         _lobbyManager = new LobbyManager(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _mainMenu = new MainMenu(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight, _settings);
         _aiActionIndicator = new AIActionIndicator(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        
+        _inGameDesktop = new Desktop();
+        _inGameDialogManager = new DialogManager(_inGameDesktop);
+        _combatEventDialog = new CombatEventDialog(_inGameDesktop);
         
         _mapData = MapLoader.CreateSampleMap();
         
@@ -221,12 +231,14 @@ public class RiskyStarsGame : Game
         }
 
         _connectionManager?.Update();
+        _inGameDialogManager?.Update();
 
         if (_connectionManager?.Status == ConnectionStatus.Error && 
             _connectionManager.ReconnectAttempts >= _connectionManager.MaxAttempts)
         {
+            var errorMessage = $"Connection lost: {_connectionManager.ErrorMessage}";
             ReturnToMainMenu();
-            _mainMenu?.ShowError($"Connection lost: {_connectionManager.ErrorMessage}");
+            _mainMenu?.ShowError(errorMessage);
             return;
         }
 
@@ -239,7 +251,7 @@ public class RiskyStarsGame : Game
                 _combatScreen.Close();
             }
         }
-        else
+        else if (!(_combatEventDialog?.IsOpen ?? false))
         {
             _camera?.Update(gameTime);
             _inputController?.Update(gameTime);
@@ -469,6 +481,8 @@ public class RiskyStarsGame : Game
                 _uiRenderer?.DrawDebugInfo(spriteBatch, _camera);
             }
         }
+
+        _inGameDesktop?.Render();
     }
 
     private void ProcessGameUpdate(GameUpdate update)
@@ -498,13 +512,44 @@ public class RiskyStarsGame : Game
             {
                 foreach (var combatEvent in gameState.CombatEvents)
                 {
-                    if (_combatScreen != null && !_combatScreen.IsActive)
+                    if (_combatScreen != null && !_combatScreen.IsActive && !(_combatEventDialog?.IsOpen ?? false))
                     {
-                        _combatScreen.StartCombat(combatEvent);
+                        ShowCombatEventNotification(combatEvent);
                         break;
                     }
                 }
             }
+        }
+    }
+
+    private void ShowCombatEventNotification(CombatEvent combatEvent)
+    {
+        if (_combatEventDialog == null)
+            return;
+
+        switch (combatEvent.EventType)
+        {
+            case CombatEvent.Types.CombatEventType.CombatInitiated:
+                _combatEventDialog.ShowCombatInitiated(combatEvent, () =>
+                {
+                    _combatScreen?.StartCombat(combatEvent);
+                });
+                break;
+
+            case CombatEvent.Types.CombatEventType.ReinforcementsArrived:
+                _combatEventDialog.ShowReinforcementsArrived(combatEvent, () =>
+                {
+                    _combatScreen?.StartCombat(combatEvent);
+                });
+                break;
+
+            case CombatEvent.Types.CombatEventType.CombatEnded:
+                _combatEventDialog.ShowCombatEnded(combatEvent);
+                break;
+
+            case CombatEvent.Types.CombatEventType.CombatRoundComplete:
+                _combatScreen?.StartCombat(combatEvent);
+                break;
         }
     }
 

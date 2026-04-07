@@ -143,6 +143,47 @@ ThemeManager.ApplyButtonTheme(button, ButtonTheme.Success);
 
 See `RiskyStars.Client/UI_THEME.md` for complete documentation.
 
+## Dialog System
+
+The client uses Myra's Dialog system for modal notifications and user prompts:
+
+- **DialogManager.cs** - Centralized dialog system for errors, warnings, confirmations, and questions
+- **CombatEventDialog.cs** - Specialized dialog for combat event notifications
+- **DIALOG_SYSTEM.md** - Complete documentation of the dialog system
+
+### Features
+- Error, warning, info, and success dialogs with themed styling
+- Confirmation and question dialogs with callbacks
+- Combat event notifications with formatted battle information
+- Replaces custom modal overlays with consistent Myra dialogs
+
+### Usage Examples
+```csharp
+// Initialize
+_desktop = new Desktop();
+_dialogManager = new DialogManager(_desktop);
+
+// Show error dialog
+_dialogManager.ShowError("Error", "Something went wrong");
+
+// Show confirmation with callback
+_dialogManager.ShowConfirmation("Delete?", "Are you sure?", (result) =>
+{
+    if (result == DialogResult.OK)
+    {
+        // User confirmed
+    }
+});
+
+// Show combat event
+_combatEventDialog.ShowCombatInitiated(combatEvent, () =>
+{
+    _combatScreen.StartCombat(combatEvent);
+});
+```
+
+See `RiskyStars.Client/DIALOG_SYSTEM.md` for complete documentation.
+
 ## Conventions
 ### Code
 - C# projects follow standard .NET conventions

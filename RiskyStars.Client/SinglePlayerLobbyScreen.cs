@@ -17,22 +17,19 @@ public class SinglePlayerLobbyScreen
     private SpriteFont? _font;
 
     private Desktop? _desktop;
+    private DialogManager? _dialogManager;
     private Panel? _mainPanel;
     private TextBox? _playerNameTextBox;
     private ComboBox? _mapComboBox;
     private Grid? _playerSlotsGrid;
     private TextButton? _startGameButton;
     private TextButton? _backButton;
-    private Label? _errorLabel;
 
     private List<PlayerSlot> _playerSlots;
     private List<ComboBox> _playerTypeComboBoxes;
     private List<TextButton> _regenerateNameButtons;
 
     private KeyboardState _previousKeyState;
-    private string? _errorMessage;
-    private float _errorDisplayTime;
-    private const float ErrorDisplayDuration = 5.0f;
     private const int MaxPlayers = 8;
     private const int MaxVisibleSlots = 8;
 
@@ -66,6 +63,7 @@ public class SinglePlayerLobbyScreen
     {
         _font = font;
         _desktop = new Desktop();
+        _dialogManager = new DialogManager(_desktop);
         BuildUI();
     }
 
@@ -85,7 +83,6 @@ public class SinglePlayerLobbyScreen
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Player name
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Map selection
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Fill)); // Player slots
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Error message
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
 
         // Title
@@ -127,23 +124,9 @@ public class SinglePlayerLobbyScreen
         slotsPanel.GridRow = 4;
         rootGrid.Widgets.Add(slotsPanel);
 
-        // Error message
-        _errorLabel = new Label
-        {
-            Text = "",
-            TextColor = Color.Yellow,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 5,
-            Scale = new Vector2(0.8f, 0.8f),
-            Visible = false,
-            Wrap = true,
-            Width = 600
-        };
-        rootGrid.Widgets.Add(_errorLabel);
-
         // Buttons
         var buttonsPanel = BuildButtonsPanel();
-        buttonsPanel.GridRow = 6;
+        buttonsPanel.GridRow = 5;
         rootGrid.Widgets.Add(buttonsPanel);
 
         _mainPanel = new Panel
@@ -617,17 +600,7 @@ public class SinglePlayerLobbyScreen
     {
         ShouldStartGame = false;
         ShouldGoBack = false;
-
-        if (_errorDisplayTime > 0)
-        {
-            _errorDisplayTime -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (_errorDisplayTime <= 0)
-            {
-                _errorMessage = null;
-                if (_errorLabel != null)
-                    _errorLabel.Visible = false;
-            }
-        }
+        _dialogManager?.Update();
 
         if (keyState.IsKeyDown(Keys.Escape) && _previousKeyState.IsKeyUp(Keys.Escape))
         {
@@ -641,11 +614,6 @@ public class SinglePlayerLobbyScreen
     {
         ShouldStartGame = false;
         ShouldGoBack = false;
-        _errorMessage = null;
-        _errorDisplayTime = 0;
-
-        if (_errorLabel != null)
-            _errorLabel.Visible = false;
 
         for (int i = 0; i < _playerSlots.Count; i++)
         {
@@ -672,14 +640,7 @@ public class SinglePlayerLobbyScreen
 
     public void SetError(string errorMessage)
     {
-        _errorMessage = errorMessage;
-        _errorDisplayTime = ErrorDisplayDuration;
-
-        if (_errorLabel != null)
-        {
-            _errorLabel.Text = errorMessage;
-            _errorLabel.Visible = true;
-        }
+        _dialogManager?.ShowError("Game Setup Error", errorMessage);
     }
 
     public void Draw(SpriteBatch spriteBatch)

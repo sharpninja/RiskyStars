@@ -11,8 +11,7 @@ public enum MainMenuState
 {
     Main,
     Settings,
-    Connecting,
-    Error
+    Connecting
 }
 
 public class MainMenu
@@ -23,6 +22,7 @@ public class MainMenu
     private Settings _settings;
 
     private Desktop? _desktop;
+    private DialogManager? _dialogManager;
     private MainMenuState _state = MainMenuState.Main;
 
     // Main menu widgets
@@ -42,13 +42,6 @@ public class MainMenu
     // Connecting screen widgets
     private Panel? _connectingPanel;
 
-    // Error screen widgets
-    private Panel? _errorPanel;
-    private Label? _errorMessageLabel;
-    private TextButton? _errorOkButton;
-
-    private string _errorMessage = "";
-
     public bool ShouldConnect { get; private set; }
     public bool ShouldExit { get; private set; }
     public Settings Settings => _settings;
@@ -66,12 +59,12 @@ public class MainMenu
     {
         // Create desktop for UI rendering
         _desktop = new Desktop();
+        _dialogManager = new DialogManager(_desktop);
 
         // Build all UI panels
         BuildMainMenuUI();
         BuildSettingsUI();
         BuildConnectingUI();
-        BuildErrorUI();
 
         // Show main menu by default
         ShowMainMenuUI();
@@ -333,63 +326,6 @@ public class MainMenu
         _connectingPanel.Widgets.Add(grid);
     }
 
-    private void BuildErrorUI()
-    {
-        var mainGrid = new Grid
-        {
-            RowSpacing = 20,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Message
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Button
-
-        // Title
-        var titleLabel = new Label
-        {
-            Text = "Connection Error",
-            TextColor = Color.Red,
-            Scale = new Vector2(1.2f, 1.2f),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 0
-        };
-        mainGrid.Widgets.Add(titleLabel);
-
-        // Error message
-        _errorMessageLabel = new Label
-        {
-            Text = "",
-            TextColor = Color.White,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 1,
-            Width = 450,
-            Wrap = true
-        };
-        mainGrid.Widgets.Add(_errorMessageLabel);
-
-        // OK button
-        _errorOkButton = new TextButton
-        {
-            Text = "OK",
-            Width = 150,
-            Height = 50,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 2
-        };
-        _errorOkButton.Click += (s, a) => OnErrorOkClicked();
-        mainGrid.Widgets.Add(_errorOkButton);
-
-        _errorPanel = new Panel
-        {
-            Width = _screenWidth,
-            Height = _screenHeight,
-            Background = new SolidBrush(new Color(10, 10, 20) * 0.95f)
-        };
-        _errorPanel.Widgets.Add(mainGrid);
-    }
-
     private void ShowMainMenuUI()
     {
         if (_desktop != null)
@@ -423,15 +359,6 @@ public class MainMenu
             _desktop.Root = _connectingPanel;
     }
 
-    private void ShowErrorUI()
-    {
-        if (_errorMessageLabel != null)
-            _errorMessageLabel.Text = _errorMessage;
-
-        if (_desktop != null)
-            _desktop.Root = _errorPanel;
-    }
-
     public void SetState(MainMenuState state)
     {
         _state = state;
@@ -440,9 +367,11 @@ public class MainMenu
 
     public void ShowError(string message)
     {
-        _errorMessage = message;
-        _state = MainMenuState.Error;
-        UpdateUI();
+        _dialogManager?.ShowError("Connection Error", message, (result) =>
+        {
+            _state = MainMenuState.Main;
+            UpdateUI();
+        });
     }
 
     private void UpdateUI()
@@ -457,9 +386,6 @@ public class MainMenu
                 break;
             case MainMenuState.Connecting:
                 ShowConnectingUI();
-                break;
-            case MainMenuState.Error:
-                ShowErrorUI();
                 break;
         }
     }
@@ -534,16 +460,10 @@ public class MainMenu
         UpdateUI();
     }
 
-    private void OnErrorOkClicked()
-    {
-        _state = MainMenuState.Main;
-        UpdateUI();
-    }
-
     public void Update(GameTime gameTime)
     {
         ShouldConnect = false;
-        // Myra handles input automatically through the Desktop
+        _dialogManager?.Update();
     }
 
     public void Draw(SpriteBatch spriteBatch)
