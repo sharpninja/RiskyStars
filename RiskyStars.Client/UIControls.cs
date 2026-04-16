@@ -110,7 +110,9 @@ public class TextInputField
         }
 
         if (!_isFocused)
+        {
             return;
+        }
 
         _cursorBlinkTimer += 16.67;
         if (_cursorBlinkTimer >= 500)
@@ -190,8 +192,10 @@ public class TextInputField
         if (key >= Keys.D0 && key <= Keys.D9)
         {
             if (!shift)
+            {
                 return ((char)('0' + (key - Keys.D0))).ToString();
-            
+            }
+
             return key switch
             {
                 Keys.D1 => "!",

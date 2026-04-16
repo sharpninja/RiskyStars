@@ -417,8 +417,10 @@ public class GameStateCache
         {
             var playerState = GetPlayerState(playerId);
             if (playerState == null)
+            {
                 return 0;
-            
+            }
+
             int regionCount = GetRegionsOwnedByPlayer(playerId).Count;
             
             return resourceType switch

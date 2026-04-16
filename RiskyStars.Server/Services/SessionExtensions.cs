@@ -8,10 +8,14 @@ public static class SessionExtensions
     {
         var authHeader = context.RequestHeaders.GetValue("authorization");
         if (string.IsNullOrEmpty(authHeader))
+        {
             return null;
+        }
 
         if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
             return authHeader.Substring(7);
+        }
 
         return authHeader;
     }
@@ -30,7 +34,9 @@ public static class SessionExtensions
         
         var authToken = context.GetAuthToken();
         if (string.IsNullOrEmpty(authToken))
+        {
             return false;
+        }
 
         return sessionManager.ValidateAuthToken(authToken, out playerId);
     }

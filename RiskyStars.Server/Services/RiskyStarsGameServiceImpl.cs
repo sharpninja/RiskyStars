@@ -157,11 +157,15 @@ public class RiskyStarsGameServiceImpl : RiskyStarsGame.RiskyStarsGameBase
     {
         var session = _sessionManager.GetSession(sessionId);
         if (session == null)
+        {
             return;
+        }
 
         var game = _gameStateManager.GetGame(session.GameId);
         if (game == null)
+        {
             return;
+        }
 
         try
         {

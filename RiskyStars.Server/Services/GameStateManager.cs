@@ -86,7 +86,10 @@ public class GameStateManager
     public void AdvancePhase(string gameId)
     {
         var game = GetGame(gameId);
-        if (game == null) return;
+        if (game == null)
+        {
+            return;
+        }
 
         lock (_gameLock)
         {
@@ -140,12 +143,17 @@ public class GameStateManager
     public void ProduceResources(string gameId)
     {
         var game = GetGame(gameId);
-        if (game == null) return;
+        if (game == null)
+        {
+            return;
+        }
 
         lock (_gameLock)
         {
             if (game.CurrentPhase != Entities.TurnPhase.Production)
+            {
                 throw new InvalidOperationException("Not in production phase");
+            }
 
             ExecuteProductionPhase(game);
             BroadcastGameStateUpdate(game, $"{game.CurrentPlayer.Name} produced resources");
@@ -155,19 +163,28 @@ public class GameStateManager
     public void PurchaseArmies(string gameId, string playerId, int count)
     {
         var game = GetGame(gameId);
-        if (game == null) return;
+        if (game == null)
+        {
+            return;
+        }
 
         lock (_gameLock)
         {
             if (game.CurrentPhase != Entities.TurnPhase.Purchase)
+            {
                 throw new InvalidOperationException("Not in purchase phase");
+            }
 
             if (game.CurrentPlayer.Id != playerId)
+            {
                 throw new InvalidOperationException("Not the current player's turn");
+            }
 
             var player = game.Players.FirstOrDefault(p => p.Id == playerId);
             if (player == null)
+            {
                 throw new InvalidOperationException("Player not found");
+            }
 
             player.PurchaseArmy(count);
             BroadcastGameStateUpdate(game, $"{player.Name} purchased {count} army unit(s)");
@@ -177,19 +194,28 @@ public class GameStateManager
     public void ReinforceLocation(string gameId, string playerId, string locationId, Entities.LocationType locationType, int unitCount)
     {
         var game = GetGame(gameId);
-        if (game == null) return;
+        if (game == null)
+        {
+            return;
+        }
 
         lock (_gameLock)
         {
             if (game.CurrentPhase != Entities.TurnPhase.Reinforcement)
+            {
                 throw new InvalidOperationException("Not in reinforcement phase");
+            }
 
             if (game.CurrentPlayer.Id != playerId)
+            {
                 throw new InvalidOperationException("Not the current player's turn");
+            }
 
             var player = game.Players.FirstOrDefault(p => p.Id == playerId);
             if (player == null)
+            {
                 throw new InvalidOperationException("Player not found");
+            }
 
             var army = CreateOrGetArmy(game, playerId, locationId, locationType);
             army.UnitCount += unitCount;
@@ -201,19 +227,28 @@ public class GameStateManager
     public void MoveArmy(string gameId, string armyId, string targetLocationId, Entities.LocationType targetLocationType)
     {
         var game = GetGame(gameId);
-        if (game == null) return;
+        if (game == null)
+        {
+            return;
+        }
 
         lock (_gameLock)
         {
             if (game.CurrentPhase != Entities.TurnPhase.Movement)
+            {
                 throw new InvalidOperationException("Not in movement phase");
+            }
 
             var army = game.GetAllArmies().FirstOrDefault(a => a.Id == armyId);
             if (army == null)
+            {
                 throw new InvalidOperationException("Army not found");
+            }
 
             if (army.OwnerId != game.CurrentPlayer.Id)
+            {
                 throw new InvalidOperationException("Not the current player's army");
+            }
 
             army.Move(targetLocationId, targetLocationType);
             BroadcastGameStateUpdate(game, $"{game.CurrentPlayer.Name} moved army to new location");
@@ -223,7 +258,10 @@ public class GameStateManager
     public void UpdateOwnership(string gameId, string locationId, Entities.LocationType locationType, string newOwnerId)
     {
         var game = GetGame(gameId);
-        if (game == null) return;
+        if (game == null)
+        {
+            return;
+        }
 
         lock (_gameLock)
         {
@@ -231,7 +269,9 @@ public class GameStateManager
             {
                 var region = game.GetAllRegions().FirstOrDefault(r => r.Id == locationId);
                 if (region == null)
+                {
                     throw new InvalidOperationException("Region not found");
+                }
 
                 var oldOwnerId = region.OwnerId;
                 region.OwnerId = newOwnerId;
@@ -402,7 +442,9 @@ public class GameStateManager
         {
             var region = game.GetAllRegions().FirstOrDefault(r => r.Id == locationId);
             if (region == null)
+            {
                 throw new InvalidOperationException("Region not found");
+            }
 
             if (region.Army == null)
             {

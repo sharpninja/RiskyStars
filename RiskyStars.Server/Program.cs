@@ -5,6 +5,8 @@ using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure application settings
+builder.Services.Configure<ServerOptions>(
+    builder.Configuration.GetSection("Server"));
 builder.Services.Configure<GamePersistenceOptions>(
     builder.Configuration.GetSection("GamePersistence"));
 builder.Services.Configure<SessionManagementOptions>(
@@ -12,13 +14,14 @@ builder.Services.Configure<SessionManagementOptions>(
 builder.Services.Configure<GrpcOptions>(
     builder.Configuration.GetSection("Grpc"));
 
-// Get gRPC options for configuration
+// Get configuration objects
+var serverConfig = builder.Configuration.GetSection("Server").Get<ServerOptions>() ?? new ServerOptions();
 var grpcConfig = builder.Configuration.GetSection("Grpc").Get<GrpcOptions>() ?? new GrpcOptions();
 
 // Configure Kestrel for gRPC
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(5000, listenOptions =>
+    options.ListenAnyIP(serverConfig.Port, listenOptions =>
     {
         listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
     });
@@ -197,7 +200,7 @@ logger.LogInformation("=================================================");
 logger.LogInformation("RiskyStars gRPC Server Starting");
 logger.LogInformation("=================================================");
 logger.LogInformation("Environment: {Environment}", app.Environment.EnvironmentName);
-logger.LogInformation("Listening on: http://0.0.0.0:5000");
+logger.LogInformation("Listening on: http://0.0.0.0:{Port}", serverConfig.Port);
 logger.LogInformation("Protocol: HTTP/2 (gRPC)");
 logger.LogInformation("Max Receive Message Size: {Size} MB", grpcConfig.MaxReceiveMessageSize / (1024 * 1024));
 logger.LogInformation("Max Send Message Size: {Size} MB", grpcConfig.MaxSendMessageSize / (1024 * 1024));
@@ -206,3 +209,5 @@ logger.LogInformation("=================================================");
 
 // Run the application
 app.Run();
+
+

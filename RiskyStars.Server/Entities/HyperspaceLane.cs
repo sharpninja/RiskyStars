@@ -37,18 +37,30 @@ public class HyperspaceLane
     public string GetOppositeMouthId(string mouthId)
     {
         if (mouthId == MouthAId)
+        {
             return MouthBId;
+        }
+
         if (mouthId == MouthBId)
+        {
             return MouthAId;
+        }
+
         throw new ArgumentException($"Mouth ID {mouthId} does not belong to this hyperspace lane");
     }
 
     public string GetOppositeStarSystemId(string starSystemId)
     {
         if (starSystemId == StarSystemAId)
+        {
             return StarSystemBId;
+        }
+
         if (starSystemId == StarSystemBId)
+        {
             return StarSystemAId;
+        }
+
         throw new ArgumentException($"Star system ID {starSystemId} does not belong to this hyperspace lane");
     }
 }

@@ -130,8 +130,10 @@ public class InputController
     private void HandleRightClick(Vector2 worldPosition)
     {
         if (_selectionState.SelectedArmy == null || _currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var targetRegion = FindRegionAtPosition(worldPosition);
         if (targetRegion != null)
         {
@@ -150,8 +152,10 @@ public class InputController
     private void HandleKeyboardInput(KeyboardState keyState)
     {
         if (_currentPlayerId == null || _gameStateCache.GetGameId() == null)
+        {
             return;
-        
+        }
+
         if (IsKeyPressed(keyState, Keys.Space))
         {
             SendAdvancePhaseCommand();
@@ -342,8 +346,10 @@ public class InputController
     private void SendMoveArmyCommand(string armyId, string targetLocationId, LocationType targetLocationType)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -360,12 +366,16 @@ public class InputController
     private void SendAdvancePhaseCommand()
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -382,12 +392,16 @@ public class InputController
     private void SendProduceResourcesCommand()
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -404,12 +418,16 @@ public class InputController
     private void SendPurchaseArmiesCommand(int count)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -426,12 +444,16 @@ public class InputController
     private void SendReinforceLocationCommand(string locationId, LocationType locationType, int unitCount)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -448,12 +470,16 @@ public class InputController
     private void CycleSelection()
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var playerArmies = _gameStateCache.GetArmiesOwnedByPlayer(_currentPlayerId);
         if (playerArmies.Count == 0)
+        {
             return;
-        
+        }
+
         if (_selectionState.SelectedArmy == null)
         {
             _selectionState.SelectArmy(playerArmies.First());

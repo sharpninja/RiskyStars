@@ -1,6 +1,9 @@
 using Microsoft.Xna.Framework;
+using RiskyStars.Client;
 using Microsoft.Xna.Framework.Graphics;
+using RiskyStars.Client;
 using Microsoft.Xna.Framework.Input;
+using RiskyStars.Client;
 
 namespace RiskyStars.Client;
 
@@ -13,7 +16,7 @@ public class ConnectionScreen
     private SpriteFont? _font;
     
     private string _playerName = "";
-    private string _serverAddress = "http://localhost:5000";
+    private string _serverAddress = Settings.Load().ServerAddress;
     private string _statusMessage = "";
     private bool _isConnecting = false;
     private Color _statusColor = Color.White;
@@ -70,8 +73,10 @@ public class ConnectionScreen
     public void Update(GameTime gameTime, MouseState mouseState, KeyboardState keyState)
     {
         if (_isConnecting)
+        {
             return;
-        
+        }
+
         _playerNameField.Update(mouseState, keyState, _previousKeyState);
         _serverAddressField.Update(mouseState, keyState, _previousKeyState);
         _connectButton.Update(mouseState);
@@ -121,7 +126,9 @@ public class ConnectionScreen
     public void Draw(SpriteBatch spriteBatch)
     {
         if (_pixelTexture == null || _font == null)
+        {
             return;
+        }
 
         spriteBatch.Begin(sortMode: SpriteSortMode.Deferred, blendState: BlendState.AlphaBlend);
 
@@ -157,7 +164,10 @@ public class ConnectionScreen
 
     private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);
@@ -165,3 +175,5 @@ public class ConnectionScreen
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Bottom - thickness, rect.Width, thickness), color);
     }
 }
+
+

@@ -79,7 +79,9 @@ public class CombatScreen
     public void Update(GameTime gameTime)
     {
         if (!IsActive || _currentCombatEvent == null)
+        {
             return;
+        }
 
         var keyState = Keyboard.GetState();
         
@@ -174,7 +176,9 @@ public class CombatScreen
         _animatedCasualties.Clear();
 
         if (_currentCombatEvent == null || _currentRoundIndex >= _currentCombatEvent.RoundResults.Count)
+        {
             return;
+        }
 
         var round = _currentCombatEvent.RoundResults[_currentRoundIndex];
 
@@ -261,7 +265,9 @@ public class CombatScreen
     public void Draw(SpriteBatch spriteBatch)
     {
         if (!IsActive || _currentCombatEvent == null || _pixelTexture == null || _font == null)
+        {
             return;
+        }
 
         spriteBatch.Begin(
             sortMode: SpriteSortMode.Deferred,
@@ -310,7 +316,9 @@ public class CombatScreen
     private void DrawBackground(SpriteBatch spriteBatch)
     {
         if (_pixelTexture == null)
+        {
             return;
+        }
 
         var overlay = new Rectangle(0, 0, _screenWidth, _screenHeight);
         spriteBatch.Draw(_pixelTexture, overlay, Color.Black * 0.9f);
@@ -319,7 +327,9 @@ public class CombatScreen
     private void DrawCombatTitle(SpriteBatch spriteBatch)
     {
         if (_font == null || _currentCombatEvent == null)
+        {
             return;
+        }
 
         string title = _currentCombatEvent.EventType switch
         {
@@ -345,7 +355,9 @@ public class CombatScreen
     private void DrawReinforcementMessage(SpriteBatch spriteBatch)
     {
         if (_font == null || _pixelTexture == null)
+        {
             return;
+        }
 
         int msgWidth = 500;
         int msgHeight = 80;
@@ -366,7 +378,9 @@ public class CombatScreen
     private void DrawRoundInfo(SpriteBatch spriteBatch)
     {
         if (_font == null || _currentCombatEvent == null)
+        {
             return;
+        }
 
         string roundText = $"Round {_currentRoundIndex + 1} of {_currentCombatEvent.RoundResults.Count}";
         var roundSize = _font.MeasureString(roundText);
@@ -378,7 +392,9 @@ public class CombatScreen
     private void DrawArmyStates(SpriteBatch spriteBatch)
     {
         if (_font == null || _pixelTexture == null || _currentCombatEvent == null)
+        {
             return;
+        }
 
         var attackers = _currentCombatEvent.ArmyStates.Where(a => a.CombatRole == "Attacker").ToList();
         var defenders = _currentCombatEvent.ArmyStates.Where(a => a.CombatRole == "Defender").ToList();
@@ -426,7 +442,9 @@ public class CombatScreen
     private void DrawDiceRolls(SpriteBatch spriteBatch)
     {
         if (_font == null || _pixelTexture == null)
+        {
             return;
+        }
 
         spriteBatch.DrawString(_font, "Attacker Rolls:",
             new Vector2(80, 260), Color.Red, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
@@ -463,7 +481,9 @@ public class CombatScreen
     private void DrawDie(SpriteBatch spriteBatch, Vector2 position, int value, Color color)
     {
         if (_pixelTexture == null || _font == null)
+        {
             return;
+        }
 
         int dieSize = 50;
         var dieRect = new Rectangle((int)position.X - dieSize / 2, (int)position.Y - dieSize / 2, dieSize, dieSize);
@@ -492,7 +512,9 @@ public class CombatScreen
     private void DrawPairings(SpriteBatch spriteBatch)
     {
         if (_font == null || _pixelTexture == null)
+        {
             return;
+        }
 
         int panelWidth = 600;
         int panelHeight = 250;
@@ -511,7 +533,9 @@ public class CombatScreen
         {
             var pairing = _animatedPairings[i];
             if (!pairing.IsRevealed)
+            {
                 continue;
+            }
 
             var p = pairing.Pairing;
             string attackRoll = p.AttackerRoll?.Roll.ToString() ?? "N/A";
@@ -530,14 +554,18 @@ public class CombatScreen
             yOffset += 25;
 
             if (yOffset > panelY + panelHeight - 30)
+            {
                 break;
+            }
         }
     }
 
     private void DrawCasualties(SpriteBatch spriteBatch)
     {
         if (_font == null || _pixelTexture == null)
+        {
             return;
+        }
 
         int panelWidth = 500;
         int panelHeight = 200;
@@ -555,7 +583,9 @@ public class CombatScreen
         foreach (var casualty in _animatedCasualties)
         {
             if (!casualty.IsRevealed)
+            {
                 continue;
+            }
 
             var c = casualty.Casualty;
             string casualtyText = $"{c.PlayerId} ({c.CombatRole}): -{c.Casualties} units ({c.RemainingUnits} remaining)";
@@ -570,7 +600,9 @@ public class CombatScreen
     private void DrawOutro(SpriteBatch spriteBatch)
     {
         if (_font == null || _pixelTexture == null || _currentCombatEvent == null)
+        {
             return;
+        }
 
         int panelWidth = 400;
         int panelHeight = 150;
@@ -608,7 +640,9 @@ public class CombatScreen
     private void DrawInstructions(SpriteBatch spriteBatch)
     {
         if (_font == null)
+        {
             return;
+        }
 
         string instructions = _animationState == CombatAnimationState.ShowingOutro
             ? "Press ENTER/SPACE to close | ESC to skip"
@@ -623,7 +657,9 @@ public class CombatScreen
     private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
     {
         if (_pixelTexture == null)
+        {
             return;
+        }
 
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);

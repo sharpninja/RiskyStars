@@ -1,9 +1,15 @@
 using Microsoft.Xna.Framework;
+using RiskyStars.Client;
 using Microsoft.Xna.Framework.Graphics;
+using RiskyStars.Client;
 using Myra;
+using RiskyStars.Client;
 using Myra.Graphics2D;
+using RiskyStars.Client;
 using Myra.Graphics2D.UI;
+using RiskyStars.Client;
 using Myra.Graphics2D.Brushes;
+using RiskyStars.Client;
 
 namespace RiskyStars.Client;
 
@@ -179,7 +185,7 @@ public class MainMenu
         mainGrid.Widgets.Add(serverLabel);
 
         // Server Address TextBox with validation
-        _serverAddressTextBox = new ValidatedTextBox(500, "http://localhost:5000", showErrorLabel: true);
+        _serverAddressTextBox = new ValidatedTextBox(500, Settings.Load().ServerAddress, showErrorLabel: true);
         _serverAddressTextBox.Text = _settings.ServerAddress;
         _serverAddressTextBox.SetValidator(InputValidator.ValidateServerAddress);
         _serverAddressTextBox.Container.GridRow = 2;
@@ -327,7 +333,9 @@ public class MainMenu
     private void ShowMainMenuUI()
     {
         if (_desktop != null)
+        {
             _desktop.Root = _mainMenuPanel;
+        }
     }
 
     private void ShowSettingsUI()
@@ -344,20 +352,28 @@ public class MainMenu
             var resolutions = new List<string> { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
             var selectedIndex = resolutions.IndexOf(currentResolution);
             if (selectedIndex >= 0)
+            {
                 _resolutionComboBox.SelectedIndex = selectedIndex;
+            }
         }
 
         if (_fullscreenCheckButton != null)
+        {
             _fullscreenCheckButton.IsPressed = _settings.Fullscreen;
+        }
 
         if (_desktop != null)
+        {
             _desktop.Root = _settingsPanel;
+        }
     }
 
     private void ShowConnectingUI()
     {
         if (_desktop != null)
+        {
             _desktop.Root = _connectingPanel;
+        }
     }
 
     public void SetState(MainMenuState state)
@@ -419,7 +435,9 @@ public class MainMenu
         }
 
         if (_serverAddressTextBox != null)
+        {
             _settings.ServerAddress = _serverAddressTextBox.Text.Trim();
+        }
 
         if (_resolutionComboBox != null && _resolutionComboBox.SelectedItem != null)
         {
@@ -438,7 +456,9 @@ public class MainMenu
         }
 
         if (_fullscreenCheckButton != null)
+        {
             _settings.Fullscreen = _fullscreenCheckButton.IsPressed;
+        }
 
         _settings.Save();
 
@@ -461,11 +481,15 @@ public class MainMenu
             var resolutions = new List<string> { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
             var selectedIndex = resolutions.IndexOf(currentResolution);
             if (selectedIndex >= 0)
+            {
                 _resolutionComboBox.SelectedIndex = selectedIndex;
+            }
         }
 
         if (_fullscreenCheckButton != null)
+        {
             _fullscreenCheckButton.IsPressed = _settings.Fullscreen;
+        }
 
         _state = MainMenuState.Main;
         UpdateUI();
@@ -482,3 +506,5 @@ public class MainMenu
         _desktop?.Render();
     }
 }
+
+

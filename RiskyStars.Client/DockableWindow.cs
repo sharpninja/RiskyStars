@@ -179,15 +179,46 @@ public class DockableWindow
         bool nearTop = y < TitleBarHeight + DockThreshold;
         bool nearBottom = y > _screenHeight - height - DockThreshold;
         
-        if (nearLeft && nearTop) return DockPosition.TopLeft;
-        if (nearRight && nearTop) return DockPosition.TopRight;
-        if (nearLeft && nearBottom) return DockPosition.BottomLeft;
-        if (nearRight && nearBottom) return DockPosition.BottomRight;
-        if (nearLeft) return DockPosition.Left;
-        if (nearRight) return DockPosition.Right;
-        if (nearTop) return DockPosition.Top;
-        if (nearBottom) return DockPosition.Bottom;
-        
+        if (nearLeft && nearTop)
+        {
+            return DockPosition.TopLeft;
+        }
+
+        if (nearRight && nearTop)
+        {
+            return DockPosition.TopRight;
+        }
+
+        if (nearLeft && nearBottom)
+        {
+            return DockPosition.BottomLeft;
+        }
+
+        if (nearRight && nearBottom)
+        {
+            return DockPosition.BottomRight;
+        }
+
+        if (nearLeft)
+        {
+            return DockPosition.Left;
+        }
+
+        if (nearRight)
+        {
+            return DockPosition.Right;
+        }
+
+        if (nearTop)
+        {
+            return DockPosition.Top;
+        }
+
+        if (nearBottom)
+        {
+            return DockPosition.Bottom;
+        }
+
         return DockPosition.None;
     }
     

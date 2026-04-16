@@ -159,7 +159,9 @@ public class ExampleThemedUI
         _mainPanel.Widgets.Add(mainLayout);
 
         if (_desktop != null)
+        {
             _desktop.Root = _mainPanel;
+        }
     }
 
     /// <summary>
@@ -228,7 +230,9 @@ public class ExampleThemedUI
         _mainPanel.Widgets.Add(panel);
 
         if (_desktop != null)
+        {
             _desktop.Root = _mainPanel;
+        }
     }
 
     /// <summary>
@@ -274,7 +278,9 @@ public class ExampleThemedUI
         _mainPanel.Widgets.Add(panel);
 
         if (_desktop != null)
+        {
             _desktop.Root = _mainPanel;
+        }
     }
 
     public void Update(GameTime gameTime)

@@ -152,8 +152,10 @@ public class ServerStatusIndicator
     private string TruncateError(string error, int maxLength = 40)
     {
         if (error.Length <= maxLength)
+        {
             return error;
-        
+        }
+
         return error.Substring(0, maxLength - 3) + "...";
     }
 

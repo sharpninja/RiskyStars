@@ -101,9 +101,14 @@ public class Camera2D
         }
 
         if (keyState.IsKeyDown(Keys.OemPlus) || keyState.IsKeyDown(Keys.Add))
+        {
             _zoom = MathHelper.Clamp(_zoom + ZoomSpeed * deltaTime, MinZoom, MaxZoom);
+        }
+
         if (keyState.IsKeyDown(Keys.OemMinus) || keyState.IsKeyDown(Keys.Subtract))
+        {
             _zoom = MathHelper.Clamp(_zoom - ZoomSpeed * deltaTime, MinZoom, MaxZoom);
+        }
 
         if (userInput)
         {

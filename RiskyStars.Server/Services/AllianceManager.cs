@@ -18,7 +18,9 @@ public class AllianceManager
     public void AddPlayerToAlliance(Alliance alliance, Player player, int currentTurn)
     {
         if (player.AllianceId != null)
+        {
             throw new InvalidOperationException("Player is already in an alliance");
+        }
 
         if (!alliance.MemberPlayerIds.Contains(player.Id))
         {
@@ -32,7 +34,9 @@ public class AllianceManager
     public void RemovePlayerFromAlliance(Alliance alliance, Player player)
     {
         if (player.AllianceId != alliance.Id)
+        {
             throw new InvalidOperationException("Player is not in this alliance");
+        }
 
         alliance.MemberPlayerIds.Remove(player.Id);
         player.AllianceId = null;
@@ -42,10 +46,14 @@ public class AllianceManager
     public bool CanPlayerAttackTarget(Player attacker, Player target)
     {
         if (attacker.IsAlliedWith(target))
+        {
             return false;
+        }
 
         if (attacker.TurnsSinceLeftAlliance > 0 && attacker.TurnsSinceLeftAlliance <= 3)
+        {
             return false;
+        }
 
         return true;
     }
@@ -192,14 +200,18 @@ public class AllianceManager
     {
         int totalAvailable = players.Sum(getStockpile);
         if (totalAvailable == 0)
+        {
             return;
+        }
 
         int remaining = totalNeeded;
 
         foreach (var player in players.OrderByDescending(getStockpile))
         {
             if (remaining <= 0)
+            {
                 break;
+            }
 
             int playerStockpile = getStockpile(player);
             double proportion = (double)playerStockpile / totalAvailable;
@@ -215,7 +227,9 @@ public class AllianceManager
             foreach (var player in players.OrderByDescending(getStockpile))
             {
                 if (remaining <= 0)
+                {
                     break;
+                }
 
                 int playerStockpile = getStockpile(player);
                 int deduction = Math.Min(remaining, playerStockpile);
@@ -238,7 +252,9 @@ public class AllianceManager
     public Alliance? GetPlayerAlliance(Player player, IEnumerable<Alliance> alliances)
     {
         if (player.AllianceId == null)
+        {
             return null;
+        }
 
         return alliances.FirstOrDefault(a => a.Id == player.AllianceId);
     }

@@ -545,7 +545,10 @@ public class LobbyManager
 
     private void DrawInitializingScreen(SpriteBatch spriteBatch)
     {
-        if (_font == null) return;
+        if (_font == null)
+        {
+            return;
+        }
 
         spriteBatch.Begin();
 

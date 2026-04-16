@@ -227,7 +227,9 @@ public class GameRepository
             var filePath = Path.Combine(_savePath, fileName);
 
             if (!File.Exists(filePath))
+            {
                 return Task.CompletedTask;
+            }
 
             var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
             var backupFileName = $"game_{gameId}_backup_{timestamp}.json";
@@ -285,13 +287,17 @@ public class GameRepository
             var filePath = Path.Combine(_savePath, fileName);
 
             if (!File.Exists(filePath))
+            {
                 return null;
+            }
 
             var json = await File.ReadAllTextAsync(filePath);
             var snapshot = JsonSerializer.Deserialize<GameStateSnapshot>(json, _jsonOptions);
 
             if (snapshot == null)
+            {
                 return null;
+            }
 
             var fileInfo = new FileInfo(filePath);
 

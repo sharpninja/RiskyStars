@@ -1,4 +1,5 @@
 using System.Text.Json;
+using RiskyStars.Client;
 
 namespace RiskyStars.Client;
 
@@ -75,3 +76,4 @@ public class Settings
         };
     }
 }
+

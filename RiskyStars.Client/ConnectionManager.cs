@@ -34,53 +34,159 @@ public class ConnectionManager
     private Task? _connectionTask;
     private CancellationTokenSource? _cancellationTokenSource;
 
-    public ConnectionStatus Status => _status;
-    public string ErrorMessage => _errorMessage;
-    public bool IsConnected => _status == ConnectionStatus.Connected && _gameClient?.IsConnected == true;
-    public GrpcGameClient? GameClient => _gameClient;
-    public string? CurrentPlayerId => _currentPlayerId;
-    public int ReconnectAttempts => _reconnectAttempts;
-    public int MaxAttempts => MaxReconnectAttempts;
+    public ConnectionStatus Status 
+    { 
+        get 
+        { 
+            System.Console.WriteLine("[Property] ConnectionManager.Status get - " + _status);
+            return _status; 
+        } 
+    }
+    
+    public string ErrorMessage 
+    { 
+        get 
+        { 
+            System.Console.WriteLine("[Property] ConnectionManager.ErrorMessage get - " + _errorMessage);
+            return _errorMessage; 
+        } 
+    }
+    
+    public bool IsConnected 
+    { 
+        get 
+        { 
+            bool connected = _status == ConnectionStatus.Connected && _gameClient?.IsConnected == true;
+            System.Console.WriteLine("[Property] ConnectionManager.IsConnected get - " + connected);
+            return connected;
+        } 
+    }
+    
+    public GrpcGameClient? GameClient 
+    { 
+        get 
+        { 
+            System.Console.WriteLine("[Property] ConnectionManager.GameClient get");
+            return _gameClient; 
+        } 
+    }
+    
+    public string? CurrentPlayerId 
+    { 
+        get 
+        { 
+            System.Console.WriteLine("[Property] ConnectionManager.CurrentPlayerId get - " + (_currentPlayerId ?? "null"));
+            return _currentPlayerId; 
+        } 
+    }
+    
+    public int ReconnectAttempts 
+    { 
+        get 
+        { 
+            System.Console.WriteLine("[Property] ConnectionManager.ReconnectAttempts get - " + _reconnectAttempts);
+            return _reconnectAttempts; 
+        } 
+    }
+    
+    public int MaxAttempts 
+    { 
+        get 
+        { 
+            System.Console.WriteLine("[Property] ConnectionManager.MaxAttempts get - " + MaxReconnectAttempts);
+            return MaxReconnectAttempts; 
+        } 
+    }
 
     public ConnectionManager(string serverAddress)
     {
-        _serverAddress = serverAddress;
+        System.Console.WriteLine($"[Entry] ConnectionManager(string serverAddress) - Address: {serverAddress}");
+        try
+        {
+            _serverAddress = serverAddress;
+            System.Console.WriteLine("[Exit] ConnectionManager(string serverAddress)");
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Error] ConnectionManager(string serverAddress): {ex.Message}");
+            throw;
+        }
     }
 
     public ConnectionManager(GrpcGameClient gameClient)
     {
-        _gameClient = gameClient;
-        _serverAddress = "embedded";
+        System.Console.WriteLine("[Entry] ConnectionManager(GrpcGameClient) - Using embedded server");
+        try
+        {
+            _gameClient = gameClient;
+            _serverAddress = "embedded";
+            System.Console.WriteLine("[Exit] ConnectionManager(GrpcGameClient)");
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Error] ConnectionManager(GrpcGameClient): {ex.Message}");
+            throw;
+        }
     }
 
     public void UpdateServerAddress(string serverAddress)
     {
-        _serverAddress = serverAddress;
+        System.Console.WriteLine($"[Entry] UpdateServerAddress({serverAddress})");
+        try
+        {
+            _serverAddress = serverAddress;
+            System.Console.WriteLine("[Exit] UpdateServerAddress");
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Error] UpdateServerAddress: {ex.Message}");
+            throw;
+        }
     }
 
     public async Task<bool> ConnectAsync(string playerName, string sessionId)
     {
+        System.Console.WriteLine($"[Entry] ConnectAsync - Server: {_serverAddress}, Player: {playerName}, Session: {sessionId}, Current Status: {_status}");
         if (_status == ConnectionStatus.Connecting || _status == ConnectionStatus.Reconnecting)
         {
+            System.Console.WriteLine("[Exit] ConnectAsync - Already connecting/reconnecting");
             return false;
         }
 
-        _currentPlayerName = playerName;
-        _currentSessionId = sessionId;
-        _reconnectAttempts = 0;
+        try
+        {
+            _currentPlayerName = playerName;
+            _currentSessionId = sessionId;
+            _reconnectAttempts = 0;
 
-        return await AttemptConnectionAsync();
+            var result = await AttemptConnectionAsync();
+            System.Console.WriteLine($"[Exit] ConnectAsync - Result: {result}");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Error] ConnectAsync: {ex.Message}");
+            _status = ConnectionStatus.Error;
+            _errorMessage = ex.Message;
+            return false;
+        }
     }
 
     private async Task<bool> AttemptConnectionAsync()
     {
+        System.Console.WriteLine($"[Entry] AttemptConnectionAsync - Status: {_status}, Server: {_serverAddress}");
+        
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource = new CancellationTokenSource();
 
         if (_reconnectAttempts == 0)
+        {
             _status = ConnectionStatus.Connecting;
+        }
         else
+        {
             _status = ConnectionStatus.Reconnecting;
+        }
 
         _errorMessage = "";
 
@@ -88,30 +194,39 @@ public class ConnectionManager
         {
             if (_serverAddress != "embedded")
             {
+                System.Console.WriteLine($"[Client] Creating gRPC channel to: {_serverAddress}");
                 _gameClient?.Dispose();
                 _gameClient = new GrpcGameClient(_serverAddress);
+                System.Console.WriteLine("[Client] GrpcGameClient created successfully");
             }
             
             _currentPlayerId = Guid.NewGuid().ToString();
             
             if (_gameClient != null)
             {
+                System.Console.WriteLine("[Client] Calling gameClient.ConnectAsync...");
                 await _gameClient.ConnectAsync(_currentPlayerId, _currentPlayerName!, _currentSessionId!);
+                System.Console.WriteLine("[Client] gameClient.ConnectAsync completed");
             }
 
             _status = ConnectionStatus.Connected;
             _reconnectAttempts = 0;
             _errorMessage = "";
+            System.Console.WriteLine("[Exit] AttemptConnectionAsync - SUCCESS");
             return true;
         }
         catch (RpcException ex)
         {
+            System.Console.WriteLine($"[Error] RpcException in AttemptConnectionAsync: {ex.StatusCode} - {ex.Message}");
+            System.Console.WriteLine($"[Error] Detail: {ex.Status.Detail}");
             _errorMessage = GetUserFriendlyErrorMessage(ex);
             _status = ConnectionStatus.Error;
             return false;
         }
         catch (Exception ex)
         {
+            System.Console.WriteLine($"[Error] General exception in AttemptConnectionAsync: {ex.Message}");
+            System.Console.WriteLine($"[Error] Stack: {ex.StackTrace}");
             _errorMessage = $"Connection failed: {ex.Message}";
             _status = ConnectionStatus.Error;
             return false;
@@ -120,82 +235,124 @@ public class ConnectionManager
 
     public void Update()
     {
-        if (_status == ConnectionStatus.Connected && _gameClient != null)
+        System.Console.WriteLine($"[Entry] ConnectionManager.Update() - Current Status: {_status}");
+        try
         {
-            if (!_gameClient.IsConnected)
+            if (_status == ConnectionStatus.Connected && _gameClient != null)
             {
-                _status = ConnectionStatus.Error;
-                _errorMessage = "Connection lost to server";
-
-                if (_autoReconnect && _reconnectAttempts < MaxReconnectAttempts)
+                if (!_gameClient.IsConnected)
                 {
-                    TryReconnect();
+                    System.Console.WriteLine("[Client] Connection lost detected in Update()");
+                    _status = ConnectionStatus.Error;
+                    _errorMessage = "Connection lost to server";
+
+                    if (_autoReconnect && _reconnectAttempts < MaxReconnectAttempts)
+                    {
+                        TryReconnect();
+                    }
                 }
             }
-        }
 
-        if (_status == ConnectionStatus.Error && _autoReconnect && 
-            _reconnectAttempts < MaxReconnectAttempts &&
-            (DateTime.Now - _lastReconnectAttempt).TotalMilliseconds >= ReconnectDelayMs)
+            if (_status == ConnectionStatus.Error && _autoReconnect && 
+                _reconnectAttempts < MaxReconnectAttempts &&
+                (DateTime.Now - _lastReconnectAttempt).TotalMilliseconds >= ReconnectDelayMs)
+            {
+                TryReconnect();
+            }
+            System.Console.WriteLine("[Exit] ConnectionManager.Update()");
+        }
+        catch (Exception ex)
         {
-            TryReconnect();
+            System.Console.WriteLine($"[Error] Update(): {ex.Message}");
         }
     }
 
     private void TryReconnect()
     {
-        if (_connectionTask == null || _connectionTask.IsCompleted)
+        System.Console.WriteLine($"[Entry] TryReconnect() - Attempt {_reconnectAttempts + 1}/{MaxReconnectAttempts}");
+        try
         {
-            _reconnectAttempts++;
-            _lastReconnectAttempt = DateTime.Now;
-            _connectionTask = Task.Run(async () => await AttemptConnectionAsync());
+            if (_connectionTask == null || _connectionTask.IsCompleted)
+            {
+                _reconnectAttempts++;
+                _lastReconnectAttempt = DateTime.Now;
+                _connectionTask = Task.Run(async () => await AttemptConnectionAsync());
+                System.Console.WriteLine("[Exit] TryReconnect - Started reconnect task");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Error] TryReconnect: {ex.Message}");
         }
     }
 
     public void CancelConnection()
     {
-        _cancellationTokenSource?.Cancel();
-        _status = ConnectionStatus.Disconnected;
+        System.Console.WriteLine("[Entry] CancelConnection()");
+        try
+        {
+            _cancellationTokenSource?.Cancel();
+            _status = ConnectionStatus.Disconnected;
+            System.Console.WriteLine("[Exit] CancelConnection");
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Error] CancelConnection: {ex.Message}");
+        }
     }
 
-    public async Task DisconnectAsync()
+    public async Task DisconnectAsync(string reason = "Client disconnect")
     {
+        System.Console.WriteLine($"[Entry] DisconnectAsync - Reason: {reason}");
         _autoReconnect = false;
         
-        if (_gameClient != null)
+        try
         {
-            try
+            if (_gameClient != null)
             {
-                await _gameClient.DisconnectAsync("User disconnect");
-            }
-            catch
-            {
+                try
+                {
+                    await _gameClient.DisconnectAsync(reason);
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine($"[Warning] Error during client disconnect: {ex.Message}");
+                }
+
+                if (_serverAddress != "embedded")
+                {
+                    _gameClient.Dispose();
+                }
+                _gameClient = null;
             }
 
-            if (_serverAddress != "embedded")
-            {
-                _gameClient.Dispose();
-            }
-            _gameClient = null;
+            _status = ConnectionStatus.Disconnected;
+            _currentPlayerId = null;
+            _currentPlayerName = null;
+            _currentSessionId = null;
+            _reconnectAttempts = 0;
+            _errorMessage = "";
+            System.Console.WriteLine("[Exit] DisconnectAsync");
         }
-
-        _status = ConnectionStatus.Disconnected;
-        _currentPlayerId = null;
-        _currentPlayerName = null;
-        _currentSessionId = null;
-        _reconnectAttempts = 0;
-        _errorMessage = "";
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Error] DisconnectAsync: {ex.Message}");
+            _status = ConnectionStatus.Error;
+        }
     }
 
     public void ResetReconnectAttempts()
     {
+        System.Console.WriteLine("[Entry] ResetReconnectAttempts");
         _reconnectAttempts = 0;
         _autoReconnect = true;
+        System.Console.WriteLine("[Exit] ResetReconnectAttempts");
     }
 
     private string GetUserFriendlyErrorMessage(RpcException ex)
     {
-        return ex.StatusCode switch
+        System.Console.WriteLine($"[Entry] GetUserFriendlyErrorMessage - StatusCode: {ex.StatusCode}");
+        var message = ex.StatusCode switch
         {
             StatusCode.Unavailable => "Server is unavailable. Please check the server address and try again.",
             StatusCode.DeadlineExceeded => "Connection timed out. The server may be slow or unreachable.",
@@ -213,15 +370,26 @@ public class ConnectionManager
             StatusCode.DataLoss => "Data loss detected. Connection may be unstable.",
             _ => $"Connection failed: {ex.Status.Detail}"
         };
+        System.Console.WriteLine($"[Exit] GetUserFriendlyErrorMessage - Message: {message}");
+        return message;
     }
 
     public void Dispose()
     {
-        _cancellationTokenSource?.Cancel();
-        
-        if (_gameClient != null && _serverAddress != "embedded")
+        System.Console.WriteLine("[Entry] ConnectionManager.Dispose()");
+        try
         {
-            _gameClient.Dispose();
+            _cancellationTokenSource?.Cancel();
+            
+            if (_gameClient != null && _serverAddress != "embedded")
+            {
+                _gameClient.Dispose();
+            }
+            System.Console.WriteLine("[Exit] ConnectionManager.Dispose()");
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Error] Dispose: {ex.Message}");
         }
     }
 }

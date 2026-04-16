@@ -117,7 +117,9 @@ public class GameModeSelector
     public void Draw(SpriteBatch spriteBatch)
     {
         if (_pixelTexture == null || _font == null)
+        {
             return;
+        }
 
         spriteBatch.Begin(sortMode: SpriteSortMode.Deferred, blendState: BlendState.AlphaBlend);
 
@@ -156,7 +158,10 @@ public class GameModeSelector
 
     private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);

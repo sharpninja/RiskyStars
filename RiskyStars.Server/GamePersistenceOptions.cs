@@ -23,3 +23,10 @@ public class GrpcOptions
     public bool EnableDetailedErrors { get; set; } = false;
     public string[] CompressionProviders { get; set; } = new[] { "gzip" };
 }
+
+public class ServerOptions
+{
+    public int Port { get; set; } = 5000;
+    public bool UseHttps { get; set; } = false;
+    public int HttpsPort { get; set; } = 5001;
+}

@@ -191,7 +191,9 @@ public class AIEconomicManager
         var unassignedHeroes = aiPlayer.Heroes.Where(h => h.AssignedStellarBodyId == null).ToList();
         
         if (unassignedHeroes.Count == 0)
+        {
             return assignments;
+        }
 
         var ownedBodies = game.GetPlayerOwnedBodies(aiPlayer.Id).ToList();
         var bodyEvaluations = new List<(StellarBody body, double territoryValue, int currentProduction)>();
@@ -297,11 +299,15 @@ public class AIEconomicManager
         foreach (var region in body.Regions)
         {
             if (region.OwnerId != playerId)
+            {
                 continue;
+            }
 
             bool hasEnemyNeighbor = body.Regions.Any(r => r.OwnerId != playerId && r.OwnerId != null);
             if (hasEnemyNeighbor)
+            {
                 return true;
+            }
         }
 
         var starSystem = game.StarSystems.FirstOrDefault(s => s.Id == body.StarSystemId);
@@ -319,7 +325,9 @@ public class AIEconomicManager
                         .Any(r => r.OwnerId != playerId && r.OwnerId != null);
 
                     if (hasEnemyInOppositeSystem)
+                    {
                         return true;
+                    }
                 }
             }
         }

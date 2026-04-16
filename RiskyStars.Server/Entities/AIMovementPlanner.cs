@@ -28,7 +28,9 @@ public class AIMovementPlanner
             .ToList();
 
         if (playerArmies.Count == 0)
+        {
             return null;
+        }
 
         var allMoves = new List<MovementAction>();
 
@@ -42,7 +44,9 @@ public class AIMovementPlanner
             .ToList();
 
         if (legalMoves.Count == 0)
+        {
             return null;
+        }
 
         foreach (var move in legalMoves)
         {
@@ -65,18 +69,31 @@ public class AIMovementPlanner
             if (army.LocationType == LocationType.Region)
             {
                 var region = game.GetAllRegions().FirstOrDefault(r => r.Id == army.LocationId);
-                if (region == null) continue;
+                if (region == null)
+                {
+                    continue;
+                }
 
                 var stellarBody = game.StarSystems
                     .SelectMany(s => s.StellarBodies)
                     .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
-                if (stellarBody == null) continue;
+                if (stellarBody == null)
+                {
+                    continue;
+                }
 
                 foreach (var targetRegion in stellarBody.Regions)
                 {
-                    if (targetRegion.Id == region.Id) continue;
-                    if (targetRegion.OwnerId == playerId) continue;
+                    if (targetRegion.Id == region.Id)
+                    {
+                        continue;
+                    }
+
+                    if (targetRegion.OwnerId == playerId)
+                    {
+                        continue;
+                    }
 
                     var targetArmy = targetRegion.Army;
                     int defenderCount = targetArmy?.UnitCount ?? 0;
@@ -111,7 +128,10 @@ public class AIMovementPlanner
                     foreach (var lane in starSystem.HyperspaceLanes)
                     {
                         var mouthId = GetLaneMouthIdForStarSystem(lane, starSystem.Id);
-                        if (string.IsNullOrEmpty(mouthId)) continue;
+                        if (string.IsNullOrEmpty(mouthId))
+                        {
+                            continue;
+                        }
 
                         var mouthOwnerId = GetLaneMouthOwnerId(lane, mouthId);
                         var mouthArmy = GetLaneMouthArmy(lane, mouthId);
@@ -146,7 +166,10 @@ public class AIMovementPlanner
                 var lane = game.GetAllHyperspaceLanes()
                     .FirstOrDefault(l => l.MouthAId == army.LocationId || l.MouthBId == army.LocationId);
 
-                if (lane == null) continue;
+                if (lane == null)
+                {
+                    continue;
+                }
 
                 var oppositeMouthId = lane.GetOppositeMouthId(army.LocationId);
                 var oppositeMouthOwnerId = GetLaneMouthOwnerId(lane, oppositeMouthId);
@@ -186,7 +209,10 @@ public class AIMovementPlanner
                     {
                         foreach (var targetRegion in body.Regions)
                         {
-                            if (targetRegion.OwnerId == playerId) continue;
+                            if (targetRegion.OwnerId == playerId)
+                            {
+                                continue;
+                            }
 
                             var targetArmy = targetRegion.Army;
                             int defenderCount = targetArmy?.UnitCount ?? 0;
@@ -234,18 +260,31 @@ public class AIMovementPlanner
             if (army.LocationType == LocationType.Region)
             {
                 var region = game.GetAllRegions().FirstOrDefault(r => r.Id == army.LocationId);
-                if (region == null) continue;
+                if (region == null)
+                {
+                    continue;
+                }
 
                 var stellarBody = game.StarSystems
                     .SelectMany(s => s.StellarBodies)
                     .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
-                if (stellarBody == null) continue;
+                if (stellarBody == null)
+                {
+                    continue;
+                }
 
                 foreach (var targetRegion in stellarBody.Regions)
                 {
-                    if (targetRegion.Id == region.Id) continue;
-                    if (targetRegion.OwnerId != null) continue;
+                    if (targetRegion.Id == region.Id)
+                    {
+                        continue;
+                    }
+
+                    if (targetRegion.OwnerId != null)
+                    {
+                        continue;
+                    }
 
                     expansionMoves.Add(new MovementAction
                     {
@@ -265,7 +304,10 @@ public class AIMovementPlanner
                     foreach (var lane in starSystem.HyperspaceLanes)
                     {
                         var mouthId = GetLaneMouthIdForStarSystem(lane, starSystem.Id);
-                        if (string.IsNullOrEmpty(mouthId)) continue;
+                        if (string.IsNullOrEmpty(mouthId))
+                        {
+                            continue;
+                        }
 
                         var mouthOwnerId = GetLaneMouthOwnerId(lane, mouthId);
 
@@ -290,7 +332,10 @@ public class AIMovementPlanner
                 var lane = game.GetAllHyperspaceLanes()
                     .FirstOrDefault(l => l.MouthAId == army.LocationId || l.MouthBId == army.LocationId);
 
-                if (lane == null) continue;
+                if (lane == null)
+                {
+                    continue;
+                }
 
                 var oppositeSystemId = army.LocationId == lane.MouthAId 
                     ? lane.StarSystemBId 
@@ -303,7 +348,10 @@ public class AIMovementPlanner
                     {
                         foreach (var targetRegion in body.Regions)
                         {
-                            if (targetRegion.OwnerId != null) continue;
+                            if (targetRegion.OwnerId != null)
+                            {
+                                continue;
+                            }
 
                             expansionMoves.Add(new MovementAction
                             {
@@ -336,18 +384,31 @@ public class AIMovementPlanner
             if (army.LocationType == LocationType.Region)
             {
                 var region = game.GetAllRegions().FirstOrDefault(r => r.Id == army.LocationId);
-                if (region == null) continue;
+                if (region == null)
+                {
+                    continue;
+                }
 
                 var stellarBody = game.StarSystems
                     .SelectMany(s => s.StellarBodies)
                     .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
-                if (stellarBody == null) continue;
+                if (stellarBody == null)
+                {
+                    continue;
+                }
 
                 foreach (var targetRegion in stellarBody.Regions)
                 {
-                    if (targetRegion.Id == region.Id) continue;
-                    if (targetRegion.OwnerId != playerId) continue;
+                    if (targetRegion.Id == region.Id)
+                    {
+                        continue;
+                    }
+
+                    if (targetRegion.OwnerId != playerId)
+                    {
+                        continue;
+                    }
 
                     consolidationMoves.Add(new MovementAction
                     {
@@ -367,7 +428,10 @@ public class AIMovementPlanner
                     foreach (var lane in starSystem.HyperspaceLanes)
                     {
                         var mouthId = GetLaneMouthIdForStarSystem(lane, starSystem.Id);
-                        if (string.IsNullOrEmpty(mouthId)) continue;
+                        if (string.IsNullOrEmpty(mouthId))
+                        {
+                            continue;
+                        }
 
                         var mouthOwnerId = GetLaneMouthOwnerId(lane, mouthId);
 
@@ -392,7 +456,10 @@ public class AIMovementPlanner
                 var lane = game.GetAllHyperspaceLanes()
                     .FirstOrDefault(l => l.MouthAId == army.LocationId || l.MouthBId == army.LocationId);
 
-                if (lane == null) continue;
+                if (lane == null)
+                {
+                    continue;
+                }
 
                 var oppositeMouthId = lane.GetOppositeMouthId(army.LocationId);
                 var oppositeMouthOwnerId = GetLaneMouthOwnerId(lane, oppositeMouthId);
@@ -422,7 +489,10 @@ public class AIMovementPlanner
                     {
                         foreach (var targetRegion in body.Regions)
                         {
-                            if (targetRegion.OwnerId != playerId) continue;
+                            if (targetRegion.OwnerId != playerId)
+                            {
+                                continue;
+                            }
 
                             consolidationMoves.Add(new MovementAction
                             {
@@ -457,18 +527,31 @@ public class AIMovementPlanner
             if (army.LocationType == LocationType.Region)
             {
                 var region = game.GetAllRegions().FirstOrDefault(r => r.Id == army.LocationId);
-                if (region == null) continue;
+                if (region == null)
+                {
+                    continue;
+                }
 
                 var stellarBody = game.StarSystems
                     .SelectMany(s => s.StellarBodies)
                     .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
-                if (stellarBody == null) continue;
+                if (stellarBody == null)
+                {
+                    continue;
+                }
 
                 foreach (var targetRegion in stellarBody.Regions)
                 {
-                    if (targetRegion.Id == region.Id) continue;
-                    if (targetRegion.OwnerId != playerId) continue;
+                    if (targetRegion.Id == region.Id)
+                    {
+                        continue;
+                    }
+
+                    if (targetRegion.OwnerId != playerId)
+                    {
+                        continue;
+                    }
 
                     if (threatenedRegions.Contains(targetRegion.Id))
                     {
@@ -491,7 +574,10 @@ public class AIMovementPlanner
                     foreach (var lane in starSystem.HyperspaceLanes)
                     {
                         var mouthId = GetLaneMouthIdForStarSystem(lane, starSystem.Id);
-                        if (string.IsNullOrEmpty(mouthId)) continue;
+                        if (string.IsNullOrEmpty(mouthId))
+                        {
+                            continue;
+                        }
 
                         var mouthOwnerId = GetLaneMouthOwnerId(lane, mouthId);
 
@@ -522,7 +608,10 @@ public class AIMovementPlanner
                 var lane = game.GetAllHyperspaceLanes()
                     .FirstOrDefault(l => l.MouthAId == army.LocationId || l.MouthBId == army.LocationId);
 
-                if (lane == null) continue;
+                if (lane == null)
+                {
+                    continue;
+                }
 
                 var sourceSystemId = army.LocationId == lane.MouthAId 
                     ? lane.StarSystemAId 
@@ -535,7 +624,10 @@ public class AIMovementPlanner
                     {
                         foreach (var targetRegion in body.Regions)
                         {
-                            if (targetRegion.OwnerId != playerId) continue;
+                            if (targetRegion.OwnerId != playerId)
+                            {
+                                continue;
+                            }
 
                             if (threatenedRegions.Contains(targetRegion.Id))
                             {
@@ -570,7 +662,10 @@ public class AIMovementPlanner
                 .SelectMany(s => s.StellarBodies)
                 .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
-            if (stellarBody == null) continue;
+            if (stellarBody == null)
+            {
+                continue;
+            }
 
             foreach (var otherRegion in stellarBody.Regions)
             {
@@ -586,7 +681,9 @@ public class AIMovementPlanner
             }
 
             if (threatenedRegions.Contains(region.Id))
+            {
                 continue;
+            }
 
             var starSystem = game.StarSystems.FirstOrDefault(s => s.Id == stellarBody.StarSystemId);
             if (starSystem != null)
@@ -615,37 +712,49 @@ public class AIMovementPlanner
     {
         var army = game.GetAllArmies().FirstOrDefault(a => a.Id == move.ArmyId);
         if (army == null || army.OwnerId != playerId || army.HasMovedThisTurn)
+        {
             return false;
+        }
 
         if (move.SourceLocationType == LocationType.Region)
         {
             var sourceRegion = game.GetAllRegions().FirstOrDefault(r => r.Id == move.SourceLocationId);
             if (sourceRegion == null || sourceRegion.OwnerId != playerId)
+            {
                 return false;
+            }
 
             var stellarBody = game.StarSystems
                 .SelectMany(s => s.StellarBodies)
                 .FirstOrDefault(b => b.Regions.Any(r => r.Id == sourceRegion.Id));
 
             if (stellarBody == null)
+            {
                 return false;
+            }
 
             int minimumGarrison = CalculateMinimumGarrison(stellarBody);
             int currentGarrison = sourceRegion.Army?.UnitCount ?? 0;
             int unitsMoving = move.UnitCount;
 
             if (currentGarrison - unitsMoving < minimumGarrison)
+            {
                 return false;
+            }
         }
 
         if (move.TargetLocationType == LocationType.Region)
         {
             var targetRegion = game.GetAllRegions().FirstOrDefault(r => r.Id == move.TargetLocationId);
             if (targetRegion == null)
+            {
                 return false;
+            }
 
             if (move.ActionType == MovementActionType.Consolidation && targetRegion.OwnerId != playerId)
+            {
                 return false;
+            }
         }
 
         return true;
@@ -702,7 +811,9 @@ public class AIMovementPlanner
         double score = 0.0;
 
         if (move.CombatPrediction == null)
+        {
             return score;
+        }
 
         score += move.CombatPrediction.AttackerWinProbability * 1000.0;
 
@@ -956,17 +1067,23 @@ public class AIMovementPlanner
             .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
         if (stellarBody == null)
+        {
             return false;
+        }
 
         foreach (var otherRegion in stellarBody.Regions)
         {
             if (otherRegion.OwnerId != playerId && otherRegion.OwnerId != null)
+            {
                 return true;
+            }
         }
 
         var starSystem = game.StarSystems.FirstOrDefault(s => s.Id == stellarBody.StarSystemId);
         if (starSystem == null)
+        {
             return false;
+        }
 
         foreach (var lane in starSystem.HyperspaceLanes)
         {
@@ -980,7 +1097,9 @@ public class AIMovementPlanner
                     .Any(r => r.OwnerId != playerId && r.OwnerId != null);
 
                 if (hasEnemyInSystem)
+                {
                     return true;
+                }
             }
         }
 
@@ -996,7 +1115,9 @@ public class AIMovementPlanner
             .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
         if (stellarBody == null)
+        {
             return threat;
+        }
 
         foreach (var otherRegion in stellarBody.Regions)
         {
@@ -1009,7 +1130,9 @@ public class AIMovementPlanner
 
         var starSystem = game.StarSystems.FirstOrDefault(s => s.Id == stellarBody.StarSystemId);
         if (starSystem == null)
+        {
             return threat;
+        }
 
         foreach (var lane in starSystem.HyperspaceLanes)
         {
@@ -1032,7 +1155,9 @@ public class AIMovementPlanner
         DifficultyLevel difficultyLevel)
     {
         if (moves.Count == 0)
+        {
             return null;
+        }
 
         var sortedMoves = moves.OrderByDescending(m => m.Score).ToList();
 
@@ -1083,27 +1208,45 @@ public class AIMovementPlanner
     private string GetLaneMouthIdForStarSystem(HyperspaceLane lane, string starSystemId)
     {
         if (lane.StarSystemAId == starSystemId)
+        {
             return lane.MouthAId;
+        }
+
         if (lane.StarSystemBId == starSystemId)
+        {
             return lane.MouthBId;
+        }
+
         return string.Empty;
     }
 
     private string? GetLaneMouthOwnerId(HyperspaceLane lane, string mouthId)
     {
         if (lane.MouthAId == mouthId)
+        {
             return lane.MouthAOwnerId;
+        }
+
         if (lane.MouthBId == mouthId)
+        {
             return lane.MouthBOwnerId;
+        }
+
         return null;
     }
 
     private Army? GetLaneMouthArmy(HyperspaceLane lane, string mouthId)
     {
         if (lane.MouthAId == mouthId)
+        {
             return lane.MouthAArmy;
+        }
+
         if (lane.MouthBId == mouthId)
+        {
             return lane.MouthBArmy;
+        }
+
         return null;
     }
 }

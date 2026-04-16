@@ -65,7 +65,9 @@ public class AIPlayerController
     {
         var game = _gameStateManager.GetGame(gameId);
         if (game == null || game.CurrentPhase != Entities.TurnPhase.Production)
+        {
             return;
+        }
 
         _logger.LogDebug("AI {PlayerName}: Executing production phase", aiPlayer.Name);
 
@@ -82,7 +84,9 @@ public class AIPlayerController
     {
         var game = _gameStateManager.GetGame(gameId);
         if (game == null || game.CurrentPhase != Entities.TurnPhase.Purchase)
+        {
             return;
+        }
 
         _logger.LogDebug("AI {PlayerName}: Executing purchase phase", aiPlayer.Name);
 
@@ -122,7 +126,9 @@ public class AIPlayerController
     {
         var game = _gameStateManager.GetGame(gameId);
         if (game == null || game.CurrentPhase != Entities.TurnPhase.Reinforcement)
+        {
             return;
+        }
 
         _logger.LogDebug("AI {PlayerName}: Executing reinforcement phase", aiPlayer.Name);
 
@@ -171,7 +177,9 @@ public class AIPlayerController
     {
         var game = _gameStateManager.GetGame(gameId);
         if (game == null || game.CurrentPhase != Entities.TurnPhase.Movement)
+        {
             return;
+        }
 
         _logger.LogDebug("AI {PlayerName}: Executing movement phase", aiPlayer.Name);
 
@@ -184,7 +192,9 @@ public class AIPlayerController
         {
             game = _gameStateManager.GetGame(gameId);
             if (game == null)
+            {
                 break;
+            }
 
             var moveAction = _movementPlanner.SelectBestMove(game, aiPlayer.Id, aiPlayer.DifficultyLevel);
             
@@ -290,7 +300,9 @@ public class AIPlayerController
         var game = _gameStateManager.GetGame(gameId);
         
         if (game == null || game.CurrentPlayer.Id != aiPlayer.Id)
+        {
             return Task.FromResult(actions);
+        }
 
         try
         {
@@ -350,7 +362,9 @@ public class AIPlayerController
                     {
                         var moveAction = _movementPlanner.SelectBestMove(game, aiPlayer.Id, aiPlayer.DifficultyLevel);
                         if (moveAction == null)
+                        {
                             break;
+                        }
 
                         actions.Add(new PlayerActionMessage
                         {
@@ -392,7 +406,9 @@ public class AIPlayerController
     {
         var game = _gameStateManager.GetGame(gameId);
         if (game == null)
+        {
             return false;
+        }
 
         return game.CurrentPlayer is AIPlayer;
     }
@@ -401,7 +417,9 @@ public class AIPlayerController
     {
         var game = _gameStateManager.GetGame(gameId);
         if (game == null)
+        {
             return null;
+        }
 
         return game.CurrentPlayer as AIPlayer;
     }

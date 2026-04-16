@@ -54,7 +54,9 @@ public class ResourceManager
         foreach (var region in ownedRegions)
         {
             if (!stellarBodyDict.TryGetValue(region.StellarBodyId, out var stellarBody))
+            {
                 continue;
+            }
 
             var heroesOnBody = stellarBody.Heroes;
             int production = CalculateRegionProduction(region, stellarBody, heroesOnBody);
@@ -95,7 +97,9 @@ public class ResourceManager
         const int fuelCostPerArmy = 3;
 
         if (!CanPurchaseArmies(player, count))
+        {
             throw new InvalidOperationException("Insufficient resources to purchase armies");
+        }
 
         SubtractResources(
             player,

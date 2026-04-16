@@ -14,13 +14,19 @@ public class StellarBodyUpgradeSystem
     public bool CanUpgrade(StellarBody stellarBody, Player player, int targetLevel)
     {
         if (targetLevel < 1 || targetLevel > 3)
+        {
             return false;
+        }
 
         if (targetLevel <= stellarBody.UpgradeLevel)
+        {
             return false;
+        }
 
         if (!IsOwner(stellarBody, player))
+        {
             return false;
+        }
 
         var cost = GetUpgradeCost(stellarBody, targetLevel);
         return HasSufficientResources(player, stellarBody, cost);
@@ -29,7 +35,9 @@ public class StellarBodyUpgradeSystem
     public void ApplyUpgrade(StellarBody stellarBody, Player player, int targetLevel)
     {
         if (!CanUpgrade(stellarBody, player, targetLevel))
+        {
             throw new InvalidOperationException("Cannot upgrade stellar body");
+        }
 
         var cost = GetUpgradeCost(stellarBody, targetLevel);
         DeductUpgradeCost(player, stellarBody, cost);

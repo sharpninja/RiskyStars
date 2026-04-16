@@ -106,7 +106,9 @@ public class CreateLobbyScreen
         _mainPanel.Widgets.Add(containerPanel);
 
         if (_desktop != null)
+        {
             _desktop.Root = _mainPanel;
+        }
     }
 
     private Panel BuildMapNameField()
@@ -244,10 +246,14 @@ public class CreateLobbyScreen
         settings = null;
 
         if (_mapNameTextBox == null || !_mapNameTextBox.IsValid)
+        {
             return false;
+        }
 
         if (string.IsNullOrWhiteSpace(_mapNameTextBox.Text))
+        {
             return false;
+        }
 
         // Validate player count
         int maxPlayers = (int)(_maxPlayersSpinButton?.Value ?? 4);
@@ -298,7 +304,9 @@ public class CreateLobbyScreen
             _mapNameTextBox.ValidateInput();
         }
         if (_maxPlayersSpinButton != null)
+        {
             _maxPlayersSpinButton.Value = 4;
+        }
     }
 
     public void Draw(SpriteBatch spriteBatch)

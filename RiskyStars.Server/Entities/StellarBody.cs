@@ -44,7 +44,9 @@ public class StellarBody
     public int GetRegionCount()
     {
         if (Type == StellarBodyType.GasGiant || Type == StellarBodyType.Comet || Type == StellarBodyType.Planetoid)
+        {
             return 1;
+        }
 
         if (Type == StellarBodyType.RockyPlanet && SurfaceType.HasValue)
         {
@@ -113,10 +115,14 @@ public class StellarBody
     public bool CanAssignHero(Hero hero)
     {
         if (Heroes.Count >= 3)
+        {
             return false;
+        }
 
         if (Heroes.Count >= GetRegionCount())
+        {
             return false;
+        }
 
         return true;
     }

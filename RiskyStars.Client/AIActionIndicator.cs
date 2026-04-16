@@ -99,7 +99,10 @@ public class AIActionIndicator
 
     public void Draw(SpriteBatch spriteBatch, Camera2D camera, MapData mapData)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         DrawWorldSpaceElements(spriteBatch, camera, mapData);
         DrawScreenSpaceElements(spriteBatch);
@@ -107,7 +110,10 @@ public class AIActionIndicator
 
     private void DrawWorldSpaceElements(SpriteBatch spriteBatch, Camera2D camera, MapData mapData)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         var transform = camera.GetTransformMatrix();
 
@@ -136,7 +142,10 @@ public class AIActionIndicator
 
     private void DrawScreenSpaceElements(SpriteBatch spriteBatch)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         spriteBatch.Begin(
             sortMode: SpriteSortMode.Deferred,
@@ -155,7 +164,10 @@ public class AIActionIndicator
 
     private void DrawAIThinkingIndicator(SpriteBatch spriteBatch)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         int panelWidth = 300;
         int panelHeight = 80;
@@ -176,7 +188,10 @@ public class AIActionIndicator
 
     private void DrawSpinner(SpriteBatch spriteBatch, Vector2 center, float radius, float rotation)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         const int segments = 8;
         for (int i = 0; i < segments; i++)
@@ -195,7 +210,10 @@ public class AIActionIndicator
 
     private void DrawReinforcementHighlight(SpriteBatch spriteBatch, Vector2 position, float progress, Color playerColor)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         float pulseSize = 15f + (float)Math.Sin(progress * Math.PI * 4) * 5f;
         float alpha = 1f - progress;
@@ -206,7 +224,10 @@ public class AIActionIndicator
 
     private void DrawMovementAnimation(SpriteBatch spriteBatch, ArmyMovementAnimation animation)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         Vector2 currentPosition = Vector2.Lerp(animation.StartPosition, animation.EndPosition, animation.Progress);
         
@@ -226,7 +247,10 @@ public class AIActionIndicator
 
     private void DrawGameLog(SpriteBatch spriteBatch)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         int logX = 10;
         int logY = _screenHeight - 200;
@@ -251,7 +275,10 @@ public class AIActionIndicator
 
     private void DrawCircleOutline(SpriteBatch spriteBatch, Vector2 center, float radius, Color color, float thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         int segments = Math.Max(16, (int)(radius * 2));
         Vector2 previousPoint = center + new Vector2(radius, 0);
@@ -271,7 +298,10 @@ public class AIActionIndicator
 
     private void DrawFilledCircle(SpriteBatch spriteBatch, Vector2 center, float radius, Color color)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         Rectangle rect = new Rectangle(
             (int)(center.X - radius),
@@ -285,7 +315,10 @@ public class AIActionIndicator
 
     private void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         var distance = Vector2.Distance(start, end);
         var angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
@@ -297,7 +330,10 @@ public class AIActionIndicator
 
     private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);

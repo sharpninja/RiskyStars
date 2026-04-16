@@ -43,7 +43,9 @@ public class LobbyClient : IDisposable
     public async Task<CreateLobbyResponse> CreateLobbyAsync(string playerName, LobbySettingsProto settings)
     {
         if (!IsAuthenticated)
+        {
             throw new InvalidOperationException("Not authenticated");
+        }
 
         var request = new CreateLobbyRequest
         {
@@ -57,7 +59,9 @@ public class LobbyClient : IDisposable
     public async Task<JoinLobbyResponse> JoinLobbyAsync(string lobbyId, string playerName)
     {
         if (!IsAuthenticated)
+        {
             throw new InvalidOperationException("Not authenticated");
+        }
 
         var request = new JoinLobbyRequest
         {
@@ -71,7 +75,9 @@ public class LobbyClient : IDisposable
     public async Task<LeaveLobbyResponse> LeaveLobbyAsync(string lobbyId)
     {
         if (!IsAuthenticated)
+        {
             throw new InvalidOperationException("Not authenticated");
+        }
 
         var request = new LeaveLobbyRequest
         {
@@ -84,7 +90,9 @@ public class LobbyClient : IDisposable
     public async Task<SetReadyResponse> SetReadyAsync(string lobbyId, bool isReady)
     {
         if (!IsAuthenticated)
+        {
             throw new InvalidOperationException("Not authenticated");
+        }
 
         var request = new SetReadyRequest
         {
@@ -98,7 +106,9 @@ public class LobbyClient : IDisposable
     public async Task<StartGameResponse> StartGameAsync(string lobbyId)
     {
         if (!IsAuthenticated)
+        {
             throw new InvalidOperationException("Not authenticated");
+        }
 
         var request = new StartGameRequest
         {
@@ -142,7 +152,9 @@ public class LobbyClient : IDisposable
     public void Dispose()
     {
         if (_disposed)
+        {
             return;
+        }
 
         _disposed = true;
         _channel.Dispose();

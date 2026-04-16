@@ -16,7 +16,9 @@ public class GameStateEvaluator
     {
         var player = game.Players.FirstOrDefault(p => p.Id == playerId);
         if (player == null)
+        {
             return 0.0;
+        }
 
         var ownedRegions = game.GetAllRegions().Where(r => r.OwnerId == playerId).ToList();
         var regionCount = ownedRegions.Count;
@@ -65,7 +67,9 @@ public class GameStateEvaluator
     {
         var player = game.Players.FirstOrDefault(p => p.Id == playerId);
         if (player == null)
+        {
             return 0.0;
+        }
 
         double strategicScore = 0.0;
 
@@ -82,11 +86,15 @@ public class GameStateEvaluator
                 .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
             if (stellarBody == null)
+            {
                 continue;
+            }
 
             var starSystem = game.StarSystems.FirstOrDefault(s => s.Id == stellarBody.StarSystemId);
             if (starSystem == null)
+            {
                 continue;
+            }
 
             bool hasEnemyNeighbor = false;
 
@@ -165,7 +173,9 @@ public class GameStateEvaluator
     {
         var player = game.Players.FirstOrDefault(p => p.Id == playerId);
         if (player == null)
+        {
             return 0.0;
+        }
 
         var playerArmies = game.GetAllArmies().Where(a => a.OwnerId == playerId).ToList();
         var totalUnits = playerArmies.Sum(a => a.UnitCount);
@@ -235,9 +245,13 @@ public class GameStateEvaluator
             }
 
             if (isFrontline)
+            {
                 frontlineArmies += army.UnitCount;
+            }
             else
+            {
                 reserveArmies += army.UnitCount;
+            }
         }
 
         double positionBonus = frontlineArmies * 30.0 + reserveArmies * 15.0;
@@ -249,7 +263,9 @@ public class GameStateEvaluator
     {
         var player = game.Players.FirstOrDefault(p => p.Id == playerId);
         if (player == null)
+        {
             return 0.0;
+        }
 
         int totalPopulation = player.PopulationStockpile;
         int totalMetal = player.MetalStockpile;

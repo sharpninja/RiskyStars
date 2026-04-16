@@ -179,11 +179,17 @@ public class DebugInfoWindow : DockableWindow
                 _fpsLabel.Text = $"FPS: {_lastFps:F0}";
                 
                 if (_lastFps >= 55)
+                {
                     _fpsLabel.TextColor = ThemeManager.Colors.TextSuccess;
+                }
                 else if (_lastFps >= 30)
+                {
                     _fpsLabel.TextColor = ThemeManager.Colors.TextWarning;
+                }
                 else
+                {
                     _fpsLabel.TextColor = ThemeManager.Colors.TextError;
+                }
             }
         }
     }
@@ -259,8 +265,10 @@ public class DebugInfoWindow : DockableWindow
     public void UpdateSelectionInfo(SelectionState selection)
     {
         if (_selectionLabel == null)
+        {
             return;
-        
+        }
+
         string selectionText = selection.Type switch
         {
             SelectionType.Army => $"Army: {selection.SelectedArmy?.ArmyId?.Substring(0, Math.Min(8, selection.SelectedArmy.ArmyId.Length))}",

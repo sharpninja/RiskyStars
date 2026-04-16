@@ -156,7 +156,7 @@ public static class ThemedUIFactory
 
     public static ValidatedTextBox CreateValidatedServerAddressBox(int width = 400, bool showErrorLabel = true)
     {
-        var validatedBox = new ValidatedTextBox(width, "http://localhost:5000", showErrorLabel);
+        var validatedBox = new ValidatedTextBox(width, Settings.Load().ServerAddress, showErrorLabel);
         validatedBox.SetValidator(InputValidator.ValidateServerAddress);
         return validatedBox;
     }
@@ -385,3 +385,4 @@ public static class ThemedUIFactory
         return stack;
     }
 }
+

@@ -332,8 +332,10 @@ public class ContextMenuManager
     private void ShowMenu(List<Widget> items, Vector2 screenPosition)
     {
         if (items.Count == 0)
+        {
             return;
-        
+        }
+
         _activeMenu = new VerticalStackPanel
         {
             Left = (int)screenPosition.X,
@@ -989,7 +991,9 @@ public class ContextMenuManager
                 {
                     var region = body.Regions.FirstOrDefault(r => r.Id == locationId);
                     if (region != null)
+                    {
                         return region.Name;
+                    }
                 }
             }
         }
@@ -997,7 +1001,9 @@ public class ContextMenuManager
         {
             var lane = _mapData.HyperspaceLanes.FirstOrDefault(l => l.MouthAId == locationId || l.MouthBId == locationId);
             if (lane != null)
+            {
                 return $"{lane.Name} Portal";
+            }
         }
         
         return "Unknown";
@@ -1006,12 +1012,16 @@ public class ContextMenuManager
     private void SendSplitArmyCommand(string armyId, int splitCount)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -1028,12 +1038,16 @@ public class ContextMenuManager
     private void SendMergeArmiesCommand(string sourceArmyId, string targetArmyId)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -1050,12 +1064,16 @@ public class ContextMenuManager
     private void SendMergeAllArmiesCommand(List<ArmyState> armies)
     {
         if (_currentPlayerId == null || armies.Count == 0)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         var firstArmy = armies.First();
         var armyIds = armies.Select(a => a.ArmyId).ToList();
         
@@ -1075,12 +1093,16 @@ public class ContextMenuManager
     private void SendAssignHeroCommand(string armyId, string heroName)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -1097,12 +1119,16 @@ public class ContextMenuManager
     private void SendUpgradeStellarBodyCommand(string bodyId, string upgradeName)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -1119,12 +1145,16 @@ public class ContextMenuManager
     private void SendReinforceLocationCommand(string locationId, LocationType locationType, int unitCount)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -1141,12 +1171,16 @@ public class ContextMenuManager
     private void SendFormAllianceCommand(string targetPlayerId)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try
@@ -1163,12 +1197,16 @@ public class ContextMenuManager
     private void SendBreakAllianceCommand(string targetPlayerId)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var gameId = _gameStateCache.GetGameId();
         if (gameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try

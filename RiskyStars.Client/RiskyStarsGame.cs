@@ -1,10 +1,17 @@
 using Microsoft.Xna.Framework;
+using RiskyStars.Client;
 using Microsoft.Xna.Framework.Graphics;
+using RiskyStars.Client;
 using Microsoft.Xna.Framework.Input;
+using RiskyStars.Client;
 using RiskyStars.Shared;
+using RiskyStars.Client;
 using Myra;
+using RiskyStars.Client;
 using Myra.Graphics2D;
+using RiskyStars.Client;
 using Myra.Graphics2D.UI;
+using RiskyStars.Client;
 
 namespace RiskyStars.Client;
 
@@ -72,6 +79,10 @@ public class RiskyStarsGame : Game
         
         // Initialize Theme Manager
         ThemeManager.Initialize();
+        
+        // Configure logging level - change to LogLevel.Verbose for maximum debugging
+        MethodLogger.SetLevel(MethodLogger.LogLevel.Verbose);
+        MethodLogger.LogInfo("Application started with detailed logging enabled");
     }
 
     private void ApplySettings()
@@ -150,7 +161,9 @@ public class RiskyStarsGame : Game
         var keyState = Keyboard.GetState();
         
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+        {
             Exit();
+        }
 
         switch (_gameState)
         {
@@ -174,7 +187,10 @@ public class RiskyStarsGame : Game
 
     private void UpdateMainMenu(GameTime gameTime)
     {
-        if (_mainMenu == null) return;
+        if (_mainMenu == null)
+        {
+            return;
+        }
 
         _mainMenu.Update(gameTime);
 
@@ -208,7 +224,10 @@ public class RiskyStarsGame : Game
 
     private void UpdateLobby(GameTime gameTime)
     {
-        if (_lobbyManager == null) return;
+        if (_lobbyManager == null)
+        {
+            return;
+        }
 
         _lobbyManager.Update(gameTime);
         
@@ -361,7 +380,10 @@ public class RiskyStarsGame : Game
 
     private void InitializeGame(string sessionId, string playerName)
     {
-        if (_connectionManager == null) return;
+        if (_connectionManager == null)
+        {
+            return;
+        }
 
         _playerDashboard = new PlayerDashboard(GraphicsDevice, _connectionManager.GameClient, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _inputController = new InputController(_connectionManager.GameClient, _gameStateCache, _mapData, _camera);
@@ -421,7 +443,10 @@ public class RiskyStarsGame : Game
 
     private void InitializeSinglePlayerGame(string sessionId, string playerName)
     {
-        if (_lobbyManager?.EmbeddedServer == null) return;
+        if (_lobbyManager?.EmbeddedServer == null)
+        {
+            return;
+        }
 
         var gameClient = GrpcGameClient.CreateForSinglePlayer(_lobbyManager.EmbeddedServer);
         _connectionManager = new ConnectionManager(gameClient);
@@ -553,7 +578,9 @@ public class RiskyStarsGame : Game
         GraphicsDevice.Clear(new Color(10, 10, 20));
 
         if (_spriteBatch == null)
+        {
             return;
+        }
 
         switch (_gameState)
         {
@@ -581,7 +608,9 @@ public class RiskyStarsGame : Game
     private void DrawInGame(SpriteBatch spriteBatch)
     {
         if (_mapData == null || _gameStateCache == null)
+        {
             return;
+        }
 
         if (_connectionManager?.Status == ConnectionStatus.Reconnecting && _defaultFont != null)
         {
@@ -668,8 +697,10 @@ public class RiskyStarsGame : Game
     private void UpdateDebugInfo(GameTime gameTime)
     {
         if (_debugInfoWindow == null)
+        {
             return;
-        
+        }
+
         _debugInfoWindow.Update(gameTime);
         
         if (_camera != null)
@@ -708,7 +739,9 @@ public class RiskyStarsGame : Game
     private void ShowCombatEventNotification(CombatEvent combatEvent)
     {
         if (_combatEventDialog == null)
+        {
             return;
+        }
 
         switch (combatEvent.EventType)
         {
@@ -776,3 +809,7 @@ public class RiskyStarsGame : Game
         base.Dispose(disposing);
     }
 }
+
+
+
+

@@ -14,13 +14,19 @@ public class AIAllianceEvaluator
     public bool ShouldProposeAlliance(AIPlayer aiPlayer, Player potentialAlly, Game game)
     {
         if (aiPlayer.Id == potentialAlly.Id)
+        {
             return false;
+        }
 
         if (aiPlayer.AllianceId != null)
+        {
             return false;
+        }
 
         if (potentialAlly.AllianceId != null)
+        {
             return false;
+        }
 
         return aiPlayer.DifficultyLevel switch
         {
@@ -34,10 +40,14 @@ public class AIAllianceEvaluator
     public bool ShouldAcceptAlliance(AIPlayer aiPlayer, Player proposer, Game game)
     {
         if (aiPlayer.Id == proposer.Id)
+        {
             return false;
+        }
 
         if (aiPlayer.AllianceId != null)
+        {
             return false;
+        }
 
         return aiPlayer.DifficultyLevel switch
         {
@@ -63,11 +73,15 @@ public class AIAllianceEvaluator
         double militaryRatio = CalculateMilitaryStrengthRatio(aiPlayer, potentialAlly, game);
         
         if (militaryRatio < 0.5 || militaryRatio > 2.0)
+        {
             return false;
+        }
 
         bool hasProximity = HasTerritorialProximity(aiPlayer, potentialAlly, game);
         if (!hasProximity)
+        {
             return false;
+        }
 
         bool hasMutualThreat = HasMutualThreat(aiPlayer, potentialAlly, game);
         bool hasComplementarity = HasResourceComplementarity(aiPlayer, potentialAlly, game);
@@ -80,16 +94,29 @@ public class AIAllianceEvaluator
         double militaryRatio = CalculateMilitaryStrengthRatio(aiPlayer, proposer, game);
         
         if (militaryRatio < 0.4 || militaryRatio > 2.5)
+        {
             return false;
+        }
 
         bool hasProximity = HasTerritorialProximity(aiPlayer, proposer, game);
         bool hasMutualThreat = HasMutualThreat(aiPlayer, proposer, game);
         bool hasComplementarity = HasResourceComplementarity(aiPlayer, proposer, game);
 
         int positiveFactors = 0;
-        if (hasProximity) positiveFactors++;
-        if (hasMutualThreat) positiveFactors++;
-        if (hasComplementarity) positiveFactors++;
+        if (hasProximity)
+        {
+            positiveFactors++;
+        }
+
+        if (hasMutualThreat)
+        {
+            positiveFactors++;
+        }
+
+        if (hasComplementarity)
+        {
+            positiveFactors++;
+        }
 
         return positiveFactors >= 2;
     }
@@ -121,7 +148,9 @@ public class AIAllianceEvaluator
             bool hasComplementarity = HasResourceComplementarity(aiPlayer, potentialAlly, game);
             
             if (hasProximity && hasComplementarity)
+            {
                 return true;
+            }
         }
 
         return false;
@@ -155,10 +184,21 @@ public class AIAllianceEvaluator
             bool hasMutualThreat = HasMutualThreat(aiPlayer, proposer, game);
             
             int positiveFactors = 0;
-            if (hasProximity) positiveFactors++;
-            if (hasComplementarity) positiveFactors++;
-            if (hasMutualThreat) positiveFactors++;
-            
+            if (hasProximity)
+            {
+                positiveFactors++;
+            }
+
+            if (hasComplementarity)
+            {
+                positiveFactors++;
+            }
+
+            if (hasMutualThreat)
+            {
+                positiveFactors++;
+            }
+
             return positiveFactors >= 2;
         }
 
@@ -171,7 +211,9 @@ public class AIAllianceEvaluator
         double player2Strength = _gameStateEvaluator.EvaluateMilitaryStrength(game, player2.Id);
 
         if (player2Strength == 0)
+        {
             return player1Strength > 0 ? double.MaxValue : 1.0;
+        }
 
         return player1Strength / player2Strength;
     }
@@ -184,13 +226,17 @@ public class AIAllianceEvaluator
         foreach (var system1 in player1Systems)
         {
             if (player2Systems.Contains(system1))
+            {
                 return true;
+            }
 
             foreach (var lane in system1.HyperspaceLanes)
             {
                 var neighborSystemId = lane.GetOppositeStarSystemId(system1.Id);
                 if (player2Systems.Any(s => s.Id == neighborSystemId))
+                {
                     return true;
+                }
             }
         }
 
@@ -215,12 +261,16 @@ public class AIAllianceEvaluator
         int differentPrimaryResources = 0;
 
         if (player1ResourceProfile.PrimaryResource != player2ResourceProfile.PrimaryResource)
+        {
             differentPrimaryResources++;
+        }
 
         if (player1ResourceProfile.SecondaryResource != player2ResourceProfile.SecondaryResource &&
             player1ResourceProfile.SecondaryResource != player2ResourceProfile.PrimaryResource &&
             player1ResourceProfile.PrimaryResource != player2ResourceProfile.SecondaryResource)
+        {
             differentPrimaryResources++;
+        }
 
         return differentPrimaryResources >= 1;
     }
@@ -228,7 +278,9 @@ public class AIAllianceEvaluator
     private Player? IdentifyGameLeader(Game game)
     {
         if (game.Players.Count == 0)
+        {
             return null;
+        }
 
         Player? leader = null;
         double highestScore = double.MinValue;
@@ -254,13 +306,17 @@ public class AIAllianceEvaluator
         foreach (var playerSystem in playerSystems)
         {
             if (threatSystems.Contains(playerSystem))
+            {
                 return true;
+            }
 
             foreach (var lane in playerSystem.HyperspaceLanes)
             {
                 var neighborSystemId = lane.GetOppositeStarSystemId(playerSystem.Id);
                 if (threatSystems.Any(s => s.Id == neighborSystemId))
+                {
                     return true;
+                }
             }
         }
 
@@ -268,7 +324,9 @@ public class AIAllianceEvaluator
         double playerMilitaryStrength = _gameStateEvaluator.EvaluateMilitaryStrength(game, player.Id);
 
         if (playerMilitaryStrength > 0 && threatMilitaryStrength / playerMilitaryStrength > 1.5)
+        {
             return true;
+        }
 
         return false;
     }
@@ -298,7 +356,9 @@ public class AIAllianceEvaluator
         }
 
         if (averageOpponentStrength == 0)
+        {
             return combinedStrength > 0 ? double.MaxValue : 1.0;
+        }
 
         return combinedStrength / averageOpponentStrength;
     }

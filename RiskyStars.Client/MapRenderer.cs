@@ -28,7 +28,10 @@ public class MapRenderer
 
     public void Draw(SpriteBatch spriteBatch, MapData mapData, Camera2D camera)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         var transform = camera.GetTransformMatrix();
 
@@ -59,7 +62,10 @@ public class MapRenderer
 
     private void DrawStarSystem(SpriteBatch spriteBatch, StarSystemData system)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         Color systemColor = system.Type switch
         {
@@ -87,7 +93,10 @@ public class MapRenderer
 
     private void DrawStellarBody(SpriteBatch spriteBatch, StellarBodyData body)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         Color bodyColor = body.Type switch
         {
@@ -117,14 +126,20 @@ public class MapRenderer
 
     private void DrawRegionMarker(SpriteBatch spriteBatch, RegionData region)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         DrawCircle(spriteBatch, region.Position, 3f, Color.White, 1f);
     }
 
     private void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         var distance = Vector2.Distance(start, end);
         var angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
@@ -136,7 +151,10 @@ public class MapRenderer
 
     private void DrawCircle(SpriteBatch spriteBatch, Vector2 center, float radius, Color color, float thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         int segments = Math.Max(16, (int)(radius / 2));
         Vector2 previousPoint = center + new Vector2(radius, 0);
@@ -156,7 +174,10 @@ public class MapRenderer
 
     private void DrawFilledCircle(SpriteBatch spriteBatch, Vector2 center, float radius, Color color)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         int segments = Math.Max(16, (int)(radius));
         for (int layer = 0; layer < radius; layer++)

@@ -192,7 +192,10 @@ public class CombatResolver
                 // Attacker won, defender loses a unit
                 var defenderArmyId = pairing.DefenderRoll.ArmyId;
                 if (!defenderCasualties.ContainsKey(defenderArmyId))
+                {
                     defenderCasualties[defenderArmyId] = 0;
+                }
+
                 defenderCasualties[defenderArmyId]++;
             }
             else
@@ -200,7 +203,10 @@ public class CombatResolver
                 // Defender won, attacker loses a unit
                 var attackerArmyId = pairing.AttackerRoll.ArmyId;
                 if (!attackerCasualties.ContainsKey(attackerArmyId))
+                {
                     attackerCasualties[attackerArmyId] = 0;
+                }
+
                 attackerCasualties[attackerArmyId]++;
             }
         }
@@ -383,8 +389,11 @@ public class CombatResolver
         // Apply to attacking reinforcements first
         foreach (var army in attackingArmies.Where(a => a.CombatRole == CombatRole.AttackingReinforcement))
         {
-            if (remainingAttackerCasualties <= 0) break;
-            
+            if (remainingAttackerCasualties <= 0)
+            {
+                break;
+            }
+
             int armyCasualties = Math.Min(army.UnitCount, remainingAttackerCasualties);
             army.UnitCount -= armyCasualties;
             remainingAttackerCasualties -= armyCasualties;
@@ -436,8 +445,11 @@ public class CombatResolver
         // Apply to defending reinforcements first
         foreach (var army in defendingArmies.Where(a => a.CombatRole == CombatRole.DefendingReinforcement))
         {
-            if (remainingDefenderCasualties <= 0) break;
-            
+            if (remainingDefenderCasualties <= 0)
+            {
+                break;
+            }
+
             int armyCasualties = Math.Min(army.UnitCount, remainingDefenderCasualties);
             army.UnitCount -= armyCasualties;
             remainingDefenderCasualties -= armyCasualties;

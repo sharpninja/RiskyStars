@@ -143,7 +143,9 @@ public class LobbyScreen
         _mainPanel.Widgets.Add(rootGrid);
 
         if (_desktop != null)
+        {
             _desktop.Root = _mainPanel;
+        }
     }
 
     private Panel BuildInfoPanel()
@@ -281,7 +283,7 @@ public class LobbyScreen
             GridColumn = 1,
             Enabled = false
         };
-        _startGameButton.Click += (s, a) => { if (_isHost) ShouldStartGame = true; };
+        _startGameButton.Click += (s, a) => { if (_isHost) { ShouldStartGame = true; } };
         grid.Widgets.Add(_startGameButton);
 
         _leaveLobbyButton = new TextButton
@@ -305,7 +307,10 @@ public class LobbyScreen
 
     private void UpdatePlayerSlotUI(int slotIndex)
     {
-        if (_playerSlotsGrid == null || slotIndex >= _maxPlayers) return;
+        if (_playerSlotsGrid == null || slotIndex >= _maxPlayers)
+        {
+            return;
+        }
 
         var slot = _playerSlots[slotIndex];
         int row = slotIndex;
@@ -333,7 +338,9 @@ public class LobbyScreen
         Color nameColor = slot.IsAI ? Color.LightBlue : (slot.IsReady ? Color.LightGreen : Color.White);
         string nameText = slot.PlayerName;
         if (!slot.IsAI && slot.IsReady)
+        {
             nameText += " [READY]";
+        }
 
         var namePanel = new Panel
         {
@@ -416,8 +423,11 @@ public class LobbyScreen
             int capturedIndex = slotIndex;
             comboBox.SelectedIndexChanged += (s, a) =>
             {
-                if (comboBox.SelectedIndex == null) return;
-                
+                if (comboBox.SelectedIndex == null)
+                {
+                    return;
+                }
+
                 var newPlayerType = comboBox.SelectedIndex switch
                 {
                     1 => PlayerType.EasyAI,
@@ -475,11 +485,19 @@ public class LobbyScreen
             _isHost = _lobbyInfo.HostPlayerName == GetPlayerName(playerId);
 
             if (_hostLabel != null)
+            {
                 _hostLabel.Text = $"Host: {_lobbyInfo.HostPlayerName}";
+            }
+
             if (_mapLabel != null)
+            {
                 _mapLabel.Text = $"Map: {_lobbyInfo.MapName}";
+            }
+
             if (_gameModeLabel != null)
+            {
                 _gameModeLabel.Text = $"Game Mode: {_lobbyInfo.GameMode}";
+            }
 
             UpdateStatusLabel();
             UpdateAllPlayerSlots();
@@ -497,7 +515,10 @@ public class LobbyScreen
 
     private void UpdateStatusLabel()
     {
-        if (_statusLabel == null) return;
+        if (_statusLabel == null)
+        {
+            return;
+        }
 
         if (_isHost)
         {
@@ -513,7 +534,10 @@ public class LobbyScreen
 
     private void UpdateStartButton()
     {
-        if (_startGameButton == null) return;
+        if (_startGameButton == null)
+        {
+            return;
+        }
 
         int occupiedSlots = _playerSlots.Count(s => s.PlayerType == PlayerType.Human || s.IsAI);
         _startGameButton.Enabled = _isHost && occupiedSlots >= 2;
@@ -528,7 +552,9 @@ public class LobbyScreen
     {
         _isReady = ready;
         if (_readyButton != null)
+        {
             _readyButton.Enabled = !_isReady;
+        }
     }
 
     public void OnGameStarted(string sessionId)
@@ -540,7 +566,9 @@ public class LobbyScreen
     private bool AllPlayersReady()
     {
         if (_lobbyInfo == null)
+        {
             return false;
+        }
 
         int occupiedSlots = _playerSlots.Count(s => s.PlayerType == PlayerType.Human || s.IsAI);
         return occupiedSlots >= 2;
@@ -549,7 +577,9 @@ public class LobbyScreen
     private string GetPlayerName(string playerId)
     {
         if (_lobbyInfo == null || string.IsNullOrEmpty(playerId))
+        {
             return "Unknown";
+        }
 
         return _lobbyInfo.PlayerNames.FirstOrDefault() ?? "Unknown";
     }
@@ -585,7 +615,9 @@ public class LobbyScreen
         _isReady = false;
 
         if (_readyButton != null)
+        {
             _readyButton.Enabled = true;
+        }
 
         for (int i = 0; i < _playerSlots.Count; i++)
         {

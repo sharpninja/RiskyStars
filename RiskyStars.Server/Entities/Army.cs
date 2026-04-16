@@ -34,7 +34,9 @@ public class Army
     public void Move(string newLocationId, LocationType newLocationType)
     {
         if (HasMovedThisTurn)
+        {
             throw new InvalidOperationException("Army has already moved this turn");
+        }
 
         LaunchLocationId = LocationId;
         LocationId = newLocationId;
@@ -45,7 +47,9 @@ public class Army
     public void ReturnToLaunchLocation()
     {
         if (LaunchLocationId == null)
+        {
             throw new InvalidOperationException("No launch location to return to");
+        }
 
         LocationId = LaunchLocationId;
         LaunchLocationId = null;
@@ -60,7 +64,9 @@ public class Army
     public void JoinArmy(Army other)
     {
         if (OwnerId != other.OwnerId)
+        {
             throw new InvalidOperationException("Cannot join armies of different owners");
+        }
 
         UnitCount += other.UnitCount;
     }

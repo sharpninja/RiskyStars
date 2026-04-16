@@ -148,7 +148,9 @@ public class SinglePlayerLobbyScreen
         _mainPanel.Widgets.Add(rootGrid);
 
         if (_desktop != null)
+        {
             _desktop.Root = _mainPanel;
+        }
     }
 
     private Panel BuildPlayerNamePanel()
@@ -319,7 +321,10 @@ public class SinglePlayerLobbyScreen
 
     private void BuildPlayerSlotRow(int slotIndex)
     {
-        if (_playerSlotsGrid == null) return;
+        if (_playerSlotsGrid == null)
+        {
+            return;
+        }
 
         var slot = _playerSlots[slotIndex];
         int row = slotIndex;
@@ -418,7 +423,10 @@ public class SinglePlayerLobbyScreen
 
         comboBox.SelectedIndexChanged += (s, a) =>
         {
-            if (comboBox.SelectedIndex == null) return;
+            if (comboBox.SelectedIndex == null)
+            {
+                return;
+            }
 
             var newPlayerType = comboBox.SelectedIndex switch
             {
@@ -461,7 +469,10 @@ public class SinglePlayerLobbyScreen
 
     private void UpdatePlayerSlotUI(int slotIndex)
     {
-        if (_playerSlotsGrid == null) return;
+        if (_playerSlotsGrid == null)
+        {
+            return;
+        }
 
         var slot = _playerSlots[slotIndex];
 
@@ -536,7 +547,9 @@ public class SinglePlayerLobbyScreen
     private Widget? FindWidgetById(Widget parent, string id)
     {
         if (parent.Id == id)
+        {
             return parent;
+        }
 
         if (parent is Panel panel)
         {
@@ -544,7 +557,9 @@ public class SinglePlayerLobbyScreen
             {
                 var found = FindWidgetById(child, id);
                 if (found != null)
+                {
                     return found;
+                }
             }
         }
         else if (parent is Grid grid)
@@ -553,7 +568,9 @@ public class SinglePlayerLobbyScreen
             {
                 var found = FindWidgetById(child, id);
                 if (found != null)
+                {
                     return found;
+                }
             }
         }
 
@@ -651,14 +668,18 @@ public class SinglePlayerLobbyScreen
                 _playerSlots[i].PlayerType = PlayerType.Human;
                 _playerSlots[i].PlayerName = "Player";
                 if (_playerTypeComboBoxes.Count > i)
+                {
                     _playerTypeComboBoxes[i].SelectedIndex = 0;
+                }
             }
             else
             {
                 _playerSlots[i].PlayerType = PlayerType.Human;
                 _playerSlots[i].PlayerName = $"Player {i + 1}";
                 if (_playerTypeComboBoxes.Count > i)
+                {
                     _playerTypeComboBoxes[i].SelectedIndex = 0;
+                }
             }
 
             UpdatePlayerSlotUI(i);

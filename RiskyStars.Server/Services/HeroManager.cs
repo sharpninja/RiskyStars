@@ -34,19 +34,29 @@ public class HeroManager
     public bool CanAssignHeroToBody(Hero hero, StellarBody stellarBody, Player player)
     {
         if (hero.AssignedStellarBodyId != null)
+        {
             return false;
+        }
 
         if (!player.Heroes.Contains(hero))
+        {
             return false;
+        }
 
         if (!stellarBody.Regions.Any(r => r.OwnerId == player.Id))
+        {
             return false;
+        }
 
         if (stellarBody.Heroes.Count >= 3)
+        {
             return false;
+        }
 
         if (stellarBody.Heroes.Count >= stellarBody.GetRegionCount())
+        {
             return false;
+        }
 
         return true;
     }
@@ -54,7 +64,9 @@ public class HeroManager
     public void AssignHeroToBody(Hero hero, StellarBody stellarBody, Player player)
     {
         if (!CanAssignHeroToBody(hero, stellarBody, player))
+        {
             throw new InvalidOperationException("Cannot assign hero to stellar body");
+        }
 
         hero.AssignedStellarBodyId = stellarBody.Id;
         stellarBody.Heroes.Add(hero);
@@ -63,7 +75,9 @@ public class HeroManager
     public void UnassignHeroFromBody(Hero hero, StellarBody stellarBody)
     {
         if (hero.AssignedStellarBodyId != stellarBody.Id)
+        {
             throw new InvalidOperationException("Hero is not assigned to this stellar body");
+        }
 
         hero.AssignedStellarBodyId = null;
         stellarBody.Heroes.Remove(hero);
@@ -108,7 +122,9 @@ public class HeroManager
     public void RemoveHeroFromPlayer(Player player, Hero hero)
     {
         if (hero.AssignedStellarBodyId != null)
+        {
             throw new InvalidOperationException("Cannot remove hero that is currently assigned to a stellar body");
+        }
 
         player.Heroes.Remove(hero);
     }

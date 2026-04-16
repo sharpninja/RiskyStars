@@ -37,12 +37,16 @@ public class SelectionRenderer
     public void Draw(SpriteBatch spriteBatch, MapData mapData, GameStateCache gameStateCache, InputController inputController, Camera2D camera)
     {
         if (_pixelTexture == null)
+        {
             return;
-        
+        }
+
         var selection = inputController.Selection;
         if (selection.Type == SelectionType.None)
+        {
             return;
-        
+        }
+
         var transform = camera.GetTransformMatrix();
         
         spriteBatch.Begin(
@@ -154,8 +158,10 @@ public class SelectionRenderer
     private void DrawCircle(SpriteBatch spriteBatch, Vector2 center, float radius, Color color, float thickness)
     {
         if (_pixelTexture == null)
+        {
             return;
-        
+        }
+
         int segments = Math.Max(16, (int)(radius / 2));
         Vector2 previousPoint = center + new Vector2(radius, 0);
         
@@ -175,8 +181,10 @@ public class SelectionRenderer
     private void DrawSquare(SpriteBatch spriteBatch, Vector2 center, float size, Color color, float thickness)
     {
         if (_pixelTexture == null)
+        {
             return;
-        
+        }
+
         float halfSize = size / 2;
         Vector2 topLeft = center - new Vector2(halfSize, halfSize);
         Vector2 topRight = center + new Vector2(halfSize, -halfSize);
@@ -192,8 +200,10 @@ public class SelectionRenderer
     private void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float thickness)
     {
         if (_pixelTexture == null)
+        {
             return;
-        
+        }
+
         var distance = Vector2.Distance(start, end);
         var angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);
         

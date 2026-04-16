@@ -45,10 +45,14 @@ public class Player
     public bool CanAttack(Player other)
     {
         if (IsAlliedWith(other))
+        {
             return false;
-        
+        }
+
         if (TurnsSinceLeftAlliance > 0 && TurnsSinceLeftAlliance <= 3)
+        {
             return false;
+        }
 
         return true;
     }
@@ -83,7 +87,9 @@ public class Player
     public void PurchaseArmy(int count = 1)
     {
         if (!CanPurchaseArmy(count))
+        {
             throw new InvalidOperationException("Insufficient resources to purchase army");
+        }
 
         PopulationStockpile -= 10 * count;
         MetalStockpile -= 3 * count;

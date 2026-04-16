@@ -40,7 +40,10 @@ public class RegionRenderer
 
     public void Draw(SpriteBatch spriteBatch, MapData mapData, GameStateCache gameStateCache, Camera2D camera)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         var transform = camera.GetTransformMatrix();
 
@@ -100,11 +103,16 @@ public class RegionRenderer
 
     private void DrawRegionOwnership(SpriteBatch spriteBatch, RegionData region, GameStateCache gameStateCache)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         var ownership = gameStateCache.GetRegionOwnership(region.Id);
         if (ownership == null || string.IsNullOrEmpty(ownership.OwnerId))
+        {
             return;
+        }
 
         Color ownerColor = GetPlayerColor(ownership.OwnerId);
         DrawFilledCircle(spriteBatch, region.Position, 5f, ownerColor * 0.7f);
@@ -113,7 +121,10 @@ public class RegionRenderer
 
     private void DrawHyperspaceLaneMouth(SpriteBatch spriteBatch, Vector2 position, string mouthId, GameStateCache gameStateCache)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         var ownership = gameStateCache.GetHyperspaceLaneMouthOwnership(mouthId);
         if (ownership == null || string.IsNullOrEmpty(ownership.OwnerId))
@@ -136,11 +147,16 @@ public class RegionRenderer
 
     private void DrawArmiesAtRegion(SpriteBatch spriteBatch, RegionData region, GameStateCache gameStateCache)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         var armies = gameStateCache.GetArmiesAtLocation(region.Id, LocationType.Region);
         if (armies.Count == 0)
+        {
             return;
+        }
 
         var groupedArmies = armies.GroupBy(a => a.OwnerId);
         int offsetY = 10;
@@ -157,7 +173,10 @@ public class RegionRenderer
 
     private void DrawArmyCount(SpriteBatch spriteBatch, Vector2 position, int count, Color color)
     {
-        if (_font == null) return;
+        if (_font == null)
+        {
+            return;
+        }
 
         string text = count.ToString();
         var textSize = _font.MeasureString(text);
@@ -177,7 +196,10 @@ public class RegionRenderer
 
     private void DrawCircle(SpriteBatch spriteBatch, Vector2 center, float radius, Color color, float thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         int segments = Math.Max(12, (int)(radius));
         Vector2 previousPoint = center + new Vector2(radius, 0);
@@ -197,7 +219,10 @@ public class RegionRenderer
 
     private void DrawFilledCircle(SpriteBatch spriteBatch, Vector2 center, float radius, Color color)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         Rectangle rect = new Rectangle(
             (int)(center.X - radius),
@@ -211,7 +236,10 @@ public class RegionRenderer
 
     private void DrawSquare(SpriteBatch spriteBatch, Vector2 center, float size, Color color)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         float halfSize = size / 2;
         Vector2 topLeft = center - new Vector2(halfSize, halfSize);
@@ -227,7 +255,10 @@ public class RegionRenderer
 
     private void DrawFilledSquare(SpriteBatch spriteBatch, Vector2 center, float size, Color color)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         Rectangle rect = new Rectangle(
             (int)(center.X - size / 2),
@@ -241,7 +272,10 @@ public class RegionRenderer
 
     private void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end, Color color, float thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         var distance = Vector2.Distance(start, end);
         var angle = (float)Math.Atan2(end.Y - start.Y, end.X - start.X);

@@ -20,14 +20,18 @@ public class AIReinforcementPlanner
         var allocations = new Dictionary<string, int>();
         
         if (availableArmies <= 0)
+        {
             return allocations;
+        }
 
         var playerRegions = game.GetAllRegions()
             .Where(r => r.OwnerId == playerId)
             .ToList();
 
         if (playerRegions.Count == 0)
+        {
             return allocations;
+        }
 
         var threatAssessments = AssessThreatLevels(game, playerId, playerRegions);
         
@@ -40,7 +44,9 @@ public class AIReinforcementPlanner
         foreach (var (regionId, priority) in prioritizedRegions)
         {
             if (remainingArmies <= 0)
+            {
                 break;
+            }
 
             var region = playerRegions.First(r => r.Id == regionId);
             var assessment = threatAssessments[regionId];
@@ -103,17 +109,23 @@ public class AIReinforcementPlanner
             .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
         if (stellarBody == null)
+        {
             return false;
+        }
 
         foreach (var otherRegion in stellarBody.Regions)
         {
             if (otherRegion.OwnerId != playerId && otherRegion.OwnerId != null)
+            {
                 return true;
+            }
         }
 
         var starSystem = game.StarSystems.FirstOrDefault(s => s.Id == stellarBody.StarSystemId);
         if (starSystem == null)
+        {
             return false;
+        }
 
         foreach (var lane in starSystem.HyperspaceLanes)
         {
@@ -127,7 +139,9 @@ public class AIReinforcementPlanner
                     .Any(r => r.OwnerId != playerId && r.OwnerId != null);
 
                 if (hasEnemyInSystem)
+                {
                     return true;
+                }
             }
         }
 
@@ -141,7 +155,9 @@ public class AIReinforcementPlanner
             .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
         if (stellarBody == null)
+        {
             return 1.0;
+        }
 
         double baseValue = Region.BaseProductionPerRegion;
         double upgradeMultiplier = stellarBody.GetYieldMultiplier();
@@ -166,7 +182,9 @@ public class AIReinforcementPlanner
             .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
         if (stellarBody == null)
+        {
             return threat;
+        }
 
         foreach (var otherRegion in stellarBody.Regions)
         {
@@ -179,7 +197,9 @@ public class AIReinforcementPlanner
 
         var starSystem = game.StarSystems.FirstOrDefault(s => s.Id == stellarBody.StarSystemId);
         if (starSystem == null)
+        {
             return threat;
+        }
 
         foreach (var lane in starSystem.HyperspaceLanes)
         {
@@ -227,11 +247,15 @@ public class AIReinforcementPlanner
             .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
         if (stellarBody == null)
+        {
             return importance;
+        }
 
         var starSystem = game.StarSystems.FirstOrDefault(s => s.Id == stellarBody.StarSystemId);
         if (starSystem == null)
+        {
             return importance;
+        }
 
         int laneCount = starSystem.HyperspaceLanes.Count;
         importance += laneCount * 100.0;
@@ -374,7 +398,9 @@ public class AIReinforcementPlanner
             .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
         if (stellarBody == null)
+        {
             return 1;
+        }
 
         int baseGarrison = stellarBody.ResourceType switch
         {

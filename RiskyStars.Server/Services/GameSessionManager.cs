@@ -91,18 +91,26 @@ public class GameSessionManager
     public bool JoinLobby(string lobbyId, string playerId, string playerName)
     {
         if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+        {
             return false;
+        }
 
         lock (_lobbyLock)
         {
             if (lobby.State != LobbyState.Waiting)
+            {
                 return false;
+            }
 
             if (lobby.Players.Count >= lobby.Settings.MaxPlayers)
+            {
                 return false;
+            }
 
             if (lobby.Players.Any(p => p.PlayerId == playerId))
+            {
                 return false;
+            }
 
             lobby.Players.Add(new LobbyPlayer
             {
@@ -120,20 +128,28 @@ public class GameSessionManager
     public bool AddAIPlayerToLobby(string lobbyId, string aiName, DifficultyLevel difficulty)
     {
         if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+        {
             return false;
+        }
 
         lock (_lobbyLock)
         {
             if (lobby.State != LobbyState.Waiting)
+            {
                 return false;
+            }
 
             if (lobby.Players.Count >= lobby.Settings.MaxPlayers)
+            {
                 return false;
+            }
 
             var aiPlayerId = GenerateAIPlayerId(aiName, lobby.Players.Count);
             
             if (lobby.Players.Any(p => p.PlayerId == aiPlayerId))
+            {
                 return false;
+            }
 
             lobby.Players.Add(new LobbyPlayer
             {
@@ -152,13 +168,17 @@ public class GameSessionManager
     public bool RemoveAIPlayerFromLobby(string lobbyId, string aiPlayerId)
     {
         if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+        {
             return false;
+        }
 
         lock (_lobbyLock)
         {
             var player = lobby.Players.FirstOrDefault(p => p.PlayerId == aiPlayerId && p.IsAI);
             if (player == null)
+            {
                 return false;
+            }
 
             lobby.Players.Remove(player);
         }
@@ -169,16 +189,22 @@ public class GameSessionManager
     public bool LeaveLobby(string lobbyId, string playerId)
     {
         if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+        {
             return false;
+        }
 
         lock (_lobbyLock)
         {
             var player = lobby.Players.FirstOrDefault(p => p.PlayerId == playerId);
             if (player == null)
+            {
                 return false;
+            }
 
             if (player.IsAI)
+            {
                 return false;
+            }
 
             lobby.Players.Remove(player);
 
@@ -206,16 +232,22 @@ public class GameSessionManager
     public bool SetPlayerReady(string lobbyId, string playerId, bool isReady)
     {
         if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+        {
             return false;
+        }
 
         lock (_lobbyLock)
         {
             var player = lobby.Players.FirstOrDefault(p => p.PlayerId == playerId);
             if (player == null)
+            {
                 return false;
+            }
 
             if (player.IsAI)
+            {
                 return false;
+            }
 
             player.IsReady = isReady;
         }
@@ -240,18 +272,26 @@ public class GameSessionManager
     public string? StartGame(string lobbyId)
     {
         if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+        {
             return null;
+        }
 
         lock (_lobbyLock)
         {
             if (lobby.State != LobbyState.Waiting)
+            {
                 return null;
+            }
 
             if (!lobby.Players.All(p => p.IsReady))
+            {
                 return null;
+            }
 
             if (lobby.Players.Count < lobby.Settings.MinPlayers)
+            {
                 return null;
+            }
 
             lobby.State = LobbyState.Starting;
 
@@ -308,7 +348,9 @@ public class GameSessionManager
     public bool EndSession(string sessionId, SessionEndReason reason)
     {
         if (!_sessions.TryGetValue(sessionId, out var session))
+        {
             return false;
+        }
 
         session.State = SessionState.Ended;
         session.EndedAt = DateTime.UtcNow;
@@ -363,7 +405,9 @@ public class GameSessionManager
     public bool DisconnectPlayer(string playerId)
     {
         if (!_playerConnections.TryRemove(playerId, out var connection))
+        {
             return false;
+        }
 
         connection.IsActive = false;
         connection.DisconnectedAt = DateTime.UtcNow;
@@ -394,7 +438,9 @@ public class GameSessionManager
     public List<string> GetActivePlayers(string sessionId)
     {
         if (!_sessions.TryGetValue(sessionId, out var session))
+        {
             return new List<string>();
+        }
 
         return session.ActivePlayerConnections.ToList();
     }
@@ -407,7 +453,9 @@ public class GameSessionManager
     public void BroadcastToSession(string sessionId, GameStateUpdate update)
     {
         if (!_sessions.TryGetValue(sessionId, out var session))
+        {
             return;
+        }
 
         foreach (var playerId in session.ActivePlayerConnections.ToList())
         {
@@ -528,7 +576,9 @@ public class GameSessionManager
     public List<AIPlayer> GetSessionAIPlayers(string sessionId)
     {
         if (!_sessions.TryGetValue(sessionId, out var session))
+        {
             return new List<AIPlayer>();
+        }
 
         return session.PlayerIds
             .Where(id => _aiPlayers.ContainsKey(id))
@@ -539,11 +589,15 @@ public class GameSessionManager
     public async Task TriggerAIPlayerTurnAsync(string gameId, string aiPlayerId)
     {
         if (_aiPlayerController == null)
+        {
             return;
+        }
 
         var aiPlayer = GetAIPlayer(aiPlayerId);
         if (aiPlayer == null)
+        {
             return;
+        }
 
         await _aiPlayerController.ExecuteAITurnAsync(gameId, aiPlayer);
     }
@@ -551,15 +605,21 @@ public class GameSessionManager
     public async Task ProcessAITurnIfNeededAsync(string sessionId)
     {
         if (_aiPlayerController == null)
+        {
             return;
+        }
 
         var session = GetSession(sessionId);
         if (session == null)
+        {
             return;
+        }
 
         var game = _gameStateManager.GetGame(session.GameId);
         if (game == null)
+        {
             return;
+        }
 
         var currentPlayer = game.CurrentPlayer;
         if (currentPlayer is AIPlayer aiPlayer)
@@ -576,7 +636,9 @@ public class GameSessionManager
     public (int humanCount, int aiCount) GetLobbyPlayerCounts(string lobbyId)
     {
         if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+        {
             return (0, 0);
+        }
 
         var humanCount = lobby.Players.Count(p => !p.IsAI);
         var aiCount = lobby.Players.Count(p => p.IsAI);
@@ -587,7 +649,9 @@ public class GameSessionManager
     public (int humanCount, int aiCount) GetSessionPlayerCounts(string sessionId)
     {
         if (!_sessions.TryGetValue(sessionId, out var session))
+        {
             return (0, 0);
+        }
 
         var humanCount = session.PlayerIds.Count - session.AIPlayerIds.Count;
         var aiCount = session.AIPlayerIds.Count;

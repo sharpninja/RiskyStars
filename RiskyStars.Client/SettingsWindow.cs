@@ -481,22 +481,37 @@ public class SettingsWindow
         }
         
         if (_masterVolumeSlider != null)
+        {
             _tempSettings.MasterVolume = _masterVolumeSlider.Value / 100f;
+        }
+
         if (_musicVolumeSlider != null)
+        {
             _tempSettings.MusicVolume = _musicVolumeSlider.Value / 100f;
+        }
+
         if (_sfxVolumeSlider != null)
+        {
             _tempSettings.SfxVolume = _sfxVolumeSlider.Value / 100f;
-        
+        }
+
         if (_panSpeedSlider != null)
+        {
             _tempSettings.CameraPanSpeed = 1.0f + (_panSpeedSlider.Value / 100f * 9.0f);
+        }
+
         if (_zoomSpeedSlider != null)
+        {
             _tempSettings.CameraZoomSpeed = 0.05f + (_zoomSpeedSlider.Value / 100f * 0.45f);
-        
+        }
+
         _tempSettings.InvertCameraZoom = _invertZoomCheckButton?.IsPressed ?? false;
         
         if (_serverAddressTextBox != null && _serverAddressTextBox.IsValid)
+        {
             _tempSettings.ServerAddress = _serverAddressTextBox.Text.Trim();
-        
+        }
+
         _tempSettings.ShowDebugInfo = _showDebugCheckButton?.IsPressed ?? false;
         _tempSettings.ShowFPS = _showFpsCheckButton?.IsPressed ?? false;
         
@@ -552,9 +567,13 @@ public class SettingsWindow
     public void Toggle()
     {
         if (IsOpen)
+        {
             Close();
+        }
         else
+        {
             Open();
+        }
     }
     
     private void RefreshUI()
@@ -568,11 +587,15 @@ public class SettingsWindow
         }
         
         if (_fullscreenCheckButton != null)
+        {
             _fullscreenCheckButton.IsPressed = _tempSettings.Fullscreen;
-        
+        }
+
         if (_vsyncCheckButton != null)
+        {
             _vsyncCheckButton.IsPressed = _tempSettings.VSync;
-        
+        }
+
         if (_frameRateComboBox != null)
         {
             var currentFrameRateIndex = _tempSettings.TargetFrameRate switch
@@ -617,16 +640,24 @@ public class SettingsWindow
         }
         
         if (_invertZoomCheckButton != null)
+        {
             _invertZoomCheckButton.IsPressed = _tempSettings.InvertCameraZoom;
-        
+        }
+
         if (_serverAddressTextBox != null)
+        {
             _serverAddressTextBox.Text = _tempSettings.ServerAddress;
-        
+        }
+
         if (_showDebugCheckButton != null)
+        {
             _showDebugCheckButton.IsPressed = _tempSettings.ShowDebugInfo;
-        
+        }
+
         if (_showFpsCheckButton != null)
+        {
             _showFpsCheckButton.IsPressed = _tempSettings.ShowFPS;
+        }
     }
     
     public void Render()

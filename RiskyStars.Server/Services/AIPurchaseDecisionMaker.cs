@@ -25,7 +25,9 @@ public class AIPurchaseDecisionMaker
         var maxAffordable = CalculateMaxAffordableArmies(aiPlayer);
         
         if (maxAffordable == 0)
+        {
             return 0;
+        }
 
         var productionRate = CalculateProductionRate(game, aiPlayer.Id);
         var sustainableSpending = CalculateSustainableSpending(aiPlayer, productionRate);
@@ -85,7 +87,9 @@ public class AIPurchaseDecisionMaker
     private int CalculateSustainableSpending(Player player, (int population, int metal, int fuel) productionRate)
     {
         if (productionRate.population == 0 || productionRate.metal == 0 || productionRate.fuel == 0)
+        {
             return 0;
+        }
 
         var turnsOfPopulationReserve = player.PopulationStockpile / (double)productionRate.population;
         var turnsOfMetalReserve = player.MetalStockpile / (double)productionRate.metal;
@@ -194,7 +198,9 @@ public class AIPurchaseDecisionMaker
                 .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
             if (stellarBody == null)
+            {
                 continue;
+            }
 
             foreach (var otherRegion in stellarBody.Regions)
             {
@@ -250,7 +256,9 @@ public class AIPurchaseDecisionMaker
                 .FirstOrDefault(b => b.Regions.Any(r => r.Id == region.Id));
 
             if (stellarBody == null)
+            {
                 continue;
+            }
 
             bool hasEnemyNeighbor = false;
 

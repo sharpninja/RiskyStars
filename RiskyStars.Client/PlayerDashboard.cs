@@ -459,8 +459,10 @@ public class PlayerDashboard
     public void Update(GameTime gameTime, GameStateCache gameStateCache)
     {
         if (!_isVisible)
+        {
             return;
-        
+        }
+
         _lastKnownGameId = gameStateCache.GetGameId();
         
         UpdateResourceDisplay(gameStateCache);
@@ -471,22 +473,32 @@ public class PlayerDashboard
     private void UpdateResourceDisplay(GameStateCache gameStateCache)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var playerState = gameStateCache.GetPlayerState(_currentPlayerId);
         if (playerState == null)
+        {
             return;
-        
+        }
+
         // Update resource stockpiles
         if (_populationStockpileLabel != null)
+        {
             _populationStockpileLabel.Text = $"Population: {playerState.PopulationStockpile}";
-        
+        }
+
         if (_metalStockpileLabel != null)
+        {
             _metalStockpileLabel.Text = $"Metal: {playerState.MetalStockpile}";
-        
+        }
+
         if (_fuelStockpileLabel != null)
+        {
             _fuelStockpileLabel.Text = $"Fuel: {playerState.FuelStockpile}";
-        
+        }
+
         // Update production rates
         int populationRate = gameStateCache.GetProductionRate(_currentPlayerId, "population");
         if (_populationRateLabel != null)
@@ -512,22 +524,30 @@ public class PlayerDashboard
         // Update territory and army counts
         int regionCount = gameStateCache.GetRegionsOwnedByPlayer(_currentPlayerId).Count;
         if (_territoriesLabel != null)
+        {
             _territoriesLabel.Text = $"Territories: {regionCount}";
-        
+        }
+
         int armyCount = gameStateCache.GetArmiesOwnedByPlayer(_currentPlayerId).Count;
         if (_armiesLabel != null)
+        {
             _armiesLabel.Text = $"Armies: {armyCount}";
+        }
     }
     
     private void UpdatePurchaseButtons(GameStateCache gameStateCache)
     {
         if (_currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var playerState = gameStateCache.GetPlayerState(_currentPlayerId);
         if (playerState == null)
+        {
             return;
-        
+        }
+
         var currentPhase = gameStateCache.GetCurrentPhase();
         bool isPurchasePhase = currentPhase == TurnPhase.Purchase;
         
@@ -548,8 +568,10 @@ public class PlayerDashboard
     private void UpdatePurchaseButton(TextButton? button, int count, PlayerState playerState, bool isPurchasePhase)
     {
         if (button == null)
+        {
             return;
-        
+        }
+
         var cost = GetArmyCost(count);
         bool canAfford = CanAfford(playerState, cost);
         
@@ -572,12 +594,16 @@ public class PlayerDashboard
     public void Draw(SpriteBatch spriteBatch, GameStateCache gameStateCache)
     {
         if (!_isVisible || _currentPlayerId == null)
+        {
             return;
-        
+        }
+
         var playerState = gameStateCache.GetPlayerState(_currentPlayerId);
         if (playerState == null)
+        {
             return;
-        
+        }
+
         // Render Myra UI
         _desktop?.Render();
     }
@@ -585,8 +611,10 @@ public class PlayerDashboard
     private void PurchaseArmies(int count)
     {
         if (_currentPlayerId == null || _lastKnownGameId == null)
+        {
             return;
-        
+        }
+
         Task.Run(async () =>
         {
             try

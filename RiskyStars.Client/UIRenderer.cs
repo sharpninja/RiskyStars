@@ -33,7 +33,10 @@ public class UIRenderer
 
     public void Draw(SpriteBatch spriteBatch, GameStateCache gameStateCache, string? currentPlayerId)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         spriteBatch.Begin(
             sortMode: SpriteSortMode.Deferred,
@@ -49,7 +52,10 @@ public class UIRenderer
     
     public void DrawSelectionInfo(SpriteBatch spriteBatch, SelectionState selection, GameStateCache gameStateCache)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         spriteBatch.Begin(
             sortMode: SpriteSortMode.Deferred,
@@ -66,7 +72,10 @@ public class UIRenderer
     
     public void DrawKeyboardShortcuts(SpriteBatch spriteBatch, bool showHelp)
     {
-        if (_pixelTexture == null || _font == null || !showHelp) return;
+        if (_pixelTexture == null || _font == null || !showHelp)
+        {
+            return;
+        }
 
         spriteBatch.Begin(
             sortMode: SpriteSortMode.Deferred,
@@ -80,7 +89,10 @@ public class UIRenderer
 
     private void DrawTopBar(SpriteBatch spriteBatch, GameStateCache gameStateCache)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         int barHeight = 40;
         Rectangle topBar = new Rectangle(0, 0, _screenWidth, barHeight);
@@ -127,7 +139,10 @@ public class UIRenderer
 
     private void DrawResourceDisplay(SpriteBatch spriteBatch, int x, int y, string resourceName, int amount, Color color)
     {
-        if (_font == null || _pixelTexture == null) return;
+        if (_font == null || _pixelTexture == null)
+        {
+            return;
+        }
 
         int iconSize = 20;
         Rectangle iconRect = new Rectangle(x, y, iconSize, iconSize);
@@ -139,7 +154,10 @@ public class UIRenderer
 
     private void DrawGameInfo(SpriteBatch spriteBatch, GameStateCache gameStateCache)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         int panelWidth = 250;
         int panelHeight = 200;
@@ -180,7 +198,10 @@ public class UIRenderer
 
     private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
     {
-        if (_pixelTexture == null) return;
+        if (_pixelTexture == null)
+        {
+            return;
+        }
 
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
         spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);
@@ -190,7 +211,10 @@ public class UIRenderer
 
     private void DrawSelectionPanel(SpriteBatch spriteBatch, SelectionState selection, GameStateCache gameStateCache)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         int panelWidth = 300;
         int panelHeight = 200;
@@ -217,7 +241,11 @@ public class UIRenderer
             spriteBatch.DrawString(_font, $"Location: {army.LocationId}", new Vector2(panelX + 10, yOffset), Color.White, 0f, Vector2.Zero, 0.6f, SpriteEffects.None, 0f);
             yOffset += 25;
             string status = army.HasMovedThisTurn ? "Moved" : "Ready";
-            if (army.IsInCombat) status = "In Combat";
+            if (army.IsInCombat)
+            {
+                status = "In Combat";
+            }
+
             spriteBatch.DrawString(_font, $"Status: {status}", new Vector2(panelX + 10, yOffset), army.HasMovedThisTurn ? Color.Gray : Color.Green, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
         }
         else if (selection.SelectedRegion != null)
@@ -279,7 +307,10 @@ public class UIRenderer
     
     private void DrawShortcutsPanel(SpriteBatch spriteBatch)
     {
-        if (_pixelTexture == null || _font == null) return;
+        if (_pixelTexture == null || _font == null)
+        {
+            return;
+        }
 
         int panelWidth = 350;
         int panelHeight = 300;
@@ -322,7 +353,10 @@ public class UIRenderer
 
     public void DrawDebugInfo(SpriteBatch spriteBatch, Camera2D camera)
     {
-        if (_font == null) return;
+        if (_font == null)
+        {
+            return;
+        }
 
         spriteBatch.Begin();
 

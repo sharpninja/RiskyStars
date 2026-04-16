@@ -110,7 +110,9 @@ public class LobbyBrowserScreen
         _mainPanel.Widgets.Add(rootGrid);
 
         if (_desktop != null)
+        {
             _desktop.Root = _mainPanel;
+        }
     }
 
     private Panel BuildLobbiesPanel()
@@ -149,7 +151,10 @@ public class LobbyBrowserScreen
 
     private void RebuildLobbiesList()
     {
-        if (_lobbiesGrid == null) return;
+        if (_lobbiesGrid == null)
+        {
+            return;
+        }
 
         _lobbiesGrid.Widgets.Clear();
         _lobbiesGrid.RowsProportions.Clear();
@@ -181,7 +186,10 @@ public class LobbyBrowserScreen
 
     private void BuildLobbyItem(int index)
     {
-        if (_lobbiesGrid == null) return;
+        if (_lobbiesGrid == null)
+        {
+            return;
+        }
 
         var lobby = _lobbies[index];
         bool isSelected = index == _selectedLobbyIndex;
@@ -252,7 +260,10 @@ public class LobbyBrowserScreen
         {
             _selectedLobbyIndex = capturedIndex;
             if (_joinLobbyButton != null)
+            {
                 _joinLobbyButton.Enabled = true;
+            }
+
             RebuildLobbiesList();
         };
 
@@ -342,13 +353,17 @@ public class LobbyBrowserScreen
         _lobbies = lobbies ?? new List<LobbyInfo>();
 
         if (_countLabel != null)
+        {
             _countLabel.Text = $"Available Lobbies: {_lobbies.Count}";
+        }
 
         if (_selectedLobbyIndex >= _lobbies.Count)
         {
             _selectedLobbyIndex = -1;
             if (_joinLobbyButton != null)
+            {
                 _joinLobbyButton.Enabled = false;
+            }
         }
 
         RebuildLobbiesList();

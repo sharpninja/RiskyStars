@@ -1,9 +1,15 @@
 using Microsoft.Xna.Framework;
+using RiskyStars.Client;
 using Myra.Graphics2D;
+using RiskyStars.Client;
 using Myra.Graphics2D.UI;
+using RiskyStars.Client;
 using Myra.Graphics2D.UI.Styles;
+using RiskyStars.Client;
 using System;
+using RiskyStars.Client;
 using System.IO;
+using RiskyStars.Client;
 
 namespace RiskyStars.Client;
 
@@ -20,39 +26,43 @@ public static class ThemeManager
             {
                 throw new InvalidOperationException("ThemeManager has not been initialized. Call Initialize() first.");
             }
-            return _stylesheet!;
+            // Return default if stylesheet loading failed
+            return _stylesheet ?? Stylesheet.Current;
         }
     }
 
     public static void Initialize()
     {
         if (_isInitialized)
+        {
             return;
+        }
 
         try
         {
-            // Use the default Myra stylesheet
-            // Note: Custom XML stylesheet loading would require Myra stylesheet loading API
-            // which may vary by version. The ThemeManager constants provide themed styling.
-            _stylesheet = Stylesheet.Current;
+            // Delay stylesheet loading until GraphicsDevice is guaranteed to be available
+            // Myra.DefaultAssets.get_DefaultStylesheet() requires a valid GraphicsDevice
+            // We set the flag first and let Stylesheet property handle lazy loading if needed
             _isInitialized = true;
             
             string themeFilePath = "UITheme.xml";
             if (File.Exists(themeFilePath))
             {
                 Console.WriteLine($"UITheme.xml found. Theme constants from ThemeManager.Colors/Spacing/etc are available.");
-                // Future: Load custom stylesheet if Myra API supports it
+                // Future: Load custom stylesheet if Myra API supports it after device is ready
             }
             else
             {
                 Console.WriteLine("UITheme.xml not found. Using ThemeManager constants for consistent styling.");
             }
+            
+            Console.WriteLine("ThemeManager initialized successfully (stylesheet deferred).");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error initializing theme: {ex.Message}");
-            _stylesheet = Stylesheet.Current;
             _isInitialized = true;
+            _stylesheet = null;
         }
     }
 
@@ -249,7 +259,6 @@ public static class ThemeManager
         }
         button.BorderThickness = new Thickness(BorderThickness.Normal);
         button.Padding = Padding.Button;
-        // Note: TextColor and DisabledTextColor are set via styles in older Myra versions
     }
 
     public static void ApplyPanelTheme(Myra.Graphics2D.UI.Panel panel, PanelTheme theme = PanelTheme.Default)
@@ -363,3 +372,4 @@ public static class ThemeManager
         Success
     }
 }
+

@@ -170,8 +170,10 @@ public class AIVisualizationWindow : DockableWindow
     public void UpdateAIStatus(string aiPlayerName, bool isThinking)
     {
         if (_aiStatusLabel == null)
+        {
             return;
-        
+        }
+
         if (isThinking)
         {
             _aiStatusLabel.Text = $"{aiPlayerName} is thinking...";
@@ -187,8 +189,10 @@ public class AIVisualizationWindow : DockableWindow
     public void UpdateCurrentAction(string action)
     {
         if (_currentActionLabel == null)
+        {
             return;
-        
+        }
+
         _currentActionLabel.Text = action;
         _currentActionLabel.Visible = !string.IsNullOrEmpty(action);
     }
@@ -208,8 +212,10 @@ public class AIVisualizationWindow : DockableWindow
     private void RefreshLogDisplay()
     {
         if (_logContainer == null)
+        {
             return;
-        
+        }
+
         _logContainer.Widgets.Clear();
         
         if (_activityLog.Count == 0)
