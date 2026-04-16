@@ -4,7 +4,7 @@
 
 The main menu system provides a user-friendly interface for connecting to the game server, configuring client settings, and handling connection errors with automatic retry logic.
 
-**Migration Status:** ✅ Migrated to Myra UI Framework (v1.5.11)
+![Main Menu Screen](screenshots/main_menu_screen.png)
 
 ## Components
 
@@ -23,6 +23,8 @@ Persistent client settings management:
 - **ResolutionWidth/Height**: Window dimensions
 - **Fullscreen**: Fullscreen mode toggle
 - Settings are saved to `settings.json` and automatically loaded on startup
+
+![Settings Screen](screenshots/main_menu_settings.png)
 
 ### ConnectionManager.cs
 Robust connection handling with retry logic:
@@ -102,6 +104,8 @@ When a connection fails or is lost:
 4. If all attempts fail, user is returned to main menu with error message
 5. Reconnection status is displayed in-game with attempt counter
 
+![Connecting Screen](screenshots/main_menu_connecting.png)
+
 ### Error Handling
 The system provides user-friendly error messages for common connection issues:
 - **Server Unavailable**: Check server address
@@ -109,6 +113,8 @@ The system provides user-friendly error messages for common connection issues:
 - **Authentication Failed**: Invalid credentials
 - **Server at Capacity**: Try again later
 - And more specific gRPC error codes
+
+![Error Screen](screenshots/main_menu_error.png)
 
 ### Settings Persistence
 Settings are automatically:
@@ -235,23 +241,22 @@ The `ConnectionManager.Update()` method is called every frame to:
 ### Thread Safety
 Connection attempts run asynchronously using `Task.Run()` to avoid blocking the game loop during network operations.
 
-### Myra Rendering
-The `Desktop.Render()` method is called in the Draw method to render all Myra widgets. Myra handles:
-- Widget layout calculations
-- Input event processing
-- Focus management
-- Hover effects
-- Text rendering
-- Background drawing
+## Screenshots Needed
 
-## Future Enhancements
+The following screenshots are required for complete documentation:
 
-Planned improvements:
-- Migrate remaining screens to Myra (LobbyScreen, CreateLobbyScreen, etc.)
-- Custom Myra theme matching game aesthetic
-- Multiplayer lobby browser
-- Recent servers list
-- Advanced graphics settings
-- Audio volume controls
-- Key binding configuration
-- Gamepad support (Myra includes gamepad input handling)
+1. **Main Menu Screen** (`screenshots/main_menu_screen.png`)
+   - Capture: Main menu with "Connect to Server", "Settings", and "Exit" buttons visible
+   - Requirements: Fresh application start, default resolution
+
+2. **Settings Screen** (`screenshots/main_menu_settings.png`)
+   - Capture: Settings menu showing server address field, resolution dropdown (expanded), and fullscreen checkbox
+   - Requirements: Settings menu open, dropdown expanded to show options
+
+3. **Connecting Screen** (`screenshots/main_menu_connecting.png`)
+   - Capture: Connection screen with loading indicator and "Connecting to server..." message
+   - Requirements: Click "Connect to Server" and capture during connection attempt
+
+4. **Error Screen** (`screenshots/main_menu_error.png`)
+   - Capture: Error screen showing connection failure message with "Retry" and "Back to Menu" buttons
+   - Requirements: Ensure server is not running, attempt connection to trigger error state
