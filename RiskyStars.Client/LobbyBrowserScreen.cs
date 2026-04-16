@@ -2,6 +2,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RiskyStars.Shared;
+using Myra;
+using Myra.Graphics2D;
+using Myra.Graphics2D.UI;
+using Myra.Graphics2D.Brushes;
+using System.Linq;
 
 namespace RiskyStars.Client;
 
@@ -10,21 +15,22 @@ public class LobbyBrowserScreen
     private readonly GraphicsDevice _graphicsDevice;
     private readonly int _screenWidth;
     private readonly int _screenHeight;
-    private Texture2D? _pixelTexture;
     private SpriteFont? _font;
+
+    private Desktop? _desktop;
+    private Panel? _mainPanel;
+    private Grid? _lobbiesGrid;
+    private TextButton? _createLobbyButton;
+    private TextButton? _joinLobbyButton;
+    private TextButton? _refreshButton;
+    private Label? _countLabel;
 
     private List<LobbyInfo> _lobbies = new();
     private int _selectedLobbyIndex = -1;
     private double _refreshTimer = 0;
     private const double RefreshInterval = 2000;
 
-    private Button _createLobbyButton;
-    private Button _joinLobbyButton;
-    private Button _refreshButton;
-
-    private int _scrollOffset = 0;
     private const int MaxVisibleLobbies = 8;
-    private const int LobbyItemHeight = 60;
 
     public string? SelectedLobbyId { get; private set; }
     public bool ShouldCreateLobby { get; private set; }
@@ -36,37 +42,285 @@ public class LobbyBrowserScreen
         _graphicsDevice = graphicsDevice;
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
-
-        CreatePixelTexture();
-
-        int buttonWidth = 150;
-        int buttonHeight = 40;
-        int buttonSpacing = 20;
-        int bottomY = screenHeight - 80;
-
-        _createLobbyButton = new Button(
-            new Rectangle(screenWidth / 2 - buttonWidth - buttonSpacing / 2 - buttonWidth, bottomY, buttonWidth, buttonHeight),
-            "Create Lobby");
-
-        _joinLobbyButton = new Button(
-            new Rectangle(screenWidth / 2 - buttonWidth / 2, bottomY, buttonWidth, buttonHeight),
-            "Join Lobby");
-        _joinLobbyButton.IsEnabled = false;
-
-        _refreshButton = new Button(
-            new Rectangle(screenWidth / 2 + buttonWidth / 2 + buttonSpacing, bottomY, buttonWidth, buttonHeight),
-            "Refresh");
-    }
-
-    private void CreatePixelTexture()
-    {
-        _pixelTexture = new Texture2D(_graphicsDevice, 1, 1);
-        _pixelTexture.SetData(new[] { Color.White });
     }
 
     public void LoadContent(SpriteFont font)
     {
         _font = font;
+        _desktop = new Desktop();
+        BuildUI();
+    }
+
+    private void BuildUI()
+    {
+        var rootGrid = new Grid
+        {
+            RowSpacing = 15,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            Width = _screenWidth,
+            Height = _screenHeight
+        };
+
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Count
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Fill)); // Lobbies list
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
+
+        // Title
+        var titleLabel = new Label
+        {
+            Text = "Game Lobbies",
+            TextColor = Color.Cyan,
+            Scale = new Vector2(1.8f, 1.8f),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 0,
+            Margin = new Thickness(0, 30, 0, 10)
+        };
+        rootGrid.Widgets.Add(titleLabel);
+
+        // Lobby count
+        _countLabel = new Label
+        {
+            Text = "Available Lobbies: 0",
+            TextColor = Color.White,
+            Scale = new Vector2(0.9f, 0.9f),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 1,
+            Margin = new Thickness(0, 0, 0, 15)
+        };
+        rootGrid.Widgets.Add(_countLabel);
+
+        // Lobbies list panel
+        var lobbiesPanel = BuildLobbiesPanel();
+        lobbiesPanel.GridRow = 2;
+        rootGrid.Widgets.Add(lobbiesPanel);
+
+        // Buttons
+        var buttonsPanel = BuildButtonsPanel();
+        buttonsPanel.GridRow = 3;
+        rootGrid.Widgets.Add(buttonsPanel);
+
+        _mainPanel = new Panel
+        {
+            Width = _screenWidth,
+            Height = _screenHeight,
+            Background = new SolidBrush(new Color(10, 10, 20))
+        };
+        _mainPanel.Widgets.Add(rootGrid);
+
+        if (_desktop != null)
+            _desktop.Root = _mainPanel;
+    }
+
+    private Panel BuildLobbiesPanel()
+    {
+        var scrollViewer = new ScrollViewer
+        {
+            Width = _screenWidth - 100,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            ShowHorizontalScrollBar = false,
+            ShowVerticalScrollBar = true
+        };
+
+        _lobbiesGrid = new Grid
+        {
+            RowSpacing = 10,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        _lobbiesGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+
+        scrollViewer.Content = _lobbiesGrid;
+
+        var panel = new Panel
+        {
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            Padding = new Thickness(20),
+            Background = new SolidBrush(new Color(0, 0, 0, 180)),
+            Margin = new Thickness(50, 0, 50, 20)
+        };
+        panel.Widgets.Add(scrollViewer);
+
+        return panel;
+    }
+
+    private void RebuildLobbiesList()
+    {
+        if (_lobbiesGrid == null) return;
+
+        _lobbiesGrid.Widgets.Clear();
+        _lobbiesGrid.RowsProportions.Clear();
+
+        if (_lobbies.Count == 0)
+        {
+            _lobbiesGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+
+            var emptyLabel = new Label
+            {
+                Text = "No lobbies available. Create one to start playing!",
+                TextColor = Color.Gray,
+                Scale = new Vector2(0.9f, 0.9f),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                GridRow = 0,
+                Margin = new Thickness(0, 50, 0, 50)
+            };
+            _lobbiesGrid.Widgets.Add(emptyLabel);
+        }
+        else
+        {
+            for (int i = 0; i < _lobbies.Count; i++)
+            {
+                _lobbiesGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+                BuildLobbyItem(i);
+            }
+        }
+    }
+
+    private void BuildLobbyItem(int index)
+    {
+        if (_lobbiesGrid == null) return;
+
+        var lobby = _lobbies[index];
+        bool isSelected = index == _selectedLobbyIndex;
+
+        var itemPanel = new Panel
+        {
+            Background = new SolidBrush(isSelected ? new Color(50, 80, 120) : new Color(30, 30, 40)),
+            Padding = new Thickness(15, 12),
+            GridRow = index,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            Border = new SolidBrush(isSelected ? Color.Cyan : Color.Gray),
+            BorderThickness = new Thickness(2)
+        };
+
+        var grid = new Grid
+        {
+            RowSpacing = 5,
+            ColumnSpacing = 20,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+
+        // Host name (row 0, col 0)
+        var hostLabel = new Label
+        {
+            Text = $"Host: {lobby.HostPlayerName}",
+            TextColor = Color.White,
+            Scale = new Vector2(0.8f, 0.8f),
+            GridRow = 0,
+            GridColumn = 0
+        };
+        grid.Widgets.Add(hostLabel);
+
+        // Player count (row 0, col 1)
+        Color playersColor = lobby.CurrentPlayers >= lobby.MaxPlayers ? Color.Red : Color.LightGreen;
+        var playersLabel = new Label
+        {
+            Text = $"{lobby.CurrentPlayers}/{lobby.MaxPlayers} Players",
+            TextColor = playersColor,
+            Scale = new Vector2(0.8f, 0.8f),
+            GridRow = 0,
+            GridColumn = 1,
+            HorizontalAlignment = HorizontalAlignment.Right
+        };
+        grid.Widgets.Add(playersLabel);
+
+        // Mode and map info (row 1, spanning both columns)
+        var infoLabel = new Label
+        {
+            Text = $"Mode: {lobby.GameMode} | Map: {lobby.MapName}",
+            TextColor = Color.LightGray,
+            Scale = new Vector2(0.7f, 0.7f),
+            GridRow = 1,
+            GridColumn = 0,
+            GridColumnSpan = 2
+        };
+        grid.Widgets.Add(infoLabel);
+
+        itemPanel.Widgets.Add(grid);
+
+        // Handle selection
+        int capturedIndex = index;
+        itemPanel.TouchDown += (s, a) =>
+        {
+            _selectedLobbyIndex = capturedIndex;
+            if (_joinLobbyButton != null)
+                _joinLobbyButton.Enabled = true;
+            RebuildLobbiesList();
+        };
+
+        _lobbiesGrid.Widgets.Add(itemPanel);
+    }
+
+    private Panel BuildButtonsPanel()
+    {
+        var grid = new Grid
+        {
+            ColumnSpacing = 20,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 10, 0, 30)
+        };
+
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+
+        _createLobbyButton = new TextButton
+        {
+            Text = "Create Lobby",
+            Width = 160,
+            Height = 45,
+            GridColumn = 0
+        };
+        _createLobbyButton.Click += (s, a) => { ShouldCreateLobby = true; };
+        grid.Widgets.Add(_createLobbyButton);
+
+        _joinLobbyButton = new TextButton
+        {
+            Text = "Join Lobby",
+            Width = 160,
+            Height = 45,
+            GridColumn = 1,
+            Enabled = false
+        };
+        _joinLobbyButton.Click += (s, a) =>
+        {
+            if (_selectedLobbyIndex >= 0 && _selectedLobbyIndex < _lobbies.Count)
+            {
+                SelectedLobbyId = _lobbies[_selectedLobbyIndex].LobbyId;
+                ShouldJoinLobby = true;
+            }
+        };
+        grid.Widgets.Add(_joinLobbyButton);
+
+        _refreshButton = new TextButton
+        {
+            Text = "Refresh",
+            Width = 160,
+            Height = 45,
+            GridColumn = 2
+        };
+        _refreshButton.Click += (s, a) =>
+        {
+            ShouldRefresh = true;
+            _refreshTimer = 0;
+        };
+        grid.Widgets.Add(_refreshButton);
+
+        var panel = new Panel
+        {
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+        panel.Widgets.Add(grid);
+
+        return panel;
     }
 
     public void Update(GameTime gameTime, MouseState mouseState)
@@ -81,56 +335,23 @@ public class LobbyBrowserScreen
             ShouldRefresh = true;
             _refreshTimer = 0;
         }
-
-        _createLobbyButton.Update(mouseState);
-        _joinLobbyButton.Update(mouseState);
-        _refreshButton.Update(mouseState);
-
-        if (_createLobbyButton.IsClicked)
-        {
-            ShouldCreateLobby = true;
-        }
-
-        if (_joinLobbyButton.IsClicked && _selectedLobbyIndex >= 0 && _selectedLobbyIndex < _lobbies.Count)
-        {
-            SelectedLobbyId = _lobbies[_selectedLobbyIndex].LobbyId;
-            ShouldJoinLobby = true;
-        }
-
-        if (_refreshButton.IsClicked)
-        {
-            ShouldRefresh = true;
-            _refreshTimer = 0;
-        }
-
-        int listY = 120;
-        int listHeight = _screenHeight - listY - 120;
-        
-        for (int i = 0; i < Math.Min(_lobbies.Count, MaxVisibleLobbies); i++)
-        {
-            int displayIndex = i + _scrollOffset;
-            if (displayIndex >= _lobbies.Count)
-                break;
-
-            var itemRect = new Rectangle(50, listY + i * LobbyItemHeight, _screenWidth - 100, LobbyItemHeight - 10);
-            
-            if (itemRect.Contains(mouseState.Position) && mouseState.LeftButton == ButtonState.Pressed)
-            {
-                _selectedLobbyIndex = displayIndex;
-                _joinLobbyButton.IsEnabled = true;
-            }
-        }
     }
 
     public void SetLobbies(List<LobbyInfo> lobbies)
     {
         _lobbies = lobbies ?? new List<LobbyInfo>();
-        
+
+        if (_countLabel != null)
+            _countLabel.Text = $"Available Lobbies: {_lobbies.Count}";
+
         if (_selectedLobbyIndex >= _lobbies.Count)
         {
             _selectedLobbyIndex = -1;
-            _joinLobbyButton.IsEnabled = false;
+            if (_joinLobbyButton != null)
+                _joinLobbyButton.Enabled = false;
         }
+
+        RebuildLobbiesList();
     }
 
     public void Reset()
@@ -143,88 +364,6 @@ public class LobbyBrowserScreen
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        if (_pixelTexture == null || _font == null)
-            return;
-
-        spriteBatch.Begin(sortMode: SpriteSortMode.Deferred, blendState: BlendState.AlphaBlend);
-
-        var titleText = "Game Lobbies";
-        var titleSize = _font.MeasureString(titleText);
-        spriteBatch.DrawString(_font, titleText,
-            new Vector2((_screenWidth - titleSize.X) / 2, 30),
-            Color.Cyan, 0f, Vector2.Zero, 1.5f, SpriteEffects.None, 0f);
-
-        var subText = $"Available Lobbies: {_lobbies.Count}";
-        var subSize = _font.MeasureString(subText);
-        spriteBatch.DrawString(_font, subText,
-            new Vector2((_screenWidth - subSize.X) / 2, 80),
-            Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
-
-        int listY = 120;
-        int listHeight = _screenHeight - listY - 120;
-
-        if (_lobbies.Count == 0)
-        {
-            var noLobbiesText = "No lobbies available. Create one to start playing!";
-            var noLobbiesSize = _font.MeasureString(noLobbiesText);
-            spriteBatch.DrawString(_font, noLobbiesText,
-                new Vector2((_screenWidth - noLobbiesSize.X) / 2, listY + listHeight / 2),
-                Color.Gray, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
-        }
-        else
-        {
-            for (int i = 0; i < Math.Min(_lobbies.Count, MaxVisibleLobbies); i++)
-            {
-                int displayIndex = i + _scrollOffset;
-                if (displayIndex >= _lobbies.Count)
-                    break;
-
-                var lobby = _lobbies[displayIndex];
-                var itemRect = new Rectangle(50, listY + i * LobbyItemHeight, _screenWidth - 100, LobbyItemHeight - 10);
-
-                bool isSelected = displayIndex == _selectedLobbyIndex;
-                Color bgColor = isSelected ? new Color(50, 80, 120) : new Color(30, 30, 40);
-                Color borderColor = isSelected ? Color.Cyan : Color.Gray;
-
-                spriteBatch.Draw(_pixelTexture, itemRect, bgColor);
-                DrawRectangleOutline(spriteBatch, itemRect, borderColor, 2);
-
-                int textX = itemRect.X + 10;
-                int textY = itemRect.Y + 5;
-
-                var hostText = $"Host: {lobby.HostPlayerName}";
-                spriteBatch.DrawString(_font, hostText,
-                    new Vector2(textX, textY),
-                    Color.White, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
-
-                var modeText = $"Mode: {lobby.GameMode} | Map: {lobby.MapName}";
-                spriteBatch.DrawString(_font, modeText,
-                    new Vector2(textX, textY + 20),
-                    Color.LightGray, 0f, Vector2.Zero, 0.6f, SpriteEffects.None, 0f);
-
-                var playersText = $"{lobby.CurrentPlayers}/{lobby.MaxPlayers} Players";
-                var playersSize = _font.MeasureString(playersText);
-                Color playersColor = lobby.CurrentPlayers >= lobby.MaxPlayers ? Color.Red : Color.LightGreen;
-                spriteBatch.DrawString(_font, playersText,
-                    new Vector2(itemRect.Right - playersSize.X * 0.7f - 10, textY + 15),
-                    playersColor, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
-            }
-        }
-
-        _createLobbyButton.Draw(spriteBatch, _pixelTexture, _font);
-        _joinLobbyButton.Draw(spriteBatch, _pixelTexture, _font);
-        _refreshButton.Draw(spriteBatch, _pixelTexture, _font);
-
-        spriteBatch.End();
-    }
-
-    private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
-    {
-        if (_pixelTexture == null) return;
-
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.Right - thickness, rect.Y, thickness, rect.Height), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Bottom - thickness, rect.Width, thickness), color);
+        _desktop?.Render();
     }
 }

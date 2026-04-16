@@ -88,9 +88,18 @@ The MonoGame client uses a three-renderer architecture:
 - **Shift + Movement**: Fast pan
 - **Mouse Wheel**: Zoom
 - **Middle Mouse**: Pan by dragging
-- **F1**: Toggle debug info
+
+### Window Management
+- **ESC**: Open/Close In-Game Settings Window
+- **F1**: Toggle Debug Info Window
+- **F2**: Toggle Player Dashboard Window
+- **F3**: Toggle AI Visualization Window
+- All windows are resizable and dockable
+- Window positions and sizes are saved automatically
 
 See `RiskyStars.Client/RENDERING.md` for detailed documentation.
+See `RiskyStars.Client/DOCKABLE_WINDOWS.md` for window system documentation.
+See `RiskyStars.Client/SETTINGS_WINDOW.md` for settings window documentation.
 
 ## Sprite Assets
 
@@ -116,6 +125,222 @@ dotnet run --project CreatePlaceholders.csproj
 
 See `RiskyStars.Client/SPRITES.md` for detailed sprite specifications.
 
+## UI Theme System
+
+The client uses a Myra-based theme system for consistent UI styling:
+
+- **UITheme.xml** - XML stylesheet defining colors, fonts, borders, and spacing for all widgets
+- **ThemeManager.cs** - Centralized theme constants and helper methods
+- **ThemedUIFactory.cs** - Factory for creating pre-styled UI widgets
+- **UI_THEME.md** - Complete documentation of the theme system
+
+### Usage Examples
+```csharp
+// Use ThemeManager constants
+ThemeManager.Colors.AccentCyan
+ThemeManager.Spacing.Medium
+ThemeManager.FontScale.Title
+
+// Create themed widgets
+var button = ThemedUIFactory.CreateButton("OK", ButtonTheme.Primary);
+var panel = ThemedUIFactory.CreateResourcePanel();
+var label = ThemedUIFactory.CreateTitleLabel("Game Title");
+
+// Apply themes to existing widgets
+ThemeManager.ApplyButtonTheme(button, ButtonTheme.Success);
+```
+
+See `RiskyStars.Client/UI_THEME.md` for complete documentation.
+
+## Dockable Window System
+
+The client uses resizable and dockable UI panels for game information:
+
+- **WindowPreferences.cs** - User preference persistence for window states
+- **DockableWindow.cs** - Base class for all dockable windows
+- **PlayerDashboardWindow.cs** - Resource management and army purchasing
+- **AIVisualizationWindow.cs** - AI action tracking and visualization controls
+- **DebugInfoWindow.cs** - Performance metrics and debug information
+- **DOCKABLE_WINDOWS.md** - Complete documentation of the window system
+
+### Features
+- Resizable windows with drag handles
+- Dockable to screen edges and corners
+- Automatic state persistence (position, size, visibility)
+- Keyboard shortcuts (F1-F3) for quick access
+- Themed styling using ThemeManager
+- Integration with AI action tracking
+
+## Dialog System
+
+The client uses Myra's Dialog system for modal notifications and user prompts:
+
+- **DialogManager.cs** - Centralized dialog system for errors, warnings, confirmations, and questions
+- **CombatEventDialog.cs** - Specialized dialog for combat event notifications
+- **DIALOG_SYSTEM.md** - Complete documentation of the dialog system
+
+### Features
+- Error, warning, info, and success dialogs with themed styling
+- Confirmation and question dialogs with callbacks
+- Combat event notifications with formatted battle information
+- Replaces custom modal overlays with consistent Myra dialogs
+
+### Usage Examples
+```csharp
+// Initialize
+_desktop = new Desktop();
+_dialogManager = new DialogManager(_desktop);
+
+// Show error dialog
+_dialogManager.ShowError("Error", "Something went wrong");
+
+// Show confirmation with callback
+_dialogManager.ShowConfirmation("Delete?", "Are you sure?", (result) =>
+{
+    if (result == DialogResult.OK)
+    {
+        // User confirmed
+    }
+});
+
+// Show combat event
+_combatEventDialog.ShowCombatInitiated(combatEvent, () =>
+{
+    _combatScreen.StartCombat(combatEvent);
+});
+```
+
+See `RiskyStars.Client/DIALOG_SYSTEM.md` for complete documentation.
+
+## In-Game Settings Window
+
+The client features a comprehensive settings overlay accessible via the Escape key:
+
+- **SettingsWindow.cs** - Tabbed settings interface for in-game configuration
+- **Settings.cs** - Extended settings class with graphics, audio, controls, and server options
+- **SETTINGS_WINDOW.md** - Complete documentation of the settings system
+
+### Features
+- **Graphics Settings**: Resolution, fullscreen, VSync, frame rate, debug options
+- **Audio Settings**: Master, music, and SFX volume controls (placeholder for future)
+- **Controls Settings**: Camera pan/zoom speed, invert zoom, keyboard shortcuts reference
+- **Server Settings**: Server address configuration with validation
+- **Runtime Changes**: Apply settings without returning to main menu
+
+### Usage
+```csharp
+// Press ESC in-game to open settings
+// Make changes in any tab
+// Click Apply to save and apply
+// Click Cancel to discard changes
+```
+
+See `RiskyStars.Client/SETTINGS_WINDOW.md` for complete documentation.
+
+## Input Validation System
+
+The client implements comprehensive input validation with visual error feedback:
+
+- **InputValidator.cs** - Static validation methods for all input types
+- **ValidatedTextBox.cs** - Myra TextBox wrapper with validation and error display
+- **ValidatedTextInputField.cs** - Custom TextInputField wrapper with validation
+- **INPUT_VALIDATION.md** - Complete documentation of the validation system
+
+### Features
+- Real-time validation on text input
+- Visual error indicators (red borders, error messages)
+- Myra tooltip error feedback on hover
+- Optional inline error labels
+- Pre-configured validators for common fields (player name, server address, map name)
+
+### Usage Examples
+```csharp
+// Create validated text box for player name
+var playerNameBox = ThemedUIFactory.CreateValidatedPlayerNameBox();
+playerNameBox.Text = "Player";
+grid.Widgets.Add(playerNameBox.Container);
+
+// Validate before submitting
+if (!playerNameBox.IsValid)
+{
+    _dialogManager.ShowError("Validation Error", playerNameBox.ErrorMessage);
+    return;
+}
+
+// Custom validation
+var customBox = new ValidatedTextBox(400, "Enter value", showErrorLabel: true);
+customBox.SetValidator(text => 
+{
+    if (text.Length < 5)
+        return new ValidationResult(false, "Must be at least 5 characters");
+    return new ValidationResult(true, "Valid");
+});
+```
+
+See `RiskyStars.Client/INPUT_VALIDATION.md` for complete documentation.
+
+## Embedded Server Health Monitoring
+
+The client implements comprehensive health monitoring for the embedded single-player server:
+
+- **ServerHealthMonitor.cs** - Periodic health checks with exponential backoff reconnection
+- **ServerStatusIndicator.cs** - Visual UI component showing server state
+- **EmbeddedServerHost.cs** - Enhanced with ServerStatus enum and health monitoring integration
+- **EMBEDDED_SERVER_MONITORING.md** - Complete documentation of the monitoring system
+
+### Features
+- Periodic connectivity checks every 5 seconds
+- Automatic reconnection with exponential backoff (1s → 2s → 4s → 8s → 16s → 30s max)
+- Visual status indicators showing: Starting, Running, Reconnecting, Error states
+- Displayed in single-player lobby and in-game UI
+- Real-time health metrics (time since last check, reconnect attempts)
+
+See `RiskyStars.Client/EMBEDDED_SERVER_MONITORING.md` for complete documentation.
+
+## Context Menu System
+
+The client implements a comprehensive context menu system using Myra.Menu for right-click interactions:
+
+- **ContextMenuManager.cs** - Central manager for all context menu operations
+- **CONTEXT_MENU.md** - Complete documentation of the context menu system
+
+### Features
+- Right-click context menus for armies, regions, stellar bodies, and hyperspace lane mouths
+- Context-aware actions based on ownership and game state
+- Army actions: split, merge, move, assign hero
+- Region actions: view info, reinforce, merge all armies, diplomacy
+- Stellar body actions: view info, upgrade
+- Hyperspace lane mouth actions: view info, reinforce portal
+- Diplomacy actions: form alliance, break alliance, view player info
+- Information dialogs for game objects
+- Themed styling using ThemeManager
+
+### Usage Examples
+```csharp
+// Initialize context menu manager
+_contextMenuManager = new ContextMenuManager(gameClient, _gameStateCache, _mapData, _camera, _inGameDesktop);
+_inputController.SetContextMenuManager(_contextMenuManager);
+
+// Set current player for ownership checks
+_contextMenuManager?.SetCurrentPlayer(_currentPlayerId);
+
+// Right-click opens context menu automatically
+// Left-click or ESC closes menu
+```
+
+### Implemented Actions
+- ✓ Reinforce Location (full server integration)
+- ✓ Split Army (UI complete, server pending)
+- ✓ Merge Armies (UI complete, server pending)
+- ✓ Merge All Armies (UI complete, server pending)
+- ✓ Assign Hero (UI complete, server pending)
+- ✓ Upgrade Stellar Body (UI complete, server pending)
+- ✓ Form Alliance (UI complete, server pending)
+- ✓ Break Alliance (UI complete, server pending)
+- ✓ View Info Dialogs (fully implemented)
+
+See `RiskyStars.Client/CONTEXT_MENU.md` for complete documentation.
+
 ## Conventions
 ### Code
 - C# projects follow standard .NET conventions
@@ -124,6 +349,10 @@ See `RiskyStars.Client/SPRITES.md` for detailed sprite specifications.
 - Service implementations in `RiskyStars.Server/Services/`
 - MonoGame content in `RiskyStars.Client/Content/`
 - Sprite assets in `RiskyStars.Client/Content/Sprites/`
+- **UI styling uses ThemeManager constants and ThemedUIFactory - no hardcoded colors/spacing**
+- **Input validation uses InputValidator and ValidatedTextBox/ValidatedTextInputField - validate all user inputs**
+- **Dockable windows extend DockableWindow base class and use WindowPreferences for persistence**
+- **Context menus use ContextMenuManager for right-click interactions - integrate with InputController**
 
 ### Documentation
 - Documentation files use Markdown format with `.md` extension

@@ -16,6 +16,7 @@ public class InputController
     
     private string? _currentPlayerId;
     private SelectionState _selectionState;
+    private ContextMenuManager? _contextMenuManager;
     
     public SelectionState Selection => _selectionState;
     public bool ShowHelp { get; private set; }
@@ -29,6 +30,11 @@ public class InputController
         _selectionState = new SelectionState();
         _previousMouseState = Mouse.GetState();
         _previousKeyState = Keyboard.GetState();
+    }
+    
+    public void SetContextMenuManager(ContextMenuManager contextMenuManager)
+    {
+        _contextMenuManager = contextMenuManager;
     }
     
     public void SetCurrentPlayer(string? playerId)
@@ -55,7 +61,14 @@ public class InputController
             var screenPosition = new Vector2(mouseState.X, mouseState.Y);
             var worldPosition = _camera.ScreenToWorld(screenPosition);
             
-            HandleLeftClick(worldPosition);
+            if (_contextMenuManager != null && _contextMenuManager.IsMenuOpen)
+            {
+                _contextMenuManager.CloseContextMenu();
+            }
+            else
+            {
+                HandleLeftClick(worldPosition);
+            }
         }
         
         if (mouseState.RightButton == ButtonState.Pressed && _previousMouseState.RightButton == ButtonState.Released)
@@ -63,7 +76,14 @@ public class InputController
             var screenPosition = new Vector2(mouseState.X, mouseState.Y);
             var worldPosition = _camera.ScreenToWorld(screenPosition);
             
-            HandleRightClick(worldPosition);
+            if (_contextMenuManager != null)
+            {
+                _contextMenuManager.OpenContextMenu(screenPosition, worldPosition, _selectionState);
+            }
+            else
+            {
+                HandleRightClick(worldPosition);
+            }
         }
     }
     

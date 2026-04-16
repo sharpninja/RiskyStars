@@ -9,6 +9,8 @@ The AI action visualization system provides visual feedback to players when AI o
 3. **Army Movement Animations**: Animated movement of armies from source to destination with camera tracking
 4. **Game Log**: On-screen notifications of AI actions (purchases, reinforcements, movements, captures)
 
+![AI Thinking Indicator](screenshots/ai_thinking.png)
+
 ## Components
 
 ### AIActionIndicator
@@ -21,14 +23,22 @@ The `AIActionIndicator` class is responsible for rendering all AI action visuali
 - **Reinforcement Highlights**: Shows pulsing circular highlights at locations receiving reinforcements
   - Duration: 2 seconds
   - Visual: Dual pulsing circles that fade out
+
+![AI Reinforcement Highlight](screenshots/ai_reinforcement.png)
+
 - **Movement Animations**: Animates armies moving between locations
   - Duration: 1.5 seconds
   - Shows moving circle with unit count
   - Displays path line between start and end positions
+
+![AI Army Movement](screenshots/ai_movement.png)
+
 - **Game Log**: Bottom-left overlay showing recent AI actions
   - Maximum 5 entries
   - 5-second lifetime with 1-second fade-out
   - Color-coded by player
+
+![AI Game Log](screenshots/ai_game_log.png)
 
 #### Methods:
 
@@ -143,6 +153,8 @@ Player colors are shared with the RegionRenderer to maintain consistency:
 - **Log Entry Display**: 5 seconds (with 1-second fade)
 - **Camera Tracking**: During first 80% of movement animation
 
+![AI Camera Tracking](screenshots/ai_camera_tracking.png)
+
 ## Usage Examples
 
 ### Detecting and Visualizing a Purchase
@@ -192,3 +204,31 @@ Potential improvements:
 - Player preference for tracking speed/enable/disable
 - Replay mode to review AI actions
 - Multiple simultaneous movement animations
+
+## Screenshots Needed
+
+The following screenshots are required for complete documentation:
+
+1. **AI Thinking Indicator** (`screenshots/ai_thinking.png`)
+   - Capture: Top-center thinking indicator with AI player name and animated spinner
+   - Requirements: AI turn active, StartAIThinking() called, show full panel
+
+2. **AI Reinforcement Highlight** (`screenshots/ai_reinforcement.png`)
+   - Capture: Pulsing circular highlight at location where AI placed reinforcements
+   - Requirements: AI reinforcement action detected, during 2-second animation, dual circles visible
+
+3. **AI Army Movement** (`screenshots/ai_movement.png`)
+   - Capture: Army movement animation showing moving circle with unit count and path line
+   - Requirements: AI movement action detected, mid-animation (0.5-1.0 seconds), clear path visible
+
+4. **AI Game Log** (`screenshots/ai_game_log.png`)
+   - Capture: Bottom-left game log showing multiple AI action entries with color coding
+   - Requirements: Multiple AI actions logged, at least 3-4 entries visible, show variety (purchase, movement, capture)
+
+5. **AI Camera Tracking** (`screenshots/ai_camera_tracking.png`)
+   - Capture: Camera following AI army movement, show map centered on moving unit
+   - Requirements: AI movement animation active, camera tracking enabled, clear center position
+
+6. **AI Capture Notification** (`screenshots/ai_capture.png`)
+   - Capture: Game log entry showing AI captured a region, with ownership change visible on map
+   - Requirements: AI capture action, log entry and map ownership both visible in screenshot

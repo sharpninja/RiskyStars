@@ -51,16 +51,16 @@ public class Button
     public void Draw(SpriteBatch spriteBatch, Texture2D pixelTexture, SpriteFont font)
     {
         Color backgroundColor = IsEnabled 
-            ? (_isHovered ? new Color(50, 100, 150) : new Color(30, 60, 100))
-            : new Color(60, 60, 60);
+            ? (_isHovered ? ThemeManager.Colors.HoverColor : ThemeManager.Colors.AccentDarkBlue)
+            : ThemeManager.Colors.DisabledColor;
         
         Color borderColor = IsEnabled
-            ? (_isHovered ? Color.White : Color.Gray)
+            ? (_isHovered ? ThemeManager.Colors.TextPrimary : ThemeManager.Colors.BorderNormal)
             : Color.DarkGray;
 
         spriteBatch.Draw(pixelTexture, _bounds, backgroundColor);
         
-        int thickness = 2;
+        int thickness = ThemeManager.BorderThickness.Normal;
         spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.X, _bounds.Y, _bounds.Width, thickness), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.X, _bounds.Y, thickness, _bounds.Height), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.Right - thickness, _bounds.Y, thickness, _bounds.Height), borderColor);
@@ -71,7 +71,7 @@ public class Button
             _bounds.X + (_bounds.Width - textSize.X) / 2,
             _bounds.Y + (_bounds.Height - textSize.Y) / 2);
 
-        Color textColor = IsEnabled ? Color.White : Color.Gray;
+        Color textColor = IsEnabled ? ThemeManager.Colors.TextPrimary : ThemeManager.Colors.TextDisabled;
         spriteBatch.DrawString(font, _text, textPosition, textColor, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
     }
 }
@@ -149,12 +149,12 @@ public class TextInputField
 
     public void Draw(SpriteBatch spriteBatch, Texture2D pixelTexture, SpriteFont font)
     {
-        Color backgroundColor = _isFocused ? new Color(40, 40, 60) : new Color(30, 30, 40);
-        Color borderColor = _isFocused ? Color.Cyan : Color.Gray;
+        Color backgroundColor = _isFocused ? ThemeManager.Colors.PrimaryLight : ThemeManager.Colors.PrimaryMedium;
+        Color borderColor = _isFocused ? ThemeManager.Colors.BorderFocus : ThemeManager.Colors.BorderNormal;
 
         spriteBatch.Draw(pixelTexture, _bounds, backgroundColor);
 
-        int thickness = 2;
+        int thickness = ThemeManager.BorderThickness.Normal;
         spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.X, _bounds.Y, _bounds.Width, thickness), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.X, _bounds.Y, thickness, _bounds.Height), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.Right - thickness, _bounds.Y, thickness, _bounds.Height), borderColor);
@@ -163,19 +163,19 @@ public class TextInputField
         var labelSize = font.MeasureString(_label);
         spriteBatch.DrawString(font, _label,
             new Vector2(_bounds.X, _bounds.Y - labelSize.Y - 5),
-            Color.White, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+            ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
 
         string displayText = string.IsNullOrEmpty(_text) ? "" : _text;
         var textSize = font.MeasureString(displayText);
         var textPosition = new Vector2(_bounds.X + 10, _bounds.Y + (_bounds.Height - textSize.Y) / 2);
 
-        spriteBatch.DrawString(font, displayText, textPosition, Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
+        spriteBatch.DrawString(font, displayText, textPosition, ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
 
         if (_isFocused && _cursorVisible)
         {
             var cursorX = textPosition.X + (string.IsNullOrEmpty(_text) ? 0 : font.MeasureString(_text).X * 0.8f);
             var cursorRect = new Rectangle((int)cursorX, (int)textPosition.Y, 2, (int)(textSize.Y * 0.8f));
-            spriteBatch.Draw(pixelTexture, cursorRect, Color.White);
+            spriteBatch.Draw(pixelTexture, cursorRect, ThemeManager.Colors.TextPrimary);
         }
     }
 
@@ -285,7 +285,7 @@ public class NumericInputField
         var labelSize = font.MeasureString(_label);
         spriteBatch.DrawString(font, _label,
             new Vector2(_bounds.X, _bounds.Y - labelSize.Y - 5),
-            Color.White, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+            ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
 
         _decrementButton.Draw(spriteBatch, pixelTexture, font);
         _incrementButton.Draw(spriteBatch, pixelTexture, font);
@@ -296,12 +296,12 @@ public class NumericInputField
             _bounds.Width - _bounds.Height * 2 - 10,
             _bounds.Height);
 
-        Color backgroundColor = _isFocused ? new Color(40, 40, 60) : new Color(30, 30, 40);
-        Color borderColor = _isFocused ? Color.Cyan : Color.Gray;
+        Color backgroundColor = _isFocused ? ThemeManager.Colors.PrimaryLight : ThemeManager.Colors.PrimaryMedium;
+        Color borderColor = _isFocused ? ThemeManager.Colors.BorderFocus : ThemeManager.Colors.BorderNormal;
 
         spriteBatch.Draw(pixelTexture, valueBounds, backgroundColor);
 
-        int thickness = 2;
+        int thickness = ThemeManager.BorderThickness.Normal;
         spriteBatch.Draw(pixelTexture, new Rectangle(valueBounds.X, valueBounds.Y, valueBounds.Width, thickness), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(valueBounds.X, valueBounds.Y, thickness, valueBounds.Height), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(valueBounds.Right - thickness, valueBounds.Y, thickness, valueBounds.Height), borderColor);
@@ -313,7 +313,7 @@ public class NumericInputField
             valueBounds.X + (valueBounds.Width - valueSize.X) / 2,
             valueBounds.Y + (valueBounds.Height - valueSize.Y) / 2);
 
-        spriteBatch.DrawString(font, valueText, textPosition, Color.White, 0f, Vector2.Zero, 0.9f, SpriteEffects.None, 0f);
+        spriteBatch.DrawString(font, valueText, textPosition, ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.9f, SpriteEffects.None, 0f);
     }
 }
 
@@ -362,15 +362,15 @@ public class CheckboxField
         var labelSize = font.MeasureString(_label);
         spriteBatch.DrawString(font, _label,
             new Vector2(_bounds.X, _bounds.Y - labelSize.Y - 5),
-            Color.White, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+            ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
 
         var checkboxBounds = new Rectangle(_bounds.X, _bounds.Y, _bounds.Height, _bounds.Height);
-        Color backgroundColor = _isHovered ? new Color(40, 40, 60) : new Color(30, 30, 40);
-        Color borderColor = _isHovered ? Color.Cyan : Color.Gray;
+        Color backgroundColor = _isHovered ? ThemeManager.Colors.PrimaryLight : ThemeManager.Colors.PrimaryMedium;
+        Color borderColor = _isHovered ? ThemeManager.Colors.BorderFocus : ThemeManager.Colors.BorderNormal;
 
         spriteBatch.Draw(pixelTexture, checkboxBounds, backgroundColor);
 
-        int thickness = 2;
+        int thickness = ThemeManager.BorderThickness.Normal;
         spriteBatch.Draw(pixelTexture, new Rectangle(checkboxBounds.X, checkboxBounds.Y, checkboxBounds.Width, thickness), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(checkboxBounds.X, checkboxBounds.Y, thickness, checkboxBounds.Height), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(checkboxBounds.Right - thickness, checkboxBounds.Y, thickness, checkboxBounds.Height), borderColor);
@@ -384,11 +384,11 @@ public class CheckboxField
                 checkboxBounds.Y + padding,
                 checkboxBounds.Width - padding * 2,
                 checkboxBounds.Height - padding * 2);
-            spriteBatch.Draw(pixelTexture, checkBounds, Color.Cyan);
+            spriteBatch.Draw(pixelTexture, checkBounds, ThemeManager.Colors.BorderFocus);
         }
 
         var labelPosition = new Vector2(_bounds.X + _bounds.Height + 15, _bounds.Y + (_bounds.Height - labelSize.Y) / 2);
-        spriteBatch.DrawString(font, _label, labelPosition, Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
+        spriteBatch.DrawString(font, _label, labelPosition, ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
     }
 }
 
@@ -470,14 +470,14 @@ public class DropdownField
         var labelSize = font.MeasureString(_label);
         spriteBatch.DrawString(font, _label,
             new Vector2(_bounds.X, _bounds.Y - labelSize.Y - 5),
-            Color.White, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+            ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
 
-        Color backgroundColor = _isHovered || _isExpanded ? new Color(40, 40, 60) : new Color(30, 30, 40);
-        Color borderColor = _isHovered || _isExpanded ? Color.Cyan : Color.Gray;
+        Color backgroundColor = _isHovered || _isExpanded ? ThemeManager.Colors.PrimaryLight : ThemeManager.Colors.PrimaryMedium;
+        Color borderColor = _isHovered || _isExpanded ? ThemeManager.Colors.BorderFocus : ThemeManager.Colors.BorderNormal;
 
         spriteBatch.Draw(pixelTexture, _bounds, backgroundColor);
 
-        int thickness = 2;
+        int thickness = ThemeManager.BorderThickness.Normal;
         spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.X, _bounds.Y, _bounds.Width, thickness), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.X, _bounds.Y, thickness, _bounds.Height), borderColor);
         spriteBatch.Draw(pixelTexture, new Rectangle(_bounds.Right - thickness, _bounds.Y, thickness, _bounds.Height), borderColor);
@@ -486,12 +486,12 @@ public class DropdownField
         var selectedText = SelectedValue;
         var textSize = font.MeasureString(selectedText);
         var textPosition = new Vector2(_bounds.X + 10, _bounds.Y + (_bounds.Height - textSize.Y) / 2);
-        spriteBatch.DrawString(font, selectedText, textPosition, Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
+        spriteBatch.DrawString(font, selectedText, textPosition, ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
 
         var arrowText = _isExpanded ? "▲" : "▼";
         var arrowSize = font.MeasureString(arrowText);
         var arrowPosition = new Vector2(_bounds.Right - arrowSize.X - 10, _bounds.Y + (_bounds.Height - arrowSize.Y) / 2);
-        spriteBatch.DrawString(font, arrowText, arrowPosition, Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
+        spriteBatch.DrawString(font, arrowText, arrowPosition, ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
 
         if (_isExpanded)
         {
@@ -503,7 +503,7 @@ public class DropdownField
                     _bounds.Width,
                     _bounds.Height);
 
-                Color optionBgColor = i == _hoveredOptionIndex ? new Color(50, 80, 120) : new Color(25, 25, 35);
+                Color optionBgColor = i == _hoveredOptionIndex ? ThemeManager.Colors.DropdownOptionHover : ThemeManager.Colors.DropdownBackground;
                 spriteBatch.Draw(pixelTexture, optionBounds, optionBgColor);
 
                 spriteBatch.Draw(pixelTexture, new Rectangle(optionBounds.X, optionBounds.Y, optionBounds.Width, thickness), borderColor);
@@ -514,7 +514,7 @@ public class DropdownField
                 var optionText = _options[i];
                 var optionTextSize = font.MeasureString(optionText);
                 var optionTextPosition = new Vector2(optionBounds.X + 10, optionBounds.Y + (optionBounds.Height - optionTextSize.Y) / 2);
-                spriteBatch.DrawString(font, optionText, optionTextPosition, Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(font, optionText, optionTextPosition, ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
             }
         }
     }
@@ -572,15 +572,15 @@ public class RadioButton
         var labelSize = font.MeasureString(_label);
         spriteBatch.DrawString(font, _label,
             new Vector2(_bounds.X, _bounds.Y - labelSize.Y - 5),
-            Color.White, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
+            ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.7f, SpriteEffects.None, 0f);
 
         var radioBounds = new Rectangle(_bounds.X, _bounds.Y, _bounds.Height, _bounds.Height);
-        Color backgroundColor = _isHovered ? new Color(40, 40, 60) : new Color(30, 30, 40);
-        Color borderColor = _isHovered ? Color.Cyan : Color.Gray;
+        Color backgroundColor = _isHovered ? ThemeManager.Colors.PrimaryLight : ThemeManager.Colors.PrimaryMedium;
+        Color borderColor = _isHovered ? ThemeManager.Colors.BorderFocus : ThemeManager.Colors.BorderNormal;
 
         spriteBatch.Draw(pixelTexture, radioBounds, backgroundColor);
 
-        int thickness = 2;
+        int thickness = ThemeManager.BorderThickness.Normal;
         int centerX = radioBounds.X + radioBounds.Width / 2;
         int centerY = radioBounds.Y + radioBounds.Height / 2;
         int radius = radioBounds.Width / 2 - thickness;
@@ -607,14 +607,14 @@ public class RadioButton
                     if (dx * dx + dy * dy <= innerRadius * innerRadius)
                     {
                         var dotRect = new Rectangle(centerX + dx, centerY + dy, 1, 1);
-                        spriteBatch.Draw(pixelTexture, dotRect, Color.Cyan);
+                        spriteBatch.Draw(pixelTexture, dotRect, ThemeManager.Colors.BorderFocus);
                     }
                 }
             }
         }
 
         var labelPosition = new Vector2(_bounds.X + _bounds.Height + 15, _bounds.Y + (_bounds.Height - labelSize.Y) / 2);
-        spriteBatch.DrawString(font, _label, labelPosition, Color.White, 0f, Vector2.Zero, 0.9f, SpriteEffects.None, 0f);
+        spriteBatch.DrawString(font, _label, labelPosition, ThemeManager.Colors.TextPrimary, 0f, Vector2.Zero, 0.9f, SpriteEffects.None, 0f);
     }
 }
 

@@ -219,6 +219,48 @@ public class GrpcGameClient : IDisposable
         await SendActionAsync(action);
     }
 
+    public async Task SendSplitArmyAsync(string playerId, string gameId, string armyId, int splitCount)
+    {
+        System.Console.WriteLine($"SendSplitArmyAsync: Split {splitCount} units from army {armyId}");
+        await Task.CompletedTask;
+    }
+
+    public async Task SendMergeArmiesAsync(string playerId, string gameId, string sourceArmyId, string targetArmyId)
+    {
+        System.Console.WriteLine($"SendMergeArmiesAsync: Merge {sourceArmyId} into {targetArmyId}");
+        await Task.CompletedTask;
+    }
+
+    public async Task SendMergeAllArmiesAsync(string playerId, string gameId, List<string> armyIds, string locationId, LocationType locationType)
+    {
+        System.Console.WriteLine($"SendMergeAllArmiesAsync: Merge {armyIds.Count} armies at {locationId}");
+        await Task.CompletedTask;
+    }
+
+    public async Task SendAssignHeroAsync(string playerId, string gameId, string armyId, string heroId)
+    {
+        System.Console.WriteLine($"SendAssignHeroAsync: Assign hero {heroId} to army {armyId}");
+        await Task.CompletedTask;
+    }
+
+    public async Task SendUpgradeStellarBodyAsync(string playerId, string gameId, string stellarBodyId, string upgradeType)
+    {
+        System.Console.WriteLine($"SendUpgradeStellarBodyAsync: Upgrade {stellarBodyId} with {upgradeType}");
+        await Task.CompletedTask;
+    }
+
+    public async Task SendFormAllianceAsync(string playerId, string gameId, string targetPlayerId)
+    {
+        System.Console.WriteLine($"SendFormAllianceAsync: {playerId} proposes alliance with {targetPlayerId}");
+        await Task.CompletedTask;
+    }
+
+    public async Task SendBreakAllianceAsync(string playerId, string gameId, string targetPlayerId)
+    {
+        System.Console.WriteLine($"SendBreakAllianceAsync: {playerId} breaks alliance with {targetPlayerId}");
+        await Task.CompletedTask;
+    }
+
     public bool TryDequeueUpdate(out GameUpdate? update)
     {
         return _gameStateUpdateQueue.TryDequeue(out update);
