@@ -18,8 +18,8 @@ public class ConnectionScreen
     private bool _isConnecting = false;
     private Color _statusColor = Color.White;
     
-    private TextInputField _playerNameField;
-    private TextInputField _serverAddressField;
+    private ValidatedTextInputField _playerNameField;
+    private ValidatedTextInputField _serverAddressField;
     private Button _connectButton;
     
     private KeyboardState _previousKeyState;
@@ -40,17 +40,19 @@ public class ConnectionScreen
         int centerX = (_screenWidth - panelWidth) / 2;
         int centerY = _screenHeight / 2 - 100;
         
-        _playerNameField = new TextInputField(
+        _playerNameField = new ValidatedTextInputField(
             new Rectangle(centerX, centerY, panelWidth, 40),
             "Player Name", 20);
+        _playerNameField.SetValidator(InputValidator.ValidatePlayerName);
         
-        _serverAddressField = new TextInputField(
-            new Rectangle(centerX, centerY + 60, panelWidth, 40),
+        _serverAddressField = new ValidatedTextInputField(
+            new Rectangle(centerX, centerY + 80, panelWidth, 40),
             "Server Address", 100);
         _serverAddressField.Text = _serverAddress;
+        _serverAddressField.SetValidator(InputValidator.ValidateServerAddress);
         
         _connectButton = new Button(
-            new Rectangle(centerX + panelWidth / 2 - 75, centerY + 130, 150, 50),
+            new Rectangle(centerX + panelWidth / 2 - 75, centerY + 160, 150, 50),
             "Connect");
     }
 
@@ -76,18 +78,27 @@ public class ConnectionScreen
         
         if (_connectButton.IsClicked || (keyState.IsKeyDown(Keys.Enter) && _previousKeyState.IsKeyUp(Keys.Enter)))
         {
-            if (!string.IsNullOrWhiteSpace(_playerNameField.Text))
+            // Validate all inputs before connecting
+            var nameValidation = _playerNameField.ValidateInput();
+            var serverValidation = _serverAddressField.ValidateInput();
+
+            if (!nameValidation.IsValid)
+            {
+                _statusMessage = nameValidation.Message;
+                _statusColor = Color.Red;
+            }
+            else if (!serverValidation.IsValid)
+            {
+                _statusMessage = serverValidation.Message;
+                _statusColor = Color.Red;
+            }
+            else
             {
                 _playerName = _playerNameField.Text.Trim();
                 _serverAddress = _serverAddressField.Text.Trim();
                 _isConnecting = true;
                 _statusMessage = "Connecting...";
                 _statusColor = Color.Yellow;
-            }
-            else
-            {
-                _statusMessage = "Please enter a player name";
-                _statusColor = Color.Red;
             }
         }
         

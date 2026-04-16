@@ -52,3 +52,6 @@ GameSaves/
 
 # Client settings
 settings.json
+
+# Setup scripts
+setup-sprites.ps1

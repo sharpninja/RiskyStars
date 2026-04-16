@@ -177,6 +177,8 @@ public class LobbyManager
                 try
                 {
                     _embeddedServerHost = new EmbeddedServerHost();
+                    _singlePlayerLobbyScreen.SetEmbeddedServerHost(_embeddedServerHost);
+                    
                     bool success = await _embeddedServerHost.StartAsync();
 
                     if (success)
@@ -192,6 +194,7 @@ public class LobbyManager
                         
                         await _embeddedServerHost.DisposeAsync();
                         _embeddedServerHost = null;
+                        _singlePlayerLobbyScreen.SetEmbeddedServerHost(null);
                         _state = LobbyState.SinglePlayerLobby;
                     }
                 }
@@ -211,6 +214,7 @@ public class LobbyManager
                             System.Console.WriteLine($"Error disposing server after failure: {disposeEx.Message}");
                         }
                         _embeddedServerHost = null;
+                        _singlePlayerLobbyScreen.SetEmbeddedServerHost(null);
                     }
                     
                     _state = LobbyState.SinglePlayerLobby;
@@ -224,6 +228,24 @@ public class LobbyManager
 
         if (_singlePlayerLobbyScreen.ShouldGoBack)
         {
+            if (_embeddedServerHost != null)
+            {
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _embeddedServerHost.DisposeAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine($"Error disposing embedded server: {ex.Message}");
+                    }
+                }).Wait(TimeSpan.FromSeconds(5));
+                
+                _embeddedServerHost = null;
+                _singlePlayerLobbyScreen.SetEmbeddedServerHost(null);
+            }
+            
             _singlePlayerLobbyScreen.Reset();
             _state = LobbyState.ModeSelection;
         }
@@ -534,6 +556,35 @@ public class LobbyManager
             (_screenHeight - textSize.Y) / 2);
 
         spriteBatch.DrawString(_font, loadingText, textPosition, Color.White);
+
+        if (_embeddedServerHost != null)
+        {
+            var statusText = _embeddedServerHost.Status switch
+            {
+                ServerStatus.Starting => "Starting server...",
+                ServerStatus.Running => "Server ready!",
+                ServerStatus.Error => $"Error: {_embeddedServerHost.LastError}",
+                _ => ""
+            };
+
+            if (!string.IsNullOrEmpty(statusText))
+            {
+                var statusSize = _font.MeasureString(statusText);
+                var statusPosition = new Vector2(
+                    (_screenWidth - statusSize.X) / 2,
+                    textPosition.Y + textSize.Y + 20);
+
+                var statusColor = _embeddedServerHost.Status switch
+                {
+                    ServerStatus.Starting => Color.Yellow,
+                    ServerStatus.Running => Color.LimeGreen,
+                    ServerStatus.Error => Color.Red,
+                    _ => Color.White
+                };
+
+                spriteBatch.DrawString(_font, statusText, statusPosition, statusColor);
+            }
+        }
 
         spriteBatch.End();
     }

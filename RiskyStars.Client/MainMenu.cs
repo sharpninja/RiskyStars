@@ -1,6 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using Myra;
+using Myra.Graphics2D;
+using Myra.Graphics2D.UI;
+using Myra.Graphics2D.Brushes;
 
 namespace RiskyStars.Client;
 
@@ -8,8 +11,7 @@ public enum MainMenuState
 {
     Main,
     Settings,
-    Connecting,
-    Error
+    Connecting
 }
 
 public class MainMenu
@@ -17,26 +19,28 @@ public class MainMenu
     private readonly GraphicsDevice _graphicsDevice;
     private readonly int _screenWidth;
     private readonly int _screenHeight;
-    private Texture2D? _pixelTexture;
-    private SpriteFont? _font;
-
-    private MainMenuState _state = MainMenuState.Main;
     private Settings _settings;
 
-    private Button _connectButton;
-    private Button _settingsButton;
-    private Button _exitButton;
+    private Desktop? _desktop;
+    private DialogManager? _dialogManager;
+    private MainMenuState _state = MainMenuState.Main;
 
-    private Button _backButton;
-    private Button _saveSettingsButton;
-    private TextInputField _serverAddressField;
-    private DropdownField _resolutionDropdown;
-    private CheckboxField _fullscreenCheckbox;
+    // Main menu widgets
+    private Panel? _mainMenuPanel;
+    private TextButton? _connectButton;
+    private TextButton? _settingsButton;
+    private TextButton? _exitButton;
 
-    private string _errorMessage = "";
-    private Button _errorOkButton;
+    // Settings screen widgets
+    private Panel? _settingsPanel;
+    private ValidatedTextBox? _serverAddressTextBox;
+    private ComboBox? _resolutionComboBox;
+    private CheckButton? _fullscreenCheckButton;
+    private TextButton? _saveSettingsButton;
+    private TextButton? _backButton;
 
-    private KeyboardState _previousKeyState;
+    // Connecting screen widgets
+    private Panel? _connectingPanel;
 
     public bool ShouldConnect { get; private set; }
     public bool ShouldExit { get; private set; }
@@ -49,53 +53,155 @@ public class MainMenu
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
         _settings = settings;
-
-        CreatePixelTexture();
-        InitializeMainMenuControls();
-        InitializeSettingsControls();
-        InitializeErrorControls();
     }
 
-    private void CreatePixelTexture()
+    public void LoadContent(SpriteFont font)
     {
-        _pixelTexture = new Texture2D(_graphicsDevice, 1, 1);
-        _pixelTexture.SetData(new[] { Color.White });
+        // Create desktop for UI rendering
+        _desktop = new Desktop();
+        _dialogManager = new DialogManager(_desktop);
+
+        // Build all UI panels
+        BuildMainMenuUI();
+        BuildSettingsUI();
+        BuildConnectingUI();
+
+        // Show main menu by default
+        ShowMainMenuUI();
     }
 
-    private void InitializeMainMenuControls()
+    private void BuildMainMenuUI()
     {
-        int buttonWidth = 250;
-        int buttonHeight = 50;
-        int buttonSpacing = 20;
-        int centerX = (_screenWidth - buttonWidth) / 2;
-        int startY = _screenHeight / 2 - 50;
+        var grid = new Grid
+        {
+            RowSpacing = 20,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
 
-        _connectButton = new Button(
-            new Rectangle(centerX, startY, buttonWidth, buttonHeight),
-            "Connect to Server");
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
-        _settingsButton = new Button(
-            new Rectangle(centerX, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight),
-            "Settings");
+        // Title
+        var titleLabel = new Label
+        {
+            Text = "RiskyStars",
+            TextColor = Color.Cyan,
+            Scale = new Vector2(2.5f, 2.5f),
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+        grid.Widgets.Add(titleLabel);
 
-        _exitButton = new Button(
-            new Rectangle(centerX, startY + (buttonHeight + buttonSpacing) * 2, buttonWidth, buttonHeight),
-            "Exit");
+        // Connect button
+        _connectButton = new TextButton
+        {
+            Text = "Connect to Server",
+            Width = 250,
+            Height = 50,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 1
+        };
+        _connectButton.Click += (s, a) => OnConnectClicked();
+        grid.Widgets.Add(_connectButton);
+
+        // Settings button
+        _settingsButton = new TextButton
+        {
+            Text = "Settings",
+            Width = 250,
+            Height = 50,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 2
+        };
+        _settingsButton.Click += (s, a) => OnSettingsClicked();
+        grid.Widgets.Add(_settingsButton);
+
+        // Exit button
+        _exitButton = new TextButton
+        {
+            Text = "Exit",
+            Width = 250,
+            Height = 50,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 3
+        };
+        _exitButton.Click += (s, a) => OnExitClicked();
+        grid.Widgets.Add(_exitButton);
+
+        _mainMenuPanel = new Panel
+        {
+            Width = _screenWidth,
+            Height = _screenHeight
+        };
+        _mainMenuPanel.Widgets.Add(grid);
     }
 
-    private void InitializeSettingsControls()
+    private void BuildSettingsUI()
     {
-        int panelWidth = 500;
-        int centerX = (_screenWidth - panelWidth) / 2;
-        int startY = 200;
-        int fieldHeight = 40;
-        int fieldSpacing = 70;
+        var mainGrid = new Grid
+        {
+            RowSpacing = 8,
+            ColumnSpacing = 8,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
 
-        _serverAddressField = new TextInputField(
-            new Rectangle(centerX, startY, panelWidth, fieldHeight),
-            "Server Address", 100);
-        _serverAddressField.Text = _settings.ServerAddress;
+        // Set up grid structure
+        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
+        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Server Address Label
+        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Server Address TextBox
+        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Resolution Label
+        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Resolution ComboBox
+        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Fullscreen
+        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
 
+        // Title
+        var titleLabel = new Label
+        {
+            Text = "Settings",
+            TextColor = Color.Cyan,
+            Scale = new Vector2(1.2f, 1.2f),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 0
+        };
+        mainGrid.Widgets.Add(titleLabel);
+
+        // Server Address Label
+        var serverLabel = new Label
+        {
+            Text = "Server Address",
+            TextColor = Color.White,
+            GridRow = 1,
+            Margin = new Thickness(0, 10, 0, 0)
+        };
+        mainGrid.Widgets.Add(serverLabel);
+
+        // Server Address TextBox with validation
+        _serverAddressTextBox = new ValidatedTextBox(500, "http://localhost:5000", showErrorLabel: true);
+        _serverAddressTextBox.Text = _settings.ServerAddress;
+        _serverAddressTextBox.SetValidator(InputValidator.ValidateServerAddress);
+        _serverAddressTextBox.Container.GridRow = 2;
+        mainGrid.Widgets.Add(_serverAddressTextBox.Container);
+
+        // Resolution Label
+        var resolutionLabel = new Label
+        {
+            Text = "Resolution",
+            TextColor = Color.White,
+            GridRow = 3,
+            Margin = new Thickness(0, 10, 0, 0)
+        };
+        mainGrid.Widgets.Add(resolutionLabel);
+
+        // Resolution ComboBox
+        _resolutionComboBox = new ComboBox
+        {
+            Width = 500,
+            GridRow = 4
+        };
+        
         var resolutions = new List<string>
         {
             "1280x720",
@@ -105,121 +211,219 @@ public class MainMenu
             "3840x2160"
         };
 
-        _resolutionDropdown = new DropdownField(
-            new Rectangle(centerX, startY + fieldSpacing, panelWidth, fieldHeight),
-            "Resolution", resolutions);
-        _resolutionDropdown.SelectedIndex = resolutions.IndexOf($"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}");
-        if (_resolutionDropdown.SelectedIndex == -1)
-            _resolutionDropdown.SelectedIndex = 0;
+        foreach (var resolution in resolutions)
+        {
+            _resolutionComboBox.Items.Add(new ListItem(resolution));
+        }
 
-        _fullscreenCheckbox = new CheckboxField(
-            new Rectangle(centerX, startY + fieldSpacing * 2, panelWidth, fieldHeight),
-            "Fullscreen");
-        _fullscreenCheckbox.IsChecked = _settings.Fullscreen;
+        var currentResolution = $"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}";
+        var selectedIndex = resolutions.IndexOf(currentResolution);
+        if (selectedIndex >= 0)
+        {
+            _resolutionComboBox.SelectedIndex = selectedIndex;
+        }
+        else
+        {
+            _resolutionComboBox.SelectedIndex = 0;
+        }
 
-        int buttonWidth = 150;
-        int buttonY = startY + fieldSpacing * 3;
-        _saveSettingsButton = new Button(
-            new Rectangle(centerX + panelWidth - buttonWidth * 2 - 20, buttonY, buttonWidth, 50),
-            "Save");
+        mainGrid.Widgets.Add(_resolutionComboBox);
 
-        _backButton = new Button(
-            new Rectangle(centerX + panelWidth - buttonWidth, buttonY, buttonWidth, 50),
-            "Back");
+        // Fullscreen CheckButton with Label
+        var fullscreenGrid = new Grid
+        {
+            ColumnSpacing = 10,
+            GridRow = 5,
+            Margin = new Thickness(0, 10, 0, 0)
+        };
+        fullscreenGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        fullscreenGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        
+        _fullscreenCheckButton = new CheckButton
+        {
+            IsPressed = _settings.Fullscreen,
+            GridColumn = 0
+        };
+        fullscreenGrid.Widgets.Add(_fullscreenCheckButton);
+        
+        var fullscreenLabel = new Label
+        {
+            Text = "Fullscreen",
+            TextColor = Color.White,
+            GridColumn = 1,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        fullscreenGrid.Widgets.Add(fullscreenLabel);
+        mainGrid.Widgets.Add(fullscreenGrid);
+
+        // Buttons Grid
+        var buttonsGrid = new Grid
+        {
+            ColumnSpacing = 20,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 6,
+            Margin = new Thickness(0, 20, 0, 0)
+        };
+
+        buttonsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        buttonsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+
+        _saveSettingsButton = new TextButton
+        {
+            Text = "Save",
+            Width = 150,
+            Height = 50,
+            GridColumn = 0
+        };
+        _saveSettingsButton.Click += (s, a) => OnSaveSettingsClicked();
+        buttonsGrid.Widgets.Add(_saveSettingsButton);
+
+        _backButton = new TextButton
+        {
+            Text = "Back",
+            Width = 150,
+            Height = 50,
+            GridColumn = 1
+        };
+        _backButton.Click += (s, a) => OnBackClicked();
+        buttonsGrid.Widgets.Add(_backButton);
+
+        mainGrid.Widgets.Add(buttonsGrid);
+
+        // Create panel with background
+        _settingsPanel = new Panel
+        {
+            Width = _screenWidth,
+            Height = _screenHeight,
+            Background = new SolidBrush(new Color(10, 10, 20) * 0.95f)
+        };
+        _settingsPanel.Widgets.Add(mainGrid);
     }
 
-    private void InitializeErrorControls()
+    private void BuildConnectingUI()
     {
-        int buttonWidth = 150;
-        int buttonHeight = 50;
-        int centerX = (_screenWidth - buttonWidth) / 2;
-        int centerY = _screenHeight / 2 + 100;
+        var grid = new Grid
+        {
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
 
-        _errorOkButton = new Button(
-            new Rectangle(centerX, centerY, buttonWidth, buttonHeight),
-            "OK");
+        var messageLabel = new Label
+        {
+            Text = "Connecting to server...",
+            TextColor = Color.Yellow,
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+        grid.Widgets.Add(messageLabel);
+
+        _connectingPanel = new Panel
+        {
+            Width = _screenWidth,
+            Height = _screenHeight
+        };
+        _connectingPanel.Widgets.Add(grid);
     }
 
-    public void LoadContent(SpriteFont font)
+    private void ShowMainMenuUI()
     {
-        _font = font;
+        if (_desktop != null)
+            _desktop.Root = _mainMenuPanel;
+    }
+
+    private void ShowSettingsUI()
+    {
+        if (_serverAddressTextBox != null)
+        {
+            _serverAddressTextBox.Text = _settings.ServerAddress;
+            _serverAddressTextBox.ValidateInput();
+        }
+
+        if (_resolutionComboBox != null)
+        {
+            var currentResolution = $"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}";
+            var resolutions = new List<string> { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
+            var selectedIndex = resolutions.IndexOf(currentResolution);
+            if (selectedIndex >= 0)
+                _resolutionComboBox.SelectedIndex = selectedIndex;
+        }
+
+        if (_fullscreenCheckButton != null)
+            _fullscreenCheckButton.IsPressed = _settings.Fullscreen;
+
+        if (_desktop != null)
+            _desktop.Root = _settingsPanel;
+    }
+
+    private void ShowConnectingUI()
+    {
+        if (_desktop != null)
+            _desktop.Root = _connectingPanel;
     }
 
     public void SetState(MainMenuState state)
     {
         _state = state;
+        UpdateUI();
     }
 
     public void ShowError(string message)
     {
-        _errorMessage = message;
-        _state = MainMenuState.Error;
+        _dialogManager?.ShowError("Connection Error", message, (result) =>
+        {
+            _state = MainMenuState.Main;
+            UpdateUI();
+        });
     }
 
-    public void Update(GameTime gameTime)
+    private void UpdateUI()
     {
-        var mouseState = Mouse.GetState();
-        var keyState = Keyboard.GetState();
-
-        ShouldConnect = false;
-
         switch (_state)
         {
             case MainMenuState.Main:
-                UpdateMainMenu(mouseState);
+                ShowMainMenuUI();
                 break;
-
             case MainMenuState.Settings:
-                UpdateSettings(mouseState, keyState);
+                ShowSettingsUI();
                 break;
-
-            case MainMenuState.Error:
-                UpdateError(mouseState);
-                break;
-
             case MainMenuState.Connecting:
+                ShowConnectingUI();
                 break;
         }
-
-        _previousKeyState = keyState;
     }
 
-    private void UpdateMainMenu(MouseState mouseState)
+    private void OnConnectClicked()
     {
-        _connectButton.Update(mouseState);
-        _settingsButton.Update(mouseState);
-        _exitButton.Update(mouseState);
-
-        if (_connectButton.IsClicked)
-        {
-            ShouldConnect = true;
-            _state = MainMenuState.Connecting;
-        }
-
-        if (_settingsButton.IsClicked)
-        {
-            _state = MainMenuState.Settings;
-        }
-
-        if (_exitButton.IsClicked)
-        {
-            ShouldExit = true;
-        }
+        ShouldConnect = true;
+        _state = MainMenuState.Connecting;
+        UpdateUI();
     }
 
-    private void UpdateSettings(MouseState mouseState, KeyboardState keyState)
+    private void OnSettingsClicked()
     {
-        _serverAddressField.Update(mouseState, keyState, _previousKeyState);
-        _resolutionDropdown.Update(mouseState);
-        _fullscreenCheckbox.Update(mouseState);
-        _saveSettingsButton.Update(mouseState);
-        _backButton.Update(mouseState);
+        _state = MainMenuState.Settings;
+        UpdateUI();
+    }
 
-        if (_saveSettingsButton.IsClicked)
+    private void OnExitClicked()
+    {
+        ShouldExit = true;
+    }
+
+    private void OnSaveSettingsClicked()
+    {
+        // Validate all inputs before saving
+        if (_serverAddressTextBox != null && !_serverAddressTextBox.IsValid)
         {
-            _settings.ServerAddress = _serverAddressField.Text.Trim();
+            _dialogManager?.ShowError("Validation Error", "Please fix the server address before saving.");
+            return;
+        }
 
-            var selectedResolution = _resolutionDropdown.SelectedValue;
+        if (_serverAddressTextBox != null)
+            _settings.ServerAddress = _serverAddressTextBox.Text.Trim();
+
+        if (_resolutionComboBox != null && _resolutionComboBox.SelectedItem != null)
+        {
+            var selectedResolution = _resolutionComboBox.SelectedItem.Text;
             if (!string.IsNullOrEmpty(selectedResolution))
             {
                 var parts = selectedResolution.Split('x');
@@ -231,183 +435,50 @@ public class MainMenu
                     _settings.ResolutionHeight = height;
                 }
             }
-
-            _settings.Fullscreen = _fullscreenCheckbox.IsChecked;
-            _settings.Save();
-
-            _state = MainMenuState.Main;
         }
 
-        if (_backButton.IsClicked)
-        {
-            _serverAddressField.Text = _settings.ServerAddress;
-            _resolutionDropdown.SelectedIndex = _resolutionDropdown.Options.IndexOf($"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}");
-            _fullscreenCheckbox.IsChecked = _settings.Fullscreen;
-            _state = MainMenuState.Main;
-        }
+        if (_fullscreenCheckButton != null)
+            _settings.Fullscreen = _fullscreenCheckButton.IsPressed;
+
+        _settings.Save();
+
+        _state = MainMenuState.Main;
+        UpdateUI();
     }
 
-    private void UpdateError(MouseState mouseState)
+    private void OnBackClicked()
     {
-        _errorOkButton.Update(mouseState);
-
-        if (_errorOkButton.IsClicked)
+        // Restore original settings
+        if (_serverAddressTextBox != null)
         {
-            _state = MainMenuState.Main;
+            _serverAddressTextBox.Text = _settings.ServerAddress;
+            _serverAddressTextBox.ClearValidation();
         }
+
+        if (_resolutionComboBox != null)
+        {
+            var currentResolution = $"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}";
+            var resolutions = new List<string> { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
+            var selectedIndex = resolutions.IndexOf(currentResolution);
+            if (selectedIndex >= 0)
+                _resolutionComboBox.SelectedIndex = selectedIndex;
+        }
+
+        if (_fullscreenCheckButton != null)
+            _fullscreenCheckButton.IsPressed = _settings.Fullscreen;
+
+        _state = MainMenuState.Main;
+        UpdateUI();
+    }
+
+    public void Update(GameTime gameTime)
+    {
+        ShouldConnect = false;
+        _dialogManager?.Update();
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        if (_pixelTexture == null || _font == null)
-            return;
-
-        spriteBatch.Begin(sortMode: SpriteSortMode.Deferred, blendState: BlendState.AlphaBlend);
-
-        DrawBackground(spriteBatch);
-
-        switch (_state)
-        {
-            case MainMenuState.Main:
-                DrawMainMenu(spriteBatch);
-                break;
-
-            case MainMenuState.Settings:
-                DrawSettings(spriteBatch);
-                break;
-
-            case MainMenuState.Connecting:
-                DrawConnecting(spriteBatch);
-                break;
-
-            case MainMenuState.Error:
-                DrawError(spriteBatch);
-                break;
-        }
-
-        spriteBatch.End();
-    }
-
-    private void DrawBackground(SpriteBatch spriteBatch)
-    {
-        var titleText = "RiskyStars";
-        var titleSize = _font!.MeasureString(titleText);
-        var titleScale = 2.5f;
-        var titlePosition = new Vector2(
-            (_screenWidth - titleSize.X * titleScale) / 2,
-            80);
-
-        spriteBatch.DrawString(_font, titleText, titlePosition, Color.Cyan, 0f, Vector2.Zero, titleScale, SpriteEffects.None, 0f);
-    }
-
-    private void DrawMainMenu(SpriteBatch spriteBatch)
-    {
-        _connectButton.Draw(spriteBatch, _pixelTexture!, _font!);
-        _settingsButton.Draw(spriteBatch, _pixelTexture!, _font!);
-        _exitButton.Draw(spriteBatch, _pixelTexture!, _font!);
-    }
-
-    private void DrawSettings(SpriteBatch spriteBatch)
-    {
-        int panelWidth = 600;
-        int panelHeight = 450;
-        int panelX = (_screenWidth - panelWidth) / 2;
-        int panelY = (_screenHeight - panelHeight) / 2;
-
-        var panel = new Rectangle(panelX, panelY, panelWidth, panelHeight);
-        spriteBatch.Draw(_pixelTexture!, panel, Color.Black * 0.9f);
-        DrawRectangleOutline(spriteBatch, panel, Color.Cyan, 3);
-
-        var titleText = "Settings";
-        var titleSize = _font!.MeasureString(titleText);
-        spriteBatch.DrawString(_font, titleText,
-            new Vector2(panelX + (panelWidth - titleSize.X) / 2, panelY + 20),
-            Color.Cyan, 0f, Vector2.Zero, 1.2f, SpriteEffects.None, 0f);
-
-        _serverAddressField.Draw(spriteBatch, _pixelTexture!, _font);
-        _resolutionDropdown.Draw(spriteBatch, _pixelTexture!, _font);
-        _fullscreenCheckbox.Draw(spriteBatch, _pixelTexture!, _font);
-        _saveSettingsButton.Draw(spriteBatch, _pixelTexture!, _font);
-        _backButton.Draw(spriteBatch, _pixelTexture!, _font);
-    }
-
-    private void DrawConnecting(SpriteBatch spriteBatch)
-    {
-        var message = "Connecting to server...";
-        var messageSize = _font!.MeasureString(message);
-        var messagePosition = new Vector2(
-            (_screenWidth - messageSize.X) / 2,
-            _screenHeight / 2);
-
-        spriteBatch.DrawString(_font, message, messagePosition, Color.Yellow);
-    }
-
-    private void DrawError(SpriteBatch spriteBatch)
-    {
-        int panelWidth = 500;
-        int panelHeight = 300;
-        int panelX = (_screenWidth - panelWidth) / 2;
-        int panelY = (_screenHeight - panelHeight) / 2;
-
-        var panel = new Rectangle(panelX, panelY, panelWidth, panelHeight);
-        spriteBatch.Draw(_pixelTexture!, panel, Color.Black * 0.95f);
-        DrawRectangleOutline(spriteBatch, panel, Color.Red, 3);
-
-        var titleText = "Connection Error";
-        var titleSize = _font!.MeasureString(titleText);
-        spriteBatch.DrawString(_font, titleText,
-            new Vector2(panelX + (panelWidth - titleSize.X) / 2, panelY + 20),
-            Color.Red, 0f, Vector2.Zero, 1.2f, SpriteEffects.None, 0f);
-
-        var lines = WrapText(_errorMessage, _font, panelWidth - 60);
-        float y = panelY + 80;
-        foreach (var line in lines)
-        {
-            var lineSize = _font.MeasureString(line);
-            spriteBatch.DrawString(_font, line,
-                new Vector2(panelX + (panelWidth - lineSize.X) / 2, y),
-                Color.White, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
-            y += lineSize.Y + 5;
-        }
-
-        _errorOkButton.Draw(spriteBatch, _pixelTexture!, _font);
-    }
-
-    private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
-    {
-        if (_pixelTexture == null) return;
-
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.Right - thickness, rect.Y, thickness, rect.Height), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Bottom - thickness, rect.Width, thickness), color);
-    }
-
-    private List<string> WrapText(string text, SpriteFont font, float maxWidth)
-    {
-        var lines = new List<string>();
-        var words = text.Split(' ');
-        var currentLine = "";
-
-        foreach (var word in words)
-        {
-            var testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
-            var testSize = font.MeasureString(testLine);
-
-            if (testSize.X * 0.8f > maxWidth && !string.IsNullOrEmpty(currentLine))
-            {
-                lines.Add(currentLine);
-                currentLine = word;
-            }
-            else
-            {
-                currentLine = testLine;
-            }
-        }
-
-        if (!string.IsNullOrEmpty(currentLine))
-            lines.Add(currentLine);
-
-        return lines;
+        _desktop?.Render();
     }
 }
