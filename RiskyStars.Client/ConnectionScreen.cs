@@ -8,8 +8,8 @@ namespace RiskyStars.Client;
 
 public class ConnectionScreen
 {
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
 
     private Desktop? _desktop;
     private Panel? _mainPanel;
@@ -22,10 +22,14 @@ public class ConnectionScreen
     private bool _isConnecting;
     private bool _shouldGoBack;
     private KeyboardState _previousKeyState;
+    private string _playerNameDraft = string.Empty;
+    private string _serverAddressDraft = Settings.Load().ServerAddress;
+    private string _statusMessage = "Awaiting uplink command.";
+    private Color _statusColor = ThemeManager.Colors.TextSecondary;
 
     public bool IsConnected { get; private set; }
-    public string PlayerName => _playerNameTextBox?.Text ?? "";
-    public string ServerAddress => _serverAddressTextBox?.Text ?? Settings.Load().ServerAddress;
+    public string PlayerName => _playerNameTextBox?.Text ?? _playerNameDraft;
+    public string ServerAddress => _serverAddressTextBox?.Text ?? _serverAddressDraft;
 
     public ConnectionScreen(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
@@ -42,8 +46,8 @@ public class ConnectionScreen
 
     private void BuildUI()
     {
-        int frameWidth = Math.Min(_screenWidth - 160, 920);
-        int frameHeight = Math.Min(_screenHeight - 120, 680);
+        int frameWidth = ThemedUIFactory.ResolveResponsiveExtent(_screenWidth, 160, 920);
+        int frameHeight = ThemedUIFactory.ResolveResponsiveExtent(_screenHeight, 120, 680);
         var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
@@ -59,10 +63,11 @@ public class ConnectionScreen
 
         var inputStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Large);
         _playerNameTextBox = ThemedUIFactory.CreateValidatedPlayerNameBox(cardWidth - 40, showErrorLabel: true);
+        _playerNameTextBox.Text = _playerNameDraft;
         inputStack.Widgets.Add(ThemedUIFactory.CreateFieldCard("Commander Identity", "The name visible to other players in lobbies and matches.", _playerNameTextBox.Container, cardWidth));
 
         _serverAddressTextBox = ThemedUIFactory.CreateValidatedServerAddressBox(cardWidth - 40, showErrorLabel: true);
-        _serverAddressTextBox.Text = Settings.Load().ServerAddress;
+        _serverAddressTextBox.Text = _serverAddressDraft;
         inputStack.Widgets.Add(ThemedUIFactory.CreateFieldCard("Server Endpoint", "Use an IP or hostname for the multiplayer server.", _serverAddressTextBox.Container, cardWidth));
         inputStack.GridColumn = 0;
         contentGrid.Widgets.Add(inputStack);
@@ -81,6 +86,7 @@ public class ConnectionScreen
         actionStack.Widgets.Add(summary);
 
         _connectButton = ThemedUIFactory.CreateLargeButton("Connect", ThemeManager.ButtonTheme.Primary);
+        _connectButton.Enabled = !_isConnecting;
         _connectButton.Click += (_, _) => AttemptConnection();
         actionStack.Widgets.Add(_connectButton);
 
@@ -88,8 +94,8 @@ public class ConnectionScreen
         _backButton.Click += (_, _) => _shouldGoBack = true;
         actionStack.Widgets.Add(_backButton);
 
-        _statusLabel = ThemedUIFactory.CreateSmallLabel("Awaiting uplink command.");
-        _statusLabel.TextColor = ThemeManager.Colors.TextSecondary;
+        _statusLabel = ThemedUIFactory.CreateSmallLabel(_statusMessage);
+        _statusLabel.TextColor = _statusColor;
         _statusLabel.Wrap = true;
         _statusLabel.Width = 220;
         actionStack.Widgets.Add(_statusLabel);
@@ -144,11 +150,28 @@ public class ConnectionScreen
 
     private void SetStatus(string message, Color color)
     {
+        _statusMessage = message;
+        _statusColor = color;
+
         if (_statusLabel != null)
         {
             _statusLabel.Text = message;
             _statusLabel.TextColor = color;
         }
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _playerNameDraft = _playerNameTextBox?.Text ?? _playerNameDraft;
+        _serverAddressDraft = _serverAddressTextBox?.Text ?? _serverAddressDraft;
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+        BuildUI();
     }
 
     public void Update(GameTime gameTime, MouseState mouseState, KeyboardState keyState)

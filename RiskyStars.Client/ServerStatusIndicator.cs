@@ -9,6 +9,7 @@ public class ServerStatusIndicator
     private Label _statusLabel;
     private Panel _statusDot;
     private Label _detailsLabel;
+    private Grid _grid;
     private EmbeddedServerHost? _serverHost;
 
     public Panel Container => _container;
@@ -20,15 +21,15 @@ public class ServerStatusIndicator
 
     private void BuildUI(int width)
     {
-        var grid = new Grid
+        _grid = new Grid
         {
             ColumnSpacing = ThemeManager.Spacing.Small,
             Width = width
         };
 
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        _grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        _grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
 
 #pragma warning disable CS0618 // Type or member is obsolete
         _statusDot = new Panel
@@ -40,7 +41,7 @@ public class ServerStatusIndicator
             VerticalAlignment = VerticalAlignment.Center
         };
 #pragma warning restore CS0618 // Type or member is obsolete
-        grid.Widgets.Add(_statusDot);
+        _grid.Widgets.Add(_statusDot);
 
 #pragma warning disable CS0618 // Type or member is obsolete
         _statusLabel = new Label
@@ -52,7 +53,7 @@ public class ServerStatusIndicator
             VerticalAlignment = VerticalAlignment.Center
         };
 #pragma warning restore CS0618 // Type or member is obsolete
-        grid.Widgets.Add(_statusLabel);
+        _grid.Widgets.Add(_statusLabel);
 
 #pragma warning disable CS0618 // Type or member is obsolete
         _detailsLabel = new Label
@@ -65,7 +66,7 @@ public class ServerStatusIndicator
             HorizontalAlignment = HorizontalAlignment.Right
         };
 #pragma warning restore CS0618 // Type or member is obsolete
-        grid.Widgets.Add(_detailsLabel);
+        _grid.Widgets.Add(_detailsLabel);
 
         _container = new Panel
         {
@@ -74,7 +75,7 @@ public class ServerStatusIndicator
             Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderNormal),
             BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin)
         };
-        _container.Widgets.Add(grid);
+        _container.Widgets.Add(_grid);
     }
 
     public void SetServerHost(EmbeddedServerHost? serverHost)
@@ -174,5 +175,15 @@ public class ServerStatusIndicator
         
         int delay = (int)(InitialRetryDelayMs * Math.Pow(BackoffMultiplier, attempt - 1));
         return Math.Min(delay, MaxRetryDelayMs);
+    }
+
+    public void Resize(int width)
+    {
+        if (width <= 0)
+        {
+            return;
+        }
+
+        _grid.Width = width;
     }
 }

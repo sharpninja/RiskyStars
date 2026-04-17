@@ -8,8 +8,8 @@ namespace RiskyStars.Client;
 
 public class GameModeSelector
 {
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
 
     private Desktop? _desktop;
     private Panel? _mainPanel;
@@ -38,8 +38,9 @@ public class GameModeSelector
 
     private void BuildUI()
     {
-        int frameWidth = Math.Min(_screenWidth - 160, 980);
-        int frameHeight = Math.Min(_screenHeight - 140, 620);
+        int frameWidth = ThemedUIFactory.ResolveResponsiveExtent(_screenWidth, 160, 980);
+        int frameHeight = ThemedUIFactory.ResolveResponsiveExtent(_screenHeight, 140, 620);
+        int cardWidth = (frameWidth - 96 - ThemeManager.Spacing.Large) / 2;
         var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
@@ -54,7 +55,8 @@ public class GameModeSelector
         _multiplayerPanel = CreateModeCard(
             "Multiplayer",
             "Authenticate with a lobby server and join or create a live session.",
-            true);
+            true,
+            cardWidth);
         _multiplayerPanel.GridColumn = 0;
         _multiplayerPanel.TouchDown += (_, _) => SetModeSelection(true);
         optionsGrid.Widgets.Add(_multiplayerPanel);
@@ -62,7 +64,8 @@ public class GameModeSelector
         _singlePlayerPanel = CreateModeCard(
             "Single Player",
             "Build an offline lineup and launch directly against AI opponents.",
-            false);
+            false,
+            cardWidth);
         _singlePlayerPanel.GridColumn = 1;
         _singlePlayerPanel.TouchDown += (_, _) => SetModeSelection(false);
         optionsGrid.Widgets.Add(_singlePlayerPanel);
@@ -94,12 +97,15 @@ public class GameModeSelector
         {
             _desktop.Root = _mainPanel;
         }
+
+        SetModeSelection(_isMultiplayerSelected);
     }
 
-    private Panel CreateModeCard(string title, string description, bool selected)
+    private Panel CreateModeCard(string title, string description, bool selected, int width)
     {
         var panel = ThemedUIFactory.CreateListRowPanel(selected);
         panel.Padding = ThemeManager.Padding.Large;
+        panel.Width = width;
 
         var stack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
         var titleLabel = ThemedUIFactory.CreateHeadingLabel(title);
@@ -107,7 +113,7 @@ public class GameModeSelector
 
         var descriptionLabel = ThemedUIFactory.CreateSecondaryLabel(description);
         descriptionLabel.Wrap = true;
-        descriptionLabel.Width = 320;
+        descriptionLabel.Width = Math.Max(280, width - 56);
         descriptionLabel.TextColor = ThemeManager.Colors.TextPrimary;
         stack.Widgets.Add(descriptionLabel);
         panel.Widgets.Add(stack);
@@ -141,6 +147,18 @@ public class GameModeSelector
         ShouldProceed = false;
         ShouldGoBack = false;
         SetModeSelection(true);
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+        BuildUI();
     }
 
     public void Draw(SpriteBatch spriteBatch)

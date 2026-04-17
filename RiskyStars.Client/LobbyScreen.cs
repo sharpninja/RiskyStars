@@ -13,8 +13,14 @@ namespace RiskyStars.Client;
 public class LobbyScreen
 {
     private readonly GraphicsDevice _graphicsDevice;
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
+    private int _frameWidth => ThemedUIFactory.ResolveResponsiveExtent(_screenWidth, 160, 1176);
+    private int _frameHeight => ThemedUIFactory.ResolveResponsiveExtent(_screenHeight, 120, 760);
+    private int _contentWidth => Math.Max(1, _frameWidth - 96);
+    private int _slotsViewportWidth => Math.Min(Math.Max(1, _contentWidth - 20), Math.Max(640, _contentWidth - 80));
+    private int _slotsGridWidth => Math.Min(_slotsViewportWidth, Math.Max(560, _slotsViewportWidth - 60));
+    private int _slotsViewportHeight => Math.Max(300, _frameHeight - 380);
     private SpriteFont? _font;
 
     private Desktop? _desktop;
@@ -85,11 +91,8 @@ public class LobbyScreen
 
     private void BuildUI()
     {
-        var contentWidth = Math.Max(820, Math.Min(_screenWidth - 160, 1080));
-        var frameHeight = Math.Min(_screenHeight - 120, 760);
-
         var contentStack = ThemedUIFactory.CreateSpaciousVerticalStack();
-        contentStack.Width = contentWidth;
+        contentStack.Width = _contentWidth;
         contentStack.HorizontalAlignment = HorizontalAlignment.Center;
         contentStack.VerticalAlignment = VerticalAlignment.Center;
         contentStack.Spacing = ThemeManager.Spacing.Large;
@@ -97,7 +100,7 @@ public class LobbyScreen
         contentStack.Widgets.Add(ThemedUIFactory.CreateHeaderPlate(
             "Multiplayer Lobby",
             "Coordinate ready state, AI slots, and launch from one shared command deck.",
-            contentWidth - 24));
+            Math.Max(1, _contentWidth - 24)));
 
         contentStack.Widgets.Add(BuildInfoPanel());
         contentStack.Widgets.Add(BuildPlayerSlotsPanel());
@@ -109,10 +112,10 @@ public class LobbyScreen
 
         contentStack.Widgets.Add(BuildButtonsPanel());
 
-        var viewportFrame = ThemedUIFactory.CreateViewportFrame(contentWidth + 96, frameHeight);
+        var viewportFrame = ThemedUIFactory.CreateViewportFrame(_frameWidth, _frameHeight);
         viewportFrame.HorizontalAlignment = HorizontalAlignment.Center;
         viewportFrame.VerticalAlignment = VerticalAlignment.Center;
-        viewportFrame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(contentStack, frameHeight - 96));
+        viewportFrame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(contentStack, _frameHeight - 96));
 
         _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainPanel.Widgets.Add(viewportFrame);
@@ -187,7 +190,7 @@ public class LobbyScreen
             RowSpacing = 8,
             ColumnSpacing = 10,
             GridRow = 1,
-            Width = 760,
+            Width = _slotsGridWidth,
             HorizontalAlignment = HorizontalAlignment.Center
         };
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -210,8 +213,8 @@ public class LobbyScreen
             Content = _playerSlotsGrid,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Stretch,
-            Width = 820,
-            MaxHeight = 380,
+            Width = _slotsViewportWidth,
+            MaxHeight = _slotsViewportHeight,
             GridRow = 1,
             ShowVerticalScrollBar = true
         };
@@ -656,6 +659,31 @@ public class LobbyScreen
             _playerSlots[i].IsReady = false;
             _playerSlots[i].IsHost = false;
         }
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+        BuildUI();
+
+        if (_lobbyInfo != null)
+        {
+            SetLobbyInfo(_lobbyInfo, _currentPlayerId ?? string.Empty);
+        }
+        else
+        {
+            UpdateAllPlayerSlots();
+            UpdateStatusLabel();
+            UpdateStartButton();
+        }
+
+        SetReady(_isReady);
     }
 
     public void Draw(SpriteBatch spriteBatch)

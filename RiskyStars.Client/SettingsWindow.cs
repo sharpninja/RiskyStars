@@ -22,15 +22,17 @@ public class SettingsWindow
 #pragma warning disable CS0618 // Type or member is obsolete
 #pragma warning disable CS0618 // Type or member is obsolete
     private ComboBox? _resolutionComboBox;
+    private ComboBox? _windowModeComboBox;
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0618 // Type or member is obsolete
-    private CheckButton? _fullscreenCheckButton;
     private CheckButton? _vsyncCheckButton;
 #pragma warning disable CS0618 // Type or member is obsolete
 #pragma warning disable CS0618 // Type or member is obsolete
     private ComboBox? _frameRateComboBox;
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0618 // Type or member is obsolete
+    private HorizontalSlider? _uiScaleSlider;
+    private Label? _uiScaleValueLabel;
     
     private HorizontalSlider? _masterVolumeSlider;
     private Label? _masterVolumeLabel;
@@ -98,7 +100,7 @@ public class SettingsWindow
         mainGrid.Widgets.Add(buttonPanel);
         
         _window.Content = mainGrid;
-        _desktop.Widgets.Add(_window);
+        _desktop?.Widgets.Add(_window);
         
         CenterWindow();
     }
@@ -139,8 +141,7 @@ public class SettingsWindow
 #pragma warning restore CS0618 // Type or member is obsolete
         _resolutionComboBox.HorizontalAlignment = HorizontalAlignment.Left;
         
-        var resolutions = new[] { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
-        foreach (var resolution in resolutions)
+        foreach (var resolution in Settings.GetResolutionOptions($"{_tempSettings.ResolutionWidth}x{_tempSettings.ResolutionHeight}"))
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             _resolutionComboBox.Items.Add(new ListItem(resolution));
@@ -148,17 +149,83 @@ public class SettingsWindow
         }
         
         var currentResolution = $"{_tempSettings.ResolutionWidth}x{_tempSettings.ResolutionHeight}";
-        var selectedIndex = Array.IndexOf(resolutions, currentResolution);
+        var selectedIndex = Array.IndexOf(Settings.SupportedResolutions, currentResolution);
         _resolutionComboBox.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
         
         resolutionGrid.Widgets.Add(_resolutionComboBox);
         contentStack.Widgets.Add(resolutionGrid);
         
-        var fullscreenPanel = ThemedUIFactory.CreateHorizontalStack(ThemeManager.Spacing.Small);
-        _fullscreenCheckButton = ThemedUIFactory.CreateCheckButton(_tempSettings.Fullscreen);
-        fullscreenPanel.Widgets.Add(_fullscreenCheckButton);
-        fullscreenPanel.Widgets.Add(ThemedUIFactory.CreateLabel("Fullscreen"));
-        contentStack.Widgets.Add(fullscreenPanel);
+        var windowModeGrid = ThemedUIFactory.CreateGrid();
+        windowModeGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        windowModeGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        windowModeGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+
+        var windowModeLabel = ThemedUIFactory.CreateLabel("Window Mode:");
+#pragma warning disable CS0618 // Type or member is obsolete
+        windowModeLabel.GridColumn = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
+        windowModeLabel.VerticalAlignment = VerticalAlignment.Center;
+        windowModeGrid.Widgets.Add(windowModeLabel);
+
+        _windowModeComboBox = ThemedUIFactory.CreateComboBox(250);
+#pragma warning disable CS0618 // Type or member is obsolete
+        _windowModeComboBox.GridColumn = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
+        _windowModeComboBox.HorizontalAlignment = HorizontalAlignment.Left;
+
+        foreach (var windowMode in Settings.WindowModeOptions)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            _windowModeComboBox.Items.Add(new ListItem(windowMode));
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        _windowModeComboBox.SelectedIndex = _tempSettings.Fullscreen ? 1 : 0;
+        windowModeGrid.Widgets.Add(_windowModeComboBox);
+        contentStack.Widgets.Add(windowModeGrid);
+
+        var uiScaleGrid = ThemedUIFactory.CreateGrid();
+        uiScaleGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        uiScaleGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        uiScaleGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        uiScaleGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+
+        var uiScaleLabel = ThemedUIFactory.CreateLabel("UI Scale:");
+#pragma warning disable CS0618 // Type or member is obsolete
+        uiScaleLabel.GridColumn = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
+        uiScaleLabel.VerticalAlignment = VerticalAlignment.Center;
+        uiScaleGrid.Widgets.Add(uiScaleLabel);
+
+        _uiScaleSlider = new HorizontalSlider
+        {
+            Minimum = 80,
+            Maximum = 160,
+            Value = _tempSettings.UiScalePercent,
+            Width = 250,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+#pragma warning disable CS0618 // Type or member is obsolete
+        _uiScaleSlider.GridColumn = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
+        uiScaleGrid.Widgets.Add(_uiScaleSlider);
+
+        _uiScaleValueLabel = ThemedUIFactory.CreateLabel($"{_tempSettings.UiScalePercent}%");
+#pragma warning disable CS0618 // Type or member is obsolete
+        _uiScaleValueLabel.GridColumn = 2;
+#pragma warning restore CS0618 // Type or member is obsolete
+        _uiScaleValueLabel.VerticalAlignment = VerticalAlignment.Center;
+        _uiScaleValueLabel.HorizontalAlignment = HorizontalAlignment.Right;
+        uiScaleGrid.Widgets.Add(_uiScaleValueLabel);
+        contentStack.Widgets.Add(uiScaleGrid);
+
+        _uiScaleSlider.ValueChanged += (s, e) =>
+        {
+            if (_uiScaleValueLabel != null && _uiScaleSlider != null)
+            {
+                _uiScaleValueLabel.Text = $"{(int)Math.Round(_uiScaleSlider.Value)}%";
+            }
+        };
         
         var vsyncPanel = ThemedUIFactory.CreateHorizontalStack(ThemeManager.Spacing.Small);
         _vsyncCheckButton = ThemedUIFactory.CreateCheckButton(_tempSettings.VSync);
@@ -497,8 +564,10 @@ public class SettingsWindow
             }
         }
         
-        _tempSettings.Fullscreen = _fullscreenCheckButton?.IsPressed ?? false;
+        _tempSettings.Fullscreen = string.Equals(_windowModeComboBox?.SelectedItem?.Text, "Fullscreen", StringComparison.OrdinalIgnoreCase);
+        _tempSettings.UiScalePercent = (int)Math.Round(_uiScaleSlider?.Value ?? _tempSettings.UiScalePercent);
         _tempSettings.VSync = _vsyncCheckButton?.IsPressed ?? false;
+        _tempSettings.Normalize();
         
         if (_frameRateComboBox?.SelectedItem != null)
         {
@@ -551,6 +620,7 @@ public class SettingsWindow
         _settings.ServerAddress = _tempSettings.ServerAddress;
         _settings.ResolutionWidth = _tempSettings.ResolutionWidth;
         _settings.ResolutionHeight = _tempSettings.ResolutionHeight;
+        _settings.UiScalePercent = _tempSettings.UiScalePercent;
         _settings.Fullscreen = _tempSettings.Fullscreen;
         _settings.VSync = _tempSettings.VSync;
         _settings.TargetFrameRate = _tempSettings.TargetFrameRate;
@@ -613,15 +683,28 @@ public class SettingsWindow
     {
         if (_resolutionComboBox != null)
         {
-            var resolutions = new[] { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
             var currentResolution = $"{_tempSettings.ResolutionWidth}x{_tempSettings.ResolutionHeight}";
-            var selectedIndex = Array.IndexOf(resolutions, currentResolution);
+            EnsureResolutionOptionPresent(_resolutionComboBox, currentResolution);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var resolutionOptions = _resolutionComboBox.Items.Select(item => item.Text).ToList();
+#pragma warning restore CS0618 // Type or member is obsolete
+            var selectedIndex = resolutionOptions.FindIndex(option => string.Equals(option, currentResolution, StringComparison.OrdinalIgnoreCase));
             _resolutionComboBox.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
         }
         
-        if (_fullscreenCheckButton != null)
+        if (_windowModeComboBox != null)
         {
-            _fullscreenCheckButton.IsPressed = _tempSettings.Fullscreen;
+            _windowModeComboBox.SelectedIndex = _tempSettings.Fullscreen ? 1 : 0;
+        }
+
+        if (_uiScaleSlider != null)
+        {
+            _uiScaleSlider.Value = _tempSettings.UiScalePercent;
+        }
+
+        if (_uiScaleValueLabel != null)
+        {
+            _uiScaleValueLabel.Text = $"{_tempSettings.UiScalePercent}%";
         }
 
         if (_vsyncCheckButton != null)
@@ -696,5 +779,26 @@ public class SettingsWindow
     public void Render()
     {
         _desktop?.Render();
+    }
+
+    public void ResizeViewport()
+    {
+        CenterWindow();
+    }
+
+    private static void EnsureResolutionOptionPresent(ComboBox comboBox, string resolution)
+    {
+        if (string.IsNullOrWhiteSpace(resolution))
+        {
+            return;
+        }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        bool exists = comboBox.Items.Any(item => string.Equals(item.Text, resolution, StringComparison.OrdinalIgnoreCase));
+        if (!exists)
+        {
+            comboBox.Items.Insert(0, new ListItem(resolution));
+        }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

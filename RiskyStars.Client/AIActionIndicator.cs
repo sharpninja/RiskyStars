@@ -9,8 +9,8 @@ public class AIActionIndicator
     private readonly GraphicsDevice _graphicsDevice;
     private Texture2D? _pixelTexture;
     private SpriteFont? _font;
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
 
     private bool _isAIThinking;
     private double _spinnerRotation;
@@ -38,6 +38,17 @@ public class AIActionIndicator
     public void LoadContent(SpriteFont font)
     {
         _font = font;
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
     }
 
     public void Update(GameTime gameTime, GameStateCache gameStateCache, MapData mapData, string? currentPlayerId)

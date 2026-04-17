@@ -8,8 +8,8 @@ public class Camera2D
     private Vector2 _position;
     private float _zoom;
     private float _rotation;
-    private readonly int _viewportWidth;
-    private readonly int _viewportHeight;
+    private int _viewportWidth;
+    private int _viewportHeight;
 
     private const float MinZoom = 0.1f;
     private const float MaxZoom = 5.0f;
@@ -151,6 +151,17 @@ public class Camera2D
     public void SetZoom(float zoom)
     {
         _zoom = MathHelper.Clamp(zoom, MinZoom, MaxZoom);
+    }
+
+    public void ResizeViewport(int viewportWidth, int viewportHeight)
+    {
+        if (viewportWidth <= 0 || viewportHeight <= 0)
+        {
+            return;
+        }
+
+        _viewportWidth = viewportWidth;
+        _viewportHeight = viewportHeight;
     }
 
     public Vector2 Position => _position;

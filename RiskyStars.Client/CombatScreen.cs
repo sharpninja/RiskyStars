@@ -10,8 +10,8 @@ public class CombatScreen
     private readonly GraphicsDevice _graphicsDevice;
     private Texture2D? _pixelTexture;
     private SpriteFont? _font;
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
 
     private CombatEvent? _currentCombatEvent;
     private int _currentRoundIndex;
@@ -51,6 +51,17 @@ public class CombatScreen
     public void LoadContent(SpriteFont font)
     {
         _font = font;
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
     }
 
     public void StartCombat(CombatEvent combatEvent)

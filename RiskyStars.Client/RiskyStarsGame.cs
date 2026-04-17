@@ -56,6 +56,7 @@ public class RiskyStarsGame : Game
     
     private GameState _gameState = GameState.MainMenu;
     private bool _pendingResolutionChange = false;
+    private bool _handlingClientResize = false;
     private string _transitionMessage = "";
     private DateTime _transitionStartTime;
 
@@ -67,6 +68,8 @@ public class RiskyStarsGame : Game
         ApplySettings();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        Window.AllowUserResizing = true;
+        Window.ClientSizeChanged += OnClientSizeChanged;
         
         // Initialize Myra
         MyraEnvironment.Game = this;
@@ -88,6 +91,44 @@ public class RiskyStarsGame : Game
         if (_graphics.GraphicsDevice != null)
         {
             _graphics.ApplyChanges();
+        }
+    }
+
+    private void OnClientSizeChanged(object? sender, EventArgs e)
+    {
+        if (_handlingClientResize || _graphics.IsFullScreen)
+        {
+            return;
+        }
+
+        int width = Window.ClientBounds.Width;
+        int height = Window.ClientBounds.Height;
+        if (width <= 0 || height <= 0)
+        {
+            return;
+        }
+
+        if (width == _graphics.PreferredBackBufferWidth && height == _graphics.PreferredBackBufferHeight)
+        {
+            ResizeUiForViewport(width, height);
+            return;
+        }
+
+        _handlingClientResize = true;
+        try
+        {
+            _graphics.PreferredBackBufferWidth = width;
+            _graphics.PreferredBackBufferHeight = height;
+            _graphics.ApplyChanges();
+
+            _settings.ResolutionWidth = width;
+            _settings.ResolutionHeight = height;
+
+            ResizeUiForViewport(width, height);
+        }
+        finally
+        {
+            _handlingClientResize = false;
         }
     }
 
@@ -125,7 +166,7 @@ public class RiskyStarsGame : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         ThemeManager.LoadContent(Content);
-        ThemeManager.ApplyThemeSettings(_settings.Theme);
+        ThemeManager.ApplyThemeSettings(_settings);
         
         try
         {
@@ -204,6 +245,7 @@ public class RiskyStarsGame : Game
             if (_pendingResolutionChange)
             {
                 ApplySettings();
+                ResizeUiForViewport(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
                 _pendingResolutionChange = false;
             }
 
@@ -222,6 +264,7 @@ public class RiskyStarsGame : Game
             if (_pendingResolutionChange)
             {
                 ApplySettings();
+                ResizeUiForViewport(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
                 _pendingResolutionChange = false;
             }
 
@@ -236,12 +279,18 @@ public class RiskyStarsGame : Game
             _mainMenu.SetState(MainMenuState.Main);
         }
 
-        if (_mainMenu.State == MainMenuState.Settings && 
-            (_mainMenu.Settings.ResolutionWidth != _graphics.PreferredBackBufferWidth ||
-             _mainMenu.Settings.ResolutionHeight != _graphics.PreferredBackBufferHeight ||
-             _mainMenu.Settings.Fullscreen != _graphics.IsFullScreen))
+        if (_mainMenu.Settings.ResolutionWidth != _graphics.PreferredBackBufferWidth ||
+            _mainMenu.Settings.ResolutionHeight != _graphics.PreferredBackBufferHeight ||
+            _mainMenu.Settings.Fullscreen != _graphics.IsFullScreen)
         {
             _pendingResolutionChange = true;
+        }
+
+        if (_pendingResolutionChange && _mainMenu.State == MainMenuState.Main)
+        {
+            ApplySettings();
+            ResizeUiForViewport(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            _pendingResolutionChange = false;
         }
     }
 
@@ -364,7 +413,8 @@ public class RiskyStarsGame : Game
     
     private void OnSettingsApplied(Settings settings)
     {
-        ThemeManager.ApplyThemeSettings(settings.Theme);
+        bool uiScaleChanged = settings.UiScalePercent != ThemeManager.CurrentUiScalePercent;
+        ThemeManager.ApplyThemeSettings(settings);
 
         bool resolutionChanged = settings.ResolutionWidth != _graphics.PreferredBackBufferWidth ||
                                 settings.ResolutionHeight != _graphics.PreferredBackBufferHeight ||
@@ -402,6 +452,52 @@ public class RiskyStarsGame : Game
         {
             _camera.PanSpeed = settings.CameraPanSpeed;
             _camera.ZoomSpeed = settings.CameraZoomSpeed;
+        }
+
+        if (uiScaleChanged || resolutionChanged)
+        {
+            ResizeUiForViewport(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            RecreateSettingsWindow();
+        }
+    }
+
+    private void RecreateSettingsWindow()
+    {
+        _settingsWindow = new SettingsWindow(_graphics, _settings, OnSettingsApplied);
+    }
+
+    private void RebuildMainMenuForCurrentDisplay()
+    {
+        _mainMenu?.ResizeViewport(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+    }
+
+    private void ResizeUiForViewport(int width, int height)
+    {
+        if (width <= 0 || height <= 0)
+        {
+            return;
+        }
+
+        _camera?.ResizeViewport(width, height);
+        _uiRenderer?.ResizeViewport(width, height);
+        _combatScreen?.ResizeViewport(width, height);
+        _aiActionIndicator?.ResizeViewport(width, height);
+        _playerDashboard?.ResizeViewport(width, height);
+
+        _mainMenu?.ResizeViewport(width, height);
+        _lobbyManager?.ResizeViewport(width, height);
+        _settingsWindow?.ResizeViewport();
+
+        _playerDashboardWindow?.ResizeViewport(width, height);
+        _aiVisualizationWindow?.ResizeViewport(width, height);
+        _debugInfoWindow?.ResizeViewport(width, height);
+
+        if (_serverStatusIndicator != null)
+        {
+            _serverStatusIndicator.Resize(Math.Min(500, Math.Max(280, width - 80)));
+            _serverStatusIndicator.Container.HorizontalAlignment = HorizontalAlignment.Center;
+            _serverStatusIndicator.Container.VerticalAlignment = VerticalAlignment.Bottom;
+            _serverStatusIndicator.Container.Top = height - 35;
         }
     }
 

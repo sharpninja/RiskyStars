@@ -13,11 +13,17 @@ namespace RiskyStars.Client;
 #pragma warning disable CS0618
 public class SinglePlayerLobbyScreen
 {
+    private const int ShuffleButtonWidth = 132;
+    private const int AssignmentWidth = 200;
     private readonly GraphicsDevice _graphicsDevice;
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
-    private readonly int _contentWidth;
-    private readonly int _settingsCardWidth;
+    private int _screenWidth;
+    private int _screenHeight;
+    private int _frameWidth => Math.Max(760, _screenWidth - 72);
+    private int _frameHeight => Math.Max(560, _screenHeight - 88);
+    private int _contentWidth => Math.Max(700, _frameWidth - 64);
+    private int _setupSidebarWidth => Math.Clamp(_contentWidth / 3, 280, 360);
+    private int _headerColumnWidth => Math.Max(360, _contentWidth - _setupSidebarWidth - ThemeManager.Spacing.Large);
+    private int _opponentListHeight => Math.Max(260, _frameHeight - 360);
 
     private SpriteFont? _font;
 
@@ -43,6 +49,7 @@ public class SinglePlayerLobbyScreen
 
     private KeyboardState _previousKeyState;
     private bool _suppressSlotEvents;
+    private readonly record struct RoleBadgeVisual(Color Fill, Color Border, Color Text, string Label);
 
     private const int MaxPlayers = 8;
     private static readonly string[] AvailableMaps = ["Default", "Small", "Medium", "Large"];
@@ -58,8 +65,6 @@ public class SinglePlayerLobbyScreen
         _graphicsDevice = graphicsDevice;
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
-        _contentWidth = Math.Max(780, Math.Min(screenWidth - 160, 1040));
-        _settingsCardWidth = (_contentWidth - ThemeManager.Spacing.Large) / 2;
 
         _playerSlots = new PlayerSlot[MaxPlayers];
         for (int i = 0; i < MaxPlayers; i++)
@@ -99,7 +104,6 @@ public class SinglePlayerLobbyScreen
 
     private void BuildUI()
     {
-        int frameHeight = Math.Min(_screenHeight - 120, 780);
         var rootGrid = ThemedUIFactory.CreateGrid();
         rootGrid.Width = _screenWidth;
         rootGrid.Height = _screenHeight;
@@ -112,20 +116,14 @@ public class SinglePlayerLobbyScreen
         contentStack.VerticalAlignment = VerticalAlignment.Center;
         contentStack.Spacing = ThemeManager.Spacing.Large;
 
-        contentStack.Widgets.Add(BuildHeaderSection());
-
-        _serverStatusIndicator = new ServerStatusIndicator(_contentWidth);
-        _serverStatusIndicator.Container.HorizontalAlignment = HorizontalAlignment.Center;
-        contentStack.Widgets.Add(_serverStatusIndicator.Container);
-
-        contentStack.Widgets.Add(BuildSetupSection());
+        contentStack.Widgets.Add(BuildTopSection());
         contentStack.Widgets.Add(BuildOpponentSection());
         contentStack.Widgets.Add(BuildButtonsSection());
 
-        var viewportFrame = ThemedUIFactory.CreateViewportFrame(_contentWidth + 96, frameHeight);
+        var viewportFrame = ThemedUIFactory.CreateViewportFrame(_frameWidth, _frameHeight);
         viewportFrame.HorizontalAlignment = HorizontalAlignment.Center;
         viewportFrame.VerticalAlignment = VerticalAlignment.Center;
-        viewportFrame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(contentStack, frameHeight - 96));
+        viewportFrame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(contentStack));
 
         rootGrid.Widgets.Add(viewportFrame);
 
@@ -138,36 +136,47 @@ public class SinglePlayerLobbyScreen
         }
     }
 
+    private Widget BuildTopSection()
+    {
+        var grid = ThemedUIFactory.CreateGrid(0, ThemeManager.Spacing.Large);
+        grid.Width = _contentWidth;
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Pixels, _setupSidebarWidth));
+
+        var leftStack = ThemedUIFactory.CreateCompactVerticalStack();
+        leftStack.Width = _headerColumnWidth;
+        leftStack.Spacing = ThemeManager.Spacing.Small;
+        leftStack.GridColumn = 0;
+        leftStack.Widgets.Add(BuildHeaderSection());
+
+        _serverStatusIndicator = new ServerStatusIndicator(_headerColumnWidth);
+        _serverStatusIndicator.Container.HorizontalAlignment = HorizontalAlignment.Stretch;
+        leftStack.Widgets.Add(_serverStatusIndicator.Container);
+        grid.Widgets.Add(leftStack);
+
+        var rightStack = ThemedUIFactory.CreateCompactVerticalStack();
+        rightStack.Width = _setupSidebarWidth;
+        rightStack.Spacing = ThemeManager.Spacing.Small;
+        rightStack.GridColumn = 1;
+        rightStack.Widgets.Add(BuildPlayerNameCard(_setupSidebarWidth));
+        rightStack.Widgets.Add(BuildMapCard(_setupSidebarWidth));
+        grid.Widgets.Add(rightStack);
+
+        return grid;
+    }
+
     private Widget BuildHeaderSection()
     {
         return ThemedUIFactory.CreateHeaderPlate(
             "Single Player Game Setup",
             "Configure your commander, map, and AI opponents.",
-            _contentWidth - 24);
+            _headerColumnWidth);
     }
 
-    private Widget BuildSetupSection()
+    private Panel BuildPlayerNameCard(int width)
     {
-        var grid = ThemedUIFactory.CreateGrid(0, ThemeManager.Spacing.Large);
-        grid.Width = _contentWidth;
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
-
-        var playerCard = BuildPlayerNameCard();
-        playerCard.GridColumn = 0;
-        grid.Widgets.Add(playerCard);
-
-        var mapCard = BuildMapCard();
-        mapCard.GridColumn = 1;
-        grid.Widgets.Add(mapCard);
-
-        return grid;
-    }
-
-    private Panel BuildPlayerNameCard()
-    {
-        _playerNameTextBox = ThemedUIFactory.CreateValidatedPlayerNameBox(_settingsCardWidth - 40, showErrorLabel: true);
-        _playerNameTextBox.Text = "Player";
+        _playerNameTextBox = ThemedUIFactory.CreateValidatedPlayerNameBox(width - 40, showErrorLabel: true);
+        _playerNameTextBox.Text = PlayerName;
         _playerNameTextBox.TextBox.TextChanged += (_, _) =>
         {
             UpdateHostNameFromInput();
@@ -177,28 +186,31 @@ public class SinglePlayerLobbyScreen
         return BuildFieldCard(
             "Commander Name",
             _playerNameTextBox.Container,
-            "This is the name shown for your human player.");
+            "Shown for your human player.",
+            width);
     }
 
-    private Panel BuildMapCard()
+    private Panel BuildMapCard(int width)
     {
-        _mapComboBox = ThemedUIFactory.CreateComboBox(_settingsCardWidth - 40);
+        _mapComboBox = ThemedUIFactory.CreateComboBox(width - 40);
         foreach (var map in AvailableMaps)
         {
             _mapComboBox.Items.Add(new ListItem(map));
         }
-        _mapComboBox.SelectedIndex = 0;
+        var selectedMapIndex = Array.IndexOf(AvailableMaps, SelectedMap);
+        _mapComboBox.SelectedIndex = selectedMapIndex >= 0 ? selectedMapIndex : 0;
 
         return BuildFieldCard(
             "Map Selection",
             _mapComboBox,
-            "Choose a starting map size for the match.");
+            "Choose the starting map size.",
+            width);
     }
 
-    private Panel BuildFieldCard(string title, Widget content, string description)
+    private Panel BuildFieldCard(string title, Widget content, string description, int width)
     {
         var panel = ThemedUIFactory.CreateFramePanel();
-        panel.Width = _settingsCardWidth;
+        panel.Width = width;
 
         var stack = ThemedUIFactory.CreateCompactVerticalStack();
         stack.Spacing = ThemeManager.Spacing.Small;
@@ -261,8 +273,8 @@ public class SinglePlayerLobbyScreen
         columnHeaderGrid.Widgets.Add(CreateColumnHeader("Slot", 0, 74));
         columnHeaderGrid.Widgets.Add(CreateColumnHeader("Commander", 1));
         columnHeaderGrid.Widgets.Add(CreateColumnHeader("Role", 2, 96));
-        columnHeaderGrid.Widgets.Add(CreateColumnHeader("Shuffle", 3, 100));
-        columnHeaderGrid.Widgets.Add(CreateColumnHeader("Assignment", 4, 180));
+        columnHeaderGrid.Widgets.Add(CreateColumnHeader("Shuffle", 3, ShuffleButtonWidth));
+        columnHeaderGrid.Widgets.Add(CreateColumnHeader("Assignment", 4, AssignmentWidth));
         outerGrid.Widgets.Add(columnHeaderGrid);
 
         _playerSlotsGrid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, ThemeManager.Spacing.Medium);
@@ -283,7 +295,7 @@ public class SinglePlayerLobbyScreen
         {
             Content = _playerSlotsGrid,
             GridRow = 3,
-            Height = 360,
+            Height = _opponentListHeight,
             ShowVerticalScrollBar = true,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top
@@ -347,7 +359,7 @@ public class SinglePlayerLobbyScreen
         _slotBadgePanels[slotIndex] = badgePanel;
         _playerSlotsGrid.Widgets.Add(badgePanel);
 
-        var shuffleButton = ThemedUIFactory.CreateButton("Shuffle", 100, 38, ThemeManager.ButtonTheme.Default);
+        var shuffleButton = ThemedUIFactory.CreateButton("Shuffle", ShuffleButtonWidth, 40, ThemeManager.ButtonTheme.Default);
         shuffleButton.GridRow = slotIndex;
         shuffleButton.GridColumn = 3;
         shuffleButton.Visible = slotIndex > 0;
@@ -364,7 +376,7 @@ public class SinglePlayerLobbyScreen
         }
         else
         {
-            var comboBox = ThemedUIFactory.CreateComboBox(180);
+            var comboBox = ThemedUIFactory.CreateComboBox(AssignmentWidth);
             comboBox.Items.Add(new ListItem("Off"));
             comboBox.Items.Add(new ListItem("Easy AI"));
             comboBox.Items.Add(new ListItem("Medium AI"));
@@ -391,7 +403,7 @@ public class SinglePlayerLobbyScreen
     private static Panel BuildLockedRoleWidget(string text)
     {
         var panel = ThemedUIFactory.CreateDarkPanel();
-        panel.Width = 180;
+        panel.Width = AssignmentWidth;
         panel.Height = 42;
         panel.Padding = ThemeManager.Padding.Medium;
 
@@ -492,7 +504,7 @@ public class SinglePlayerLobbyScreen
             namePanel.Background = ThemeManager.AssetBrushes.ListRowSelected;
             namePanel.Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderFocus);
             namePanel.BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal);
-            UpdateBadgePanel(badgePanel, ThemeManager.Colors.TextAccent, "HOST");
+            UpdateBadgePanel(badgePanel, CreateHostBadgeVisual());
 
             if (shuffleButton != null)
             {
@@ -510,15 +522,15 @@ public class SinglePlayerLobbyScreen
             namePanel.Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderFocus);
             namePanel.BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin);
 
-            var badgeColor = slot.PlayerType switch
+            var badgeVisual = slot.PlayerType switch
             {
-                PlayerType.EasyAI => ThemeManager.Colors.AIEasyColor,
-                PlayerType.MediumAI => ThemeManager.Colors.AIMediumColor,
-                PlayerType.HardAI => ThemeManager.Colors.AIHardColor,
-                _ => ThemeManager.Colors.BorderNormal
+                PlayerType.EasyAI => CreateDifficultyBadgeVisual(ThemeManager.Colors.AIEasyColor, "Easy", 0.22f),
+                PlayerType.MediumAI => CreateDifficultyBadgeVisual(ThemeManager.Colors.AIMediumColor, "Medium", 0.20f),
+                PlayerType.HardAI => CreateDifficultyBadgeVisual(ThemeManager.Colors.AIHardColor, "Hard", 0.18f),
+                _ => CreateOffBadgeVisual()
             };
 
-            UpdateBadgePanel(badgePanel, badgeColor, slot.GetDifficultyLevel());
+            UpdateBadgePanel(badgePanel, badgeVisual);
 
             if (shuffleButton != null)
             {
@@ -533,7 +545,7 @@ public class SinglePlayerLobbyScreen
             namePanel.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.SlotPanelNormal);
             namePanel.Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderNormal);
             namePanel.BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin);
-            UpdateBadgePanel(badgePanel, ThemeManager.Colors.DisabledColor, "OFF", ThemeManager.Colors.TextSecondary);
+            UpdateBadgePanel(badgePanel, CreateOffBadgeVisual());
 
             if (shuffleButton != null)
             {
@@ -560,22 +572,58 @@ public class SinglePlayerLobbyScreen
         }
     }
 
-    private static void UpdateBadgePanel(Panel panel, Color color, string text, Color? textColor = null)
+    private static void UpdateBadgePanel(Panel panel, RoleBadgeVisual visual)
     {
-        panel.Background = ThemeManager.CreateSolidBrush(color * 0.85f);
-        panel.Border = ThemeManager.CreateSolidBrush(color);
+        panel.Background = ThemeManager.CreateSolidBrush(visual.Fill);
+        panel.Border = ThemeManager.CreateSolidBrush(visual.Border);
         panel.BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin);
         panel.Widgets.Clear();
 
         var label = new Label
         {
-            Text = text.ToUpperInvariant(),
+            Text = visual.Label.ToUpperInvariant(),
             Font = ThemeManager.UiFonts.Tiny,
-            TextColor = textColor ?? ThemeManager.Colors.TextPrimary,
+            TextColor = visual.Text,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
         };
         panel.Widgets.Add(label);
+    }
+
+    private static RoleBadgeVisual CreateHostBadgeVisual()
+    {
+        return new RoleBadgeVisual(
+            BlendColor(ThemeManager.Colors.TerminalBlack, ThemeManager.Colors.PhosphorGreenBright, 0.26f, 232),
+            BlendColor(ThemeManager.Colors.BorderNormal, ThemeManager.Colors.PhosphorGreenBright, 0.78f),
+            BlendColor(ThemeManager.Colors.PhosphorGreenBright, ThemeManager.Colors.NeutralSilver, 0.18f),
+            "Host");
+    }
+
+    private static RoleBadgeVisual CreateDifficultyBadgeVisual(Color accent, string label, float fillMix)
+    {
+        return new RoleBadgeVisual(
+            BlendColor(ThemeManager.Colors.TerminalBlack, accent, fillMix, 228),
+            BlendColor(ThemeManager.Colors.BorderNormal, accent, 0.68f),
+            BlendColor(accent, ThemeManager.Colors.NeutralSilver, 0.28f),
+            label);
+    }
+
+    private static RoleBadgeVisual CreateOffBadgeVisual()
+    {
+        return new RoleBadgeVisual(
+            BlendColor(ThemeManager.Colors.TerminalBlack, ThemeManager.Colors.DisabledColor, 0.14f, 224),
+            BlendColor(ThemeManager.Colors.BorderNormal, ThemeManager.Colors.DisabledColor, 0.30f),
+            ThemeManager.Colors.TextSecondary,
+            "Off");
+    }
+
+    private static Color BlendColor(Color from, Color to, float amount, byte? alpha = null)
+    {
+        return new Color(
+            (byte)Math.Clamp((int)MathF.Round(MathHelper.Lerp(from.R, to.R, amount)), 0, 255),
+            (byte)Math.Clamp((int)MathF.Round(MathHelper.Lerp(from.G, to.G, amount)), 0, 255),
+            (byte)Math.Clamp((int)MathF.Round(MathHelper.Lerp(from.B, to.B, amount)), 0, 255),
+            alpha ?? (byte)Math.Clamp((int)MathF.Round(MathHelper.Lerp(from.A, to.A, amount)), 0, 255));
     }
 
     private void UpdateHostNameFromInput()
@@ -595,6 +643,7 @@ public class SinglePlayerLobbyScreen
         }
 
         _playerSlots[0].PlayerName = proposedName;
+        PlayerName = proposedName;
         UpdatePlayerSlotUI(0);
     }
 
@@ -730,6 +779,27 @@ public class SinglePlayerLobbyScreen
         if (_mapComboBox != null)
         {
             _mapComboBox.SelectedIndex = 0;
+        }
+
+        UpdateAllSlotRows();
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        PlayerName = _playerNameTextBox?.Text?.Trim() is { Length: > 0 } draftName ? draftName : PlayerName;
+        SelectedMap = _mapComboBox?.SelectedItem?.Text ?? SelectedMap;
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+        BuildUI();
+
+        if (_embeddedServerHost != null)
+        {
+            SetEmbeddedServerHost(_embeddedServerHost);
         }
 
         UpdateAllSlotRows();

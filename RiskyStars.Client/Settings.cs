@@ -5,10 +5,39 @@ namespace RiskyStars.Client;
 
 public class Settings
 {
+    public static readonly string[] SupportedResolutions =
+    [
+        "1280x720",
+        "1366x768",
+        "1600x900",
+        "1920x1080",
+        "2560x1440",
+        "3840x2160"
+    ];
+
+    public static readonly string[] WindowModeOptions =
+    [
+        "Windowed",
+        "Fullscreen"
+    ];
+
+    public static List<string> GetResolutionOptions(string? currentResolution = null)
+    {
+        var options = SupportedResolutions.ToList();
+        if (!string.IsNullOrWhiteSpace(currentResolution) &&
+            !options.Contains(currentResolution, StringComparer.OrdinalIgnoreCase))
+        {
+            options.Insert(0, currentResolution);
+        }
+
+        return options;
+    }
+
     public UiThemeSettings Theme { get; set; } = new();
     public string ServerAddress { get; set; } = "http://localhost:5000";
     public int ResolutionWidth { get; set; } = 1280;
     public int ResolutionHeight { get; set; } = 720;
+    public int UiScalePercent { get; set; } = 100;
     public bool Fullscreen { get; set; } = false;
     public bool VSync { get; set; } = true;
     public int TargetFrameRate { get; set; } = 60;
@@ -34,8 +63,7 @@ public class Settings
             {
                 var json = File.ReadAllText(SettingsPath);
                 var settings = JsonSerializer.Deserialize<Settings>(json) ?? new Settings();
-                settings.Theme ??= new UiThemeSettings();
-                settings.Theme.Normalize();
+                settings.Normalize();
                 return settings;
             }
         }
@@ -50,6 +78,7 @@ public class Settings
     {
         try
         {
+            Normalize();
             var json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(SettingsPath, json);
         }
@@ -67,6 +96,7 @@ public class Settings
             ServerAddress = ServerAddress,
             ResolutionWidth = ResolutionWidth,
             ResolutionHeight = ResolutionHeight,
+            UiScalePercent = UiScalePercent,
             Fullscreen = Fullscreen,
             VSync = VSync,
             TargetFrameRate = TargetFrameRate,
@@ -79,6 +109,21 @@ public class Settings
             ShowDebugInfo = ShowDebugInfo,
             ShowFPS = ShowFPS
         };
+    }
+
+    public void Normalize()
+    {
+        Theme ??= new UiThemeSettings();
+        Theme.Normalize();
+
+        if (string.IsNullOrWhiteSpace(ServerAddress))
+        {
+            ServerAddress = "http://localhost:5000";
+        }
+
+        UiScalePercent = Math.Clamp(UiScalePercent <= 0 ? 100 : UiScalePercent, 80, 160);
+        ResolutionWidth = Math.Max(800, ResolutionWidth);
+        ResolutionHeight = Math.Max(600, ResolutionHeight);
     }
 }
 

@@ -9,8 +9,8 @@ namespace RiskyStars.Client;
 
 public class CreateLobbyScreen
 {
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
 
     private Desktop? _desktop;
     private Panel? _mainPanel;
@@ -23,6 +23,8 @@ public class CreateLobbyScreen
     public bool ShouldCreate { get; private set; }
     public bool ShouldCancel { get; private set; }
     public LobbySettingsProto? LobbySettings { get; private set; }
+    private string _mapNameDraft = "Default";
+    private int _maxPlayersDraft = 4;
 
     public CreateLobbyScreen(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
@@ -39,8 +41,8 @@ public class CreateLobbyScreen
 
     private void BuildUI()
     {
-        int frameWidth = Math.Min(_screenWidth - 180, 920);
-        int frameHeight = Math.Min(_screenHeight - 140, 620);
+        int frameWidth = ThemedUIFactory.ResolveResponsiveExtent(_screenWidth, 180, 920);
+        int frameHeight = ThemedUIFactory.ResolveResponsiveExtent(_screenHeight, 140, 620);
         var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
@@ -54,13 +56,13 @@ public class CreateLobbyScreen
         cards.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
 
         _mapNameTextBox = new ValidatedTextBox(cardWidth - 40, "Enter map name", showErrorLabel: true);
-        _mapNameTextBox.Text = "Default";
+        _mapNameTextBox.Text = _mapNameDraft;
         _mapNameTextBox.SetValidator(InputValidator.ValidateMapName);
         var mapCard = ThemedUIFactory.CreateFieldCard("Map Selection", "Choose the map preset or scenario name for this lobby.", _mapNameTextBox.Container, cardWidth);
         mapCard.GridColumn = 0;
         cards.Widgets.Add(mapCard);
 
-        _maxPlayersSpinButton = ThemedUIFactory.CreateSpinButton(4, 2, 6);
+        _maxPlayersSpinButton = ThemedUIFactory.CreateSpinButton(_maxPlayersDraft, 2, 6);
         _maxPlayersSpinButton.Width = cardWidth - 40;
         var playerCard = ThemedUIFactory.CreateFieldCard("Maximum Commanders", "Set the player capacity for the session. Current implementation supports 2-6.", _maxPlayersSpinButton, cardWidth);
         playerCard.GridColumn = 1;
@@ -157,13 +159,30 @@ public class CreateLobbyScreen
         if (_mapNameTextBox != null)
         {
             _mapNameTextBox.Text = "Default";
-            _mapNameTextBox.ValidateInput();
+                _mapNameTextBox.ValidateInput();
         }
 
         if (_maxPlayersSpinButton != null)
         {
             _maxPlayersSpinButton.Value = 4;
         }
+
+        _mapNameDraft = "Default";
+        _maxPlayersDraft = 4;
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _mapNameDraft = _mapNameTextBox?.Text ?? _mapNameDraft;
+        _maxPlayersDraft = (int)Math.Round(_maxPlayersSpinButton?.Value ?? _maxPlayersDraft);
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+        BuildUI();
     }
 
     public void Draw(SpriteBatch spriteBatch)

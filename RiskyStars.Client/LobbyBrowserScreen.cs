@@ -9,8 +9,12 @@ namespace RiskyStars.Client;
 
 public class LobbyBrowserScreen
 {
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
+    private int _frameWidth => ThemedUIFactory.ResolveResponsiveExtent(_screenWidth, 120, 1120);
+    private int _frameHeight => ThemedUIFactory.ResolveResponsiveExtent(_screenHeight, 120, 760);
+    private int _listViewportHeight => Math.Max(280, _frameHeight - 312);
+    private int _emptyStateWidth => Math.Max(360, _frameWidth - 192);
 
     private Desktop? _desktop;
     private Panel? _mainPanel;
@@ -46,9 +50,7 @@ public class LobbyBrowserScreen
 
     private void BuildUI()
     {
-        int frameWidth = Math.Min(_screenWidth - 120, 1120);
-        int frameHeight = Math.Min(_screenHeight - 120, 760);
-        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
+        var frame = ThemedUIFactory.CreateViewportFrame(_frameWidth, _frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
 
@@ -74,7 +76,7 @@ public class LobbyBrowserScreen
         layout.Widgets.Add(metaStrip);
 
         var listPanel = ThemedUIFactory.CreateFramePanel();
-        var scrollViewer = ThemedUIFactory.CreateAutoScrollViewer(new Panel(), 420);
+        var scrollViewer = ThemedUIFactory.CreateAutoScrollViewer(new Panel(), _listViewportHeight);
 
         _lobbiesGrid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, ThemeManager.Spacing.Small);
         _lobbiesGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
@@ -111,7 +113,7 @@ public class LobbyBrowserScreen
         buttons.Widgets.Add(_refreshButton);
 
         layout.Widgets.Add(buttons);
-        frame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(layout, frameHeight - 96));
+        frame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(layout, _frameHeight - 96));
 
         _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainPanel.Widgets.Add(frame);
@@ -151,7 +153,7 @@ public class LobbyBrowserScreen
             var emptyLabel = ThemedUIFactory.CreateSecondaryLabel("No active lobbies. Create one to open the first command room.");
             emptyLabel.Wrap = true;
             emptyLabel.TextColor = ThemeManager.Colors.TextSecondary;
-            emptyLabel.Width = 720;
+            emptyLabel.Width = _emptyStateWidth;
             emptyPanel.Widgets.Add(emptyLabel);
             _lobbiesGrid.Widgets.Add(emptyPanel);
             return;
@@ -273,6 +275,19 @@ public class LobbyBrowserScreen
 
         SetStatus("Refreshes automatically every 2 seconds.");
         RebuildLobbiesList();
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+        BuildUI();
+        SetLobbies(_lobbies);
     }
 
     public void Draw(SpriteBatch spriteBatch)

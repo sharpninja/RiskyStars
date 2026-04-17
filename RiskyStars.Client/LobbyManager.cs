@@ -28,8 +28,8 @@ public enum LobbyState
 public class LobbyManager
 {
     private readonly GraphicsDevice _graphicsDevice;
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
 
     private LobbyClient? _lobbyClient;
     private EmbeddedServerHost? _embeddedServerHost;
@@ -692,5 +692,28 @@ public class LobbyManager
         {
             System.Console.WriteLine($"Error disposing LobbyManager: {ex.Message}");
         }
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+
+        _modeSelectorScreen.ResizeViewport(screenWidth, screenHeight);
+        _singlePlayerLobbyScreen.ResizeViewport(screenWidth, screenHeight);
+        _connectionScreen.ResizeViewport(screenWidth, screenHeight);
+        _browserScreen.ResizeViewport(screenWidth, screenHeight);
+        _createLobbyScreen.ResizeViewport(screenWidth, screenHeight);
+        _lobbyScreen.ResizeViewport(screenWidth, screenHeight);
+
+        _initializingDesktop = null;
+        _initializingMainPanel = null;
+        _initializingLoadingLabel = null;
+        _initializingStatusLabel = null;
     }
 }

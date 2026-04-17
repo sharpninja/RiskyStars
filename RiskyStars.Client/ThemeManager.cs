@@ -9,6 +9,7 @@ using Myra.Graphics2D.UI;
 using Myra.Graphics2D.UI.Styles;
 using System;
 using System.IO;
+using System.Reflection;
 using MyraButton = Myra.Graphics2D.UI.Button;
 using MyraComboBox = Myra.Graphics2D.UI.ComboBox;
 
@@ -23,7 +24,9 @@ public static class ThemeManager
     private static bool _contentLoaded;
     private static FontSystem? _fontSystem;
     private static LoadedAssets? _assets;
-    private static ThemeProfile _themeProfile = ThemeProfile.FromSettings(new UiThemeSettings());
+    private static ThemeProfile _themeProfile = ThemeProfile.FromSettings(new UiThemeSettings(), 100);
+    private static readonly PropertyInfo? ComboBoxInternalChildProperty =
+        typeof(MyraComboBox).GetProperty("InternalChild", BindingFlags.Instance | BindingFlags.NonPublic);
 
     public static Stylesheet Stylesheet
     {
@@ -35,9 +38,16 @@ public static class ThemeManager
 
     public static bool IsContentLoaded => _contentLoaded;
 
-    public static void ApplyThemeSettings(UiThemeSettings? themeSettings)
+    public static int CurrentUiScalePercent => _themeProfile.UiScalePercent;
+
+    public static void ApplyThemeSettings(Settings? settings)
     {
-        _themeProfile = ThemeProfile.FromSettings(themeSettings);
+        ApplyThemeSettings(settings?.Theme, settings?.UiScalePercent ?? 100);
+    }
+
+    public static void ApplyThemeSettings(UiThemeSettings? themeSettings, int uiScalePercent = 100)
+    {
+        _themeProfile = ThemeProfile.FromSettings(themeSettings, uiScalePercent);
 
         if (_contentLoaded)
         {
@@ -67,10 +77,10 @@ public static class ThemeManager
         _assets = new LoadedAssets
         {
             Backdrop = CreateTextureBrush(content.Load<Texture2D>($"{MyraAssetRoot}Backdrop")),
-            ViewportFrame = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ViewportFrame"), 22),
-            WindowFrame = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}WindowFrame"), 16),
-            TerminalPanel = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}TerminalPanel"), 10),
-            HeaderPlate = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}HeaderPlate"), 12),
+            ViewportFrame = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ViewportFrame"), 10),
+            WindowFrame = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}WindowFrame"), 8),
+            TerminalPanel = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}TerminalPanel"), 4),
+            HeaderPlate = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}HeaderPlate"), 4),
             ButtonPrimaryNormal = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ButtonPrimaryNormal"), 8),
             ButtonPrimaryHover = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ButtonPrimaryHover"), 8),
             ButtonPrimaryPressed = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ButtonPrimaryPressed"), 8),
@@ -311,10 +321,10 @@ public static class ThemeManager
     private static void ConfigureWindowStyle(WindowStyle style)
     {
         style.Background = AssetBrushes.WindowFrame;
-        style.Border = CreateSolidBrush(Colors.SteelEdge);
-        style.OverBorder = CreateSolidBrush(Colors.BorderFocus);
-        style.FocusedBorder = CreateSolidBrush(Colors.BorderFocus);
-        style.BorderThickness = new Thickness(BorderThickness.Thin);
+        style.Border = CreateSolidBrush(Color.Transparent);
+        style.OverBorder = CreateSolidBrush(Color.Transparent);
+        style.FocusedBorder = CreateSolidBrush(Color.Transparent);
+        style.BorderThickness = new Thickness(0);
         style.Padding = Padding.Large;
 
         style.TitleStyle ??= new LabelStyle();
@@ -328,10 +338,10 @@ public static class ThemeManager
 
     private static void ConfigureScrollViewerStyle(ScrollViewerStyle style)
     {
-        style.Background = AssetBrushes.TerminalPanel;
-        style.Border = CreateSolidBrush(Colors.BorderNormal);
-        style.BorderThickness = new Thickness(BorderThickness.Thin);
-        style.Padding = Padding.Medium;
+        style.Background = CreateSolidBrush(Color.Transparent);
+        style.Border = CreateSolidBrush(Color.Transparent);
+        style.BorderThickness = new Thickness(0);
+        style.Padding = new Thickness(0);
     }
 
     private static void ConfigureSpinButtonStyle(SpinButtonStyle style)
@@ -375,9 +385,9 @@ public static class ThemeManager
     public static void ApplyWindowTheme(Window window, bool highlighted = false)
     {
         window.Background = AssetBrushes.WindowFrame;
-        window.Border = CreateSolidBrush(highlighted ? Colors.BorderFocus : Colors.SteelEdge);
-        window.BorderThickness = new Thickness(BorderThickness.Thin);
-        window.Padding = Padding.Large;
+        window.Border = CreateSolidBrush(Color.Transparent);
+        window.BorderThickness = new Thickness(0);
+        window.Padding = Padding.Panel;
         window.TitleTextColor = Colors.TextWarning;
         window.TitleFont = UiFonts.Heading;
     }
@@ -385,6 +395,7 @@ public static class ThemeManager
     public static void ApplyButtonTheme(MyraButton button, ButtonTheme theme = ButtonTheme.Default)
     {
         var visuals = GetButtonVisuals(theme);
+        var isCompact = IsCompactButton(button);
         button.Background = visuals.Background;
         button.OverBackground = visuals.OverBackground;
         button.PressedBackground = visuals.PressedBackground;
@@ -393,8 +404,8 @@ public static class ThemeManager
         button.OverBorder = CreateSolidBrush(Colors.BorderFocus);
         button.FocusedBorder = CreateSolidBrush(Colors.BorderFocus);
         button.BorderThickness = new Thickness(BorderThickness.Thin);
-        button.Padding = Padding.Button;
-        ApplyButtonContentTheme(button.Content, visuals);
+        button.Padding = isCompact ? CreateCompactButtonPadding() : Padding.Button;
+        ApplyButtonContentTheme(button.Content, visuals, isCompact);
     }
 
     public static void ApplyPanelTheme(Panel panel, PanelTheme theme = PanelTheme.Default)
@@ -402,44 +413,44 @@ public static class ThemeManager
         switch (theme)
         {
             case PanelTheme.Frame:
-                panel.Background = AssetBrushes.WindowFrame;
-                panel.Border = CreateSolidBrush(Colors.SteelEdge);
-                panel.BorderThickness = new Thickness(BorderThickness.Thin);
-                panel.Padding = Padding.XLarge;
+                panel.Background = AssetBrushes.TerminalPanel;
+                panel.Border = CreateSolidBrush(Color.Transparent);
+                panel.BorderThickness = new Thickness(0);
+                panel.Padding = Padding.Medium;
                 break;
 
             case PanelTheme.AccentFrame:
-                panel.Background = AssetBrushes.WindowFrame;
-                panel.Border = CreateSolidBrush(Colors.BorderFocus);
-                panel.BorderThickness = new Thickness(BorderThickness.Thin);
-                panel.Padding = Padding.XLarge;
+                panel.Background = AssetBrushes.TerminalPanel;
+                panel.Border = CreateSolidBrush(Color.Transparent);
+                panel.BorderThickness = new Thickness(0);
+                panel.Padding = Padding.Medium;
                 break;
 
             case PanelTheme.Resource:
                 panel.Background = AssetBrushes.TerminalPanel;
-                panel.Border = CreateSolidBrush(Colors.BorderFocus);
-                panel.BorderThickness = new Thickness(BorderThickness.Thin);
+                panel.Border = CreateSolidBrush(Color.Transparent);
+                panel.BorderThickness = new Thickness(0);
                 panel.Padding = Padding.Large;
                 break;
 
             case PanelTheme.Hero:
                 panel.Background = AssetBrushes.HeaderPlate;
-                panel.Border = CreateSolidBrush(Colors.TextWarning);
-                panel.BorderThickness = new Thickness(BorderThickness.Thin);
+                panel.Border = CreateSolidBrush(Color.Transparent);
+                panel.BorderThickness = new Thickness(0);
                 panel.Padding = Padding.Large;
                 break;
 
             case PanelTheme.Dark:
                 panel.Background = AssetBrushes.TerminalPanel;
-                panel.Border = CreateSolidBrush(Colors.BorderNormal);
-                panel.BorderThickness = new Thickness(BorderThickness.Thin);
+                panel.Border = CreateSolidBrush(Color.Transparent);
+                panel.BorderThickness = new Thickness(0);
                 panel.Padding = Padding.Large;
                 break;
 
             default:
                 panel.Background = AssetBrushes.TerminalPanel;
-                panel.Border = CreateSolidBrush(Colors.BorderNormal);
-                panel.BorderThickness = new Thickness(BorderThickness.Thin);
+                panel.Border = CreateSolidBrush(Color.Transparent);
+                panel.BorderThickness = new Thickness(0);
                 panel.Padding = Padding.Large;
                 break;
         }
@@ -531,6 +542,32 @@ public static class ThemeManager
         comboBox.BorderThickness = new Thickness(BorderThickness.Thin);
         comboBox.Padding = Padding.Input;
         comboBox.Height = Sizes.InputMediumHeight;
+
+        var internalChild = GetComboBoxDisplayButton(comboBox);
+        if (internalChild != null)
+        {
+            internalChild.Background = CreateSolidBrush(Color.Transparent);
+            internalChild.OverBackground = CreateSolidBrush(Color.Transparent);
+            internalChild.PressedBackground = CreateSolidBrush(Color.Transparent);
+            internalChild.Border = CreateSolidBrush(Color.Transparent);
+            internalChild.OverBorder = CreateSolidBrush(Color.Transparent);
+            internalChild.FocusedBorder = CreateSolidBrush(Color.Transparent);
+            internalChild.BorderThickness = new Thickness(0);
+            internalChild.Padding = new Thickness(0, 0, Spacing.Small, 0);
+            internalChild.Font = UiFonts.Body;
+            internalChild.TextColor = Colors.TextPrimary;
+            internalChild.OverTextColor = Colors.TextPrimary;
+            internalChild.PressedTextColor = Colors.TextPrimary;
+            internalChild.LabelHorizontalAlignment = HorizontalAlignment.Left;
+            internalChild.LabelVerticalAlignment = VerticalAlignment.Center;
+        }
+
+        comboBox.ListBox.Background = AssetBrushes.TerminalPanel;
+        comboBox.ListBox.Border = CreateSolidBrush(Colors.BorderNormal);
+        comboBox.ListBox.OverBorder = CreateSolidBrush(Colors.BorderFocus);
+        comboBox.ListBox.FocusedBorder = CreateSolidBrush(Colors.BorderFocus);
+        comboBox.ListBox.BorderThickness = new Thickness(BorderThickness.Thin);
+        comboBox.ListBox.Padding = Padding.Small;
     }
 
     public static void ApplyCheckButtonTheme(CheckButton checkButton)
@@ -564,18 +601,38 @@ public static class ThemeManager
         spinButton.Padding = Padding.Input;
     }
 
-    private static void ApplyButtonContentTheme(Widget? content, ButtonVisuals visuals)
+    private static void ApplyButtonContentTheme(Widget? content, ButtonVisuals visuals, bool isCompact)
     {
         if (content is Label label)
         {
-            label.Font = UiFonts.Button;
+            label.Font = isCompact ? UiFonts.Small : UiFonts.Button;
             label.TextColor = visuals.TextColor;
             label.OverTextColor = visuals.OverTextColor;
             label.DisabledTextColor = visuals.DisabledTextColor;
             label.Scale = Vector2.One;
             label.HorizontalAlignment = HorizontalAlignment.Center;
             label.VerticalAlignment = VerticalAlignment.Center;
+            label.Wrap = false;
+            label.SingleLine = true;
         }
+    }
+
+    private static bool IsCompactButton(MyraButton button)
+    {
+        var compactWidthLimit = Sizes.ButtonSmallWidth + Spacing.XXLarge;
+        var compactHeightLimit = Sizes.ButtonSmallHeight + Spacing.XSmall;
+        return (button.Width.HasValue && button.Width.Value <= compactWidthLimit) ||
+               (button.Height.HasValue && button.Height.Value <= compactHeightLimit);
+    }
+
+    private static Thickness CreateCompactButtonPadding()
+    {
+        return new Thickness(Math.Max(Spacing.Small, 10), Math.Max(Spacing.XSmall + 2, 6));
+    }
+
+    private static ImageTextButton? GetComboBoxDisplayButton(MyraComboBox comboBox)
+    {
+        return ComboBoxInternalChildProperty?.GetValue(comboBox) as ImageTextButton;
     }
 
     private static ButtonVisuals GetButtonVisuals(ButtonTheme theme)
@@ -822,11 +879,11 @@ public static class ThemeManager
 
     public static class Sizes
     {
-        public static int ButtonSmallWidth => 96;
+        public static int ButtonSmallWidth => _themeProfile.ButtonSmallWidth;
         public static int ButtonSmallHeight => _themeProfile.ButtonSmallHeight;
-        public static int ButtonMediumWidth => 170;
+        public static int ButtonMediumWidth => _themeProfile.ButtonMediumWidth;
         public static int ButtonMediumHeight => _themeProfile.ButtonMediumHeight;
-        public static int ButtonLargeWidth => 260;
+        public static int ButtonLargeWidth => _themeProfile.ButtonLargeWidth;
         public static int ButtonLargeHeight => _themeProfile.ButtonLargeHeight;
 
         public static int InputSmallHeight => _themeProfile.InputSmallHeight;
@@ -890,6 +947,7 @@ public static class ThemeManager
     private sealed class ThemeProfile
     {
         public required UiThemeSettings Source { get; init; }
+        public required int UiScalePercent { get; init; }
         public required float TinyFontSize { get; init; }
         public required float SmallFontSize { get; init; }
         public required float BodyFontSize { get; init; }
@@ -920,6 +978,9 @@ public static class ThemeManager
         public required Thickness HeaderPlatePadding { get; init; }
         public required Thickness BadgePadding { get; init; }
 
+        public required int ButtonSmallWidth { get; init; }
+        public required int ButtonMediumWidth { get; init; }
+        public required int ButtonLargeWidth { get; init; }
         public required int ButtonSmallHeight { get; init; }
         public required int ButtonMediumHeight { get; init; }
         public required int ButtonLargeHeight { get; init; }
@@ -969,7 +1030,7 @@ public static class ThemeManager
         public required Color SlotPanelNormal { get; init; }
         public required Color SlotPanelReady { get; init; }
 
-        public static ThemeProfile FromSettings(UiThemeSettings? rawSettings)
+        public static ThemeProfile FromSettings(UiThemeSettings? rawSettings, int uiScalePercent)
         {
             var settings = rawSettings?.Clone() ?? new UiThemeSettings();
             settings.Normalize();
@@ -978,9 +1039,10 @@ public static class ThemeManager
             var warning = ResolveWarningColor(settings.WarningColor);
             var fontProfile = ResolveFontProfile(settings.FontStyle);
 
-            float fontScale = settings.FontScalePercent / 100f;
-            float paddingScale = settings.PaddingScalePercent / 100f;
-            float frameScale = settings.FramePaddingPercent / 100f;
+            float uiScale = Math.Clamp(uiScalePercent, 80, 160) / 100f;
+            float fontScale = uiScale * (settings.FontScalePercent / 100f);
+            float paddingScale = uiScale * (settings.PaddingScalePercent / 100f);
+            float frameScale = uiScale * (settings.FramePaddingPercent / 100f);
             float contrastScale = settings.ContrastPercent / 100f;
             float sizeScale = MathF.Max(paddingScale, fontScale * 0.94f);
 
@@ -1004,6 +1066,7 @@ public static class ThemeManager
             return new ThemeProfile
             {
                 Source = settings,
+                UiScalePercent = (int)MathF.Round(uiScale * 100f),
                 TinyFontSize = 12f * fontScale * fontProfile.Tiny,
                 SmallFontSize = 15f * fontScale * fontProfile.Small,
                 BodyFontSize = 18f * fontScale * fontProfile.Body,
@@ -1021,7 +1084,7 @@ public static class ThemeManager
 
                 SmallPadding = CreateThickness(ScaleMetric(8, paddingScale)),
                 MediumPadding = CreateThickness(ScaleMetric(14, paddingScale)),
-                LargePadding = CreateThickness(ScaleMetric(22, paddingScale)),
+                LargePadding = CreateThickness(ScaleMetric(18, paddingScale)),
                 XLargePadding = CreateThickness(ScaleMetric(30, paddingScale)),
                 SmallVerticalPadding = CreateThickness(0, ScaleMetric(8, paddingScale)),
                 MediumVerticalPadding = CreateThickness(0, ScaleMetric(14, paddingScale)),
@@ -1029,11 +1092,14 @@ public static class ThemeManager
                 MediumHorizontalPadding = CreateThickness(ScaleMetric(14, paddingScale), 0),
                 ButtonPadding = CreateThickness(ScaleMetric(24, paddingScale), ScaleMetric(16, paddingScale)),
                 InputPadding = CreateThickness(ScaleMetric(16, paddingScale), ScaleMetric(12, paddingScale)),
-                PanelPadding = CreateThickness(ScaleMetric(24, paddingScale)),
-                ViewportFramePadding = CreateThickness(ScaleMetric(28, frameScale), ScaleMetric(24, frameScale)),
-                HeaderPlatePadding = CreateThickness(ScaleMetric(26, frameScale), ScaleMetric(22, frameScale)),
+                PanelPadding = CreateThickness(ScaleMetric(14, paddingScale)),
+                ViewportFramePadding = CreateThickness(ScaleMetric(10, frameScale), ScaleMetric(8, frameScale)),
+                HeaderPlatePadding = CreateThickness(ScaleMetric(10, frameScale), ScaleMetric(8, frameScale)),
                 BadgePadding = CreateThickness(ScaleMetric(12, paddingScale), ScaleMetric(8, paddingScale)),
 
+                ButtonSmallWidth = ScaleMetric(96, sizeScale),
+                ButtonMediumWidth = ScaleMetric(170, sizeScale),
+                ButtonLargeWidth = ScaleMetric(260, sizeScale),
                 ButtonSmallHeight = ScaleMetric(40, sizeScale),
                 ButtonMediumHeight = ScaleMetric(56, sizeScale),
                 ButtonLargeHeight = ScaleMetric(66, sizeScale),

@@ -14,8 +14,8 @@ public enum MainMenuState
 
 public class MainMenu
 {
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
     private Settings _settings;
 
     private Desktop? _desktop;
@@ -31,11 +31,13 @@ public class MainMenu
     private ValidatedTextBox? _serverAddressTextBox;
 #pragma warning disable CS0618
     private ComboBox? _resolutionComboBox;
+    private ComboBox? _windowModeComboBox;
     private ComboBox? _themeAccentComboBox;
     private ComboBox? _themeWarningComboBox;
     private ComboBox? _themeFontStyleComboBox;
 #pragma warning restore CS0618
-    private CheckButton? _fullscreenCheckButton;
+    private HorizontalSlider? _uiScaleSlider;
+    private Label? _uiScaleValueLabel;
     private HorizontalSlider? _themeFontScaleSlider;
     private HorizontalSlider? _themePaddingSlider;
     private HorizontalSlider? _themeFramePaddingSlider;
@@ -48,6 +50,19 @@ public class MainMenu
     private MyraButton? _backButton;
 
     private Panel? _connectingPanel;
+
+    private sealed class SettingsViewDraft
+    {
+        public string ServerAddress { get; init; } = string.Empty;
+        public string AccentColor { get; init; } = UiThemeSettings.AccentColorOptions[0];
+        public string WarningColor { get; init; } = UiThemeSettings.WarningColorOptions[0];
+        public string FontStyle { get; init; } = UiThemeSettings.FontStyleOptions[1];
+        public int UiScalePercent { get; init; } = 100;
+        public int FontScalePercent { get; init; } = 100;
+        public int PaddingScalePercent { get; init; } = 100;
+        public int FramePaddingPercent { get; init; } = 100;
+        public int ContrastPercent { get; init; } = 100;
+    }
 
     public bool ShouldConnect { get; private set; }
     public bool ShouldStartSinglePlayer { get; private set; }
@@ -65,7 +80,7 @@ public class MainMenu
     public void LoadContent(SpriteFont font)
     {
         _desktop = new Desktop();
-        ThemeManager.ApplyThemeSettings(_settings.Theme);
+        ThemeManager.ApplyThemeSettings(_settings);
         ThemeManager.ApplyDesktopTheme(_desktop);
         _dialogManager = new DialogManager(_desktop);
 
@@ -77,85 +92,94 @@ public class MainMenu
 
     private void BuildMainMenuUI()
     {
-        int frameWidth = Math.Min(_screenWidth - 120, 1160);
-        int frameHeight = Math.Min(_screenHeight - 120, 700);
+        int frameWidth = ThemedUIFactory.ResolveResponsiveExtent(_screenWidth, 120, 1080);
+        int frameHeight = ThemedUIFactory.ResolveResponsiveExtent(_screenHeight, 100, 620);
+        int narrativeWidth = Math.Max(420, frameWidth - 420);
         var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
 
-        var layout = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Large, ThemeManager.Spacing.XXLarge);
+        var layout = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Large, ThemeManager.Spacing.Large);
+        layout.HorizontalAlignment = HorizontalAlignment.Stretch;
+        layout.VerticalAlignment = VerticalAlignment.Stretch;
         layout.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
-        layout.ColumnsProportions.Add(new Proportion(ProportionType.Pixels, 330));
+        layout.ColumnsProportions.Add(new Proportion(ProportionType.Pixels, 280));
         layout.RowsProportions.Add(new Proportion(ProportionType.Auto));
         layout.RowsProportions.Add(new Proportion(ProportionType.Fill));
         layout.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
-        var header = ThemedUIFactory.CreateHeaderPlate("RiskyStars", "Fleet command interface");
-        header.GridRow = 0;
-        header.GridColumnSpan = 2;
-        layout.Widgets.Add(header);
+        var headerStack = ThemedUIFactory.CreateCompactVerticalStack();
+        headerStack.Spacing = ThemeManager.Spacing.XSmall;
+        headerStack.GridRow = 0;
+        headerStack.GridColumnSpan = 2;
 
-        var narrativePanel = ThemedUIFactory.CreateConsolePanel();
-        narrativePanel.GridRow = 1;
-        narrativePanel.GridColumn = 0;
+        var titleLabel = ThemedUIFactory.CreateTitleLabel("RiskyStars");
+        titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        headerStack.Widgets.Add(titleLabel);
 
-        var narrativeStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
+        var subtitleLabel = ThemedUIFactory.CreateSubtitleLabel("Fleet command interface");
+        subtitleLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        subtitleLabel.TextColor = ThemeManager.Colors.TextPrimary;
+        headerStack.Widgets.Add(subtitleLabel);
+        layout.Widgets.Add(headerStack);
+
+        var narrativeStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
+        narrativeStack.GridRow = 1;
+        narrativeStack.GridColumn = 0;
+        narrativeStack.Margin = ThemeManager.Padding.Medium;
         var overline = ThemedUIFactory.CreateSmallLabel("SECTOR BRIEF");
         overline.TextColor = ThemeManager.Colors.TextWarning;
         narrativeStack.Widgets.Add(overline);
 
         var headline = ThemedUIFactory.CreateTitleLabel("Chart a system. Build a faction. Risk the stars.");
         headline.Wrap = true;
-        headline.Width = 540;
+        headline.Width = narrativeWidth - 32;
         narrativeStack.Widgets.Add(headline);
 
         var summary = ThemedUIFactory.CreateSecondaryLabel("A framed command deck for multiplayer campaigns, fast single-player setup, and in-game ship-console tooling.");
         summary.Wrap = true;
-        summary.Width = 520;
+        summary.Width = narrativeWidth - 44;
         summary.TextColor = ThemeManager.Colors.TextPrimary;
         narrativeStack.Widgets.Add(summary);
 
         var featureStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
-        featureStack.Widgets.Add(CreateMenuBullet("Multiplayer lobbies with a shared command shell."));
-        featureStack.Widgets.Add(CreateMenuBullet("Single-player lineup builder with AI command slots."));
-        featureStack.Widgets.Add(CreateMenuBullet("Dockable in-game windows styled as one console family."));
+        featureStack.Widgets.Add(CreateMenuBullet("Multiplayer lobbies with a shared command shell.", narrativeWidth - 36));
+        featureStack.Widgets.Add(CreateMenuBullet("Single-player lineup builder with AI command slots.", narrativeWidth - 36));
+        featureStack.Widgets.Add(CreateMenuBullet("Dockable in-game windows styled as one console family.", narrativeWidth - 36));
         narrativeStack.Widgets.Add(featureStack);
+        layout.Widgets.Add(narrativeStack);
 
-        narrativePanel.Widgets.Add(narrativeStack);
-        layout.Widgets.Add(narrativePanel);
-
-        var commandPanel = ThemedUIFactory.CreateFramePanel();
+        var commandPanel = ThemedUIFactory.CreateConsolePanel();
         commandPanel.GridRow = 1;
         commandPanel.GridColumn = 1;
 
-        var commandStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
+        var commandStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
         var commandHeading = ThemedUIFactory.CreateHeadingLabel("Command Actions");
         commandStack.Widgets.Add(commandHeading);
 
-        _connectButton = ThemedUIFactory.CreateLargeButton("Multiplayer", ThemeManager.ButtonTheme.Primary);
+        _connectButton = ThemedUIFactory.CreateButton("Multiplayer", 236, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Primary);
         _connectButton.Click += (_, _) => OnConnectClicked();
         commandStack.Widgets.Add(_connectButton);
 
-        var singlePlayerButton = ThemedUIFactory.CreateLargeButton("Single Player", ThemeManager.ButtonTheme.Primary);
+        var singlePlayerButton = ThemedUIFactory.CreateButton("Single Player", 236, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Primary);
         singlePlayerButton.Click += (_, _) => OnSinglePlayerClicked();
         commandStack.Widgets.Add(singlePlayerButton);
 
-        _settingsButton = ThemedUIFactory.CreateLargeButton("Settings", ThemeManager.ButtonTheme.Default);
+        _settingsButton = ThemedUIFactory.CreateButton("Settings", 236, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Default);
         _settingsButton.Click += (_, _) => OnSettingsClicked();
         commandStack.Widgets.Add(_settingsButton);
 
-        _exitButton = ThemedUIFactory.CreateLargeButton("Exit", ThemeManager.ButtonTheme.Danger);
+        _exitButton = ThemedUIFactory.CreateButton("Exit", 236, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Danger);
         _exitButton.Click += (_, _) => OnExitClicked();
         commandStack.Widgets.Add(_exitButton);
 
         commandPanel.Widgets.Add(commandStack);
         layout.Widgets.Add(commandPanel);
 
-        var footer = ThemedUIFactory.CreateConsolePanel();
-        footer.GridRow = 2;
-        footer.GridColumnSpan = 2;
-
         var footerGrid = ThemedUIFactory.CreateGrid(0, ThemeManager.Spacing.Large);
+        footerGrid.GridRow = 2;
+        footerGrid.GridColumnSpan = 2;
+        footerGrid.Margin = ThemeManager.Padding.SmallVertical;
         footerGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
         footerGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
 
@@ -169,12 +193,9 @@ public class MainMenu
         versionLabel.TextColor = ThemeManager.Colors.TextSecondary;
         versionLabel.GridColumn = 1;
         footerGrid.Widgets.Add(versionLabel);
+        layout.Widgets.Add(footerGrid);
 
-        footer.Widgets.Add(footerGrid);
-        layout.Widgets.Add(footer);
-
-        var scrollViewer = ThemedUIFactory.CreateAutoScrollViewer(layout, frameHeight - 96);
-        frame.Widgets.Add(scrollViewer);
+        frame.Widgets.Add(layout);
 
         _mainMenuPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainMenuPanel.Widgets.Add(frame);
@@ -182,8 +203,8 @@ public class MainMenu
 
     private void BuildSettingsUI()
     {
-        int frameWidth = Math.Min(_screenWidth - 140, 1040);
-        int frameHeight = Math.Min(_screenHeight - 120, 760);
+        int frameWidth = ThemedUIFactory.ResolveResponsiveExtent(_screenWidth, 140, 1040);
+        int frameHeight = ThemedUIFactory.ResolveResponsiveExtent(_screenHeight, 120, 760);
         int contentWidth = frameWidth - 96;
 
         var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
@@ -246,8 +267,7 @@ public class MainMenu
 #pragma warning disable CS0618
         _resolutionComboBox = ThemedUIFactory.CreateComboBox(cardWidth - 40);
 #pragma warning restore CS0618
-        var resolutions = new List<string> { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
-        foreach (var resolution in resolutions)
+        foreach (var resolution in Settings.GetResolutionOptions($"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}"))
         {
 #pragma warning disable CS0618
             _resolutionComboBox.Items.Add(new ListItem(resolution));
@@ -255,17 +275,16 @@ public class MainMenu
         }
 
         var currentResolution = $"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}";
-        var selectedIndex = resolutions.IndexOf(currentResolution);
+        var selectedIndex = Array.IndexOf(Settings.SupportedResolutions, currentResolution);
         _resolutionComboBox.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
 
         var displayStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
-        displayStack.Widgets.Add(_resolutionComboBox);
+        displayStack.Widgets.Add(CreateThemeSelectField("Resolution", "Choose the backbuffer size used in windowed or fullscreen mode.", _resolutionComboBox));
 
-        var fullscreenRow = ThemedUIFactory.CreateHorizontalStack(ThemeManager.Spacing.Small);
-        _fullscreenCheckButton = ThemedUIFactory.CreateCheckButton(_settings.Fullscreen);
-        fullscreenRow.Widgets.Add(_fullscreenCheckButton);
-        fullscreenRow.Widgets.Add(ThemedUIFactory.CreateLabel("Fullscreen output"));
-        displayStack.Widgets.Add(fullscreenRow);
+        _windowModeComboBox = CreateSettingsComboBox(Settings.WindowModeOptions, cardWidth - 40);
+        displayStack.Widgets.Add(CreateThemeSelectField("Window Mode", "Switch between a resizable window and fullscreen output.", _windowModeComboBox));
+
+        displayStack.Widgets.Add(CreateThemeSliderField("UI Scale", "Scales Myra menus, panels, buttons, and window chrome.", 80, 160, out _uiScaleSlider, out _uiScaleValueLabel));
 
         var displayCard = ThemedUIFactory.CreateFieldCard("Display Profile", "Choose the monitor profile for the command deck.", displayStack, cardWidth);
         displayCard.GridColumn = 1;
@@ -273,6 +292,8 @@ public class MainMenu
 
         contentStack.Widgets.Add(cards);
         contentStack.Widgets.Add(BuildThemeSettingsCard(contentWidth));
+        HookThemeSlider(_uiScaleSlider, _uiScaleValueLabel);
+        SyncDisplayControlsFromSettings();
         return contentStack;
     }
 
@@ -486,6 +507,48 @@ public class MainMenu
         }
     }
 
+    private void SyncDisplayControlsFromSettings()
+    {
+        if (_resolutionComboBox != null)
+        {
+            var currentResolution = $"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}";
+            EnsureResolutionOptionPresent(_resolutionComboBox, currentResolution);
+#pragma warning disable CS0618
+            var resolutionOptions = _resolutionComboBox.Items.Select(item => item.Text).ToList();
+#pragma warning restore CS0618
+            var selectedIndex = resolutionOptions.FindIndex(option => string.Equals(option, currentResolution, StringComparison.OrdinalIgnoreCase));
+            _resolutionComboBox.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
+        }
+
+        SetComboSelection(_windowModeComboBox, Settings.WindowModeOptions, _settings.Fullscreen ? "Fullscreen" : "Windowed");
+
+        if (_uiScaleSlider != null)
+        {
+            _uiScaleSlider.Value = _settings.UiScalePercent;
+        }
+
+        if (_uiScaleValueLabel != null)
+        {
+            _uiScaleValueLabel.Text = $"{_settings.UiScalePercent}%";
+        }
+    }
+
+    private static void EnsureResolutionOptionPresent(ComboBox comboBox, string resolution)
+    {
+        if (string.IsNullOrWhiteSpace(resolution))
+        {
+            return;
+        }
+
+#pragma warning disable CS0618
+        bool exists = comboBox.Items.Any(item => string.Equals(item.Text, resolution, StringComparison.OrdinalIgnoreCase));
+        if (!exists)
+        {
+            comboBox.Items.Insert(0, new ListItem(resolution));
+        }
+#pragma warning restore CS0618
+    }
+
     private void ApplyThemeSelectionsToSettings()
     {
         _settings.Theme.AccentColor = _themeAccentComboBox?.SelectedItem?.Text ?? _settings.Theme.AccentColor;
@@ -498,10 +561,34 @@ public class MainMenu
         _settings.Theme.Normalize();
     }
 
+    private void ApplyDisplaySelectionsToSettings()
+    {
+        if (_resolutionComboBox?.SelectedItem != null)
+        {
+            var selectedResolution = _resolutionComboBox.SelectedItem.Text;
+            if (!string.IsNullOrEmpty(selectedResolution))
+            {
+                var parts = selectedResolution.Split('x');
+                if (parts.Length == 2 &&
+                    int.TryParse(parts[0], out int width) &&
+                    int.TryParse(parts[1], out int height))
+                {
+                    _settings.ResolutionWidth = width;
+                    _settings.ResolutionHeight = height;
+                }
+            }
+        }
+
+        _settings.Fullscreen = string.Equals(_windowModeComboBox?.SelectedItem?.Text, "Fullscreen", StringComparison.OrdinalIgnoreCase);
+        _settings.UiScalePercent = (int)Math.Round(_uiScaleSlider?.Value ?? _settings.UiScalePercent);
+        _settings.Normalize();
+    }
+
     private void BuildConnectingUI()
     {
-        int frameHeight = Math.Min(_screenHeight - 180, 420);
-        var frame = ThemedUIFactory.CreateViewportFrame(Math.Min(_screenWidth - 240, 700), frameHeight);
+        int frameWidth = ThemedUIFactory.ResolveResponsiveExtent(_screenWidth, 240, 700);
+        int frameHeight = ThemedUIFactory.ResolveResponsiveExtent(_screenHeight, 180, 420);
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
 
@@ -517,7 +604,7 @@ public class MainMenu
         var subtitle = ThemedUIFactory.CreateSecondaryLabel("The multiplayer lobby browser will appear when the uplink is ready.");
         subtitle.HorizontalAlignment = HorizontalAlignment.Center;
         subtitle.Wrap = true;
-        subtitle.Width = 440;
+        subtitle.Width = Math.Max(320, frameWidth - 220);
         messageStack.Widgets.Add(subtitle);
 
         messagePanel.Widgets.Add(messageStack);
@@ -529,15 +616,18 @@ public class MainMenu
         _connectingPanel.Widgets.Add(frame);
     }
 
-    private static Widget CreateMenuBullet(string text)
+    private static Widget CreateMenuBullet(string text, int width)
     {
         var row = ThemedUIFactory.CreateHorizontalStack(ThemeManager.Spacing.Small);
-        row.Widgets.Add(ThemedUIFactory.CreateStatusBadge(ThemeManager.Colors.TextAccent, "SYS", 68));
+
+        var tag = ThemedUIFactory.CreateSmallLabel("SYS");
+        tag.TextColor = ThemeManager.Colors.TextAccent;
+        row.Widgets.Add(tag);
 
         var label = ThemedUIFactory.CreateSecondaryLabel(text);
         label.TextColor = ThemeManager.Colors.TextPrimary;
         label.Wrap = true;
-        label.Width = 420;
+        label.Width = Math.Max(280, width);
         row.Widgets.Add(label);
         return row;
     }
@@ -565,18 +655,7 @@ public class MainMenu
 
         if (_resolutionComboBox != null)
         {
-            var currentResolution = $"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}";
-            var resolutions = new List<string> { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
-            var selectedIndex = resolutions.IndexOf(currentResolution);
-            if (selectedIndex >= 0)
-            {
-                _resolutionComboBox.SelectedIndex = selectedIndex;
-            }
-        }
-
-        if (_fullscreenCheckButton != null)
-        {
-            _fullscreenCheckButton.IsPressed = _settings.Fullscreen;
+            SyncDisplayControlsFromSettings();
         }
 
         SyncThemeControlsFromSettings();
@@ -595,6 +674,24 @@ public class MainMenu
     public void SetState(MainMenuState state)
     {
         _state = state;
+        UpdateUI();
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        var settingsDraft = CaptureSettingsViewDraft();
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+
+        BuildMainMenuUI();
+        BuildSettingsUI();
+        BuildConnectingUI();
+        RestoreSettingsViewDraft(settingsDraft);
         UpdateUI();
     }
 
@@ -661,29 +758,9 @@ public class MainMenu
             _settings.ServerAddress = _serverAddressTextBox.Text.Trim();
         }
 
-        if (_resolutionComboBox?.SelectedItem != null)
-        {
-            var selectedResolution = _resolutionComboBox.SelectedItem.Text;
-            if (!string.IsNullOrEmpty(selectedResolution))
-            {
-                var parts = selectedResolution.Split('x');
-                if (parts.Length == 2 &&
-                    int.TryParse(parts[0], out int width) &&
-                    int.TryParse(parts[1], out int height))
-                {
-                    _settings.ResolutionWidth = width;
-                    _settings.ResolutionHeight = height;
-                }
-            }
-        }
-
-        if (_fullscreenCheckButton != null)
-        {
-            _settings.Fullscreen = _fullscreenCheckButton.IsPressed;
-        }
-
+        ApplyDisplaySelectionsToSettings();
         ApplyThemeSelectionsToSettings();
-        ThemeManager.ApplyThemeSettings(_settings.Theme);
+        ThemeManager.ApplyThemeSettings(_settings);
         _settings.Save();
         BuildMainMenuUI();
         BuildSettingsUI();
@@ -700,11 +777,7 @@ public class MainMenu
             _serverAddressTextBox.ClearValidation();
         }
 
-        if (_fullscreenCheckButton != null)
-        {
-            _fullscreenCheckButton.IsPressed = _settings.Fullscreen;
-        }
-
+        SyncDisplayControlsFromSettings();
         SyncThemeControlsFromSettings();
 
         _state = MainMenuState.Main;
@@ -719,5 +792,83 @@ public class MainMenu
     public void Draw(SpriteBatch spriteBatch)
     {
         _desktop?.Render();
+    }
+
+    private SettingsViewDraft CaptureSettingsViewDraft()
+    {
+        return new SettingsViewDraft
+        {
+            ServerAddress = _serverAddressTextBox?.Text ?? _settings.ServerAddress,
+            AccentColor = _themeAccentComboBox?.SelectedItem?.Text ?? _settings.Theme.AccentColor,
+            WarningColor = _themeWarningComboBox?.SelectedItem?.Text ?? _settings.Theme.WarningColor,
+            FontStyle = _themeFontStyleComboBox?.SelectedItem?.Text ?? _settings.Theme.FontStyle,
+            UiScalePercent = (int)Math.Round(_uiScaleSlider?.Value ?? _settings.UiScalePercent),
+            FontScalePercent = (int)Math.Round(_themeFontScaleSlider?.Value ?? _settings.Theme.FontScalePercent),
+            PaddingScalePercent = (int)Math.Round(_themePaddingSlider?.Value ?? _settings.Theme.PaddingScalePercent),
+            FramePaddingPercent = (int)Math.Round(_themeFramePaddingSlider?.Value ?? _settings.Theme.FramePaddingPercent),
+            ContrastPercent = (int)Math.Round(_themeContrastSlider?.Value ?? _settings.Theme.ContrastPercent)
+        };
+    }
+
+    private void RestoreSettingsViewDraft(SettingsViewDraft draft)
+    {
+        if (_serverAddressTextBox != null)
+        {
+            _serverAddressTextBox.Text = draft.ServerAddress;
+        }
+
+        SetComboSelection(_themeAccentComboBox, UiThemeSettings.AccentColorOptions, draft.AccentColor);
+        SetComboSelection(_themeWarningComboBox, UiThemeSettings.WarningColorOptions, draft.WarningColor);
+        SetComboSelection(_themeFontStyleComboBox, UiThemeSettings.FontStyleOptions, draft.FontStyle);
+
+        if (_uiScaleSlider != null)
+        {
+            _uiScaleSlider.Value = draft.UiScalePercent;
+        }
+
+        if (_uiScaleValueLabel != null)
+        {
+            _uiScaleValueLabel.Text = $"{draft.UiScalePercent}%";
+        }
+
+        if (_themeFontScaleSlider != null)
+        {
+            _themeFontScaleSlider.Value = draft.FontScalePercent;
+        }
+
+        if (_themeFontScaleValueLabel != null)
+        {
+            _themeFontScaleValueLabel.Text = $"{draft.FontScalePercent}%";
+        }
+
+        if (_themePaddingSlider != null)
+        {
+            _themePaddingSlider.Value = draft.PaddingScalePercent;
+        }
+
+        if (_themePaddingValueLabel != null)
+        {
+            _themePaddingValueLabel.Text = $"{draft.PaddingScalePercent}%";
+        }
+
+        if (_themeFramePaddingSlider != null)
+        {
+            _themeFramePaddingSlider.Value = draft.FramePaddingPercent;
+        }
+
+        if (_themeFramePaddingValueLabel != null)
+        {
+            _themeFramePaddingValueLabel.Text = $"{draft.FramePaddingPercent}%";
+        }
+
+        if (_themeContrastSlider != null)
+        {
+            _themeContrastSlider.Value = draft.ContrastPercent;
+        }
+
+        if (_themeContrastValueLabel != null)
+        {
+            _themeContrastValueLabel.Text = $"{draft.ContrastPercent}%";
+        }
     }
 }

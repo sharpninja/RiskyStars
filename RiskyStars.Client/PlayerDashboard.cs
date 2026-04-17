@@ -12,8 +12,8 @@ public class PlayerDashboard
 {
     private readonly GraphicsDevice _graphicsDevice;
     private readonly GrpcGameClient _gameClient;
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
+    private int _screenWidth;
+    private int _screenHeight;
     
     private Desktop? _desktop;
     private Panel? _mainPanel;
@@ -94,6 +94,18 @@ public class PlayerDashboard
     {
         // Myra doesn't require explicit font loading in this way
         // The UI is already built in BuildUI
+    }
+
+    public void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+        BuildUI();
     }
     
     public void SetCurrentPlayer(string? playerId)

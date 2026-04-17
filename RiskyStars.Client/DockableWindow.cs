@@ -9,8 +9,8 @@ public class DockableWindow
     protected Window _window;
     protected readonly string _windowId;
     protected readonly WindowPreferences _preferences;
-    protected readonly int _screenWidth;
-    protected readonly int _screenHeight;
+    protected int _screenWidth;
+    protected int _screenHeight;
     
     private DockPosition _currentDockPosition = DockPosition.None;
     
@@ -228,5 +228,30 @@ public class DockableWindow
     
     public virtual void Update(Microsoft.Xna.Framework.GameTime gameTime)
     {
+    }
+
+    public virtual void ResizeViewport(int screenWidth, int screenHeight)
+    {
+        if (screenWidth <= 0 || screenHeight <= 0)
+        {
+            return;
+        }
+
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+
+        if (_currentDockPosition != DockPosition.None)
+        {
+            ApplyDockPosition(_currentDockPosition);
+            return;
+        }
+
+        int width = _window.Width ?? 300;
+        int height = _window.Height ?? 400;
+        int maxTop = Math.Max(TitleBarHeight + 10, _screenHeight - height - 10);
+        int maxLeft = Math.Max(10, _screenWidth - width - 10);
+
+        _window.Left = Math.Clamp(_window.Left, 10, maxLeft);
+        _window.Top = Math.Clamp(_window.Top, TitleBarHeight + 10, maxTop);
     }
 }

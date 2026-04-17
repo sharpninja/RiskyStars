@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
@@ -11,6 +12,13 @@ namespace RiskyStars.Client;
 /// </summary>
 public static class ThemedUIFactory
 {
+    public static int ResolveResponsiveExtent(int screenExtent, int preferredMargin, int baselineExtent, int safetyMargin = 24)
+    {
+        int preferredExtent = Math.Max(1, screenExtent - preferredMargin);
+        int safeExtent = Math.Max(1, screenExtent - safetyMargin);
+        return Math.Min(Math.Max(baselineExtent, preferredExtent), safeExtent);
+    }
+
     public static MyraButton CreateButton(string text, ButtonTheme theme = ButtonTheme.Default)
     {
         return CreateButton(text, Sizes.ButtonMediumWidth, Sizes.ButtonMediumHeight, theme);
@@ -18,6 +26,7 @@ public static class ThemedUIFactory
 
     public static MyraButton CreateButton(string text, int width, int height, ButtonTheme theme = ButtonTheme.Default)
     {
+        var normalizedText = NormalizeButtonText(text, width, height);
         var button = new MyraButton
         {
             Width = width,
@@ -25,7 +34,9 @@ public static class ThemedUIFactory
             HorizontalAlignment = HorizontalAlignment.Center,
             Content = new Label
             {
-                Text = NormalizeButtonText(text)
+                Text = normalizedText,
+                Wrap = false,
+                SingleLine = true
             }
         };
 
@@ -124,8 +135,8 @@ public static class ThemedUIFactory
         {
             Width = width,
             Background = ThemeManager.AssetBrushes.ViewportFrame,
-            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.SteelEdge),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
+            Border = ThemeManager.CreateSolidBrush(Color.Transparent),
+            BorderThickness = new Thickness(0),
             Padding = ThemeManager.Padding.ViewportFrame
         };
 
@@ -142,8 +153,8 @@ public static class ThemedUIFactory
         var panel = new Panel
         {
             Background = ThemeManager.AssetBrushes.TerminalPanel,
-            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderNormal),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
+            Border = ThemeManager.CreateSolidBrush(Color.Transparent),
+            BorderThickness = new Thickness(0),
             Padding = ThemeManager.Padding.Large
         };
 
@@ -159,10 +170,10 @@ public static class ThemedUIFactory
     {
         var panel = new Panel
         {
-            Background = ThemeManager.AssetBrushes.HeaderPlate,
-            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.TextWarning),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
-            Padding = ThemeManager.Padding.HeaderPlate
+            Background = ThemeManager.CreateSolidBrush(Color.Transparent),
+            Border = ThemeManager.CreateSolidBrush(Color.Transparent),
+            BorderThickness = new Thickness(0),
+            Padding = ThemeManager.Padding.SmallVertical
         };
 
         if (width.HasValue)
@@ -503,8 +514,13 @@ public static class ThemedUIFactory
         return stack;
     }
 
-    private static string NormalizeButtonText(string text)
+    private static string NormalizeButtonText(string text, int width, int height)
     {
+        if (width <= 140 || height <= ThemeManager.Sizes.ButtonSmallHeight + 2)
+        {
+            return text;
+        }
+
         return text.ToUpperInvariant();
     }
 }
