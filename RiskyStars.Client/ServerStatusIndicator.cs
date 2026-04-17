@@ -31,6 +31,7 @@ public class ServerStatusIndicator
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
 
+#pragma warning disable CS0618 // Type or member is obsolete
         _statusDot = new Panel
         {
             Width = 12,
@@ -39,8 +40,10 @@ public class ServerStatusIndicator
             GridColumn = 0,
             VerticalAlignment = VerticalAlignment.Center
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_statusDot);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         _statusLabel = new Label
         {
             Text = "Server: Stopped",
@@ -49,8 +52,10 @@ public class ServerStatusIndicator
             GridColumn = 1,
             VerticalAlignment = VerticalAlignment.Center
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_statusLabel);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         _detailsLabel = new Label
         {
             Text = "",
@@ -60,6 +65,7 @@ public class ServerStatusIndicator
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Right
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_detailsLabel);
 
         _container = new Panel
@@ -70,7 +76,7 @@ public class ServerStatusIndicator
         _container.Widgets.Add(grid);
     }
 
-    public void SetServerHost(EmbeddedServerHost serverHost)
+    public void SetServerHost(EmbeddedServerHost? serverHost)
     {
         _serverHost = serverHost;
         Update();

@@ -19,15 +19,15 @@ public class PlayerDashboardWindow : DockableWindow
     private Label? _territoriesLabel;
     private Label? _armiesLabel;
     
-    private TextButton? _buy1Button;
-    private TextButton? _buy5Button;
-    private TextButton? _buy10Button;
-    private TextButton? _buy25Button;
+    private Myra.Graphics2D.UI.Button? _buy1Button;
+    private Myra.Graphics2D.UI.Button? _buy5Button;
+    private Myra.Graphics2D.UI.Button? _buy10Button;
+    private Myra.Graphics2D.UI.Button? _buy25Button;
     private Label? _purchasePhaseLabel;
     
-    private TextButton? _assignToArmyButton;
-    private TextButton? _assignToRegionButton;
-    private TextButton? _recallHeroButton;
+    private Myra.Graphics2D.UI.Button? _assignToArmyButton;
+    private Myra.Graphics2D.UI.Button? _assignToRegionButton;
+    private Myra.Graphics2D.UI.Button? _recallHeroButton;
     private Label? _heroStatusLabel;
     
     private string? _currentPlayerId;
@@ -342,7 +342,7 @@ public class PlayerDashboardWindow : DockableWindow
         UpdatePurchaseButton(_buy25Button, 25, playerState, isPurchasePhase);
     }
     
-    private void UpdatePurchaseButton(TextButton? button, int count, PlayerState playerState, bool isPurchasePhase)
+    private void UpdatePurchaseButton(Myra.Graphics2D.UI.Button? button, int count, PlayerState playerState, bool isPurchasePhase)
     {
         if (button == null)
         {

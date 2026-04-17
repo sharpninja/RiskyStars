@@ -367,21 +367,27 @@ public class ContextMenuManager
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var titleLabel = ThemedUIFactory.CreateHeadingLabel("Split Army");
+#pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(titleLabel);
         
         var infoLabel = ThemedUIFactory.CreateLabel($"Total Units: {army.UnitCount}");
+#pragma warning disable CS0618 // Type or member is obsolete
         infoLabel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         infoLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(infoLabel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var splitPanel = new HorizontalStackPanel
         {
             Spacing = Spacing.Medium,
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var splitLabel = ThemedUIFactory.CreateLabel("Units to split off:");
         splitPanel.Widgets.Add(splitLabel);
@@ -393,7 +399,9 @@ public class ContextMenuManager
         mainGrid.Widgets.Add(splitPanel);
         
         var remainingLabel = ThemedUIFactory.CreateSecondaryLabel($"Remaining units: {army.UnitCount - 1}");
+#pragma warning disable CS0618 // Type or member is obsolete
         remainingLabel.GridRow = 3;
+#pragma warning restore CS0618 // Type or member is obsolete
         remainingLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(remainingLabel);
         
@@ -404,12 +412,14 @@ public class ContextMenuManager
             remainingLabel.Text = $"Remaining units: {remaining}";
         };
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var buttonsPanel = new HorizontalStackPanel
         {
             Spacing = Spacing.Medium,
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 4
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var confirmButton = ThemedUIFactory.CreateButton("Split", ButtonTheme.Primary);
         confirmButton.Click += (s, a) =>
@@ -446,21 +456,27 @@ public class ContextMenuManager
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var titleLabel = ThemedUIFactory.CreateHeadingLabel("Merge Armies");
+#pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(titleLabel);
         
         var selectedArmyShortId = selectedArmy.ArmyId.Length > 8 ? selectedArmy.ArmyId.Substring(0, 8) + "..." : selectedArmy.ArmyId;
         var infoLabel = ThemedUIFactory.CreateLabel($"Selected: Army {selectedArmyShortId} ({selectedArmy.UnitCount} units)");
+#pragma warning disable CS0618 // Type or member is obsolete
         infoLabel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         infoLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(infoLabel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var armiesPanel = new VerticalStackPanel
         {
             Spacing = Spacing.Small,
             GridRow = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var selectLabel = ThemedUIFactory.CreateSecondaryLabel("Select army to merge with:");
         armiesPanel.Widgets.Add(selectLabel);
@@ -482,12 +498,14 @@ public class ContextMenuManager
         
         mainGrid.Widgets.Add(armiesPanel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var buttonsPanel = new HorizontalStackPanel
         {
             Spacing = Spacing.Medium,
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 3
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var cancelButton = ThemedUIFactory.CreateButton("Cancel", ButtonTheme.Danger);
         cancelButton.Click += (s, a) => dialog.Close();
@@ -515,22 +533,28 @@ public class ContextMenuManager
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var titleLabel = ThemedUIFactory.CreateHeadingLabel("Merge All Armies");
+#pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(titleLabel);
         
         var infoLabel = ThemedUIFactory.CreateLabel($"Merge {armies.Count} armies into one?\nTotal units: {totalUnits}");
+#pragma warning disable CS0618 // Type or member is obsolete
         infoLabel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         infoLabel.HorizontalAlignment = HorizontalAlignment.Center;
         infoLabel.Wrap = true;
         mainGrid.Widgets.Add(infoLabel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var buttonsPanel = new HorizontalStackPanel
         {
             Spacing = Spacing.Medium,
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var confirmButton = ThemedUIFactory.CreateButton("Merge", ButtonTheme.Primary);
         confirmButton.Click += (s, a) =>
@@ -566,22 +590,28 @@ public class ContextMenuManager
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var titleLabel = ThemedUIFactory.CreateHeadingLabel("Assign Hero");
+#pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         titleLabel.TextColor = Colors.HeroColor;
         mainGrid.Widgets.Add(titleLabel);
         
         var armyShortId = army.ArmyId.Length > 8 ? army.ArmyId.Substring(0, 8) + "..." : army.ArmyId;
         var infoLabel = ThemedUIFactory.CreateLabel($"Army: {armyShortId} ({army.UnitCount} units)");
+#pragma warning disable CS0618 // Type or member is obsolete
         infoLabel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         infoLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(infoLabel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var heroesPanel = new VerticalStackPanel
         {
             Spacing = Spacing.Small,
             GridRow = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var selectLabel = ThemedUIFactory.CreateSecondaryLabel("Available Heroes:");
         heroesPanel.Widgets.Add(selectLabel);
@@ -608,12 +638,14 @@ public class ContextMenuManager
         
         mainGrid.Widgets.Add(heroesPanel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var buttonsPanel = new HorizontalStackPanel
         {
             Spacing = Spacing.Medium,
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 3
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var cancelButton = ThemedUIFactory.CreateButton("Cancel", ButtonTheme.Danger);
         cancelButton.Click += (s, a) => dialog.Close();
@@ -703,20 +735,26 @@ public class ContextMenuManager
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var titleLabel = ThemedUIFactory.CreateHeadingLabel("Upgrade Stellar Body");
+#pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(titleLabel);
         
         var infoLabel = ThemedUIFactory.CreateLabel($"{body.Name} ({body.Type})");
+#pragma warning disable CS0618 // Type or member is obsolete
         infoLabel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         infoLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(infoLabel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var upgradesPanel = new VerticalStackPanel
         {
             Spacing = Spacing.Small,
             GridRow = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var selectLabel = ThemedUIFactory.CreateSecondaryLabel("Available Upgrades:");
         upgradesPanel.Widgets.Add(selectLabel);
@@ -746,12 +784,14 @@ public class ContextMenuManager
         
         mainGrid.Widgets.Add(upgradesPanel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var buttonsPanel = new HorizontalStackPanel
         {
             Spacing = Spacing.Medium,
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 3
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var cancelButton = ThemedUIFactory.CreateButton("Cancel", ButtonTheme.Danger);
         cancelButton.Click += (s, a) => dialog.Close();
@@ -811,21 +851,27 @@ public class ContextMenuManager
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var titleLabel = ThemedUIFactory.CreateHeadingLabel("Reinforce Location");
+#pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(titleLabel);
         
         var infoLabel = ThemedUIFactory.CreateLabel($"Location: {locationName}");
+#pragma warning disable CS0618 // Type or member is obsolete
         infoLabel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         infoLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(infoLabel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var reinforcePanel = new HorizontalStackPanel
         {
             Spacing = Spacing.Medium,
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var unitsLabel = ThemedUIFactory.CreateLabel("Units to deploy:");
         reinforcePanel.Widgets.Add(unitsLabel);
@@ -836,12 +882,14 @@ public class ContextMenuManager
         
         mainGrid.Widgets.Add(reinforcePanel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var buttonsPanel = new HorizontalStackPanel
         {
             Spacing = Spacing.Medium,
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 3
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var confirmButton = ThemedUIFactory.CreateButton("Reinforce", ButtonTheme.Primary);
         confirmButton.Click += (s, a) =>
@@ -881,20 +929,26 @@ public class ContextMenuManager
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var titleLabel = ThemedUIFactory.CreateHeadingLabel("Diplomacy");
+#pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(titleLabel);
         
         var playerLabel = ThemedUIFactory.CreateLabel($"Player: {playerName}");
+#pragma warning disable CS0618 // Type or member is obsolete
         playerLabel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         playerLabel.HorizontalAlignment = HorizontalAlignment.Center;
         mainGrid.Widgets.Add(playerLabel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var actionsPanel = new VerticalStackPanel
         {
             Spacing = Spacing.Small,
             GridRow = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var allianceButton = ThemedUIFactory.CreateButton("Propose Alliance", 300, Sizes.ButtonMediumHeight, ButtonTheme.Success);
         allianceButton.Click += (s, a) =>
@@ -927,12 +981,14 @@ public class ContextMenuManager
         
         mainGrid.Widgets.Add(actionsPanel);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var buttonsPanel = new HorizontalStackPanel
         {
             Spacing = Spacing.Medium,
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 3
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var cancelButton = ThemedUIFactory.CreateButton("Cancel", ButtonTheme.Danger);
         cancelButton.Click += (s, a) => dialog.Close();

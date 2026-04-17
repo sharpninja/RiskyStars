@@ -20,9 +20,21 @@ public class LobbyBrowserScreen
     private Desktop? _desktop;
     private Panel? _mainPanel;
     private Grid? _lobbiesGrid;
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _createLobbyButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _joinLobbyButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _refreshButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
     private Label? _countLabel;
 
     private List<LobbyInfo> _lobbies = new();
@@ -68,6 +80,7 @@ public class LobbyBrowserScreen
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
 
         // Title
+#pragma warning disable CS0618 // Type or member is obsolete
         var titleLabel = new Label
         {
             Text = "Game Lobbies",
@@ -77,9 +90,11 @@ public class LobbyBrowserScreen
             GridRow = 0,
             Margin = new Thickness(0, 30, 0, 10)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(titleLabel);
 
         // Lobby count
+#pragma warning disable CS0618 // Type or member is obsolete
         _countLabel = new Label
         {
             Text = "Available Lobbies: 0",
@@ -89,16 +104,21 @@ public class LobbyBrowserScreen
             GridRow = 1,
             Margin = new Thickness(0, 0, 0, 15)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(_countLabel);
 
         // Lobbies list panel
         var lobbiesPanel = BuildLobbiesPanel();
+#pragma warning disable CS0618 // Type or member is obsolete
         lobbiesPanel.GridRow = 2;
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(lobbiesPanel);
 
         // Buttons
         var buttonsPanel = BuildButtonsPanel();
+#pragma warning disable CS0618 // Type or member is obsolete
         buttonsPanel.GridRow = 3;
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(buttonsPanel);
 
         _mainPanel = new Panel
@@ -163,6 +183,7 @@ public class LobbyBrowserScreen
         {
             _lobbiesGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             var emptyLabel = new Label
             {
                 Text = "No lobbies available. Create one to start playing!",
@@ -172,6 +193,7 @@ public class LobbyBrowserScreen
                 GridRow = 0,
                 Margin = new Thickness(0, 50, 0, 50)
             };
+#pragma warning restore CS0618 // Type or member is obsolete
             _lobbiesGrid.Widgets.Add(emptyLabel);
         }
         else
@@ -194,6 +216,7 @@ public class LobbyBrowserScreen
         var lobby = _lobbies[index];
         bool isSelected = index == _selectedLobbyIndex;
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var itemPanel = new Panel
         {
             Background = new SolidBrush(isSelected ? new Color(50, 80, 120) : new Color(30, 30, 40)),
@@ -203,6 +226,7 @@ public class LobbyBrowserScreen
             Border = new SolidBrush(isSelected ? Color.Cyan : Color.Gray),
             BorderThickness = new Thickness(2)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
 
         var grid = new Grid
         {
@@ -217,6 +241,8 @@ public class LobbyBrowserScreen
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
 
         // Host name (row 0, col 0)
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         var hostLabel = new Label
         {
             Text = $"Host: {lobby.HostPlayerName}",
@@ -225,10 +251,14 @@ public class LobbyBrowserScreen
             GridRow = 0,
             GridColumn = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(hostLabel);
 
         // Player count (row 0, col 1)
         Color playersColor = lobby.CurrentPlayers >= lobby.MaxPlayers ? Color.Red : Color.LightGreen;
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         var playersLabel = new Label
         {
             Text = $"{lobby.CurrentPlayers}/{lobby.MaxPlayers} Players",
@@ -238,9 +268,14 @@ public class LobbyBrowserScreen
             GridColumn = 1,
             HorizontalAlignment = HorizontalAlignment.Right
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(playersLabel);
 
         // Mode and map info (row 1, spanning both columns)
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         var infoLabel = new Label
         {
             Text = $"Mode: {lobby.GameMode} | Map: {lobby.MapName}",
@@ -250,6 +285,9 @@ public class LobbyBrowserScreen
             GridColumn = 0,
             GridColumnSpan = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(infoLabel);
 
         itemPanel.Widgets.Add(grid);
@@ -283,6 +321,8 @@ public class LobbyBrowserScreen
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _createLobbyButton = new TextButton
         {
             Text = "Create Lobby",
@@ -290,9 +330,13 @@ public class LobbyBrowserScreen
             Height = 45,
             GridColumn = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _createLobbyButton.Click += (s, a) => { ShouldCreateLobby = true; };
         grid.Widgets.Add(_createLobbyButton);
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _joinLobbyButton = new TextButton
         {
             Text = "Join Lobby",
@@ -301,6 +345,8 @@ public class LobbyBrowserScreen
             GridColumn = 1,
             Enabled = false
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _joinLobbyButton.Click += (s, a) =>
         {
             if (_selectedLobbyIndex >= 0 && _selectedLobbyIndex < _lobbies.Count)
@@ -311,6 +357,8 @@ public class LobbyBrowserScreen
         };
         grid.Widgets.Add(_joinLobbyButton);
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _refreshButton = new TextButton
         {
             Text = "Refresh",
@@ -318,6 +366,8 @@ public class LobbyBrowserScreen
             Height = 45,
             GridColumn = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _refreshButton.Click += (s, a) =>
         {
             ShouldRefresh = true;

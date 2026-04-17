@@ -1,15 +1,9 @@
 using Microsoft.Xna.Framework;
-using RiskyStars.Client;
 using Microsoft.Xna.Framework.Graphics;
-using RiskyStars.Client;
 using Myra;
-using RiskyStars.Client;
 using Myra.Graphics2D;
-using RiskyStars.Client;
 using Myra.Graphics2D.UI;
-using RiskyStars.Client;
 using Myra.Graphics2D.Brushes;
-using RiskyStars.Client;
 
 namespace RiskyStars.Client;
 
@@ -33,22 +27,47 @@ public class MainMenu
 
     // Main menu widgets
     private Panel? _mainMenuPanel;
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _connectButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _settingsButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _exitButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 
     // Settings screen widgets
     private Panel? _settingsPanel;
     private ValidatedTextBox? _serverAddressTextBox;
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private ComboBox? _resolutionComboBox;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
     private CheckButton? _fullscreenCheckButton;
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _saveSettingsButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _backButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 
     // Connecting screen widgets
     private Panel? _connectingPanel;
 
     public bool ShouldConnect { get; private set; }
+    public bool ShouldStartSinglePlayer { get; private set; }
     public bool ShouldExit { get; private set; }
     public Settings Settings => _settings;
     public MainMenuState State => _state;
@@ -89,6 +108,7 @@ public class MainMenu
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
         // Title
         var titleLabel = new Label
@@ -101,6 +121,8 @@ public class MainMenu
         grid.Widgets.Add(titleLabel);
 
         // Connect button
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _connectButton = new TextButton
         {
             Text = "Connect to Server",
@@ -109,30 +131,56 @@ public class MainMenu
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 1
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _connectButton.Click += (s, a) => OnConnectClicked();
         grid.Widgets.Add(_connectButton);
 
+        // Single Player button
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+        var singlePlayerButton = new TextButton
+        {
+            Text = "Single Player",
+            Width = 250,
+            Height = 50,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 2
+        };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+        singlePlayerButton.Click += (s, a) => OnSinglePlayerClicked();
+        grid.Widgets.Add(singlePlayerButton);
+
         // Settings button
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _settingsButton = new TextButton
         {
             Text = "Settings",
             Width = 250,
             Height = 50,
             HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 2
+            GridRow = 3
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _settingsButton.Click += (s, a) => OnSettingsClicked();
         grid.Widgets.Add(_settingsButton);
 
         // Exit button
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _exitButton = new TextButton
         {
             Text = "Exit",
             Width = 250,
             Height = 50,
             HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 3
+            GridRow = 4
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _exitButton.Click += (s, a) => OnExitClicked();
         grid.Widgets.Add(_exitButton);
 
@@ -164,6 +212,7 @@ public class MainMenu
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
 
         // Title
+#pragma warning disable CS0618 // Type or member is obsolete
         var titleLabel = new Label
         {
             Text = "Settings",
@@ -172,9 +221,11 @@ public class MainMenu
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         mainGrid.Widgets.Add(titleLabel);
 
         // Server Address Label
+#pragma warning disable CS0618 // Type or member is obsolete
         var serverLabel = new Label
         {
             Text = "Server Address",
@@ -182,16 +233,20 @@ public class MainMenu
             GridRow = 1,
             Margin = new Thickness(0, 10, 0, 0)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         mainGrid.Widgets.Add(serverLabel);
 
         // Server Address TextBox with validation
         _serverAddressTextBox = new ValidatedTextBox(500, Settings.Load().ServerAddress, showErrorLabel: true);
         _serverAddressTextBox.Text = _settings.ServerAddress;
         _serverAddressTextBox.SetValidator(InputValidator.ValidateServerAddress);
+#pragma warning disable CS0618 // Type or member is obsolete
         _serverAddressTextBox.Container.GridRow = 2;
+#pragma warning restore CS0618 // Type or member is obsolete
         mainGrid.Widgets.Add(_serverAddressTextBox.Container);
 
         // Resolution Label
+#pragma warning disable CS0618 // Type or member is obsolete
         var resolutionLabel = new Label
         {
             Text = "Resolution",
@@ -199,14 +254,19 @@ public class MainMenu
             GridRow = 3,
             Margin = new Thickness(0, 10, 0, 0)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         mainGrid.Widgets.Add(resolutionLabel);
 
         // Resolution ComboBox
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _resolutionComboBox = new ComboBox
         {
             Width = 500,
             GridRow = 4
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         
         var resolutions = new List<string>
         {
@@ -219,7 +279,9 @@ public class MainMenu
 
         foreach (var resolution in resolutions)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             _resolutionComboBox.Items.Add(new ListItem(resolution));
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         var currentResolution = $"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}";
@@ -236,22 +298,27 @@ public class MainMenu
         mainGrid.Widgets.Add(_resolutionComboBox);
 
         // Fullscreen CheckButton with Label
+#pragma warning disable CS0618 // Type or member is obsolete
         var fullscreenGrid = new Grid
         {
             ColumnSpacing = 10,
             GridRow = 5,
             Margin = new Thickness(0, 10, 0, 0)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         fullscreenGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
         fullscreenGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
         
+#pragma warning disable CS0618 // Type or member is obsolete
         _fullscreenCheckButton = new CheckButton
         {
             IsPressed = _settings.Fullscreen,
             GridColumn = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         fullscreenGrid.Widgets.Add(_fullscreenCheckButton);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         var fullscreenLabel = new Label
         {
             Text = "Fullscreen",
@@ -259,10 +326,12 @@ public class MainMenu
             GridColumn = 1,
             VerticalAlignment = VerticalAlignment.Center
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         fullscreenGrid.Widgets.Add(fullscreenLabel);
         mainGrid.Widgets.Add(fullscreenGrid);
 
         // Buttons Grid
+#pragma warning disable CS0618 // Type or member is obsolete
         var buttonsGrid = new Grid
         {
             ColumnSpacing = 20,
@@ -270,10 +339,13 @@ public class MainMenu
             GridRow = 6,
             Margin = new Thickness(0, 20, 0, 0)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
 
         buttonsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
         buttonsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _saveSettingsButton = new TextButton
         {
             Text = "Save",
@@ -281,9 +353,13 @@ public class MainMenu
             Height = 50,
             GridColumn = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _saveSettingsButton.Click += (s, a) => OnSaveSettingsClicked();
         buttonsGrid.Widgets.Add(_saveSettingsButton);
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _backButton = new TextButton
         {
             Text = "Back",
@@ -291,6 +367,8 @@ public class MainMenu
             Height = 50,
             GridColumn = 1
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _backButton.Click += (s, a) => OnBackClicked();
         buttonsGrid.Widgets.Add(_backButton);
 
@@ -414,6 +492,13 @@ public class MainMenu
         UpdateUI();
     }
 
+    private void OnSinglePlayerClicked()
+    {
+        ShouldStartSinglePlayer = true;
+        _state = MainMenuState.Connecting;
+        UpdateUI();
+    }
+
     private void OnSettingsClicked()
     {
         _state = MainMenuState.Settings;
@@ -497,7 +582,6 @@ public class MainMenu
 
     public void Update(GameTime gameTime)
     {
-        ShouldConnect = false;
         _dialogManager?.Update();
     }
 

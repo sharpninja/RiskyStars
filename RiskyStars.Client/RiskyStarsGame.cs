@@ -1,17 +1,10 @@
 using Microsoft.Xna.Framework;
-using RiskyStars.Client;
 using Microsoft.Xna.Framework.Graphics;
-using RiskyStars.Client;
 using Microsoft.Xna.Framework.Input;
-using RiskyStars.Client;
 using RiskyStars.Shared;
-using RiskyStars.Client;
 using Myra;
-using RiskyStars.Client;
 using Myra.Graphics2D;
-using RiskyStars.Client;
 using Myra.Graphics2D.UI;
-using RiskyStars.Client;
 
 namespace RiskyStars.Client;
 
@@ -19,7 +12,8 @@ public enum GameState
 {
     MainMenu,
     Lobby,
-    InGame
+    InGame,
+    Transition
 }
 
 public class RiskyStarsGame : Game
@@ -44,7 +38,6 @@ public class RiskyStarsGame : Game
     private AIActionIndicator? _aiActionIndicator;
     private AIActionTracker? _aiActionTracker;
     private ContextMenuManager? _contextMenuManager;
-    
     private Desktop? _inGameDesktop;
     private DialogManager? _inGameDialogManager;
     private CombatEventDialog? _combatEventDialog;
@@ -59,11 +52,12 @@ public class RiskyStarsGame : Game
     private SpriteFont? _defaultFont;
     
     private string? _currentPlayerId;
-    private bool _showDebug = true;
     private KeyboardState _previousKeyState;
     
     private GameState _gameState = GameState.MainMenu;
     private bool _pendingResolutionChange = false;
+    private string _transitionMessage = "";
+    private DateTime _transitionStartTime;
 
     public RiskyStarsGame()
     {
@@ -178,6 +172,10 @@ public class RiskyStarsGame : Game
             case GameState.InGame:
                 UpdateInGame(gameTime, keyState);
                 break;
+                
+            case GameState.Transition:
+                // Do nothing while transitioning, just show loading message
+                break;
         }
         
         _previousKeyState = keyState;
@@ -213,6 +211,25 @@ public class RiskyStarsGame : Game
             _mainMenu.SetState(MainMenuState.Main);
         }
 
+        if (_mainMenu.ShouldStartSinglePlayer)
+        {
+            if (_pendingResolutionChange)
+            {
+                ApplySettings();
+                _pendingResolutionChange = false;
+            }
+
+            // Go directly to lobby manager in single player mode
+            _lobbyManager = new LobbyManager(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            if (_defaultFont != null)
+            {
+                _lobbyManager.LoadContent(_defaultFont);
+            }
+            _lobbyManager.SetSinglePlayerMode();
+            _gameState = GameState.Lobby;
+            _mainMenu.SetState(MainMenuState.Main);
+        }
+
         if (_mainMenu.State == MainMenuState.Settings && 
             (_mainMenu.Settings.ResolutionWidth != _graphics.PreferredBackBufferWidth ||
              _mainMenu.Settings.ResolutionHeight != _graphics.PreferredBackBufferHeight ||
@@ -233,6 +250,8 @@ public class RiskyStarsGame : Game
         
         if (_lobbyManager.IsInGame && _lobbyManager.SessionId != null)
         {
+            StartTransition("Loading game world");
+            
             if (_lobbyManager.SelectedGameMode == GameMode.SinglePlayer)
             {
                 InitializeSinglePlayerGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player");
@@ -520,6 +539,8 @@ public class RiskyStarsGame : Game
 
     private void ReturnToMainMenu()
     {
+        StartTransition("Returning to main menu");
+        
         Task.Run(async () =>
         {
             try
@@ -595,6 +616,10 @@ public class RiskyStarsGame : Game
             case GameState.InGame:
                 DrawInGame(_spriteBatch);
                 break;
+                
+            case GameState.Transition:
+                DrawTransitionScreen(_spriteBatch);
+                break;
         }
 
         base.Draw(gameTime);
@@ -603,6 +628,35 @@ public class RiskyStarsGame : Game
     private void DrawLobby(SpriteBatch spriteBatch)
     {
         _lobbyManager?.Draw(spriteBatch);
+    }
+
+    private void DrawTransitionScreen(SpriteBatch spriteBatch)
+    {
+        if (_defaultFont == null)
+            return;
+            
+        spriteBatch.Begin();
+        
+        // Draw loading dots animation
+        var elapsed = DateTime.Now - _transitionStartTime;
+        var dotCount = (int)(elapsed.TotalSeconds * 2) % 4;
+        var dots = new string('.', dotCount);
+        var fullMessage = _transitionMessage + dots;
+        
+        var msgSize = _defaultFont.MeasureString(fullMessage);
+        var msgPos = new Vector2(
+            (_graphics.PreferredBackBufferWidth - msgSize.X) / 2,
+            (_graphics.PreferredBackBufferHeight - msgSize.Y) / 2);
+            
+        spriteBatch.DrawString(_defaultFont, fullMessage, msgPos, Color.LightGray);
+        spriteBatch.End();
+    }
+
+    private void StartTransition(string message)
+    {
+        _transitionMessage = message;
+        _transitionStartTime = DateTime.Now;
+        _gameState = GameState.Transition;
     }
 
     private void DrawInGame(SpriteBatch spriteBatch)

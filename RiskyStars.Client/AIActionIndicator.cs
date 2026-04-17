@@ -13,7 +13,6 @@ public class AIActionIndicator
     private readonly int _screenHeight;
 
     private bool _isAIThinking;
-    private double _thinkingStartTime;
     private double _spinnerRotation;
     private string? _aiPlayerName;
 
@@ -381,7 +380,6 @@ public class AIActionIndicator
     {
         _isAIThinking = true;
         _aiPlayerName = aiPlayerName;
-        _thinkingStartTime = 0;
         _spinnerRotation = 0;
     }
 

@@ -2,6 +2,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RiskyStars.Shared;
+using Myra;
+using Myra.Graphics2D;
+using Myra.Graphics2D.UI;
+using Myra.Graphics2D.Brushes;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,6 +56,12 @@ public class LobbyManager
     public string? PlayerName => _playerName;
     public bool IsInGame => _state == LobbyState.InGame;
     public EmbeddedServerHost? EmbeddedServer => _embeddedServerHost;
+
+    public void SetSinglePlayerMode()
+    {
+        _selectedGameMode = GameMode.SinglePlayer;
+        _state = LobbyState.SinglePlayerLobby;
+    }
 
     public LobbyManager(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
@@ -543,24 +553,68 @@ public class LobbyManager
         }
     }
 
+    private Desktop? _initializingDesktop;
+    private Panel? _initializingMainPanel;
+#pragma warning disable CS0618 // Type or member is obsolete
+    private Label? _initializingLoadingLabel;
+    private Label? _initializingStatusLabel;
+#pragma warning restore CS0618 // Type or member is obsolete
+
+    private void BuildInitializingScreen()
+    {
+        if (_initializingDesktop != null)
+            return;
+
+        _initializingDesktop = new Desktop();
+
+        var rootGrid = new Grid
+        {
+            RowSpacing = 20,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Width = _screenWidth,
+            Height = _screenHeight
+        };
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        _initializingLoadingLabel = new Label
+        {
+            Text = "Initializing single player game...",
+            TextColor = Color.White,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Scale = new Vector2(1.0f, 1.0f)
+        };
+#pragma warning restore CS0618 // Type or member is obsolete
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        _initializingStatusLabel = new Label
+        {
+            Text = "",
+            TextColor = Color.Yellow,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Scale = new Vector2(0.8f, 0.8f)
+        };
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        rootGrid.Widgets.Add(_initializingLoadingLabel);
+        rootGrid.Widgets.Add(_initializingStatusLabel);
+
+        _initializingMainPanel = new Panel
+        {
+            Width = _screenWidth,
+            Height = _screenHeight,
+            Background = new SolidBrush(new Color(10, 10, 20))
+        };
+
+        _initializingMainPanel.Widgets.Add(rootGrid);
+        _initializingDesktop.Root = _initializingMainPanel;
+    }
+
     private void DrawInitializingScreen(SpriteBatch spriteBatch)
     {
-        if (_font == null)
-        {
-            return;
-        }
+        BuildInitializingScreen();
 
-        spriteBatch.Begin();
-
-        var loadingText = "Initializing single player game...";
-        var textSize = _font.MeasureString(loadingText);
-        var textPosition = new Vector2(
-            (_screenWidth - textSize.X) / 2,
-            (_screenHeight - textSize.Y) / 2);
-
-        spriteBatch.DrawString(_font, loadingText, textPosition, Color.White);
-
-        if (_embeddedServerHost != null)
+        if (_initializingStatusLabel != null && _embeddedServerHost != null)
         {
             var statusText = _embeddedServerHost.Status switch
             {
@@ -570,26 +624,17 @@ public class LobbyManager
                 _ => ""
             };
 
-            if (!string.IsNullOrEmpty(statusText))
+            _initializingStatusLabel.Text = statusText;
+            _initializingStatusLabel.TextColor = _embeddedServerHost.Status switch
             {
-                var statusSize = _font.MeasureString(statusText);
-                var statusPosition = new Vector2(
-                    (_screenWidth - statusSize.X) / 2,
-                    textPosition.Y + textSize.Y + 20);
-
-                var statusColor = _embeddedServerHost.Status switch
-                {
-                    ServerStatus.Starting => Color.Yellow,
-                    ServerStatus.Running => Color.LimeGreen,
-                    ServerStatus.Error => Color.Red,
-                    _ => Color.White
-                };
-
-                spriteBatch.DrawString(_font, statusText, statusPosition, statusColor);
-            }
+                ServerStatus.Starting => Color.Yellow,
+                ServerStatus.Running => Color.LimeGreen,
+                ServerStatus.Error => Color.Red,
+                _ => Color.White
+            };
         }
 
-        spriteBatch.End();
+        _initializingDesktop?.Render();
     }
 
     public async Task DisposeAsync()

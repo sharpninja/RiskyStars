@@ -1,9 +1,10 @@
 using Microsoft.Xna.Framework;
-using RiskyStars.Client;
 using Microsoft.Xna.Framework.Graphics;
-using RiskyStars.Client;
 using Microsoft.Xna.Framework.Input;
-using RiskyStars.Client;
+using Myra;
+using Myra.Graphics2D;
+using Myra.Graphics2D.UI;
+using Myra.Graphics2D.Brushes;
 
 namespace RiskyStars.Client;
 
@@ -12,110 +13,206 @@ public class ConnectionScreen
     private readonly GraphicsDevice _graphicsDevice;
     private readonly int _screenWidth;
     private readonly int _screenHeight;
-    private Texture2D? _pixelTexture;
     private SpriteFont? _font;
     
-    private string _playerName = "";
-    private string _serverAddress = Settings.Load().ServerAddress;
-    private string _statusMessage = "";
+    private Desktop? _desktop;
+    private Panel? _mainPanel;
+    private ValidatedTextBox? _playerNameTextBox;
+    private ValidatedTextBox? _serverAddressTextBox;
+#pragma warning disable CS0618 // Type or member is obsolete
+    private TextButton? _connectButton;
+    private Label? _statusLabel;
+#pragma warning restore CS0618 // Type or member is obsolete
+    
     private bool _isConnecting = false;
-    private Color _statusColor = Color.White;
-    
-    private ValidatedTextInputField _playerNameField;
-    private ValidatedTextInputField _serverAddressField;
-    private Button _connectButton;
-    
     private KeyboardState _previousKeyState;
 
     public bool IsConnected { get; private set; }
-    public string PlayerName => _playerName;
-    public string ServerAddress => _serverAddress;
+    public string PlayerName => _playerNameTextBox?.Text ?? "";
+    public string ServerAddress => _serverAddressTextBox?.Text ?? Settings.Load().ServerAddress;
 
     public ConnectionScreen(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
         _graphicsDevice = graphicsDevice;
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
-        
-        CreatePixelTexture();
-        
-        int panelWidth = 400;
-        int centerX = (_screenWidth - panelWidth) / 2;
-        int centerY = _screenHeight / 2 - 100;
-        
-        _playerNameField = new ValidatedTextInputField(
-            new Rectangle(centerX, centerY, panelWidth, 40),
-            "Player Name", 20);
-        _playerNameField.SetValidator(InputValidator.ValidatePlayerName);
-        
-        _serverAddressField = new ValidatedTextInputField(
-            new Rectangle(centerX, centerY + 80, panelWidth, 40),
-            "Server Address", 100);
-        _serverAddressField.Text = _serverAddress;
-        _serverAddressField.SetValidator(InputValidator.ValidateServerAddress);
-        
-        _connectButton = new Button(
-            new Rectangle(centerX + panelWidth / 2 - 75, centerY + 160, 150, 50),
-            "Connect");
-    }
-
-    private void CreatePixelTexture()
-    {
-        _pixelTexture = new Texture2D(_graphicsDevice, 1, 1);
-        _pixelTexture.SetData(new[] { Color.White });
     }
 
     public void LoadContent(SpriteFont font)
     {
         _font = font;
+        _desktop = new Desktop();
+        BuildUI();
+    }
+
+    private void BuildUI()
+    {
+        var rootGrid = new Grid
+        {
+            RowSpacing = 20,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Width = _screenWidth,
+            Height = _screenHeight
+        };
+
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Player name
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Server address
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Connect button
+        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Status
+
+        // Title
+#pragma warning disable CS0618 // Type or member is obsolete
+        var titleLabel = new Label
+        {
+            Text = "Multiplayer - Connect to Server",
+            TextColor = Color.Cyan,
+            Scale = new Vector2(1.5f, 1.5f),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 0,
+            Margin = new Thickness(0, 0, 0, 20)
+        };
+#pragma warning restore CS0618 // Type or member is obsolete
+        rootGrid.Widgets.Add(titleLabel);
+
+        // Container Panel
+        var containerPanel = new Panel
+        {
+            Width = 500,
+            Padding = new Thickness(40, 30),
+            Background = new SolidBrush(new Color(0, 0, 0, 220)),
+            Border = new SolidBrush(Color.Cyan),
+            BorderThickness = new Thickness(3),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 1,
+            GridRowSpan = 3
+        };
+
+        var containerGrid = new Grid
+        {
+            RowSpacing = 25,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        containerGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        containerGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        containerGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+
+        // Player Name Field
+        _playerNameTextBox = ThemedUIFactory.CreateValidatedPlayerNameBox(420, showErrorLabel: true);
+        _playerNameTextBox.Container.GridRow = 0;
+        containerGrid.Widgets.Add(_playerNameTextBox.Container);
+
+        // Server Address Field
+        _serverAddressTextBox = ThemedUIFactory.CreateValidatedServerAddressBox(420, showErrorLabel: true);
+        _serverAddressTextBox.Text = Settings.Load().ServerAddress;
+        _serverAddressTextBox.Container.GridRow = 1;
+        containerGrid.Widgets.Add(_serverAddressTextBox.Container);
+
+        // Connect Button
+#pragma warning disable CS0618 // Type or member is obsolete
+        _connectButton = new TextButton
+        {
+            Text = "Connect",
+            Width = 150,
+            Height = 50,
+            GridRow = 2,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 10, 0, 0)
+        };
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        _connectButton.Click += (s, a) => AttemptConnection();
+
+        containerGrid.Widgets.Add(_connectButton);
+        containerPanel.Widgets.Add(containerGrid);
+        rootGrid.Widgets.Add(containerPanel);
+
+        // Status Label
+#pragma warning disable CS0618 // Type or member is obsolete
+        _statusLabel = new Label
+        {
+            Text = "",
+            TextColor = Color.White,
+            Scale = new Vector2(0.8f, 0.8f),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            GridRow = 4,
+            Margin = new Thickness(0, 20, 0, 0)
+        };
+#pragma warning restore CS0618 // Type or member is obsolete
+        rootGrid.Widgets.Add(_statusLabel);
+
+        _mainPanel = new Panel
+        {
+            Width = _screenWidth,
+            Height = _screenHeight,
+            Background = new SolidBrush(new Color(10, 10, 20))
+        };
+
+        _mainPanel.Widgets.Add(rootGrid);
+
+        if (_desktop != null)
+        {
+            _desktop.Root = _mainPanel;
+        }
+    }
+
+    private void AttemptConnection()
+    {
+        if (_playerNameTextBox == null || _serverAddressTextBox == null)
+            return;
+
+        // Validate all inputs before connecting
+        var nameValidation = _playerNameTextBox.ValidateInput();
+        var serverValidation = _serverAddressTextBox.ValidateInput();
+
+        if (!nameValidation.IsValid)
+        {
+            SetStatus(nameValidation.Message, Color.Red);
+        }
+        else if (!serverValidation.IsValid)
+        {
+            SetStatus(serverValidation.Message, Color.Red);
+        }
+        else
+        {
+            _isConnecting = true;
+            SetStatus("Connecting...", Color.Yellow);
+            _connectButton.Enabled = false;
+        }
+    }
+
+    private void SetStatus(string message, Color color)
+    {
+        if (_statusLabel != null)
+        {
+            _statusLabel.Text = message;
+            _statusLabel.TextColor = color;
+        }
     }
 
     public void Update(GameTime gameTime, MouseState mouseState, KeyboardState keyState)
     {
-        if (_isConnecting)
+        if (keyState.IsKeyDown(Keys.Enter) && _previousKeyState.IsKeyUp(Keys.Enter) && !_isConnecting)
         {
-            return;
+            AttemptConnection();
         }
 
-        _playerNameField.Update(mouseState, keyState, _previousKeyState);
-        _serverAddressField.Update(mouseState, keyState, _previousKeyState);
-        _connectButton.Update(mouseState);
-        
-        if (_connectButton.IsClicked || (keyState.IsKeyDown(Keys.Enter) && _previousKeyState.IsKeyUp(Keys.Enter)))
-        {
-            // Validate all inputs before connecting
-            var nameValidation = _playerNameField.ValidateInput();
-            var serverValidation = _serverAddressField.ValidateInput();
-
-            if (!nameValidation.IsValid)
-            {
-                _statusMessage = nameValidation.Message;
-                _statusColor = Color.Red;
-            }
-            else if (!serverValidation.IsValid)
-            {
-                _statusMessage = serverValidation.Message;
-                _statusColor = Color.Red;
-            }
-            else
-            {
-                _playerName = _playerNameField.Text.Trim();
-                _serverAddress = _serverAddressField.Text.Trim();
-                _isConnecting = true;
-                _statusMessage = "Connecting...";
-                _statusColor = Color.Yellow;
-            }
-        }
-        
         _previousKeyState = keyState;
     }
 
     public void SetConnectionResult(bool success, string message)
     {
         _isConnecting = false;
-        _statusMessage = message;
-        _statusColor = success ? Color.Green : Color.Red;
         IsConnected = success;
+        
+        SetStatus(message, success ? Color.LimeGreen : Color.Red);
+        
+        if (_connectButton != null)
+        {
+            _connectButton.Enabled = true;
+        }
     }
 
     public bool ShouldAttemptConnection()
@@ -125,55 +222,6 @@ public class ConnectionScreen
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        if (_pixelTexture == null || _font == null)
-        {
-            return;
-        }
-
-        spriteBatch.Begin(sortMode: SpriteSortMode.Deferred, blendState: BlendState.AlphaBlend);
-
-        int panelWidth = 500;
-        int panelHeight = 350;
-        int panelX = (_screenWidth - panelWidth) / 2;
-        int panelY = (_screenHeight - panelHeight) / 2;
-        
-        var panel = new Rectangle(panelX, panelY, panelWidth, panelHeight);
-        spriteBatch.Draw(_pixelTexture, panel, Color.Black * 0.9f);
-        DrawRectangleOutline(spriteBatch, panel, Color.Cyan, 3);
-
-        var titleText = "Multiplayer - Connect to Server";
-        var titleSize = _font.MeasureString(titleText);
-        spriteBatch.DrawString(_font, titleText,
-            new Vector2(panelX + (panelWidth - titleSize.X) / 2, panelY + 20),
-            Color.Cyan, 0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0f);
-
-        _playerNameField.Draw(spriteBatch, _pixelTexture, _font);
-        _serverAddressField.Draw(spriteBatch, _pixelTexture, _font);
-        _connectButton.Draw(spriteBatch, _pixelTexture, _font);
-
-        if (!string.IsNullOrEmpty(_statusMessage))
-        {
-            var statusSize = _font.MeasureString(_statusMessage);
-            spriteBatch.DrawString(_font, _statusMessage,
-                new Vector2(panelX + (panelWidth - statusSize.X) / 2, panelY + panelHeight - 50),
-                _statusColor, 0f, Vector2.Zero, 0.8f, SpriteEffects.None, 0f);
-        }
-
-        spriteBatch.End();
-    }
-
-    private void DrawRectangleOutline(SpriteBatch spriteBatch, Rectangle rect, Color color, int thickness)
-    {
-        if (_pixelTexture == null)
-        {
-            return;
-        }
-
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, rect.Width, thickness), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Y, thickness, rect.Height), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.Right - thickness, rect.Y, thickness, rect.Height), color);
-        spriteBatch.Draw(_pixelTexture, new Rectangle(rect.X, rect.Bottom - thickness, rect.Width, thickness), color);
+        _desktop?.Render();
     }
 }
-
-

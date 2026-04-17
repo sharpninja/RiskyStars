@@ -119,9 +119,12 @@ public class CombatEventDialog
         var titleLabel = ThemedUIFactory.CreateHeadingLabel(title);
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         titleLabel.TextColor = Color.Orange;
+#pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         mainGrid.Widgets.Add(titleLabel);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var messageLabel = new Label
         {
             Text = message,
@@ -132,11 +135,14 @@ public class CombatEventDialog
             GridRow = 1,
             Margin = new Thickness(0, Spacing.Large, 0, Spacing.Large)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         mainGrid.Widgets.Add(messageLabel);
 
         var button = ThemedUIFactory.CreateButton(buttonText, Sizes.ButtonMediumWidth, Sizes.ButtonMediumHeight, ButtonTheme.Primary);
         button.HorizontalAlignment = HorizontalAlignment.Center;
+#pragma warning disable CS0618 // Type or member is obsolete
         button.GridRow = 2;
+#pragma warning restore CS0618 // Type or member is obsolete
         button.Click += (s, a) =>
         {
             _onClosed?.Invoke();

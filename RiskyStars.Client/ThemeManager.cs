@@ -1,15 +1,9 @@
 using Microsoft.Xna.Framework;
-using RiskyStars.Client;
 using Myra.Graphics2D;
-using RiskyStars.Client;
 using Myra.Graphics2D.UI;
-using RiskyStars.Client;
 using Myra.Graphics2D.UI.Styles;
-using RiskyStars.Client;
 using System;
-using RiskyStars.Client;
 using System.IO;
-using RiskyStars.Client;
 
 namespace RiskyStars.Client;
 
@@ -222,7 +216,7 @@ public static class ThemeManager
         return new Myra.Graphics2D.Brushes.SolidBrush(color);
     }
 
-    public static void ApplyButtonTheme(Myra.Graphics2D.UI.TextButton button, ButtonTheme theme = ButtonTheme.Default)
+    public static void ApplyButtonTheme(Myra.Graphics2D.UI.Button button, ButtonTheme theme = ButtonTheme.Default)
     {
         switch (theme)
         {

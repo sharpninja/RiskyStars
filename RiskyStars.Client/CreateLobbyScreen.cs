@@ -20,8 +20,16 @@ public class CreateLobbyScreen
     private Panel? _mainPanel;
     private ValidatedTextBox? _mapNameTextBox;
     private SpinButton? _maxPlayersSpinButton;
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _createButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _cancelButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 
     private KeyboardState _previousKeyState;
 
@@ -58,6 +66,7 @@ public class CreateLobbyScreen
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
 
         // Title
+#pragma warning disable CS0618 // Type or member is obsolete
         var titleLabel = new Label
         {
             Text = "Create Lobby",
@@ -67,21 +76,28 @@ public class CreateLobbyScreen
             GridRow = 0,
             Margin = new Thickness(0, 0, 0, 20)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(titleLabel);
 
         // Map name field
         var mapNamePanel = BuildMapNameField();
+#pragma warning disable CS0618 // Type or member is obsolete
         mapNamePanel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(mapNamePanel);
 
         // Max players field
         var maxPlayersPanel = BuildMaxPlayersField();
+#pragma warning disable CS0618 // Type or member is obsolete
         maxPlayersPanel.GridRow = 2;
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(maxPlayersPanel);
 
         // Buttons
         var buttonsPanel = BuildButtonsPanel();
+#pragma warning disable CS0618 // Type or member is obsolete
         buttonsPanel.GridRow = 3;
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(buttonsPanel);
 
         // Main container
@@ -122,6 +138,7 @@ public class CreateLobbyScreen
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var label = new Label
         {
             Text = "Map Name",
@@ -129,12 +146,15 @@ public class CreateLobbyScreen
             Scale = new Vector2(0.9f, 0.9f),
             GridRow = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(label);
 
         _mapNameTextBox = new ValidatedTextBox(450, "Enter map name", showErrorLabel: true);
         _mapNameTextBox.Text = "Default";
         _mapNameTextBox.SetValidator(InputValidator.ValidateMapName);
+#pragma warning disable CS0618 // Type or member is obsolete
         _mapNameTextBox.Container.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         _mapNameTextBox.Container.HorizontalAlignment = HorizontalAlignment.Stretch;
         grid.Widgets.Add(_mapNameTextBox.Container);
 
@@ -158,6 +178,7 @@ public class CreateLobbyScreen
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var label = new Label
         {
             Text = "Max Players (2-6)",
@@ -165,8 +186,10 @@ public class CreateLobbyScreen
             Scale = new Vector2(0.9f, 0.9f),
             GridRow = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(label);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         _maxPlayersSpinButton = new SpinButton
         {
             Width = 450,
@@ -176,6 +199,7 @@ public class CreateLobbyScreen
             Maximum = 6,
             Value = 4
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_maxPlayersSpinButton);
 
         var panel = new Panel
@@ -199,6 +223,8 @@ public class CreateLobbyScreen
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _createButton = new TextButton
         {
             Text = "Create",
@@ -206,6 +232,8 @@ public class CreateLobbyScreen
             Height = 50,
             GridColumn = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _createButton.Click += (s, a) =>
         {
             // Validate all inputs before creating
@@ -222,6 +250,8 @@ public class CreateLobbyScreen
         };
         grid.Widgets.Add(_createButton);
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _cancelButton = new TextButton
         {
             Text = "Cancel",
@@ -229,6 +259,8 @@ public class CreateLobbyScreen
             Height = 50,
             GridColumn = 1
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _cancelButton.Click += (s, a) => { ShouldCancel = true; };
         grid.Widgets.Add(_cancelButton);
 

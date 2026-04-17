@@ -1,15 +1,7 @@
 using Grpc.Net.Client;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using RiskyStars.Server;
-using RiskyStars.Server.Services;
+using System.Diagnostics;
 using System.Net;
+using System.Net.Sockets;
 
 namespace RiskyStars.Client;
 
@@ -24,9 +16,7 @@ public enum ServerStatus
 
 public class EmbeddedServerHost : IAsyncDisposable, IDisposable
 {
-    private WebApplication? _app;
-    private Task? _runTask;
-    private CancellationTokenSource? _cts;
+    private Process? _serverProcess;
     private GrpcChannel? _channel;
     private SocketsHttpHandler? _httpHandler;
     private readonly string _serverUrl;
@@ -36,10 +26,11 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
     private ServerHealthMonitor? _healthMonitor;
 
     public GrpcChannel? Channel => _channel;
-    public bool IsRunning => _app != null && _runTask != null && !_runTask.IsCompleted;
+    public bool IsRunning => _serverProcess != null && !_serverProcess.HasExited;
     public string? LastError { get; private set; }
     public ServerStatus Status { get; private set; } = ServerStatus.Stopped;
     public ServerHealthMonitor? HealthMonitor => _healthMonitor;
+    public string ServerUrl => _serverUrl;
 
     public EmbeddedServerHost(int port = 0)
     {
@@ -65,20 +56,47 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
         try
         {
             Status = ServerStatus.Starting;
-            _cts = new CancellationTokenSource();
 
-            var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+            var serverPath = Path.Combine(AppContext.BaseDirectory, "RiskyStars.Server.dll");
+            
+            if (!File.Exists(serverPath))
             {
-                EnvironmentName = Environments.Development
-            });
+                LastError = $"Server executable not found at: {serverPath}";
+                Status = ServerStatus.Error;
+                return false;
+            }
 
-            ConfigureServices(builder);
-            ConfigureKestrel(builder);
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = $"\"{serverPath}\" --urls {_serverUrl}",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
 
-            _app = builder.Build();
+            _serverProcess = new Process { StartInfo = startInfo };
+            
+            _serverProcess.OutputDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Console.WriteLine($"[Server] {e.Data}");
+                }
+            };
 
-            ConfigureMiddleware(_app);
-            MapEndpoints(_app);
+            _serverProcess.ErrorDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Console.WriteLine($"[Server Error] {e.Data}");
+                }
+            };
+
+            _serverProcess.Start();
+            _serverProcess.BeginOutputReadLine();
+            _serverProcess.BeginErrorReadLine();
 
             _httpHandler = new SocketsHttpHandler
             {
@@ -93,30 +111,13 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
                 HttpHandler = _httpHandler
             });
 
-            _runTask = Task.Run(async () =>
-            {
-                try
-                {
-                    await _app.RunAsync(_serverUrl);
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (Exception ex)
-                {
-                    LastError = $"Server runtime error: {ex.Message}";
-                    Status = ServerStatus.Error;
-                    Console.WriteLine($"Embedded server error: {ex.Message}");
-                }
-            }, _cts.Token);
-
             await WaitForServerReady();
             Status = ServerStatus.Running;
             LastError = null;
-            
+
             _healthMonitor = new ServerHealthMonitor(_serverUrl, OnHealthStatusChanged);
             _healthMonitor.Start();
-            
+
             return true;
         }
         catch (TimeoutException ex)
@@ -129,7 +130,7 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
         }
         catch (IOException ex)
         {
-            LastError = $"Server initialization failed due to I/O error: {ex.Message}. The port {_port} may already be in use.";
+            LastError = $"Server initialization failed due to I/O error: {ex.Message}. The port {_port} may already be used.";
             Status = ServerStatus.Error;
             Console.WriteLine($"Server initialization failed: {ex.Message}");
             await CleanupResources();
@@ -144,7 +145,7 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
             return false;
         }
     }
-    
+
     private void OnHealthStatusChanged(bool isHealthy, string? errorMessage)
     {
         if (!isHealthy && Status == ServerStatus.Running)
@@ -196,7 +197,6 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
                     Console.WriteLine($"Error stopping health monitor: {ex.Message}");
                 }
             }
-            
 
             if (_channel != null)
             {
@@ -235,175 +235,35 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
                 _httpHandler = null;
             }
 
-            _cts?.Cancel();
-
-            if (_app != null)
+            if (_serverProcess != null && !_serverProcess.HasExited)
             {
                 try
                 {
-                    await _app.StopAsync(TimeSpan.FromSeconds(5));
+                    _serverProcess.Kill();
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                    await _serverProcess.WaitForExitAsync(cts.Token);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error stopping embedded server: {ex.Message}");
+                    Console.WriteLine($"Error stopping server process: {ex.Message}");
                 }
 
                 try
                 {
-                    await _app.DisposeAsync();
+                    _serverProcess.Dispose();
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error disposing embedded server: {ex.Message}");
+                    Console.WriteLine($"Error disposing server process: {ex.Message}");
                 }
 
-                _app = null;
-            }
-
-            if (_runTask != null)
-            {
-                try
-                {
-                    await _runTask.WaitAsync(TimeSpan.FromSeconds(5));
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (TimeoutException)
-                {
-                    Console.WriteLine("Server run task did not complete within timeout");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error waiting for server task: {ex.Message}");
-                }
-
-                _runTask = null;
-            }
-
-            if (_cts != null)
-            {
-                try
-                {
-                    _cts.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error disposing cancellation token source: {ex.Message}");
-                }
-
-                _cts = null;
+                _serverProcess = null;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error during resource cleanup: {ex.Message}");
         }
-    }
-
-    private void ConfigureServices(WebApplicationBuilder builder)
-    {
-        builder.Services.Configure<GamePersistenceOptions>(options =>
-        {
-            options.SavePath = Path.Combine(Path.GetTempPath(), "RiskyStars", "EmbeddedGameSaves");
-            options.AutoSaveEnabled = true;
-            options.AutoRecoveryEnabled = false;
-            options.MaxBackupsPerGame = 5;
-        });
-
-        builder.Services.Configure<SessionManagementOptions>(options =>
-        {
-            options.SessionTimeoutMinutes = 60;
-            options.CleanupIntervalMinutes = 10;
-            options.MaxActiveGames = 10;
-            options.MaxPlayersPerGame = 8;
-        });
-
-        builder.Services.Configure<GrpcOptions>(options =>
-        {
-            options.MaxReceiveMessageSize = 16 * 1024 * 1024;
-            options.MaxSendMessageSize = 16 * 1024 * 1024;
-            options.EnableDetailedErrors = true;
-        });
-
-        builder.Logging.ClearProviders();
-        builder.Logging.AddConsole();
-        builder.Logging.SetMinimumLevel(LogLevel.Warning);
-
-        var grpcOptions = new GrpcOptions
-        {
-            MaxReceiveMessageSize = 16 * 1024 * 1024,
-            MaxSendMessageSize = 16 * 1024 * 1024,
-            EnableDetailedErrors = true
-        };
-
-        builder.Services.AddGrpc(options =>
-        {
-            options.MaxReceiveMessageSize = grpcOptions.MaxReceiveMessageSize;
-            options.MaxSendMessageSize = grpcOptions.MaxSendMessageSize;
-            options.EnableDetailedErrors = grpcOptions.EnableDetailedErrors;
-            options.ResponseCompressionAlgorithm = "gzip";
-            options.ResponseCompressionLevel = System.IO.Compression.CompressionLevel.Optimal;
-        });
-
-        builder.Services.AddResponseCompression(options =>
-        {
-            options.EnableForHttps = true;
-        });
-
-        builder.Services.AddSingleton<GameRepository>();
-        builder.Services.AddSingleton<GameStateManager>();
-        builder.Services.AddSingleton<GameSessionManager>();
-
-        builder.Services.AddSingleton<MapService>();
-        builder.Services.AddSingleton<ResourceManager>();
-        builder.Services.AddSingleton<HeroManager>();
-        builder.Services.AddSingleton<AllianceManager>();
-
-        builder.Services.AddTransient<CombatResolver>();
-        builder.Services.AddTransient(sp => new CombatManager(sp.GetRequiredService<CombatResolver>()));
-
-        builder.Services.AddSingleton<StellarBodyUpgradeSystem>();
-    }
-
-    private void ConfigureKestrel(WebApplicationBuilder builder)
-    {
-        builder.WebHost.ConfigureKestrel(options =>
-        {
-            options.Listen(IPAddress.Loopback, _port, listenOptions =>
-            {
-                listenOptions.Protocols = HttpProtocols.Http2;
-            });
-
-            options.Limits.MaxConcurrentConnections = 100;
-            options.Limits.MaxConcurrentUpgradedConnections = 100;
-            options.Limits.MaxRequestBodySize = 16 * 1024 * 1024;
-        });
-    }
-
-    private void ConfigureMiddleware(WebApplication app)
-    {
-        app.UseResponseCompression();
-    }
-
-    private void MapEndpoints(WebApplication app)
-    {
-        app.MapGrpcService<GameServiceImpl>();
-        app.MapGrpcService<TurnBasedGameServiceImpl>();
-        app.MapGrpcService<RiskyStarsGameServiceImpl>();
-        app.MapGrpcService<LobbyServiceImpl>();
-
-        app.MapGet("/", () => Results.Ok(new
-        {
-            service = "RiskyStars Embedded gRPC Server",
-            status = "Running",
-            version = "1.0.0"
-        }));
-
-        app.MapGet("/health", () => Results.Ok(new
-        {
-            status = "Healthy"
-        }));
     }
 
     private async Task WaitForServerReady()

@@ -19,10 +19,18 @@ public class SettingsWindow
     
     private TabControl? _tabControl;
     
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private ComboBox? _resolutionComboBox;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
     private CheckButton? _fullscreenCheckButton;
     private CheckButton? _vsyncCheckButton;
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private ComboBox? _frameRateComboBox;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
     
     private HorizontalSlider? _masterVolumeSlider;
     private Label? _masterVolumeLabel;
@@ -75,7 +83,9 @@ public class SettingsWindow
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         _tabControl = new TabControl();
+#pragma warning disable CS0618 // Type or member is obsolete
         _tabControl.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         
         CreateGraphicsTab();
         CreateAudioTab();
@@ -85,7 +95,9 @@ public class SettingsWindow
         mainGrid.Widgets.Add(_tabControl);
         
         var buttonPanel = CreateButtonPanel();
+#pragma warning disable CS0618 // Type or member is obsolete
         buttonPanel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         mainGrid.Widgets.Add(buttonPanel);
         
         _window.Content = mainGrid;
@@ -118,18 +130,24 @@ public class SettingsWindow
         resolutionGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var resolutionLabel = ThemedUIFactory.CreateLabel("Resolution:");
+#pragma warning disable CS0618 // Type or member is obsolete
         resolutionLabel.GridColumn = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         resolutionLabel.VerticalAlignment = VerticalAlignment.Center;
         resolutionGrid.Widgets.Add(resolutionLabel);
         
         _resolutionComboBox = ThemedUIFactory.CreateComboBox(250);
+#pragma warning disable CS0618 // Type or member is obsolete
         _resolutionComboBox.GridColumn = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         _resolutionComboBox.HorizontalAlignment = HorizontalAlignment.Left;
         
         var resolutions = new[] { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
         foreach (var resolution in resolutions)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             _resolutionComboBox.Items.Add(new ListItem(resolution));
+#pragma warning restore CS0618 // Type or member is obsolete
         }
         
         var currentResolution = $"{_tempSettings.ResolutionWidth}x{_tempSettings.ResolutionHeight}";
@@ -157,18 +175,24 @@ public class SettingsWindow
         frameRateGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var frameRateLabel = ThemedUIFactory.CreateLabel("Target Frame Rate:");
+#pragma warning disable CS0618 // Type or member is obsolete
         frameRateLabel.GridColumn = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         frameRateLabel.VerticalAlignment = VerticalAlignment.Center;
         frameRateGrid.Widgets.Add(frameRateLabel);
         
         _frameRateComboBox = ThemedUIFactory.CreateComboBox(150);
+#pragma warning disable CS0618 // Type or member is obsolete
         _frameRateComboBox.GridColumn = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         _frameRateComboBox.HorizontalAlignment = HorizontalAlignment.Left;
         
         var frameRates = new[] { "30", "60", "120", "144", "Unlimited" };
         foreach (var rate in frameRates)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             _frameRateComboBox.Items.Add(new ListItem(rate));
+#pragma warning restore CS0618 // Type or member is obsolete
         }
         
         var currentFrameRateIndex = _tempSettings.TargetFrameRate switch
@@ -246,10 +270,13 @@ public class SettingsWindow
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var labelWidget = ThemedUIFactory.CreateLabel(label);
+#pragma warning disable CS0618 // Type or member is obsolete
         labelWidget.GridColumn = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         labelWidget.VerticalAlignment = VerticalAlignment.Center;
         grid.Widgets.Add(labelWidget);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         slider = new HorizontalSlider
         {
             GridColumn = 1,
@@ -259,10 +286,13 @@ public class SettingsWindow
             Width = 300,
             VerticalAlignment = VerticalAlignment.Center
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(slider);
         
         valueLabel = ThemedUIFactory.CreateLabel($"{(int)(value * 100)}%");
+#pragma warning disable CS0618 // Type or member is obsolete
         valueLabel.GridColumn = 2;
+#pragma warning restore CS0618 // Type or member is obsolete
         valueLabel.VerticalAlignment = VerticalAlignment.Center;
         valueLabel.HorizontalAlignment = HorizontalAlignment.Right;
         grid.Widgets.Add(valueLabel);
@@ -340,10 +370,13 @@ public class SettingsWindow
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         var labelWidget = ThemedUIFactory.CreateLabel(label);
+#pragma warning disable CS0618 // Type or member is obsolete
         labelWidget.GridColumn = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         labelWidget.VerticalAlignment = VerticalAlignment.Center;
         grid.Widgets.Add(labelWidget);
         
+#pragma warning disable CS0618 // Type or member is obsolete
         slider = new HorizontalSlider
         {
             GridColumn = 1,
@@ -353,10 +386,13 @@ public class SettingsWindow
             Width = 300,
             VerticalAlignment = VerticalAlignment.Center
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(slider);
         
         valueLabel = ThemedUIFactory.CreateLabel(value.ToString("F2"));
+#pragma warning disable CS0618 // Type or member is obsolete
         valueLabel.GridColumn = 2;
+#pragma warning restore CS0618 // Type or member is obsolete
         valueLabel.VerticalAlignment = VerticalAlignment.Center;
         valueLabel.HorizontalAlignment = HorizontalAlignment.Right;
         grid.Widgets.Add(valueLabel);

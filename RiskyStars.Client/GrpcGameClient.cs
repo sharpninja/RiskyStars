@@ -175,6 +175,163 @@ public class GrpcGameClient : IDisposable
         }
     }
 
+    private async Task ReceiveUpdatesAsync()
+    {
+        System.Console.WriteLine("[Entry] ReceiveUpdatesAsync");
+        try
+        {
+            while (_stream != null && _cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
+            {
+                if (await _stream.ResponseStream.MoveNext(_cancellationTokenSource.Token))
+                {
+                    var update = _stream.ResponseStream.Current;
+                    _gameStateUpdateQueue.Enqueue(update);
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            System.Console.WriteLine("[Exit] ReceiveUpdatesAsync - Cancelled");
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Error] ReceiveUpdatesAsync: {ex.Message}");
+        }
+    }
+
+    private async Task SendActionAsync(GamePlayerAction action)
+    {
+        System.Console.WriteLine("[Entry] SendActionAsync");
+        if (_stream == null)
+        {
+            throw new InvalidOperationException("Not connected");
+        }
+
+        await _stream.RequestStream.WriteAsync(action);
+    }
+
+    public IEnumerable<GameUpdate> DequeueAllUpdates()
+    {
+        System.Console.WriteLine("[Entry] DequeueAllUpdates");
+        while (_gameStateUpdateQueue.TryDequeue(out var update))
+        {
+            yield return update;
+        }
+    }
+
+    public async Task SendMoveArmyAsync(string playerId, string armyId, string targetLocationId, LocationType targetLocationType)
+    {
+        await SendActionAsync(new GamePlayerAction
+        {
+            PlayerId = playerId,
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            MoveArmy = new MoveArmyAction
+            {
+                ArmyId = armyId,
+                TargetLocationId = targetLocationId,
+                TargetLocationType = targetLocationType
+            }
+        });
+    }
+
+    public async Task SendAdvancePhaseAsync(string playerId, string gameId)
+    {
+        await SendActionAsync(new GamePlayerAction
+        {
+            PlayerId = playerId,
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            AdvancePhase = new AdvancePhaseAction
+            {
+                GameId = gameId
+            }
+        });
+    }
+
+    public async Task SendProduceResourcesAsync(string playerId, string gameId)
+    {
+        await SendActionAsync(new GamePlayerAction
+        {
+            PlayerId = playerId,
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            ProduceResources = new ProduceResourcesAction
+            {
+                GameId = gameId
+            }
+        });
+    }
+
+    public async Task SendPurchaseArmiesAsync(string playerId, string gameId, int count)
+    {
+        await SendActionAsync(new GamePlayerAction
+        {
+            PlayerId = playerId,
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            PurchaseArmies = new PurchaseArmiesAction
+            {
+                GameId = gameId,
+                Count = count
+            }
+        });
+    }
+
+    public async Task SendReinforceLocationAsync(string playerId, string gameId, string locationId, LocationType locationType, int unitCount)
+    {
+        await SendActionAsync(new GamePlayerAction
+        {
+            PlayerId = playerId,
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            ReinforceLocation = new ReinforceLocationAction
+            {
+                GameId = gameId,
+                LocationId = locationId,
+                LocationType = locationType,
+                UnitCount = unitCount
+            }
+        });
+    }
+
+    public async Task SendSplitArmyAsync(string playerId, string gameId, string armyId, int splitCount)
+    {
+        // TODO: Implement when proto definition is available
+        await Task.CompletedTask;
+    }
+
+    public async Task SendMergeArmiesAsync(string playerId, string gameId, string sourceArmyId, string targetArmyId)
+    {
+        // TODO: Implement when proto definition is available
+        await Task.CompletedTask;
+    }
+
+    public async Task SendMergeAllArmiesAsync(string playerId, string gameId, List<string> armyIds, string locationId, LocationType locationType)
+    {
+        // TODO: Implement when proto definition is available
+        await Task.CompletedTask;
+    }
+
+    public async Task SendAssignHeroAsync(string playerId, string gameId, string armyId, string heroName)
+    {
+        // TODO: Implement when proto definition is available
+        await Task.CompletedTask;
+    }
+
+    public async Task SendUpgradeStellarBodyAsync(string playerId, string gameId, string bodyId, string upgradeName)
+    {
+        // TODO: Implement when proto definition is available
+        await Task.CompletedTask;
+    }
+
+    public async Task SendFormAllianceAsync(string playerId, string gameId, string targetPlayerId)
+    {
+        // TODO: Implement when proto definition is available
+        await Task.CompletedTask;
+    }
+
+    public async Task SendBreakAllianceAsync(string playerId, string gameId, string targetPlayerId)
+    {
+        // TODO: Implement when proto definition is available
+        await Task.CompletedTask;
+    }
+
     public void Dispose()
     {
         System.Console.WriteLine("[Entry] GrpcGameClient.Dispose()");

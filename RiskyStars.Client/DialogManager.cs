@@ -108,16 +108,22 @@ public class DialogManager
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
         var titleLabel = CreateTitleLabel(type, title);
+#pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
         mainGrid.Widgets.Add(titleLabel);
 
         var messageLabel = CreateMessageLabel(message);
+#pragma warning disable CS0618 // Type or member is obsolete
         messageLabel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         messageLabel.Margin = new Thickness(0, Spacing.Large, 0, Spacing.Large);
         mainGrid.Widgets.Add(messageLabel);
 
         var buttonsPanel = CreateButtonsPanel(buttons);
+#pragma warning disable CS0618 // Type or member is obsolete
         buttonsPanel.GridRow = 2;
+#pragma warning restore CS0618 // Type or member is obsolete
         mainGrid.Widgets.Add(buttonsPanel);
 
         var containerPanel = ThemedUIFactory.CreateAccentFramePanel();
@@ -181,7 +187,7 @@ public class DialogManager
         return panel;
     }
 
-    private TextButton CreateDialogButton(string text)
+    private Myra.Graphics2D.UI.Button CreateDialogButton(string text)
     {
         var theme = text.ToLower() switch
         {

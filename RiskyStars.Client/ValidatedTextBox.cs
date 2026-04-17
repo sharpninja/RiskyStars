@@ -50,9 +50,12 @@ public class ValidatedTextBox
             grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
             grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             _textBox.GridRow = 0;
+#pragma warning restore CS0618 // Type or member is obsolete
             grid.Widgets.Add(_textBox);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             _errorLabel = new Label
             {
                 Text = "",
@@ -61,6 +64,7 @@ public class ValidatedTextBox
                 GridRow = 1,
                 Visible = false
             };
+#pragma warning restore CS0618 // Type or member is obsolete
             grid.Widgets.Add(_errorLabel);
 
             _container = new Panel();

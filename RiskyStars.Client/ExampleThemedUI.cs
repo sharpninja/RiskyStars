@@ -115,9 +115,15 @@ public class ExampleThemedUI
         formLayout.Widgets.Add(difficultyLabel);
         
         var difficultyCombo = ThemedUIFactory.CreateComboBox(400);
+#pragma warning disable CS0618 // Type or member is obsolete
         difficultyCombo.Items.Add(new ListItem("Easy"));
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         difficultyCombo.Items.Add(new ListItem("Medium"));
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         difficultyCombo.Items.Add(new ListItem("Hard"));
+#pragma warning restore CS0618 // Type or member is obsolete
         difficultyCombo.SelectedIndex = 1;
         formLayout.Widgets.Add(difficultyCombo);
         
@@ -181,6 +187,7 @@ public class ExampleThemedUI
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
         // Title label with manual styling
+#pragma warning disable CS0618 // Type or member is obsolete
         var titleLabel = new Label
         {
             Text = "Using Constants",
@@ -189,9 +196,12 @@ public class ExampleThemedUI
             HorizontalAlignment = HorizontalAlignment.Center,
             GridRow = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(titleLabel);
 
         // Button with manual styling
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         var button = new TextButton
         {
             Text = "Custom Button",
@@ -207,6 +217,8 @@ public class ExampleThemedUI
             GridRow = 1,
             HorizontalAlignment = HorizontalAlignment.Center
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(button);
 
         // Panel with manual styling
@@ -249,8 +261,8 @@ public class ExampleThemedUI
 
         // Create widgets without styling
         var titleLabel = new Label { Text = "Theme Application Example" };
-        var button1 = new TextButton { Text = "Primary Action" };
-        var button2 = new TextButton { Text = "Dangerous Action" };
+        var button1 = new Myra.Graphics2D.UI.Button { Content = new Label { Text = "Primary Action" } };
+        var button2 = new Myra.Graphics2D.UI.Button { Content = new Label { Text = "Dangerous Action" } };
         var panel = new Panel { Width = 400, Height = 200 };
 
         // Apply themes after creation

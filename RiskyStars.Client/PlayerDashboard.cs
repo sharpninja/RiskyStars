@@ -29,16 +29,44 @@ public class PlayerDashboard
     private Label? _armiesLabel;
     
     // Purchase button widgets
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _buy1Button;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _buy5Button;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _buy10Button;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _buy25Button;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
     private Label? _purchasePhaseLabel;
     
     // Hero assignment widgets
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _assignToArmyButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _assignToRegionButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _recallHeroButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
     private Label? _heroStatusLabel;
     
     private string? _currentPlayerId;
@@ -300,6 +328,9 @@ public class PlayerDashboard
         buttonGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         
         // Buy 1 button
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _buy1Button = new TextButton
         {
             Text = "Buy 1",
@@ -309,10 +340,16 @@ public class PlayerDashboard
             GridColumn = 0,
             GridRow = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _buy1Button.Click += (s, a) => PurchaseArmies(1);
         buttonGrid.Widgets.Add(_buy1Button);
         
         // Buy 5 button
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _buy5Button = new TextButton
         {
             Text = "Buy 5",
@@ -322,10 +359,16 @@ public class PlayerDashboard
             GridColumn = 1,
             GridRow = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _buy5Button.Click += (s, a) => PurchaseArmies(5);
         buttonGrid.Widgets.Add(_buy5Button);
         
         // Buy 10 button
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _buy10Button = new TextButton
         {
             Text = "Buy 10",
@@ -335,10 +378,16 @@ public class PlayerDashboard
             GridColumn = 0,
             GridRow = 1
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _buy10Button.Click += (s, a) => PurchaseArmies(10);
         buttonGrid.Widgets.Add(_buy10Button);
         
         // Buy 25 button
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _buy25Button = new TextButton
         {
             Text = "Buy 25",
@@ -348,6 +397,9 @@ public class PlayerDashboard
             GridColumn = 1,
             GridRow = 1
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _buy25Button.Click += (s, a) => PurchaseArmies(25);
         buttonGrid.Widgets.Add(_buy25Button);
         
@@ -407,6 +459,7 @@ public class PlayerDashboard
         layout.Widgets.Add(comingSoonLabel);
         
         // Assign to Army button
+#pragma warning disable CS0618 // Type or member is obsolete
         _assignToArmyButton = new TextButton
         {
             Text = "Assign to Army",
@@ -415,10 +468,12 @@ public class PlayerDashboard
             Background = new SolidBrush(new Color(120, 60, 140)),
             Enabled = false
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         _assignToArmyButton.Click += (s, a) => AssignHeroToArmy();
         layout.Widgets.Add(_assignToArmyButton);
         
         // Assign to Region button
+#pragma warning disable CS0618 // Type or member is obsolete
         _assignToRegionButton = new TextButton
         {
             Text = "Assign to Region",
@@ -427,10 +482,12 @@ public class PlayerDashboard
             Background = new SolidBrush(new Color(120, 60, 140)),
             Enabled = false
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         _assignToRegionButton.Click += (s, a) => AssignHeroToRegion();
         layout.Widgets.Add(_assignToRegionButton);
         
         // Recall Hero button
+#pragma warning disable CS0618 // Type or member is obsolete
         _recallHeroButton = new TextButton
         {
             Text = "Recall Hero",
@@ -439,6 +496,7 @@ public class PlayerDashboard
             Background = new SolidBrush(new Color(140, 60, 60)),
             Enabled = false
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         _recallHeroButton.Click += (s, a) => RecallHero();
         layout.Widgets.Add(_recallHeroButton);
         
@@ -565,7 +623,11 @@ public class PlayerDashboard
         UpdatePurchaseButton(_buy25Button, 25, playerState, isPurchasePhase);
     }
     
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private void UpdatePurchaseButton(TextButton? button, int count, PlayerState playerState, bool isPurchasePhase)
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         if (button == null)
         {

@@ -23,9 +23,21 @@ public class LobbyScreen
     private Label? _mapLabel;
     private Label? _gameModeLabel;
     private Grid? _playerSlotsGrid;
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _readyButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _startGameButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
     private TextButton? _leaveLobbyButton;
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
     private Label? _statusLabel;
 
     private LobbyInfo? _lobbyInfo;
@@ -36,7 +48,9 @@ public class LobbyScreen
     private const double RefreshInterval = 1000;
 
     private List<PlayerSlot> _playerSlots;
+#pragma warning disable CS0618 // Type or member is obsolete
     private List<ComboBox> _playerTypeComboBoxes;
+#pragma warning restore CS0618 // Type or member is obsolete
     private int _maxPlayers = 4;
 
     public bool ShouldToggleReady { get; private set; }
@@ -54,7 +68,9 @@ public class LobbyScreen
         _screenHeight = screenHeight;
 
         _playerSlots = new List<PlayerSlot>();
+#pragma warning disable CS0618 // Type or member is obsolete
         _playerTypeComboBoxes = new List<ComboBox>();
+#pragma warning restore CS0618 // Type or member is obsolete
 
         InitializePlayerSlots();
     }
@@ -97,6 +113,7 @@ public class LobbyScreen
         rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
 
         // Title
+#pragma warning disable CS0618 // Type or member is obsolete
         var titleLabel = new Label
         {
             Text = "Game Lobby",
@@ -106,19 +123,25 @@ public class LobbyScreen
             GridRow = 0,
             Margin = new Thickness(0, 20, 0, 10)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(titleLabel);
 
         // Info panel
         var infoPanel = BuildInfoPanel();
+#pragma warning disable CS0618 // Type or member is obsolete
         infoPanel.GridRow = 1;
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(infoPanel);
 
         // Player slots panel
         var slotsPanel = BuildPlayerSlotsPanel();
+#pragma warning disable CS0618 // Type or member is obsolete
         slotsPanel.GridRow = 2;
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(slotsPanel);
 
         // Status label
+#pragma warning disable CS0618 // Type or member is obsolete
         _statusLabel = new Label
         {
             Text = "",
@@ -127,11 +150,14 @@ public class LobbyScreen
             GridRow = 3,
             Scale = new Vector2(0.8f, 0.8f)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(_statusLabel);
 
         // Buttons
         var buttonsPanel = BuildButtonsPanel();
+#pragma warning disable CS0618 // Type or member is obsolete
         buttonsPanel.GridRow = 4;
+#pragma warning restore CS0618 // Type or member is obsolete
         rootGrid.Widgets.Add(buttonsPanel);
 
         _mainPanel = new Panel
@@ -160,6 +186,7 @@ public class LobbyScreen
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
         _hostLabel = new Label
         {
             Text = "Host: Loading...",
@@ -167,8 +194,10 @@ public class LobbyScreen
             Scale = new Vector2(0.9f, 0.9f),
             GridRow = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_hostLabel);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         _mapLabel = new Label
         {
             Text = "Map: Loading...",
@@ -176,8 +205,10 @@ public class LobbyScreen
             Scale = new Vector2(0.8f, 0.8f),
             GridRow = 1
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_mapLabel);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         _gameModeLabel = new Label
         {
             Text = "Game Mode: Loading...",
@@ -185,6 +216,7 @@ public class LobbyScreen
             Scale = new Vector2(0.8f, 0.8f),
             GridRow = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_gameModeLabel);
 
         var panel = new Panel
@@ -208,6 +240,7 @@ public class LobbyScreen
         outerGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         outerGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var headerLabel = new Label
         {
             Text = "Player Slots:",
@@ -216,8 +249,10 @@ public class LobbyScreen
             GridRow = 0,
             Margin = new Thickness(0, 10, 0, 10)
         };
+#pragma warning restore CS0618 // Type or member is obsolete
         outerGrid.Widgets.Add(headerLabel);
 
+#pragma warning disable CS0618 // Type or member is obsolete
         _playerSlotsGrid = new Grid
         {
             RowSpacing = 8,
@@ -226,23 +261,39 @@ public class LobbyScreen
             Width = 700,
             HorizontalAlignment = HorizontalAlignment.Center
         };
+#pragma warning restore CS0618 // Type or member is obsolete
 
         _playerSlotsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto)); // Slot number
         _playerSlotsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill)); // Player name
         _playerSlotsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto)); // AI badge or status
         _playerSlotsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto)); // Player type dropdown
+        _playerSlotsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto)); // Remove button
 
         for (int i = 0; i < 8; i++)
         {
             _playerSlotsGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
         }
 
-        outerGrid.Widgets.Add(_playerSlotsGrid);
+        // Wrap player slots grid in scrollable container
+#pragma warning disable CS0618 // Type or member is obsolete
+        var scrollViewer = new ScrollViewer
+        {
+            Content = _playerSlotsGrid,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            Width = 750,
+            MaxHeight = 350,
+            GridRow = 1,
+            ShowVerticalScrollBar = true
+        };
+#pragma warning restore CS0618 // Type or member is obsolete
+        
+        outerGrid.Widgets.Add(scrollViewer);
 
         var panel = new Panel
         {
             HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Top,
+            VerticalAlignment = VerticalAlignment.Stretch,
             Padding = new Thickness(20),
             Background = new SolidBrush(new Color(0, 0, 0, 180)),
             Margin = new Thickness(50, 0, 50, 0)
@@ -265,6 +316,8 @@ public class LobbyScreen
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _readyButton = new TextButton
         {
             Text = "Ready",
@@ -272,9 +325,13 @@ public class LobbyScreen
             Height = 45,
             GridColumn = 0
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _readyButton.Click += (s, a) => { ShouldToggleReady = true; };
         grid.Widgets.Add(_readyButton);
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _startGameButton = new TextButton
         {
             Text = "Start Game",
@@ -283,9 +340,13 @@ public class LobbyScreen
             GridColumn = 1,
             Enabled = false
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _startGameButton.Click += (s, a) => { if (_isHost) { ShouldStartGame = true; } };
         grid.Widgets.Add(_startGameButton);
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         _leaveLobbyButton = new TextButton
         {
             Text = "Leave Lobby",
@@ -293,6 +354,8 @@ public class LobbyScreen
             Height = 45,
             GridColumn = 2
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _leaveLobbyButton.Click += (s, a) => { ShouldLeaveLobby = true; };
         grid.Widgets.Add(_leaveLobbyButton);
 
@@ -316,13 +379,17 @@ public class LobbyScreen
         int row = slotIndex;
 
         // Clear existing widgets for this row
+#pragma warning disable CS0618 // Type or member is obsolete
         var widgetsToRemove = _playerSlotsGrid.Widgets.Where(w => w.GridRow == row).ToList();
+#pragma warning restore CS0618 // Type or member is obsolete
         foreach (var widget in widgetsToRemove)
         {
             _playerSlotsGrid.Widgets.Remove(widget);
         }
 
         // Slot number
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         var slotNumLabel = new Label
         {
             Text = $"{slotIndex + 1}.",
@@ -332,6 +399,8 @@ public class LobbyScreen
             GridColumn = 0,
             VerticalAlignment = VerticalAlignment.Center
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
         _playerSlotsGrid.Widgets.Add(slotNumLabel);
 
         // Player name
@@ -342,6 +411,8 @@ public class LobbyScreen
             nameText += " [READY]";
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
         var namePanel = new Panel
         {
             Background = new SolidBrush(slot.PlayerType != PlayerType.Human || slot.IsReady ? new Color(0, 60, 0, 100) : new Color(40, 40, 40, 100)),
@@ -350,6 +421,8 @@ public class LobbyScreen
             GridColumn = 1,
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 
         var nameLabel = new Label
         {
@@ -372,6 +445,8 @@ public class LobbyScreen
                 _ => Color.Gray
             };
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             var badgePanel = new Panel
             {
                 Background = new SolidBrush(badgeColor * 0.8f),
@@ -382,6 +457,8 @@ public class LobbyScreen
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var badgeLabel = new Label
             {
@@ -398,6 +475,9 @@ public class LobbyScreen
         // Player type dropdown (for host only)
         if (_isHost)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             var comboBox = new ComboBox
             {
                 Width = 150,
@@ -406,11 +486,22 @@ public class LobbyScreen
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Center
             };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 
+#pragma warning disable CS0618 // Type or member is obsolete
             comboBox.Items.Add(new ListItem("Human"));
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             comboBox.Items.Add(new ListItem("Easy AI"));
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             comboBox.Items.Add(new ListItem("Medium AI"));
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             comboBox.Items.Add(new ListItem("Hard AI"));
+#pragma warning restore CS0618 // Type or member is obsolete
 
             comboBox.SelectedIndex = slot.PlayerType switch
             {
@@ -471,8 +562,82 @@ public class LobbyScreen
             _playerTypeComboBoxes[slotIndex] = comboBox;
 
             _playerSlotsGrid.Widgets.Add(comboBox);
+            
+            // Add remove button for host (only for occupied slots that are not host)
+            if (_isHost && (slot.PlayerType != PlayerType.Human || (slot.PlayerName != GetPlayerName(_currentPlayerId) && !string.IsNullOrEmpty(slot.PlayerName))))
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+                var removeButton = new TextButton
+                {
+                    Text = "✕",
+                    Width = 35,
+                    Height = 30,
+                    GridRow = row,
+                    GridColumn = 4,
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Background = new SolidBrush(new Color(120, 30, 30)),
+                    Padding = new Thickness(0)
+                };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            int capturedRemoveIndex = slotIndex;
+            removeButton.Click += (s, a) =>
+            {
+                _playerSlots[capturedRemoveIndex].PlayerType = PlayerType.Human;
+                _playerSlots[capturedRemoveIndex].PlayerName = $"Player {capturedRemoveIndex + 1}";
+                _playerSlots[capturedRemoveIndex].IsReady = false;
+                _playerSlots[capturedRemoveIndex].IsHost = false;
+                
+                UpdatePlayerSlotUI(capturedRemoveIndex);
+                UpdateStartButton();
+            };
+
+            _playerSlotsGrid.Widgets.Add(removeButton);
+        }
+        // Add "+ Add Player" button for empty slots when host
+        else if (_isHost && slot.PlayerType == PlayerType.Human && slot.PlayerName == $"Player {slotIndex + 1}" && !slot.IsReady)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+            var addButton = new TextButton
+            {
+                Text = "+",
+                Width = 35,
+                Height = 30,
+                GridRow = row,
+                GridColumn = 4,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Center,
+                Background = new SolidBrush(new Color(30, 80, 30)),
+                Padding = new Thickness(0)
+            };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            int capturedAddIndex = slotIndex;
+            addButton.Click += (s, a) =>
+            {
+                _playerSlots[capturedAddIndex].PlayerType = PlayerType.EasyAI;
+                _playerSlots[capturedAddIndex].PlayerName = AINameGenerator.GenerateNameWithSeed(
+                    capturedAddIndex + 1,
+                    _playerSlots[capturedAddIndex].GetDifficultyLevel());
+                _playerSlots[capturedAddIndex].IsReady = true;
+                
+                UpdatePlayerSlotUI(capturedAddIndex);
+                UpdateStartButton();
+            };
+
+            _playerSlotsGrid.Widgets.Add(addButton);
         }
     }
+}
 
     public void SetLobbyInfo(LobbyInfo lobbyInfo, string playerId)
     {

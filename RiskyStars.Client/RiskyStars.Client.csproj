@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RiskyStars.Shared\RiskyStars.Shared.csproj" />
-    <ProjectReference Include="..\RiskyStars.Server\RiskyStars.Server.csproj" />
   </ItemGroup>
 
   <ItemGroup>

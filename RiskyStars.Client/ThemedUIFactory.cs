@@ -12,11 +12,11 @@ namespace RiskyStars.Client;
 public static class ThemedUIFactory
 {
     // Button factory methods
-    public static TextButton CreateButton(string text, ButtonTheme theme = ButtonTheme.Default)
+    public static Myra.Graphics2D.UI.Button CreateButton(string text, ButtonTheme theme = ButtonTheme.Default)
     {
-        var button = new TextButton
+        var button = new Myra.Graphics2D.UI.Button
         {
-            Text = text,
+            Content = new Label { Text = text },
             Width = Sizes.ButtonMediumWidth,
             Height = Sizes.ButtonMediumHeight,
             HorizontalAlignment = HorizontalAlignment.Center
@@ -26,11 +26,11 @@ public static class ThemedUIFactory
         return button;
     }
 
-    public static TextButton CreateButton(string text, int width, int height, ButtonTheme theme = ButtonTheme.Default)
+    public static Myra.Graphics2D.UI.Button CreateButton(string text, int width, int height, ButtonTheme theme = ButtonTheme.Default)
     {
-        var button = new TextButton
+        var button = new Myra.Graphics2D.UI.Button
         {
-            Text = text,
+            Content = new Label { Text = text },
             Width = width,
             Height = height
         };
@@ -39,12 +39,12 @@ public static class ThemedUIFactory
         return button;
     }
 
-    public static TextButton CreateSmallButton(string text, ButtonTheme theme = ButtonTheme.Default)
+    public static Myra.Graphics2D.UI.Button CreateSmallButton(string text, ButtonTheme theme = ButtonTheme.Default)
     {
         return CreateButton(text, Sizes.ButtonSmallWidth, Sizes.ButtonSmallHeight, theme);
     }
 
-    public static TextButton CreateLargeButton(string text, ButtonTheme theme = ButtonTheme.Default)
+    public static Myra.Graphics2D.UI.Button CreateLargeButton(string text, ButtonTheme theme = ButtonTheme.Default)
     {
         return CreateButton(text, Sizes.ButtonLargeWidth, Sizes.ButtonLargeHeight, theme);
     }
@@ -169,8 +169,11 @@ public static class ThemedUIFactory
     }
 
     // ComboBox factory methods
+#pragma warning disable CS0618 // Type or member is obsolete
     public static ComboBox CreateComboBox()
+#pragma warning restore CS0618 // Type or member is obsolete
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return new ComboBox
         {
             Background = CreateSolidBrush(Colors.PrimaryLight),
@@ -182,9 +185,12 @@ public static class ThemedUIFactory
             BorderThickness = new Thickness(BorderThickness.Normal),
             Padding = Padding.Input
         };
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
+#pragma warning disable CS0618 // Type or member is obsolete
     public static ComboBox CreateComboBox(int width)
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         var comboBox = CreateComboBox();
         comboBox.Width = width;
