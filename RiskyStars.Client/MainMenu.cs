@@ -264,8 +264,13 @@ public class MainMenu
         serverCard.GridColumn = 0;
         cards.Widgets.Add(serverCard);
 
+        int displayInnerWidth = cardWidth - (int)(ThemeManager.Padding.Medium.Left + ThemeManager.Padding.Medium.Right);
+        int displayFieldWidth = Math.Max(220, (displayInnerWidth - ThemeManager.Spacing.Medium) / 2);
+        int displayControlWidth = Math.Min(cardWidth - 40, Math.Max(180, displayFieldWidth - 12));
+        int displaySliderWidth = Math.Min(260, Math.Max(180, displayFieldWidth - 72));
+
 #pragma warning disable CS0618
-        _resolutionComboBox = ThemedUIFactory.CreateComboBox(cardWidth - 40);
+        _resolutionComboBox = ThemedUIFactory.CreateComboBox(displayControlWidth);
 #pragma warning restore CS0618
         foreach (var resolution in Settings.GetResolutionOptions($"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}"))
         {
@@ -278,15 +283,27 @@ public class MainMenu
         var selectedIndex = Array.IndexOf(Settings.SupportedResolutions, currentResolution);
         _resolutionComboBox.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
 
-        var displayStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
-        displayStack.Widgets.Add(CreateThemeSelectField("Resolution", "Choose the backbuffer size used in windowed or fullscreen mode.", _resolutionComboBox));
+        var displayGrid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, ThemeManager.Spacing.Medium);
+        displayGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        displayGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
 
-        _windowModeComboBox = CreateSettingsComboBox(Settings.WindowModeOptions, cardWidth - 40);
-        displayStack.Widgets.Add(CreateThemeSelectField("Window Mode", "Switch between a resizable window and fullscreen output.", _windowModeComboBox));
+        var resolutionField = CreateThemeSelectField("Resolution", "Choose the backbuffer size used in windowed or fullscreen mode.", _resolutionComboBox);
+        resolutionField.Width = displayFieldWidth;
+        resolutionField.GridColumn = 0;
+        displayGrid.Widgets.Add(resolutionField);
 
-        displayStack.Widgets.Add(CreateThemeSliderField("UI Scale", "Scales Myra menus, panels, buttons, and window chrome.", 80, 160, out _uiScaleSlider, out _uiScaleValueLabel));
+        _windowModeComboBox = CreateSettingsComboBox(Settings.WindowModeOptions, displayControlWidth);
+        var windowModeField = CreateThemeSelectField("Window Mode", "Switch between a resizable window and fullscreen output.", _windowModeComboBox);
+        windowModeField.Width = displayFieldWidth;
+        windowModeField.GridColumn = 1;
+        displayGrid.Widgets.Add(windowModeField);
 
-        var displayCard = ThemedUIFactory.CreateFieldCard("Display Profile", "Choose the monitor profile for the command deck.", displayStack, cardWidth);
+        var uiScaleField = CreateThemeSliderField("UI Scale", "Scales Myra menus, panels, buttons, and window chrome.", 80, 160, displaySliderWidth, out _uiScaleSlider, out _uiScaleValueLabel);
+        uiScaleField.GridRow = 1;
+        uiScaleField.GridColumnSpan = 2;
+        displayGrid.Widgets.Add(uiScaleField);
+
+        var displayCard = ThemedUIFactory.CreateFieldCard("Display Profile", "Choose the monitor profile for the command deck.", displayGrid, cardWidth);
         displayCard.GridColumn = 1;
         cards.Widgets.Add(displayCard);
 
@@ -299,7 +316,7 @@ public class MainMenu
 
     private Panel BuildThemeSettingsCard(int contentWidth)
     {
-        var panel = ThemedUIFactory.CreateFramePanel();
+        var panel = ThemedUIFactory.CreateConsolePanel();
         panel.Width = contentWidth;
 
         var stack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
@@ -311,46 +328,70 @@ public class MainMenu
         description.TextColor = ThemeManager.Colors.TextPrimary;
         stack.Widgets.Add(description);
 
-        var columns = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Large, ThemeManager.Spacing.Large);
-        columns.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
-        columns.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        int panelInnerWidth = contentWidth - (int)(ThemeManager.Padding.Large.Left + ThemeManager.Padding.Large.Right);
+        int themeFieldWidth = Math.Max(240, (panelInnerWidth - ThemeManager.Spacing.Large) / 2);
+        int themeControlWidth = Math.Min(320, Math.Max(190, themeFieldWidth - 20));
+        int themeSliderWidth = Math.Min(280, Math.Max(180, themeFieldWidth - 72));
 
-        int columnWidth = (contentWidth - (ThemeManager.Spacing.Large + ThemeManager.Padding.Panel.Left + ThemeManager.Padding.Panel.Right)) / 2;
+        stack.Widgets.Add(CreateThemeSectionHeader("Palette"));
 
-        var palettePanel = ThemedUIFactory.CreateDarkPanel();
-        palettePanel.Width = columnWidth;
-        palettePanel.GridColumn = 0;
+        var paletteGrid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, ThemeManager.Spacing.Large);
+        paletteGrid.Width = panelInnerWidth;
+        paletteGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        paletteGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
 
-        var paletteStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
-        paletteStack.Widgets.Add(ThemedUIFactory.CreateHeadingLabel("Palette"));
+        _themeAccentComboBox = CreateSettingsComboBox(UiThemeSettings.AccentColorOptions, themeControlWidth);
+        var accentField = CreateThemeSelectField("Accent Color", "Primary action, selection, and focus color.", _themeAccentComboBox);
+        accentField.Width = themeFieldWidth;
+        accentField.GridColumn = 0;
+        paletteGrid.Widgets.Add(accentField);
 
-        _themeAccentComboBox = CreateSettingsComboBox(UiThemeSettings.AccentColorOptions, 220);
-        paletteStack.Widgets.Add(CreateThemeSelectField("Accent Color", "Primary action, selection, and focus color.", _themeAccentComboBox));
+        _themeWarningComboBox = CreateSettingsComboBox(UiThemeSettings.WarningColorOptions, themeControlWidth);
+        var warningField = CreateThemeSelectField("Warning Tone", "Headings, warnings, and secondary data highlights.", _themeWarningComboBox);
+        warningField.Width = themeFieldWidth;
+        warningField.GridColumn = 1;
+        paletteGrid.Widgets.Add(warningField);
 
-        _themeWarningComboBox = CreateSettingsComboBox(UiThemeSettings.WarningColorOptions, 220);
-        paletteStack.Widgets.Add(CreateThemeSelectField("Warning Tone", "Headings, warnings, and secondary data highlights.", _themeWarningComboBox));
-        palettePanel.Widgets.Add(paletteStack);
-        columns.Widgets.Add(palettePanel);
+        stack.Widgets.Add(paletteGrid);
+        stack.Widgets.Add(ThemedUIFactory.CreateHorizontalSeparator());
+        stack.Widgets.Add(CreateThemeSectionHeader("Typography & Spacing"));
 
-        var metricsPanel = ThemedUIFactory.CreateDarkPanel();
-        metricsPanel.Width = columnWidth;
-        metricsPanel.GridColumn = 1;
+        var metricsGrid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, ThemeManager.Spacing.Large);
+        metricsGrid.Width = panelInnerWidth;
+        metricsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        metricsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
 
-        var metricsStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
-        metricsStack.Widgets.Add(ThemedUIFactory.CreateHeadingLabel("Typography & Spacing"));
+        _themeFontStyleComboBox = CreateSettingsComboBox(UiThemeSettings.FontStyleOptions, themeControlWidth);
+        var fontProfileField = CreateThemeSelectField("Font Profile", "Compact, neutral, or heavier command-deck typography.", _themeFontStyleComboBox);
+        fontProfileField.Width = themeFieldWidth;
+        fontProfileField.GridColumn = 0;
+        metricsGrid.Widgets.Add(fontProfileField);
 
-        _themeFontStyleComboBox = CreateSettingsComboBox(UiThemeSettings.FontStyleOptions, 220);
-        metricsStack.Widgets.Add(CreateThemeSelectField("Font Profile", "Compact, neutral, or heavier command-deck typography.", _themeFontStyleComboBox));
+        var fontSizeField = CreateThemeSliderField("Font Size", "Scales all Myra text.", 80, 140, themeSliderWidth, out _themeFontScaleSlider, out _themeFontScaleValueLabel);
+        fontSizeField.Width = themeFieldWidth;
+        fontSizeField.GridColumn = 1;
+        metricsGrid.Widgets.Add(fontSizeField);
 
-        metricsStack.Widgets.Add(CreateThemeSliderField("Font Size", "Scales all Myra text.", 80, 140, out _themeFontScaleSlider, out _themeFontScaleValueLabel));
-        metricsStack.Widgets.Add(CreateThemeSliderField("Panel Padding", "Adjusts general spacing inside fields and consoles.", 80, 150, out _themePaddingSlider, out _themePaddingValueLabel));
-        metricsStack.Widgets.Add(CreateThemeSliderField("Frame Padding", "Controls the chrome margin around framed screens.", 70, 140, out _themeFramePaddingSlider, out _themeFramePaddingValueLabel));
-        metricsStack.Widgets.Add(CreateThemeSliderField("Contrast", "Brightens text and accents against the dark panels.", 85, 140, out _themeContrastSlider, out _themeContrastValueLabel));
+        var panelPaddingField = CreateThemeSliderField("Panel Padding", "Adjusts general spacing inside fields and consoles.", 80, 150, themeSliderWidth, out _themePaddingSlider, out _themePaddingValueLabel);
+        panelPaddingField.Width = themeFieldWidth;
+        panelPaddingField.GridRow = 1;
+        panelPaddingField.GridColumn = 0;
+        metricsGrid.Widgets.Add(panelPaddingField);
 
-        metricsPanel.Widgets.Add(metricsStack);
-        columns.Widgets.Add(metricsPanel);
+        var framePaddingField = CreateThemeSliderField("Frame Padding", "Controls the chrome margin around framed screens.", 70, 140, themeSliderWidth, out _themeFramePaddingSlider, out _themeFramePaddingValueLabel);
+        framePaddingField.Width = themeFieldWidth;
+        framePaddingField.GridRow = 1;
+        framePaddingField.GridColumn = 1;
+        metricsGrid.Widgets.Add(framePaddingField);
 
-        stack.Widgets.Add(columns);
+        var contrastField = CreateThemeSliderField("Contrast", "Brightens text and accents against the dark panels.", 85, 140, themeSliderWidth, out _themeContrastSlider, out _themeContrastValueLabel);
+        contrastField.Width = themeFieldWidth;
+        contrastField.GridRow = 2;
+        contrastField.GridColumn = 0;
+        contrastField.GridColumnSpan = 2;
+        metricsGrid.Widgets.Add(contrastField);
+
+        stack.Widgets.Add(metricsGrid);
         panel.Widgets.Add(stack);
 
         HookThemeSlider(_themeFontScaleSlider, _themeFontScaleValueLabel);
@@ -362,9 +403,15 @@ public class MainMenu
         return panel;
     }
 
-    private Panel CreateThemeSelectField(string title, string description, Widget control)
+    private Widget CreateThemeSectionHeader(string title)
     {
-        var field = ThemedUIFactory.CreateFramePanel();
+        var titleLabel = ThemedUIFactory.CreateHeadingLabel(title);
+        titleLabel.TextColor = ThemeManager.Colors.TextWarning;
+        return titleLabel;
+    }
+
+    private Widget CreateThemeSelectField(string title, string description, Widget control)
+    {
         var stack = ThemedUIFactory.CreateCompactVerticalStack();
         stack.Spacing = ThemeManager.Spacing.Small;
 
@@ -378,13 +425,11 @@ public class MainMenu
         stack.Widgets.Add(descriptionLabel);
         stack.Widgets.Add(control);
 
-        field.Widgets.Add(stack);
-        return field;
+        return stack;
     }
 
-    private Panel CreateThemeSliderField(string title, string description, int min, int max, out HorizontalSlider slider, out Label valueLabel)
+    private Widget CreateThemeSliderField(string title, string description, int min, int max, int sliderWidth, out HorizontalSlider slider, out Label valueLabel)
     {
-        var field = ThemedUIFactory.CreateFramePanel();
         var stack = ThemedUIFactory.CreateCompactVerticalStack();
         stack.Spacing = ThemeManager.Spacing.Small;
 
@@ -406,7 +451,7 @@ public class MainMenu
             Minimum = min,
             Maximum = max,
             Value = min,
-            Width = 220,
+            Width = sliderWidth,
             VerticalAlignment = VerticalAlignment.Center
         };
         slider.GridColumn = 0;
@@ -419,8 +464,7 @@ public class MainMenu
         sliderGrid.Widgets.Add(valueLabel);
 
         stack.Widgets.Add(sliderGrid);
-        field.Widgets.Add(stack);
-        return field;
+        return stack;
     }
 
     private static void HookThemeSlider(HorizontalSlider? slider, Label? valueLabel)

@@ -18,12 +18,12 @@ public class SinglePlayerLobbyScreen
     private readonly GraphicsDevice _graphicsDevice;
     private int _screenWidth;
     private int _screenHeight;
-    private int _frameWidth => Math.Max(760, _screenWidth - 72);
-    private int _frameHeight => Math.Max(560, _screenHeight - 88);
-    private int _contentWidth => Math.Max(700, _frameWidth - 64);
-    private int _setupSidebarWidth => Math.Clamp(_contentWidth / 3, 280, 360);
-    private int _headerColumnWidth => Math.Max(360, _contentWidth - _setupSidebarWidth - ThemeManager.Spacing.Large);
-    private int _opponentListHeight => Math.Max(260, _frameHeight - 360);
+    private int _frameWidth => Math.Max(760, _screenWidth - 48);
+    private int _frameHeight => Math.Max(560, _screenHeight - 56);
+    private int _contentWidth => Math.Max(720, _frameWidth - 28);
+    private int _topCardWidth => Math.Clamp((_contentWidth - (ThemeManager.Spacing.Large * 2) - 320) / 2, 180, 320);
+    private int _headerColumnWidth => Math.Max(280, _contentWidth - (_topCardWidth * 2) - (ThemeManager.Spacing.Large * 2));
+    private int _opponentListHeight => Math.Max(320, _frameHeight - 290);
 
     private SpriteFont? _font;
 
@@ -113,12 +113,11 @@ public class SinglePlayerLobbyScreen
         var contentStack = ThemedUIFactory.CreateSpaciousVerticalStack();
         contentStack.Width = _contentWidth;
         contentStack.HorizontalAlignment = HorizontalAlignment.Center;
-        contentStack.VerticalAlignment = VerticalAlignment.Center;
-        contentStack.Spacing = ThemeManager.Spacing.Large;
+        contentStack.VerticalAlignment = VerticalAlignment.Top;
+        contentStack.Spacing = ThemeManager.Spacing.Medium;
 
         contentStack.Widgets.Add(BuildTopSection());
         contentStack.Widgets.Add(BuildOpponentSection());
-        contentStack.Widgets.Add(BuildButtonsSection());
 
         var viewportFrame = ThemedUIFactory.CreateViewportFrame(_frameWidth, _frameHeight);
         viewportFrame.HorizontalAlignment = HorizontalAlignment.Center;
@@ -138,29 +137,39 @@ public class SinglePlayerLobbyScreen
 
     private Widget BuildTopSection()
     {
-        var grid = ThemedUIFactory.CreateGrid(0, ThemeManager.Spacing.Large);
+        var grid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, ThemeManager.Spacing.Large);
         grid.Width = _contentWidth;
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Pixels, _topCardWidth));
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Pixels, _setupSidebarWidth));
+        grid.ColumnsProportions.Add(new Proportion(ProportionType.Pixels, _topCardWidth));
 
-        var leftStack = ThemedUIFactory.CreateCompactVerticalStack();
-        leftStack.Width = _headerColumnWidth;
-        leftStack.Spacing = ThemeManager.Spacing.Small;
-        leftStack.GridColumn = 0;
-        leftStack.Widgets.Add(BuildHeaderSection());
+        var mapCard = BuildMapCard(_topCardWidth);
+        mapCard.GridRow = 0;
+        mapCard.GridColumn = 0;
+        grid.Widgets.Add(mapCard);
 
-        _serverStatusIndicator = new ServerStatusIndicator(_headerColumnWidth);
+        var centerStack = ThemedUIFactory.CreateCompactVerticalStack();
+        centerStack.Width = _headerColumnWidth;
+        centerStack.Spacing = ThemeManager.Spacing.Small;
+        centerStack.GridRow = 0;
+        centerStack.GridColumn = 1;
+        centerStack.HorizontalAlignment = HorizontalAlignment.Stretch;
+        centerStack.Widgets.Add(BuildHeaderSection());
+        centerStack.Widgets.Add(BuildButtonsSection());
+        grid.Widgets.Add(centerStack);
+
+        var playerNameCard = BuildPlayerNameCard(_topCardWidth);
+        playerNameCard.GridRow = 0;
+        playerNameCard.GridColumn = 2;
+        grid.Widgets.Add(playerNameCard);
+
+        _serverStatusIndicator = new ServerStatusIndicator(_contentWidth);
         _serverStatusIndicator.Container.HorizontalAlignment = HorizontalAlignment.Stretch;
-        leftStack.Widgets.Add(_serverStatusIndicator.Container);
-        grid.Widgets.Add(leftStack);
-
-        var rightStack = ThemedUIFactory.CreateCompactVerticalStack();
-        rightStack.Width = _setupSidebarWidth;
-        rightStack.Spacing = ThemeManager.Spacing.Small;
-        rightStack.GridColumn = 1;
-        rightStack.Widgets.Add(BuildPlayerNameCard(_setupSidebarWidth));
-        rightStack.Widgets.Add(BuildMapCard(_setupSidebarWidth));
-        grid.Widgets.Add(rightStack);
+        _serverStatusIndicator.Container.GridRow = 1;
+        _serverStatusIndicator.Container.GridColumnSpan = 3;
+        grid.Widgets.Add(_serverStatusIndicator.Container);
 
         return grid;
     }

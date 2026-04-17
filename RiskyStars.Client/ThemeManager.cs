@@ -77,10 +77,10 @@ public static class ThemeManager
         _assets = new LoadedAssets
         {
             Backdrop = CreateTextureBrush(content.Load<Texture2D>($"{MyraAssetRoot}Backdrop")),
-            ViewportFrame = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ViewportFrame"), 10),
-            WindowFrame = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}WindowFrame"), 8),
-            TerminalPanel = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}TerminalPanel"), 4),
-            HeaderPlate = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}HeaderPlate"), 4),
+            ViewportFrame = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ViewportFrame"), 6),
+            WindowFrame = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}WindowFrame"), 6),
+            TerminalPanel = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}TerminalPanel"), 2),
+            HeaderPlate = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}HeaderPlate"), 2),
             ButtonPrimaryNormal = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ButtonPrimaryNormal"), 8),
             ButtonPrimaryHover = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ButtonPrimaryHover"), 8),
             ButtonPrimaryPressed = CreateNinePatchBrush(content.Load<Texture2D>($"{MyraAssetRoot}ButtonPrimaryPressed"), 8),
@@ -1092,9 +1092,9 @@ public static class ThemeManager
                 MediumHorizontalPadding = CreateThickness(ScaleMetric(14, paddingScale), 0),
                 ButtonPadding = CreateThickness(ScaleMetric(24, paddingScale), ScaleMetric(16, paddingScale)),
                 InputPadding = CreateThickness(ScaleMetric(16, paddingScale), ScaleMetric(12, paddingScale)),
-                PanelPadding = CreateThickness(ScaleMetric(14, paddingScale)),
-                ViewportFramePadding = CreateThickness(ScaleMetric(10, frameScale), ScaleMetric(8, frameScale)),
-                HeaderPlatePadding = CreateThickness(ScaleMetric(10, frameScale), ScaleMetric(8, frameScale)),
+                PanelPadding = CreateThickness(ScaleMetric(12, paddingScale)),
+                ViewportFramePadding = CreateThickness(ScaleMetric(6, frameScale), ScaleMetric(5, frameScale)),
+                HeaderPlatePadding = CreateThickness(ScaleMetric(6, frameScale), ScaleMetric(4, frameScale)),
                 BadgePadding = CreateThickness(ScaleMetric(12, paddingScale), ScaleMetric(8, paddingScale)),
 
                 ButtonSmallWidth = ScaleMetric(96, sizeScale),
