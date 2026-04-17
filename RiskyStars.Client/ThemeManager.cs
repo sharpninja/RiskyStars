@@ -1057,7 +1057,7 @@ public static class ThemeManager
                 RedAlert = new Color(206, 92, 76),
                 NeutralSilver = neutralSilver,
                 NeutralSlate = neutralSlate,
-                Selection = new Color(accent.Dim.R, accent.Dim.G, accent.Dim.B, 170),
+                Selection = new Color(accent.Dim.R, accent.Dim.G, accent.Dim.B, (byte)170),
                 HoverColor = Blend(accent.Dim, accent.Bright, 0.30f),
                 PressedColor = Blend(terminalBlack, accent.Dim, 0.34f),
                 DisabledColor = disabled,

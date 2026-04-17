@@ -47,7 +47,8 @@ public class LobbyBrowserScreen
     private void BuildUI()
     {
         int frameWidth = Math.Min(_screenWidth - 120, 1120);
-        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, Math.Min(_screenHeight - 120, 760));
+        int frameHeight = Math.Min(_screenHeight - 120, 760);
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
 
@@ -73,12 +74,7 @@ public class LobbyBrowserScreen
         layout.Widgets.Add(metaStrip);
 
         var listPanel = ThemedUIFactory.CreateFramePanel();
-        var scrollViewer = new ScrollViewer
-        {
-            ShowHorizontalScrollBar = false,
-            ShowVerticalScrollBar = true,
-            Height = 420
-        };
+        var scrollViewer = ThemedUIFactory.CreateAutoScrollViewer(new Panel(), 420);
 
         _lobbiesGrid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, ThemeManager.Spacing.Small);
         _lobbiesGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
@@ -115,7 +111,7 @@ public class LobbyBrowserScreen
         buttons.Widgets.Add(_refreshButton);
 
         layout.Widgets.Add(buttons);
-        frame.Widgets.Add(layout);
+        frame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(layout, frameHeight - 96));
 
         _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainPanel.Widgets.Add(frame);

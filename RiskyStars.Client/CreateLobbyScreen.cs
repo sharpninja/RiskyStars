@@ -40,7 +40,8 @@ public class CreateLobbyScreen
     private void BuildUI()
     {
         int frameWidth = Math.Min(_screenWidth - 180, 920);
-        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, Math.Min(_screenHeight - 140, 620));
+        int frameHeight = Math.Min(_screenHeight - 140, 620);
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
 
@@ -91,7 +92,7 @@ public class CreateLobbyScreen
         actionBar.Widgets.Add(_cancelButton);
 
         layout.Widgets.Add(actionBar);
-        frame.Widgets.Add(layout);
+        frame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(layout, frameHeight - 96));
 
         _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainPanel.Widgets.Add(frame);

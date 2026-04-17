@@ -43,7 +43,8 @@ public class ConnectionScreen
     private void BuildUI()
     {
         int frameWidth = Math.Min(_screenWidth - 160, 920);
-        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, Math.Min(_screenHeight - 120, 680));
+        int frameHeight = Math.Min(_screenHeight - 120, 680);
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
 
@@ -97,7 +98,7 @@ public class ConnectionScreen
         contentGrid.Widgets.Add(actionPanel);
 
         layout.Widgets.Add(contentGrid);
-        frame.Widgets.Add(layout);
+        frame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(layout, frameHeight - 96));
 
         _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainPanel.Widgets.Add(frame);

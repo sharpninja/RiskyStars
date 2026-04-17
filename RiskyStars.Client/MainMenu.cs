@@ -78,7 +78,8 @@ public class MainMenu
     private void BuildMainMenuUI()
     {
         int frameWidth = Math.Min(_screenWidth - 120, 1160);
-        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, Math.Min(_screenHeight - 120, 700));
+        int frameHeight = Math.Min(_screenHeight - 120, 700);
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
 
@@ -172,7 +173,8 @@ public class MainMenu
         footer.Widgets.Add(footerGrid);
         layout.Widgets.Add(footer);
 
-        frame.Widgets.Add(layout);
+        var scrollViewer = ThemedUIFactory.CreateAutoScrollViewer(layout, frameHeight - 96);
+        frame.Widgets.Add(scrollViewer);
 
         _mainMenuPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainMenuPanel.Widgets.Add(frame);
@@ -498,7 +500,8 @@ public class MainMenu
 
     private void BuildConnectingUI()
     {
-        var frame = ThemedUIFactory.CreateViewportFrame(Math.Min(_screenWidth - 240, 700));
+        int frameHeight = Math.Min(_screenHeight - 180, 420);
+        var frame = ThemedUIFactory.CreateViewportFrame(Math.Min(_screenWidth - 240, 700), frameHeight);
         frame.HorizontalAlignment = HorizontalAlignment.Center;
         frame.VerticalAlignment = VerticalAlignment.Center;
 
@@ -520,7 +523,7 @@ public class MainMenu
         messagePanel.Widgets.Add(messageStack);
         stack.Widgets.Add(messagePanel);
 
-        frame.Widgets.Add(stack);
+        frame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(stack, frameHeight - 96));
 
         _connectingPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _connectingPanel.Widgets.Add(frame);

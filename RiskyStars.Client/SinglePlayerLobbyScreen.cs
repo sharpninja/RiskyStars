@@ -99,6 +99,7 @@ public class SinglePlayerLobbyScreen
 
     private void BuildUI()
     {
+        int frameHeight = Math.Min(_screenHeight - 120, 780);
         var rootGrid = ThemedUIFactory.CreateGrid();
         rootGrid.Width = _screenWidth;
         rootGrid.Height = _screenHeight;
@@ -121,10 +122,10 @@ public class SinglePlayerLobbyScreen
         contentStack.Widgets.Add(BuildOpponentSection());
         contentStack.Widgets.Add(BuildButtonsSection());
 
-        var viewportFrame = ThemedUIFactory.CreateViewportFrame(_contentWidth + 96);
+        var viewportFrame = ThemedUIFactory.CreateViewportFrame(_contentWidth + 96, frameHeight);
         viewportFrame.HorizontalAlignment = HorizontalAlignment.Center;
         viewportFrame.VerticalAlignment = VerticalAlignment.Center;
-        viewportFrame.Widgets.Add(contentStack);
+        viewportFrame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(contentStack, frameHeight - 96));
 
         rootGrid.Widgets.Add(viewportFrame);
 

@@ -125,6 +125,7 @@ public class RiskyStarsGame : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         ThemeManager.LoadContent(Content);
+        ThemeManager.ApplyThemeSettings(_settings.Theme);
         
         try
         {
@@ -363,6 +364,8 @@ public class RiskyStarsGame : Game
     
     private void OnSettingsApplied(Settings settings)
     {
+        ThemeManager.ApplyThemeSettings(settings.Theme);
+
         bool resolutionChanged = settings.ResolutionWidth != _graphics.PreferredBackBufferWidth ||
                                 settings.ResolutionHeight != _graphics.PreferredBackBufferHeight ||
                                 settings.Fullscreen != _graphics.IsFullScreen;

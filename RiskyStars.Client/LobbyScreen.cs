@@ -86,6 +86,7 @@ public class LobbyScreen
     private void BuildUI()
     {
         var contentWidth = Math.Max(820, Math.Min(_screenWidth - 160, 1080));
+        var frameHeight = Math.Min(_screenHeight - 120, 760);
 
         var contentStack = ThemedUIFactory.CreateSpaciousVerticalStack();
         contentStack.Width = contentWidth;
@@ -108,10 +109,10 @@ public class LobbyScreen
 
         contentStack.Widgets.Add(BuildButtonsPanel());
 
-        var viewportFrame = ThemedUIFactory.CreateViewportFrame(contentWidth + 96);
+        var viewportFrame = ThemedUIFactory.CreateViewportFrame(contentWidth + 96, frameHeight);
         viewportFrame.HorizontalAlignment = HorizontalAlignment.Center;
         viewportFrame.VerticalAlignment = VerticalAlignment.Center;
-        viewportFrame.Widgets.Add(contentStack);
+        viewportFrame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(contentStack, frameHeight - 96));
 
         _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainPanel.Widgets.Add(viewportFrame);
