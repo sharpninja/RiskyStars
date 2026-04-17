@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D;
 using RiskyStars.Shared;
 
@@ -65,14 +64,8 @@ public class PlayerDashboardWindow : DockableWindow
     
     private Widget BuildResourcePanel()
     {
-        var panel = new Panel
-        {
-            Background = new SolidBrush(ThemeManager.Colors.BackgroundMedium),
-            Border = new SolidBrush(ThemeManager.Colors.AccentCyan),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal),
-            Padding = ThemeManager.Padding.Medium,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
+        var panel = ThemedUIFactory.CreateFramePanel();
+        panel.HorizontalAlignment = HorizontalAlignment.Stretch;
         
         var layout = new VerticalStackPanel
         {
@@ -112,7 +105,7 @@ public class PlayerDashboardWindow : DockableWindow
         fuelRow.Widgets.Add(_fuelRateLabel);
         layout.Widgets.Add(fuelRow);
         
-        layout.Widgets.Add(new Panel { Height = ThemeManager.Spacing.Small });
+        layout.Widgets.Add(ThemedUIFactory.CreateSpacer(ThemeManager.Spacing.Small));
         
         _territoriesLabel = ThemedUIFactory.CreateLabel("Territories: 0");
         layout.Widgets.Add(_territoriesLabel);
@@ -126,14 +119,8 @@ public class PlayerDashboardWindow : DockableWindow
     
     private Widget BuildPurchasePanel()
     {
-        var panel = new Panel
-        {
-            Background = new SolidBrush(ThemeManager.Colors.BackgroundMedium),
-            Border = new SolidBrush(ThemeManager.Colors.AccentCyan),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal),
-            Padding = ThemeManager.Padding.Medium,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
+        var panel = ThemedUIFactory.CreateFramePanel();
+        panel.HorizontalAlignment = HorizontalAlignment.Stretch;
         
         var layout = new VerticalStackPanel
         {
@@ -196,14 +183,8 @@ public class PlayerDashboardWindow : DockableWindow
     
     private Widget BuildHeroPanel()
     {
-        var panel = new Panel
-        {
-            Background = new SolidBrush(ThemeManager.Colors.BackgroundMedium),
-            Border = new SolidBrush(ThemeManager.Colors.HeroColor),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal),
-            Padding = ThemeManager.Padding.Medium,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
+        var panel = ThemedUIFactory.CreateHeroPanel();
+        panel.HorizontalAlignment = HorizontalAlignment.Stretch;
         
         var layout = new VerticalStackPanel
         {

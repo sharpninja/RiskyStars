@@ -1,30 +1,26 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Myra;
-using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
+using MyraButton = Myra.Graphics2D.UI.Button;
 
 namespace RiskyStars.Client;
 
 public class ConnectionScreen
 {
-    private readonly GraphicsDevice _graphicsDevice;
     private readonly int _screenWidth;
     private readonly int _screenHeight;
-    private SpriteFont? _font;
-    
+
     private Desktop? _desktop;
     private Panel? _mainPanel;
     private ValidatedTextBox? _playerNameTextBox;
     private ValidatedTextBox? _serverAddressTextBox;
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _connectButton;
+    private MyraButton? _connectButton;
+    private MyraButton? _backButton;
     private Label? _statusLabel;
-#pragma warning restore CS0618 // Type or member is obsolete
-    
-    private bool _isConnecting = false;
+
+    private bool _isConnecting;
+    private bool _shouldGoBack;
     private KeyboardState _previousKeyState;
 
     public bool IsConnected { get; private set; }
@@ -33,124 +29,78 @@ public class ConnectionScreen
 
     public ConnectionScreen(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
-        _graphicsDevice = graphicsDevice;
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
     }
 
     public void LoadContent(SpriteFont font)
     {
-        _font = font;
         _desktop = new Desktop();
+        ThemeManager.ApplyDesktopTheme(_desktop);
         BuildUI();
     }
 
     private void BuildUI()
     {
-        var rootGrid = new Grid
-        {
-            RowSpacing = 20,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            Width = _screenWidth,
-            Height = _screenHeight
-        };
+        int frameWidth = Math.Min(_screenWidth - 160, 920);
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, Math.Min(_screenHeight - 120, 680));
+        frame.HorizontalAlignment = HorizontalAlignment.Center;
+        frame.VerticalAlignment = VerticalAlignment.Center;
 
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Player name
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Server address
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Connect button
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Status
+        var layout = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Large);
+        layout.Widgets.Add(ThemedUIFactory.CreateHeaderPlate("Multiplayer Uplink", "Authenticate your commander and connect to a lobby server"));
 
-        // Title
-#pragma warning disable CS0618 // Type or member is obsolete
-        var titleLabel = new Label
-        {
-            Text = "Multiplayer - Connect to Server",
-            TextColor = Color.Cyan,
-            Scale = new Vector2(1.5f, 1.5f),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 0,
-            Margin = new Thickness(0, 0, 0, 20)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(titleLabel);
+        var contentGrid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Large, ThemeManager.Spacing.Large);
+        contentGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        contentGrid.ColumnsProportions.Add(new Proportion(ProportionType.Pixels, 280));
 
-        // Container Panel
-        var containerPanel = new Panel
-        {
-            Width = 500,
-            Padding = new Thickness(40, 30),
-            Background = new SolidBrush(new Color(0, 0, 0, 220)),
-            Border = new SolidBrush(Color.Cyan),
-            BorderThickness = new Thickness(3),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 1,
-            GridRowSpan = 3
-        };
+        int cardWidth = frameWidth - 96 - 280 - ThemeManager.Spacing.Large;
 
-        var containerGrid = new Grid
-        {
-            RowSpacing = 25,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
+        var inputStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Large);
+        _playerNameTextBox = ThemedUIFactory.CreateValidatedPlayerNameBox(cardWidth - 40, showErrorLabel: true);
+        inputStack.Widgets.Add(ThemedUIFactory.CreateFieldCard("Commander Identity", "The name visible to other players in lobbies and matches.", _playerNameTextBox.Container, cardWidth));
 
-        containerGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        containerGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        containerGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-
-        // Player Name Field
-        _playerNameTextBox = ThemedUIFactory.CreateValidatedPlayerNameBox(420, showErrorLabel: true);
-        _playerNameTextBox.Container.GridRow = 0;
-        containerGrid.Widgets.Add(_playerNameTextBox.Container);
-
-        // Server Address Field
-        _serverAddressTextBox = ThemedUIFactory.CreateValidatedServerAddressBox(420, showErrorLabel: true);
+        _serverAddressTextBox = ThemedUIFactory.CreateValidatedServerAddressBox(cardWidth - 40, showErrorLabel: true);
         _serverAddressTextBox.Text = Settings.Load().ServerAddress;
-        _serverAddressTextBox.Container.GridRow = 1;
-        containerGrid.Widgets.Add(_serverAddressTextBox.Container);
+        inputStack.Widgets.Add(ThemedUIFactory.CreateFieldCard("Server Endpoint", "Use an IP or hostname for the multiplayer server.", _serverAddressTextBox.Container, cardWidth));
+        inputStack.GridColumn = 0;
+        contentGrid.Widgets.Add(inputStack);
 
-        // Connect Button
-#pragma warning disable CS0618 // Type or member is obsolete
-        _connectButton = new TextButton
-        {
-            Text = "Connect",
-            Width = 150,
-            Height = 50,
-            GridRow = 2,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, 10, 0, 0)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
+        var actionPanel = ThemedUIFactory.CreateFramePanel();
+        actionPanel.GridColumn = 1;
+        var actionStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
 
-        _connectButton.Click += (s, a) => AttemptConnection();
+        var heading = ThemedUIFactory.CreateHeadingLabel("Link State");
+        actionStack.Widgets.Add(heading);
 
-        containerGrid.Widgets.Add(_connectButton);
-        containerPanel.Widgets.Add(containerGrid);
-        rootGrid.Widgets.Add(containerPanel);
+        var summary = ThemedUIFactory.CreateSecondaryLabel("Press connect to authenticate with the selected server and move into the lobby browser.");
+        summary.Wrap = true;
+        summary.Width = 220;
+        summary.TextColor = ThemeManager.Colors.TextPrimary;
+        actionStack.Widgets.Add(summary);
 
-        // Status Label
-#pragma warning disable CS0618 // Type or member is obsolete
-        _statusLabel = new Label
-        {
-            Text = "",
-            TextColor = Color.White,
-            Scale = new Vector2(0.8f, 0.8f),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 4,
-            Margin = new Thickness(0, 20, 0, 0)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(_statusLabel);
+        _connectButton = ThemedUIFactory.CreateLargeButton("Connect", ThemeManager.ButtonTheme.Primary);
+        _connectButton.Click += (_, _) => AttemptConnection();
+        actionStack.Widgets.Add(_connectButton);
 
-        _mainPanel = new Panel
-        {
-            Width = _screenWidth,
-            Height = _screenHeight,
-            Background = new SolidBrush(new Color(10, 10, 20))
-        };
+        _backButton = ThemedUIFactory.CreateLargeButton("Back", ThemeManager.ButtonTheme.Default);
+        _backButton.Click += (_, _) => _shouldGoBack = true;
+        actionStack.Widgets.Add(_backButton);
 
-        _mainPanel.Widgets.Add(rootGrid);
+        _statusLabel = ThemedUIFactory.CreateSmallLabel("Awaiting uplink command.");
+        _statusLabel.TextColor = ThemeManager.Colors.TextSecondary;
+        _statusLabel.Wrap = true;
+        _statusLabel.Width = 220;
+        actionStack.Widgets.Add(_statusLabel);
+
+        actionPanel.Widgets.Add(actionStack);
+        contentGrid.Widgets.Add(actionPanel);
+
+        layout.Widgets.Add(contentGrid);
+        frame.Widgets.Add(layout);
+
+        _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
+        _mainPanel.Widgets.Add(frame);
 
         if (_desktop != null)
         {
@@ -161,24 +111,32 @@ public class ConnectionScreen
     private void AttemptConnection()
     {
         if (_playerNameTextBox == null || _serverAddressTextBox == null)
+        {
             return;
+        }
 
-        // Validate all inputs before connecting
+        _shouldGoBack = false;
+
         var nameValidation = _playerNameTextBox.ValidateInput();
         var serverValidation = _serverAddressTextBox.ValidateInput();
 
         if (!nameValidation.IsValid)
         {
-            SetStatus(nameValidation.Message, Color.Red);
+            SetStatus(nameValidation.Message, ThemeManager.Colors.TextError);
+            return;
         }
-        else if (!serverValidation.IsValid)
+
+        if (!serverValidation.IsValid)
         {
-            SetStatus(serverValidation.Message, Color.Red);
+            SetStatus(serverValidation.Message, ThemeManager.Colors.TextError);
+            return;
         }
-        else
+
+        _isConnecting = true;
+        SetStatus("Authenticating commander and opening uplink...", ThemeManager.Colors.TextWarning);
+
+        if (_connectButton != null)
         {
-            _isConnecting = true;
-            SetStatus("Connecting...", Color.Yellow);
             _connectButton.Enabled = false;
         }
     }
@@ -199,6 +157,11 @@ public class ConnectionScreen
             AttemptConnection();
         }
 
+        if (keyState.IsKeyDown(Keys.Escape) && _previousKeyState.IsKeyUp(Keys.Escape))
+        {
+            _shouldGoBack = true;
+        }
+
         _previousKeyState = keyState;
     }
 
@@ -206,9 +169,8 @@ public class ConnectionScreen
     {
         _isConnecting = false;
         IsConnected = success;
-        
-        SetStatus(message, success ? Color.LimeGreen : Color.Red);
-        
+        SetStatus(message, success ? ThemeManager.Colors.TextSuccess : ThemeManager.Colors.TextError);
+
         if (_connectButton != null)
         {
             _connectButton.Enabled = true;
@@ -218,6 +180,13 @@ public class ConnectionScreen
     public bool ShouldAttemptConnection()
     {
         return _isConnecting;
+    }
+
+    public bool ShouldGoBack()
+    {
+        bool result = _shouldGoBack;
+        _shouldGoBack = false;
+        return result;
     }
 
     public void Draw(SpriteBatch spriteBatch)

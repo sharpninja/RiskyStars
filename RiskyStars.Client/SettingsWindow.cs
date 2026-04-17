@@ -60,6 +60,7 @@ public class SettingsWindow
         _tempSettings = settings.Clone();
         
         _desktop = new Desktop();
+        ThemeManager.ApplyDesktopTheme(_desktop);
         CreateUI();
     }
     
@@ -68,15 +69,11 @@ public class SettingsWindow
         _window = new Window
         {
             Title = "Settings",
-            TitleTextColor = ThemeManager.Colors.TextAccent,
-            Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BackgroundDark),
-            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.AccentCyan),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal),
             Width = 700,
             Height = 550,
-            Padding = ThemeManager.Padding.Large,
             Visible = false
         };
+        ThemeManager.ApplyWindowTheme(_window);
         
         var mainGrid = ThemedUIFactory.CreateGrid();
         mainGrid.RowsProportions.Add(new Proportion(ProportionType.Fill));

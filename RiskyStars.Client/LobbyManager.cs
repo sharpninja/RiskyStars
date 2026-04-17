@@ -63,6 +63,12 @@ public class LobbyManager
         _state = LobbyState.SinglePlayerLobby;
     }
 
+    public void SetMultiplayerMode()
+    {
+        _selectedGameMode = GameMode.Multiplayer;
+        _state = LobbyState.Connection;
+    }
+
     public LobbyManager(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
         _graphicsDevice = graphicsDevice;
@@ -264,6 +270,12 @@ public class LobbyManager
     private void UpdateConnection(GameTime gameTime, MouseState mouseState, KeyboardState keyState)
     {
         _connectionScreen.Update(gameTime, mouseState, keyState);
+
+        if (_connectionScreen.ShouldGoBack())
+        {
+            _state = LobbyState.ModeSelection;
+            return;
+        }
 
         if (_connectionScreen.ShouldAttemptConnection() && _pendingTask == null)
         {
@@ -580,9 +592,9 @@ public class LobbyManager
         _initializingLoadingLabel = new Label
         {
             Text = "Initializing single player game...",
+            Font = ThemeManager.UiFonts.Heading,
             TextColor = Color.White,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Scale = new Vector2(1.0f, 1.0f)
+            HorizontalAlignment = HorizontalAlignment.Center
         };
 #pragma warning restore CS0618 // Type or member is obsolete
 
@@ -590,9 +602,9 @@ public class LobbyManager
         _initializingStatusLabel = new Label
         {
             Text = "",
+            Font = ThemeManager.UiFonts.Small,
             TextColor = Color.Yellow,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Scale = new Vector2(0.8f, 0.8f)
+            HorizontalAlignment = HorizontalAlignment.Center
         };
 #pragma warning restore CS0618 // Type or member is obsolete
 

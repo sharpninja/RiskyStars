@@ -59,8 +59,8 @@ public class ValidatedTextBox
             _errorLabel = new Label
             {
                 Text = "",
+                Font = ThemeManager.UiFonts.Small,
                 TextColor = ThemeManager.Colors.TextError,
-                Scale = ThemeManager.FontScale.Small,
                 GridRow = 1,
                 Visible = false
             };

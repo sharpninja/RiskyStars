@@ -5,8 +5,8 @@ using RiskyStars.Shared;
 using Myra;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
 using System.Linq;
+using MyraButton = Myra.Graphics2D.UI.Button;
 
 namespace RiskyStars.Client;
 
@@ -23,21 +23,9 @@ public class LobbyScreen
     private Label? _mapLabel;
     private Label? _gameModeLabel;
     private Grid? _playerSlotsGrid;
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _readyButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _startGameButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _leaveLobbyButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+    private MyraButton? _readyButton;
+    private MyraButton? _startGameButton;
+    private MyraButton? _leaveLobbyButton;
     private Label? _statusLabel;
 
     private LobbyInfo? _lobbyInfo;
@@ -91,82 +79,42 @@ public class LobbyScreen
     {
         _font = font;
         _desktop = new Desktop();
+        ThemeManager.ApplyDesktopTheme(_desktop);
         BuildUI();
     }
 
     private void BuildUI()
     {
-        var rootGrid = new Grid
-        {
-            RowSpacing = 15,
-            ColumnSpacing = 10,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Stretch,
-            Width = _screenWidth,
-            Height = _screenHeight
-        };
+        var contentWidth = Math.Max(820, Math.Min(_screenWidth - 160, 1080));
 
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Info panel
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Fill)); // Player slots
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Status
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
+        var contentStack = ThemedUIFactory.CreateSpaciousVerticalStack();
+        contentStack.Width = contentWidth;
+        contentStack.HorizontalAlignment = HorizontalAlignment.Center;
+        contentStack.VerticalAlignment = VerticalAlignment.Center;
+        contentStack.Spacing = ThemeManager.Spacing.Large;
 
-        // Title
-#pragma warning disable CS0618 // Type or member is obsolete
-        var titleLabel = new Label
-        {
-            Text = "Game Lobby",
-            TextColor = Color.Cyan,
-            Scale = new Vector2(1.8f, 1.8f),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 0,
-            Margin = new Thickness(0, 20, 0, 10)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(titleLabel);
+        contentStack.Widgets.Add(ThemedUIFactory.CreateHeaderPlate(
+            "Multiplayer Lobby",
+            "Coordinate ready state, AI slots, and launch from one shared command deck.",
+            contentWidth - 24));
 
-        // Info panel
-        var infoPanel = BuildInfoPanel();
-#pragma warning disable CS0618 // Type or member is obsolete
-        infoPanel.GridRow = 1;
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(infoPanel);
+        contentStack.Widgets.Add(BuildInfoPanel());
+        contentStack.Widgets.Add(BuildPlayerSlotsPanel());
 
-        // Player slots panel
-        var slotsPanel = BuildPlayerSlotsPanel();
-#pragma warning disable CS0618 // Type or member is obsolete
-        slotsPanel.GridRow = 2;
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(slotsPanel);
+        _statusLabel = ThemedUIFactory.CreateSecondaryLabel(string.Empty);
+        _statusLabel.Font = ThemeManager.UiFonts.Small;
+        _statusLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        contentStack.Widgets.Add(_statusLabel);
 
-        // Status label
-#pragma warning disable CS0618 // Type or member is obsolete
-        _statusLabel = new Label
-        {
-            Text = "",
-            TextColor = Color.Yellow,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 3,
-            Scale = new Vector2(0.8f, 0.8f)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(_statusLabel);
+        contentStack.Widgets.Add(BuildButtonsPanel());
 
-        // Buttons
-        var buttonsPanel = BuildButtonsPanel();
-#pragma warning disable CS0618 // Type or member is obsolete
-        buttonsPanel.GridRow = 4;
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(buttonsPanel);
+        var viewportFrame = ThemedUIFactory.CreateViewportFrame(contentWidth + 96);
+        viewportFrame.HorizontalAlignment = HorizontalAlignment.Center;
+        viewportFrame.VerticalAlignment = VerticalAlignment.Center;
+        viewportFrame.Widgets.Add(contentStack);
 
-        _mainPanel = new Panel
-        {
-            Width = _screenWidth,
-            Height = _screenHeight,
-            Background = new SolidBrush(new Color(10, 10, 20))
-        };
-        _mainPanel.Widgets.Add(rootGrid);
+        _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
+        _mainPanel.Widgets.Add(viewportFrame);
 
         if (_desktop != null)
         {
@@ -178,7 +126,7 @@ public class LobbyScreen
     {
         var grid = new Grid
         {
-            RowSpacing = 8,
+            RowSpacing = ThemeManager.Spacing.Small,
             HorizontalAlignment = HorizontalAlignment.Center
         };
 
@@ -187,44 +135,29 @@ public class LobbyScreen
         grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        _hostLabel = new Label
-        {
-            Text = "Host: Loading...",
-            TextColor = Color.Yellow,
-            Scale = new Vector2(0.9f, 0.9f),
-            GridRow = 0
-        };
+        _hostLabel = ThemedUIFactory.CreateSecondaryLabel("Host: Loading...");
+        _hostLabel.Font = ThemeManager.UiFonts.Small;
+        _hostLabel.TextColor = ThemeManager.Colors.TextWarning;
+        _hostLabel.GridRow = 0;
 #pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_hostLabel);
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        _mapLabel = new Label
-        {
-            Text = "Map: Loading...",
-            TextColor = Color.White,
-            Scale = new Vector2(0.8f, 0.8f),
-            GridRow = 1
-        };
+        _mapLabel = ThemedUIFactory.CreateLabel("Map: Loading...");
+        _mapLabel.Font = ThemeManager.UiFonts.Small;
+        _mapLabel.GridRow = 1;
 #pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_mapLabel);
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        _gameModeLabel = new Label
-        {
-            Text = "Game Mode: Loading...",
-            TextColor = Color.White,
-            Scale = new Vector2(0.8f, 0.8f),
-            GridRow = 2
-        };
+        _gameModeLabel = ThemedUIFactory.CreateLabel("Game Mode: Loading...");
+        _gameModeLabel.Font = ThemeManager.UiFonts.Small;
+        _gameModeLabel.GridRow = 2;
 #pragma warning restore CS0618 // Type or member is obsolete
         grid.Widgets.Add(_gameModeLabel);
 
-        var panel = new Panel
-        {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Padding = new Thickness(20, 15),
-            Background = new SolidBrush(new Color(0, 0, 0, 180))
-        };
+        var panel = ThemedUIFactory.CreateFramePanel();
+        panel.HorizontalAlignment = HorizontalAlignment.Center;
         panel.Widgets.Add(grid);
 
         return panel;
@@ -241,14 +174,9 @@ public class LobbyScreen
         outerGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
 #pragma warning disable CS0618 // Type or member is obsolete
-        var headerLabel = new Label
-        {
-            Text = "Player Slots:",
-            TextColor = Color.Cyan,
-            Scale = new Vector2(0.9f, 0.9f),
-            GridRow = 0,
-            Margin = new Thickness(0, 10, 0, 10)
-        };
+        var headerLabel = ThemedUIFactory.CreateHeadingLabel("Lobby Slots");
+        headerLabel.GridRow = 0;
+        headerLabel.Margin = new Thickness(0, ThemeManager.Spacing.Small, 0, ThemeManager.Spacing.Small);
 #pragma warning restore CS0618 // Type or member is obsolete
         outerGrid.Widgets.Add(headerLabel);
 
@@ -258,7 +186,7 @@ public class LobbyScreen
             RowSpacing = 8,
             ColumnSpacing = 10,
             GridRow = 1,
-            Width = 700,
+            Width = 760,
             HorizontalAlignment = HorizontalAlignment.Center
         };
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -281,8 +209,8 @@ public class LobbyScreen
             Content = _playerSlotsGrid,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Stretch,
-            Width = 750,
-            MaxHeight = 350,
+            Width = 820,
+            MaxHeight = 380,
             GridRow = 1,
             ShowVerticalScrollBar = true
         };
@@ -290,14 +218,10 @@ public class LobbyScreen
         
         outerGrid.Widgets.Add(scrollViewer);
 
-        var panel = new Panel
-        {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Stretch,
-            Padding = new Thickness(20),
-            Background = new SolidBrush(new Color(0, 0, 0, 180)),
-            Margin = new Thickness(50, 0, 50, 0)
-        };
+        var panel = ThemedUIFactory.CreateFramePanel();
+        panel.HorizontalAlignment = HorizontalAlignment.Center;
+        panel.VerticalAlignment = VerticalAlignment.Stretch;
+        panel.Margin = new Thickness(20, 0);
         panel.Widgets.Add(outerGrid);
 
         return panel;
@@ -307,62 +231,32 @@ public class LobbyScreen
     {
         var grid = new Grid
         {
-            ColumnSpacing = 20,
+            ColumnSpacing = ThemeManager.Spacing.Large,
             HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, 10, 0, 30)
+            Margin = new Thickness(0, ThemeManager.Spacing.Small, 0, ThemeManager.Spacing.Medium)
         };
 
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
 
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _readyButton = new TextButton
-        {
-            Text = "Ready",
-            Width = 150,
-            Height = 45,
-            GridColumn = 0
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+        _readyButton = ThemedUIFactory.CreateButton("Ready", 170, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Primary);
+        Grid.SetColumn(_readyButton, 0);
         _readyButton.Click += (s, a) => { ShouldToggleReady = true; };
         grid.Widgets.Add(_readyButton);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _startGameButton = new TextButton
-        {
-            Text = "Start Game",
-            Width = 150,
-            Height = 45,
-            GridColumn = 1,
-            Enabled = false
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+        _startGameButton = ThemedUIFactory.CreateButton("Start Game", 190, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Hero);
+        Grid.SetColumn(_startGameButton, 1);
+        _startGameButton.Enabled = false;
         _startGameButton.Click += (s, a) => { if (_isHost) { ShouldStartGame = true; } };
         grid.Widgets.Add(_startGameButton);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _leaveLobbyButton = new TextButton
-        {
-            Text = "Leave Lobby",
-            Width = 150,
-            Height = 45,
-            GridColumn = 2
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+        _leaveLobbyButton = ThemedUIFactory.CreateButton("Leave Lobby", 180, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Danger);
+        Grid.SetColumn(_leaveLobbyButton, 2);
         _leaveLobbyButton.Click += (s, a) => { ShouldLeaveLobby = true; };
         grid.Widgets.Add(_leaveLobbyButton);
 
-        var panel = new Panel
-        {
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
+        var panel = new Panel { HorizontalAlignment = HorizontalAlignment.Center };
         panel.Widgets.Add(grid);
 
         return panel;
@@ -393,8 +287,8 @@ public class LobbyScreen
         var slotNumLabel = new Label
         {
             Text = $"{slotIndex + 1}.",
+            Font = ThemeManager.UiFonts.Small,
             TextColor = Color.LightGray,
-            Scale = new Vector2(0.8f, 0.8f),
             GridRow = row,
             GridColumn = 0,
             VerticalAlignment = VerticalAlignment.Center
@@ -404,7 +298,7 @@ public class LobbyScreen
         _playerSlotsGrid.Widgets.Add(slotNumLabel);
 
         // Player name
-        Color nameColor = slot.IsAI ? Color.LightBlue : (slot.IsReady ? Color.LightGreen : Color.White);
+        Color nameColor = slot.IsAI ? ThemeManager.Colors.TextAccent : (slot.IsReady ? ThemeManager.Colors.TextSuccess : ThemeManager.Colors.TextPrimary);
         string nameText = slot.PlayerName;
         if (!slot.IsAI && slot.IsReady)
         {
@@ -415,7 +309,13 @@ public class LobbyScreen
 #pragma warning disable CS0618 // Type or member is obsolete
         var namePanel = new Panel
         {
-            Background = new SolidBrush(slot.PlayerType != PlayerType.Human || slot.IsReady ? new Color(0, 60, 0, 100) : new Color(40, 40, 40, 100)),
+            Background = ThemeManager.CreateSolidBrush(slot.PlayerType != PlayerType.Human || slot.IsReady
+                ? ThemeManager.Colors.SlotPanelReady
+                : ThemeManager.Colors.SlotPanelNormal),
+            Border = ThemeManager.CreateSolidBrush(slot.PlayerType != PlayerType.Human || slot.IsReady
+                ? ThemeManager.Colors.BorderFocus
+                : ThemeManager.Colors.BorderNormal),
+            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
             Padding = new Thickness(10, 8),
             GridRow = row,
             GridColumn = 1,
@@ -427,8 +327,8 @@ public class LobbyScreen
         var nameLabel = new Label
         {
             Text = nameText,
+            Font = ThemeManager.UiFonts.Small,
             TextColor = nameColor,
-            Scale = new Vector2(0.8f, 0.8f),
             VerticalAlignment = VerticalAlignment.Center
         };
         namePanel.Widgets.Add(nameLabel);
@@ -439,36 +339,17 @@ public class LobbyScreen
         {
             Color badgeColor = slot.PlayerType switch
             {
-                PlayerType.EasyAI => new Color(100, 180, 100),
-                PlayerType.MediumAI => new Color(200, 180, 100),
-                PlayerType.HardAI => new Color(200, 100, 100),
-                _ => Color.Gray
+                PlayerType.EasyAI => ThemeManager.Colors.AIEasyColor,
+                PlayerType.MediumAI => ThemeManager.Colors.AIMediumColor,
+                PlayerType.HardAI => ThemeManager.Colors.AIHardColor,
+                _ => ThemeManager.Colors.DisabledColor
             };
 
+            var badgePanel = ThemedUIFactory.CreateStatusBadge(badgeColor, slot.GetDifficultyLevel(), 92);
 #pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-            var badgePanel = new Panel
-            {
-                Background = new SolidBrush(badgeColor * 0.8f),
-                Width = 70,
-                Height = 25,
-                GridRow = row,
-                GridColumn = 2,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+            badgePanel.GridRow = row;
+            badgePanel.GridColumn = 2;
 #pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-
-            var badgeLabel = new Label
-            {
-                Text = slot.GetDifficultyLevel().ToUpper(),
-                TextColor = Color.White,
-                Scale = new Vector2(0.6f, 0.6f),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            badgePanel.Widgets.Add(badgeLabel);
             _playerSlotsGrid.Widgets.Add(badgePanel);
         }
 
@@ -478,14 +359,11 @@ public class LobbyScreen
 #pragma warning disable CS0618 // Type or member is obsolete
 #pragma warning disable CS0618 // Type or member is obsolete
 #pragma warning disable CS0618 // Type or member is obsolete
-            var comboBox = new ComboBox
-            {
-                Width = 150,
-                GridRow = row,
-                GridColumn = 3,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+            var comboBox = ThemedUIFactory.CreateComboBox(150);
+            comboBox.GridRow = row;
+            comboBox.GridColumn = 3;
+            comboBox.HorizontalAlignment = HorizontalAlignment.Right;
+            comboBox.VerticalAlignment = VerticalAlignment.Center;
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -569,18 +447,11 @@ public class LobbyScreen
 #pragma warning disable CS0618 // Type or member is obsolete
 #pragma warning disable CS0618 // Type or member is obsolete
 #pragma warning disable CS0618 // Type or member is obsolete
-                var removeButton = new TextButton
-                {
-                    Text = "✕",
-                    Width = 35,
-                    Height = 30,
-                    GridRow = row,
-                    GridColumn = 4,
-                    HorizontalAlignment = HorizontalAlignment.Right,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Background = new SolidBrush(new Color(120, 30, 30)),
-                    Padding = new Thickness(0)
-                };
+                var removeButton = ThemedUIFactory.CreateButton("Remove", 96, 30, ThemeManager.ButtonTheme.Danger);
+                removeButton.GridRow = row;
+                removeButton.GridColumn = 4;
+                removeButton.HorizontalAlignment = HorizontalAlignment.Right;
+                removeButton.VerticalAlignment = VerticalAlignment.Center;
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -605,18 +476,11 @@ public class LobbyScreen
 #pragma warning disable CS0618 // Type or member is obsolete
 #pragma warning disable CS0618 // Type or member is obsolete
 #pragma warning disable CS0618 // Type or member is obsolete
-            var addButton = new TextButton
-            {
-                Text = "+",
-                Width = 35,
-                Height = 30,
-                GridRow = row,
-                GridColumn = 4,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Center,
-                Background = new SolidBrush(new Color(30, 80, 30)),
-                Padding = new Thickness(0)
-            };
+            var addButton = ThemedUIFactory.CreateButton("Add", 84, 30, ThemeManager.ButtonTheme.Success);
+            addButton.GridRow = row;
+            addButton.GridColumn = 4;
+            addButton.HorizontalAlignment = HorizontalAlignment.Right;
+            addButton.VerticalAlignment = VerticalAlignment.Center;
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -687,13 +551,13 @@ public class LobbyScreen
 
         if (_isHost)
         {
-            _statusLabel.Text = "Configure player slots and start when ready!";
-            _statusLabel.TextColor = Color.Yellow;
+            _statusLabel.Text = "Review the lineup and launch once at least two occupied slots are present.";
+            _statusLabel.TextColor = ThemeManager.Colors.TextWarning;
         }
         else
         {
-            _statusLabel.Text = "Waiting for host to start the game...";
-            _statusLabel.TextColor = Color.Gray;
+            _statusLabel.Text = "Awaiting host confirmation and match launch.";
+            _statusLabel.TextColor = ThemeManager.Colors.TextSecondary;
         }
     }
 

@@ -118,7 +118,7 @@ public class CombatEventDialog
 
         var titleLabel = ThemedUIFactory.CreateHeadingLabel(title);
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        titleLabel.TextColor = Color.Orange;
+        titleLabel.TextColor = Colors.TextWarning;
 #pragma warning disable CS0618 // Type or member is obsolete
         titleLabel.GridRow = 0;
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -153,7 +153,7 @@ public class CombatEventDialog
         var containerPanel = ThemedUIFactory.CreateAccentFramePanel();
         containerPanel.Width = 500;
         containerPanel.Padding = Padding.XLarge;
-        containerPanel.Border = ThemeManager.CreateSolidBrush(Color.Orange);
+        containerPanel.Border = ThemeManager.CreateSolidBrush(Colors.TextWarning);
         containerPanel.BorderThickness = new Thickness(BorderThickness.Thick);
         containerPanel.Widgets.Add(mainGrid);
 

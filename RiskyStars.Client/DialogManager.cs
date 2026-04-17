@@ -148,7 +148,7 @@ public class DialogManager
             DialogType.Error => Colors.TextError,
             DialogType.Warning => Colors.TextWarning,
             DialogType.Success => Colors.TextSuccess,
-            DialogType.CombatEvent => Color.Orange,
+            DialogType.CombatEvent => Colors.TextWarning,
             DialogType.Question => Colors.TextAccent,
             _ => Colors.TextPrimary
         };
@@ -226,8 +226,8 @@ public class DialogManager
             DialogType.Error => Colors.TextError,
             DialogType.Warning => Colors.TextWarning,
             DialogType.Success => Colors.TextSuccess,
-            DialogType.CombatEvent => Color.Orange,
-            DialogType.Question => Colors.AccentCyan,
+            DialogType.CombatEvent => Colors.TextWarning,
+            DialogType.Question => Colors.TextAccent,
             _ => Colors.BorderNormal
         };
 

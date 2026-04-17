@@ -111,8 +111,6 @@ public class RiskyStarsGame : Game
         _inGameDesktop = new Desktop();
         _inGameDialogManager = new DialogManager(_inGameDesktop);
         _combatEventDialog = new CombatEventDialog(_inGameDesktop);
-        _settingsWindow = new SettingsWindow(_graphics, _settings, OnSettingsApplied);
-        
         _mapData = MapLoader.CreateSampleMap();
         
         if (_aiActionIndicator != null && _mapData != null && _gameStateCache != null && _regionRenderer != null)
@@ -126,6 +124,7 @@ public class RiskyStarsGame : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        ThemeManager.LoadContent(Content);
         
         try
         {
@@ -138,6 +137,7 @@ public class RiskyStarsGame : Game
         
         if (_defaultFont != null)
         {
+            _settingsWindow = new SettingsWindow(_graphics, _settings, OnSettingsApplied);
             _mapRenderer?.LoadContent(_defaultFont);
             _regionRenderer?.LoadContent(_defaultFont);
             _uiRenderer?.LoadContent(_defaultFont);
@@ -206,7 +206,12 @@ public class RiskyStarsGame : Game
                 _pendingResolutionChange = false;
             }
 
-            _connectionManager = new ConnectionManager(_mainMenu.Settings.ServerAddress);
+            _lobbyManager = new LobbyManager(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            if (_defaultFont != null)
+            {
+                _lobbyManager.LoadContent(_defaultFont);
+            }
+            _lobbyManager.SetMultiplayerMode();
             _gameState = GameState.Lobby;
             _mainMenu.SetState(MainMenuState.Main);
         }

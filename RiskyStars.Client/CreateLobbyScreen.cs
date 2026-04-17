@@ -1,36 +1,23 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using RiskyStars.Shared;
-using Myra;
-using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
+using RiskyStars.Shared;
+using MyraButton = Myra.Graphics2D.UI.Button;
 
 namespace RiskyStars.Client;
 
 public class CreateLobbyScreen
 {
-    private readonly GraphicsDevice _graphicsDevice;
     private readonly int _screenWidth;
     private readonly int _screenHeight;
-    private SpriteFont? _font;
 
     private Desktop? _desktop;
     private Panel? _mainPanel;
     private ValidatedTextBox? _mapNameTextBox;
     private SpinButton? _maxPlayersSpinButton;
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _createButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _cancelButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-
+    private MyraButton? _createButton;
+    private MyraButton? _cancelButton;
     private KeyboardState _previousKeyState;
 
     public bool ShouldCreate { get; private set; }
@@ -39,205 +26,54 @@ public class CreateLobbyScreen
 
     public CreateLobbyScreen(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
-        _graphicsDevice = graphicsDevice;
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
     }
 
     public void LoadContent(SpriteFont font)
     {
-        _font = font;
         _desktop = new Desktop();
+        ThemeManager.ApplyDesktopTheme(_desktop);
         BuildUI();
     }
 
     private void BuildUI()
     {
-        var rootGrid = new Grid
-        {
-            RowSpacing = 20,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        int frameWidth = Math.Min(_screenWidth - 180, 920);
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, Math.Min(_screenHeight - 140, 620));
+        frame.HorizontalAlignment = HorizontalAlignment.Center;
+        frame.VerticalAlignment = VerticalAlignment.Center;
 
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Map name
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Max players
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
+        var layout = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Large);
+        layout.Widgets.Add(ThemedUIFactory.CreateHeaderPlate("Create Lobby", "Define the session shell before inviting commanders"));
 
-        // Title
-#pragma warning disable CS0618 // Type or member is obsolete
-        var titleLabel = new Label
-        {
-            Text = "Create Lobby",
-            TextColor = Color.Cyan,
-            Scale = new Vector2(1.5f, 1.5f),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 0,
-            Margin = new Thickness(0, 0, 0, 20)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(titleLabel);
+        int cardWidth = (frameWidth - 96 - ThemeManager.Spacing.Large) / 2;
+        var cards = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Large, ThemeManager.Spacing.Large);
+        cards.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        cards.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
 
-        // Map name field
-        var mapNamePanel = BuildMapNameField();
-#pragma warning disable CS0618 // Type or member is obsolete
-        mapNamePanel.GridRow = 1;
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(mapNamePanel);
-
-        // Max players field
-        var maxPlayersPanel = BuildMaxPlayersField();
-#pragma warning disable CS0618 // Type or member is obsolete
-        maxPlayersPanel.GridRow = 2;
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(maxPlayersPanel);
-
-        // Buttons
-        var buttonsPanel = BuildButtonsPanel();
-#pragma warning disable CS0618 // Type or member is obsolete
-        buttonsPanel.GridRow = 3;
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(buttonsPanel);
-
-        // Main container
-        var containerPanel = new Panel
-        {
-            Width = 550,
-            Padding = new Thickness(40, 30),
-            Background = new SolidBrush(new Color(0, 0, 0, 220)),
-            Border = new SolidBrush(Color.Cyan),
-            BorderThickness = new Thickness(3),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-        containerPanel.Widgets.Add(rootGrid);
-
-        _mainPanel = new Panel
-        {
-            Width = _screenWidth,
-            Height = _screenHeight,
-            Background = new SolidBrush(new Color(10, 10, 20))
-        };
-        _mainPanel.Widgets.Add(containerPanel);
-
-        if (_desktop != null)
-        {
-            _desktop.Root = _mainPanel;
-        }
-    }
-
-    private Panel BuildMapNameField()
-    {
-        var grid = new Grid
-        {
-            RowSpacing = 8,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
-
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        var label = new Label
-        {
-            Text = "Map Name",
-            TextColor = Color.White,
-            Scale = new Vector2(0.9f, 0.9f),
-            GridRow = 0
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        grid.Widgets.Add(label);
-
-        _mapNameTextBox = new ValidatedTextBox(450, "Enter map name", showErrorLabel: true);
+        _mapNameTextBox = new ValidatedTextBox(cardWidth - 40, "Enter map name", showErrorLabel: true);
         _mapNameTextBox.Text = "Default";
         _mapNameTextBox.SetValidator(InputValidator.ValidateMapName);
-#pragma warning disable CS0618 // Type or member is obsolete
-        _mapNameTextBox.Container.GridRow = 1;
-#pragma warning restore CS0618 // Type or member is obsolete
-        _mapNameTextBox.Container.HorizontalAlignment = HorizontalAlignment.Stretch;
-        grid.Widgets.Add(_mapNameTextBox.Container);
+        var mapCard = ThemedUIFactory.CreateFieldCard("Map Selection", "Choose the map preset or scenario name for this lobby.", _mapNameTextBox.Container, cardWidth);
+        mapCard.GridColumn = 0;
+        cards.Widgets.Add(mapCard);
 
-        var panel = new Panel
+        _maxPlayersSpinButton = ThemedUIFactory.CreateSpinButton(4, 2, 6);
+        _maxPlayersSpinButton.Width = cardWidth - 40;
+        var playerCard = ThemedUIFactory.CreateFieldCard("Maximum Commanders", "Set the player capacity for the session. Current implementation supports 2-6.", _maxPlayersSpinButton, cardWidth);
+        playerCard.GridColumn = 1;
+        cards.Widgets.Add(playerCard);
+
+        layout.Widgets.Add(cards);
+
+        var actionBar = ThemedUIFactory.CreateActionBar();
+        actionBar.HorizontalAlignment = HorizontalAlignment.Center;
+
+        _createButton = ThemedUIFactory.CreateButton("Create Lobby", 220, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Primary);
+        _createButton.Click += (_, _) =>
         {
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
-        panel.Widgets.Add(grid);
-
-        return panel;
-    }
-
-    private Panel BuildMaxPlayersField()
-    {
-        var grid = new Grid
-        {
-            RowSpacing = 8,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
-
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        var label = new Label
-        {
-            Text = "Max Players (2-6)",
-            TextColor = Color.White,
-            Scale = new Vector2(0.9f, 0.9f),
-            GridRow = 0
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        grid.Widgets.Add(label);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        _maxPlayersSpinButton = new SpinButton
-        {
-            Width = 450,
-            GridRow = 1,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            Minimum = 2,
-            Maximum = 6,
-            Value = 4
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        grid.Widgets.Add(_maxPlayersSpinButton);
-
-        var panel = new Panel
-        {
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
-        panel.Widgets.Add(grid);
-
-        return panel;
-    }
-
-    private Panel BuildButtonsPanel()
-    {
-        var grid = new Grid
-        {
-            ColumnSpacing = 20,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, 20, 0, 0)
-        };
-
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _createButton = new TextButton
-        {
-            Text = "Create",
-            Width = 180,
-            Height = 50,
-            GridColumn = 0
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _createButton.Click += (s, a) =>
-        {
-            // Validate all inputs before creating
-            if (_mapNameTextBox == null || !_mapNameTextBox.IsValid)
+            if (_mapNameTextBox == null || !_mapNameTextBox.ValidateInput().IsValid)
             {
                 return;
             }
@@ -248,46 +84,33 @@ public class CreateLobbyScreen
                 ShouldCreate = true;
             }
         };
-        grid.Widgets.Add(_createButton);
+        actionBar.Widgets.Add(_createButton);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _cancelButton = new TextButton
+        _cancelButton = ThemedUIFactory.CreateButton("Cancel", 180, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Default);
+        _cancelButton.Click += (_, _) => ShouldCancel = true;
+        actionBar.Widgets.Add(_cancelButton);
+
+        layout.Widgets.Add(actionBar);
+        frame.Widgets.Add(layout);
+
+        _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
+        _mainPanel.Widgets.Add(frame);
+
+        if (_desktop != null)
         {
-            Text = "Cancel",
-            Width = 180,
-            Height = 50,
-            GridColumn = 1
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _cancelButton.Click += (s, a) => { ShouldCancel = true; };
-        grid.Widgets.Add(_cancelButton);
-
-        var panel = new Panel
-        {
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        panel.Widgets.Add(grid);
-
-        return panel;
+            _desktop.Root = _mainPanel;
+        }
     }
 
     private bool TryCreateLobbySettings(out LobbySettingsProto? settings)
     {
         settings = null;
 
-        if (_mapNameTextBox == null || !_mapNameTextBox.IsValid)
+        if (_mapNameTextBox == null || !_mapNameTextBox.ValidateInput().IsValid)
         {
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(_mapNameTextBox.Text))
-        {
-            return false;
-        }
-
-        // Validate player count
         int maxPlayers = (int)(_maxPlayersSpinButton?.Value ?? 4);
         var playerCountValidation = InputValidator.ValidatePlayerCount(maxPlayers, 2, 6);
         if (!playerCountValidation.IsValid)
@@ -335,6 +158,7 @@ public class CreateLobbyScreen
             _mapNameTextBox.Text = "Default";
             _mapNameTextBox.ValidateInput();
         }
+
         if (_maxPlayersSpinButton != null)
         {
             _maxPlayersSpinButton.Value = 4;

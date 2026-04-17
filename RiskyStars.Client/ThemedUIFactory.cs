@@ -1,55 +1,48 @@
 using Microsoft.Xna.Framework;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
 using static RiskyStars.Client.ThemeManager;
+using MyraButton = Myra.Graphics2D.UI.Button;
 
 namespace RiskyStars.Client;
 
 /// <summary>
-/// Factory class for creating themed UI widgets using the ThemeManager
+/// Shared builders for all Myra surfaces in the client.
 /// </summary>
 public static class ThemedUIFactory
 {
-    // Button factory methods
-    public static Myra.Graphics2D.UI.Button CreateButton(string text, ButtonTheme theme = ButtonTheme.Default)
+    public static MyraButton CreateButton(string text, ButtonTheme theme = ButtonTheme.Default)
     {
-        var button = new Myra.Graphics2D.UI.Button
-        {
-            Content = new Label { Text = text },
-            Width = Sizes.ButtonMediumWidth,
-            Height = Sizes.ButtonMediumHeight,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        
-        ThemeManager.ApplyButtonTheme(button, theme);
-        return button;
+        return CreateButton(text, Sizes.ButtonMediumWidth, Sizes.ButtonMediumHeight, theme);
     }
 
-    public static Myra.Graphics2D.UI.Button CreateButton(string text, int width, int height, ButtonTheme theme = ButtonTheme.Default)
+    public static MyraButton CreateButton(string text, int width, int height, ButtonTheme theme = ButtonTheme.Default)
     {
-        var button = new Myra.Graphics2D.UI.Button
+        var button = new MyraButton
         {
-            Content = new Label { Text = text },
             Width = width,
-            Height = height
+            Height = height,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Content = new Label
+            {
+                Text = NormalizeButtonText(text)
+            }
         };
-        
+
         ThemeManager.ApplyButtonTheme(button, theme);
         return button;
     }
 
-    public static Myra.Graphics2D.UI.Button CreateSmallButton(string text, ButtonTheme theme = ButtonTheme.Default)
+    public static MyraButton CreateSmallButton(string text, ButtonTheme theme = ButtonTheme.Default)
     {
         return CreateButton(text, Sizes.ButtonSmallWidth, Sizes.ButtonSmallHeight, theme);
     }
 
-    public static Myra.Graphics2D.UI.Button CreateLargeButton(string text, ButtonTheme theme = ButtonTheme.Default)
+    public static MyraButton CreateLargeButton(string text, ButtonTheme theme = ButtonTheme.Default)
     {
         return CreateButton(text, Sizes.ButtonLargeWidth, Sizes.ButtonLargeHeight, theme);
     }
 
-    // Label factory methods
     public static Label CreateLabel(string text, LabelTheme theme = LabelTheme.Default)
     {
         var label = new Label { Text = text };
@@ -82,7 +75,6 @@ public static class ThemedUIFactory
         return CreateLabel(text, LabelTheme.Small);
     }
 
-    // Panel factory methods
     public static Panel CreatePanel(PanelTheme theme = PanelTheme.Default)
     {
         var panel = new Panel();
@@ -115,23 +107,155 @@ public static class ThemedUIFactory
         return CreatePanel(PanelTheme.Dark);
     }
 
-    // TextBox factory methods
+    public static Panel CreateScreenRoot(int width, int height)
+    {
+        var panel = new Panel
+        {
+            Width = width,
+            Height = height,
+            Background = ThemeManager.AssetBrushes.Backdrop
+        };
+        return panel;
+    }
+
+    public static Panel CreateViewportFrame(int width, int? height = null)
+    {
+        var panel = new Panel
+        {
+            Width = width,
+            Background = ThemeManager.AssetBrushes.ViewportFrame,
+            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.SteelEdge),
+            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
+            Padding = ThemeManager.Padding.ViewportFrame
+        };
+
+        if (height.HasValue)
+        {
+            panel.Height = height.Value;
+        }
+
+        return panel;
+    }
+
+    public static Panel CreateConsolePanel(int? width = null)
+    {
+        var panel = new Panel
+        {
+            Background = ThemeManager.AssetBrushes.TerminalPanel,
+            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderNormal),
+            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
+            Padding = ThemeManager.Padding.Large
+        };
+
+        if (width.HasValue)
+        {
+            panel.Width = width.Value;
+        }
+
+        return panel;
+    }
+
+    public static Panel CreateHeaderPlate(string title, string? subtitle = null, int? width = null)
+    {
+        var panel = new Panel
+        {
+            Background = ThemeManager.AssetBrushes.HeaderPlate,
+            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.TextWarning),
+            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
+            Padding = ThemeManager.Padding.HeaderPlate
+        };
+
+        if (width.HasValue)
+        {
+            panel.Width = width.Value;
+        }
+
+        var stack = CreateCompactVerticalStack();
+        stack.Spacing = ThemeManager.Spacing.XSmall;
+
+        var titleLabel = CreateTitleLabel(title);
+        titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        stack.Widgets.Add(titleLabel);
+
+        if (!string.IsNullOrWhiteSpace(subtitle))
+        {
+            var subtitleLabel = CreateSubtitleLabel(subtitle);
+            subtitleLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            subtitleLabel.Wrap = true;
+            stack.Widgets.Add(subtitleLabel);
+        }
+
+        panel.Widgets.Add(stack);
+        return panel;
+    }
+
+    public static Panel CreateFieldCard(string title, string description, Widget content, int width)
+    {
+        var panel = CreateFramePanel();
+        panel.Width = width;
+
+        var stack = CreateCompactVerticalStack();
+        stack.Spacing = ThemeManager.Spacing.Small;
+
+        var titleLabel = CreateHeadingLabel(title);
+        stack.Widgets.Add(titleLabel);
+
+        var descriptionLabel = CreateSmallLabel(description);
+        descriptionLabel.TextColor = ThemeManager.Colors.TextPrimary;
+        descriptionLabel.Wrap = true;
+        stack.Widgets.Add(descriptionLabel);
+        stack.Widgets.Add(content);
+
+        panel.Widgets.Add(stack);
+        return panel;
+    }
+
+    public static Panel CreateListRowPanel(bool selected = false)
+    {
+        return new Panel
+        {
+            Background = selected ? ThemeManager.AssetBrushes.ListRowSelected : ThemeManager.AssetBrushes.ListRowNormal,
+            Border = ThemeManager.CreateSolidBrush(selected ? ThemeManager.Colors.BorderFocus : ThemeManager.Colors.BorderNormal),
+            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
+            Padding = ThemeManager.Padding.Medium,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+    }
+
+    public static Panel CreateStatusBadge(Color color, string text, int width = 104)
+    {
+        var panel = new Panel
+        {
+            Width = width,
+            Height = ThemeManager.Sizes.BadgeHeight,
+            Padding = ThemeManager.Padding.Badge,
+            Background = ThemeManager.CreateSolidBrush(color * 0.25f),
+            Border = ThemeManager.CreateSolidBrush(color),
+            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
+            HorizontalAlignment = HorizontalAlignment.Left
+        };
+
+        var label = CreateSmallLabel(text.ToUpperInvariant());
+        label.TextColor = ThemeManager.Colors.TextPrimary;
+        label.HorizontalAlignment = HorizontalAlignment.Center;
+        label.VerticalAlignment = VerticalAlignment.Center;
+        panel.Widgets.Add(label);
+        return panel;
+    }
+
+    public static HorizontalStackPanel CreateActionBar(int spacing = -1)
+    {
+        return CreateHorizontalStack(spacing >= 0 ? spacing : ThemeManager.Spacing.Large);
+    }
+
     public static TextBox CreateTextBox(string text = "")
     {
-        return new TextBox
+        var textBox = new TextBox
         {
-            Text = text,
-            Background = CreateSolidBrush(Colors.PrimaryLight),
-            OverBackground = CreateSolidBrush(new Color(50, 50, 70)),
-            FocusedBackground = CreateSolidBrush(Colors.PrimaryLight),
-            Border = CreateSolidBrush(Colors.BorderNormal),
-            OverBorder = CreateSolidBrush(Colors.BorderHover),
-            FocusedBorder = CreateSolidBrush(Colors.BorderFocus),
-            BorderThickness = new Thickness(BorderThickness.Normal),
-            TextColor = Colors.TextPrimary,
-            Padding = Padding.Input,
-            Height = Sizes.InputMediumHeight
+            Text = text
         };
+        ThemeManager.ApplyTextBoxTheme(textBox);
+        return textBox;
     }
 
     public static TextBox CreateTextBox(string text, int width)
@@ -141,7 +265,6 @@ public static class ThemedUIFactory
         return textBox;
     }
 
-    // ValidatedTextBox factory methods
     public static ValidatedTextBox CreateValidatedTextBox(int width, string placeholder = "", bool showErrorLabel = false)
     {
         return new ValidatedTextBox(width, placeholder, showErrorLabel);
@@ -149,7 +272,7 @@ public static class ThemedUIFactory
 
     public static ValidatedTextBox CreateValidatedPlayerNameBox(int width = 400, bool showErrorLabel = true)
     {
-        var validatedBox = new ValidatedTextBox(width, "Enter your name", showErrorLabel);
+        var validatedBox = new ValidatedTextBox(width, "Commander name", showErrorLabel);
         validatedBox.SetValidator(InputValidator.ValidatePlayerName);
         return validatedBox;
     }
@@ -163,198 +286,191 @@ public static class ThemedUIFactory
 
     public static ValidatedTextBox CreateValidatedMapNameBox(int width = 400, bool showErrorLabel = true)
     {
-        var validatedBox = new ValidatedTextBox(width, "Enter map name", showErrorLabel);
+        var validatedBox = new ValidatedTextBox(width, "Map name", showErrorLabel);
         validatedBox.SetValidator(InputValidator.ValidateMapName);
         return validatedBox;
     }
 
-    // ComboBox factory methods
-#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618
     public static ComboBox CreateComboBox()
-#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618
     {
-#pragma warning disable CS0618 // Type or member is obsolete
-        return new ComboBox
-        {
-            Background = CreateSolidBrush(Colors.PrimaryLight),
-            OverBackground = CreateSolidBrush(new Color(50, 50, 70)),
-            FocusedBackground = CreateSolidBrush(Colors.PrimaryLight),
-            Border = CreateSolidBrush(Colors.BorderNormal),
-            OverBorder = CreateSolidBrush(Colors.BorderHover),
-            FocusedBorder = CreateSolidBrush(Colors.BorderFocus),
-            BorderThickness = new Thickness(BorderThickness.Normal),
-            Padding = Padding.Input
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning disable CS0618
+        var comboBox = new ComboBox();
+#pragma warning restore CS0618
+        ThemeManager.ApplyComboBoxTheme(comboBox);
+        return comboBox;
     }
 
-#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618
     public static ComboBox CreateComboBox(int width)
-#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618
     {
         var comboBox = CreateComboBox();
         comboBox.Width = width;
         return comboBox;
     }
 
-    // CheckButton factory methods
     public static CheckButton CreateCheckButton(bool isChecked = false)
     {
-        return new CheckButton
+        var checkButton = new CheckButton
         {
-            IsPressed = isChecked,
-            Background = CreateSolidBrush(Colors.PrimaryLight),
-            OverBackground = CreateSolidBrush(new Color(50, 50, 70)),
-            PressedBackground = CreateSolidBrush(Colors.AccentCyan),
-            Border = CreateSolidBrush(Colors.BorderNormal),
-            OverBorder = CreateSolidBrush(Colors.BorderHover),
-            BorderThickness = new Thickness(BorderThickness.Normal),
-            Width = Sizes.CheckboxSize,
-            Height = Sizes.CheckboxSize
+            IsPressed = isChecked
         };
+        ThemeManager.ApplyCheckButtonTheme(checkButton);
+        return checkButton;
     }
 
-    // Grid factory methods
+    public static ScrollViewer CreateAutoScrollViewer(Widget content, int? height = null)
+    {
+        var scrollViewer = new ScrollViewer
+        {
+            Content = content,
+            ShowVerticalScrollBar = true,
+            ShowHorizontalScrollBar = false,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch
+        };
+
+        if (height.HasValue)
+        {
+            scrollViewer.Height = height.Value;
+        }
+
+        return scrollViewer;
+    }
+
     public static Grid CreateGrid(int rowSpacing = -1, int columnSpacing = -1)
     {
         return new Grid
         {
-            RowSpacing = rowSpacing >= 0 ? rowSpacing : Spacing.Small,
-            ColumnSpacing = columnSpacing >= 0 ? columnSpacing : Spacing.Small
+            RowSpacing = rowSpacing >= 0 ? rowSpacing : ThemeManager.Spacing.Small,
+            ColumnSpacing = columnSpacing >= 0 ? columnSpacing : ThemeManager.Spacing.Small
         };
     }
 
     public static Grid CreateCompactGrid()
     {
-        return CreateGrid(Spacing.XSmall, Spacing.XSmall);
+        return CreateGrid(ThemeManager.Spacing.XSmall, ThemeManager.Spacing.XSmall);
     }
 
     public static Grid CreateSpaciousGrid()
     {
-        return CreateGrid(Spacing.Large, Spacing.Large);
+        return CreateGrid(ThemeManager.Spacing.Large, ThemeManager.Spacing.Large);
     }
 
-    // StackPanel factory methods
     public static VerticalStackPanel CreateVerticalStack(int spacing = -1)
     {
         return new VerticalStackPanel
         {
-            Spacing = spacing >= 0 ? spacing : Spacing.Small
+            Spacing = spacing >= 0 ? spacing : ThemeManager.Spacing.Small
         };
     }
 
     public static VerticalStackPanel CreateCompactVerticalStack()
     {
-        return CreateVerticalStack(Spacing.XSmall);
+        return CreateVerticalStack(ThemeManager.Spacing.XSmall);
     }
 
     public static VerticalStackPanel CreateSpaciousVerticalStack()
     {
-        return CreateVerticalStack(Spacing.Large);
+        return CreateVerticalStack(ThemeManager.Spacing.Large);
     }
 
     public static HorizontalStackPanel CreateHorizontalStack(int spacing = -1)
     {
         return new HorizontalStackPanel
         {
-            Spacing = spacing >= 0 ? spacing : Spacing.Small
+            Spacing = spacing >= 0 ? spacing : ThemeManager.Spacing.Small
         };
     }
 
     public static HorizontalStackPanel CreateCompactHorizontalStack()
     {
-        return CreateHorizontalStack(Spacing.XSmall);
+        return CreateHorizontalStack(ThemeManager.Spacing.XSmall);
     }
 
     public static HorizontalStackPanel CreateSpaciousHorizontalStack()
     {
-        return CreateHorizontalStack(Spacing.Large);
+        return CreateHorizontalStack(ThemeManager.Spacing.Large);
     }
 
-    // Icon panel factory methods (for resource icons, etc.)
+    public static Panel CreateSpacer(int height)
+    {
+        return new Panel { Height = height };
+    }
+
     public static Panel CreateResourceIcon(Color color)
     {
-        return new Panel
+        var outer = new Panel
         {
-            Width = Sizes.IconMedium,
-            Height = Sizes.IconMedium,
-            Background = CreateSolidBrush(color)
+            Width = ThemeManager.Sizes.IconLarge,
+            Height = ThemeManager.Sizes.IconLarge,
+            Background = ThemeManager.AssetBrushes.WindowFrame,
+            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.SteelEdge),
+            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin),
+            Padding = new Thickness(3)
         };
+
+        var inner = new Panel
+        {
+            Background = ThemeManager.CreateSolidBrush(color),
+            Width = ThemeManager.Sizes.IconMedium,
+            Height = ThemeManager.Sizes.IconMedium
+        };
+
+        outer.Widgets.Add(inner);
+        return outer;
     }
 
     public static Panel CreatePopulationIcon()
     {
-        return CreateResourceIcon(Colors.PopulationColor);
+        return CreateResourceIcon(ThemeManager.Colors.PopulationColor);
     }
 
     public static Panel CreateMetalIcon()
     {
-        return CreateResourceIcon(Colors.MetalColor);
+        return CreateResourceIcon(ThemeManager.Colors.MetalColor);
     }
 
     public static Panel CreateFuelIcon()
     {
-        return CreateResourceIcon(Colors.FuelColor);
+        return CreateResourceIcon(ThemeManager.Colors.FuelColor);
     }
 
-    // Slot panel factory methods (for lobby player slots)
     public static Panel CreateSlotPanel(bool isReady = false)
     {
-        return new Panel
-        {
-            Background = CreateSolidBrush(isReady ? Colors.SlotPanelReady : Colors.SlotPanelNormal),
-            Padding = Padding.Input,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
+        var panel = CreateListRowPanel(isReady);
+        panel.Background = ThemeManager.CreateSolidBrush(isReady ? ThemeManager.Colors.SlotPanelReady : ThemeManager.Colors.SlotPanelNormal);
+        return panel;
     }
 
-    // Badge panel factory methods (for AI difficulty badges)
     public static Panel CreateBadgePanel(Color color, string text)
     {
-        var panel = new Panel
-        {
-            Background = CreateSolidBrush(color * 0.8f),
-            Width = 70,
-            Height = 25,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-
-        var label = new Label
-        {
-            Text = text.ToUpper(),
-            TextColor = Color.White,
-            Scale = FontScale.Tiny,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-        
-        panel.Widgets.Add(label);
-        return panel;
+        return CreateStatusBadge(color, text);
     }
 
     public static Panel CreateAIEasyBadge()
     {
-        return CreateBadgePanel(Colors.AIEasyColor, "EASY");
+        return CreateStatusBadge(ThemeManager.Colors.AIEasyColor, "Easy");
     }
 
     public static Panel CreateAIMediumBadge()
     {
-        return CreateBadgePanel(Colors.AIMediumColor, "MEDIUM");
+        return CreateStatusBadge(ThemeManager.Colors.AIMediumColor, "Medium");
     }
 
     public static Panel CreateAIHardBadge()
     {
-        return CreateBadgePanel(Colors.AIHardColor, "HARD");
+        return CreateStatusBadge(ThemeManager.Colors.AIHardColor, "Hard");
     }
 
-    // Separator factory methods
     public static HorizontalSeparator CreateHorizontalSeparator()
     {
         return new HorizontalSeparator
         {
-            Background = CreateSolidBrush(Colors.BorderNormal),
-            Thickness = BorderThickness.Thin
+            Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderNormal),
+            Thickness = ThemeManager.BorderThickness.Thin
         };
     }
 
@@ -362,27 +478,23 @@ public static class ThemedUIFactory
     {
         return new VerticalSeparator
         {
-            Background = CreateSolidBrush(Colors.BorderNormal),
-            Thickness = BorderThickness.Thin
+            Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderNormal),
+            Thickness = ThemeManager.BorderThickness.Thin
         };
     }
 
-    // SpinButton factory methods
     public static SpinButton CreateSpinButton(int? value = null, int? minimum = null, int? maximum = null)
     {
-        return new SpinButton
+        var spinButton = new SpinButton
         {
             Value = value,
             Minimum = minimum,
-            Maximum = maximum,
-            Background = CreateSolidBrush(Colors.PrimaryLight),
-            Border = CreateSolidBrush(Colors.BorderNormal),
-            BorderThickness = new Thickness(BorderThickness.Normal),
-            Padding = Padding.Input
+            Maximum = maximum
         };
+        ThemeManager.ApplySpinButtonTheme(spinButton);
+        return spinButton;
     }
 
-    // Helper method to create a label with icon
     public static HorizontalStackPanel CreateLabelWithIcon(Panel icon, string text)
     {
         var stack = CreateHorizontalStack();
@@ -390,5 +502,9 @@ public static class ThemedUIFactory
         stack.Widgets.Add(CreateLabel(text));
         return stack;
     }
-}
 
+    private static string NormalizeButtonText(string text)
+    {
+        return text.ToUpperInvariant();
+    }
+}

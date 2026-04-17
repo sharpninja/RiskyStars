@@ -293,8 +293,8 @@ public class ContextMenuManager
         var label = new Label
         {
             Text = text,
-            TextColor = Colors.AccentCyan,
-            Scale = FontScale.Medium,
+            Font = UiFonts.Heading,
+            TextColor = Colors.TextWarning,
             Padding = Padding.Small
         };
         
@@ -317,6 +317,7 @@ public class ContextMenuManager
         var label = new Label
         {
             Text = text,
+            Font = UiFonts.Body,
             TextColor = Colors.TextPrimary,
             Padding = Padding.Small
         };
@@ -342,8 +343,8 @@ public class ContextMenuManager
             Top = (int)screenPosition.Y
         };
         
-        _activeMenu.Background = CreateSolidBrush(Colors.BackgroundDark);
-        _activeMenu.Border = CreateSolidBrush(Colors.BorderNormal);
+        _activeMenu.Background = ThemeManager.AssetBrushes.WindowFrame;
+        _activeMenu.Border = CreateSolidBrush(Colors.BorderFocus);
         _activeMenu.BorderThickness = new Myra.Graphics2D.Thickness(BorderThickness.Normal);
         _activeMenu.Padding = Padding.Small;
         

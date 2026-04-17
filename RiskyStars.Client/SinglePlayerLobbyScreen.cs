@@ -121,14 +121,14 @@ public class SinglePlayerLobbyScreen
         contentStack.Widgets.Add(BuildOpponentSection());
         contentStack.Widgets.Add(BuildButtonsSection());
 
-        rootGrid.Widgets.Add(contentStack);
+        var viewportFrame = ThemedUIFactory.CreateViewportFrame(_contentWidth + 96);
+        viewportFrame.HorizontalAlignment = HorizontalAlignment.Center;
+        viewportFrame.VerticalAlignment = VerticalAlignment.Center;
+        viewportFrame.Widgets.Add(contentStack);
 
-        _mainPanel = new Panel
-        {
-            Width = _screenWidth,
-            Height = _screenHeight,
-            Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.PrimaryDark)
-        };
+        rootGrid.Widgets.Add(viewportFrame);
+
+        _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainPanel.Widgets.Add(rootGrid);
 
         if (_desktop != null)
@@ -139,21 +139,10 @@ public class SinglePlayerLobbyScreen
 
     private Widget BuildHeaderSection()
     {
-        var stack = ThemedUIFactory.CreateCompactVerticalStack();
-        stack.HorizontalAlignment = HorizontalAlignment.Center;
-        stack.Spacing = ThemeManager.Spacing.Small;
-
-        var titleLabel = ThemedUIFactory.CreateTitleLabel("Single Player Game Setup");
-        titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        titleLabel.Scale = ThemeManager.FontScale.XXLarge;
-        stack.Widgets.Add(titleLabel);
-
-        var subtitleLabel = ThemedUIFactory.CreateSecondaryLabel("Configure your commander, map, and AI opponents.");
-        subtitleLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        subtitleLabel.Scale = ThemeManager.FontScale.SmallMedium;
-        stack.Widgets.Add(subtitleLabel);
-
-        return stack;
+        return ThemedUIFactory.CreateHeaderPlate(
+            "Single Player Game Setup",
+            "Configure your commander, map, and AI opponents.",
+            _contentWidth - 24);
     }
 
     private Widget BuildSetupSection()
@@ -214,7 +203,6 @@ public class SinglePlayerLobbyScreen
         stack.Spacing = ThemeManager.Spacing.Small;
 
         var titleLabel = ThemedUIFactory.CreateHeadingLabel(title);
-        titleLabel.Scale = ThemeManager.FontScale.Medium;
         stack.Widgets.Add(titleLabel);
 
         var descriptionLabel = ThemedUIFactory.CreateSmallLabel(description);
@@ -244,12 +232,11 @@ public class SinglePlayerLobbyScreen
         headerGrid.GridRow = 0;
 
         var titleLabel = ThemedUIFactory.CreateHeadingLabel("Opponent Lineup");
-        titleLabel.Scale = ThemeManager.FontScale.Medium;
         titleLabel.GridColumn = 0;
         headerGrid.Widgets.Add(titleLabel);
 
         _opponentCountLabel = ThemedUIFactory.CreateSecondaryLabel(string.Empty);
-        _opponentCountLabel.Scale = ThemeManager.FontScale.SmallMedium;
+        _opponentCountLabel.Font = ThemeManager.UiFonts.Small;
         _opponentCountLabel.GridColumn = 1;
         headerGrid.Widgets.Add(_opponentCountLabel);
 
@@ -342,8 +329,9 @@ public class SinglePlayerLobbyScreen
 
         var nameLabel = new Label
         {
+            Font = ThemeManager.UiFonts.Body,
             VerticalAlignment = VerticalAlignment.Center,
-            Scale = ThemeManager.FontScale.SmallMedium
+            Scale = Vector2.One
         };
         namePanel.Widgets.Add(nameLabel);
 
@@ -500,10 +488,10 @@ public class SinglePlayerLobbyScreen
 
             nameLabel.Text = hostName;
             nameLabel.TextColor = ThemeManager.Colors.TextPrimary;
-            namePanel.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.PrimaryMedium);
-            namePanel.Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.AccentCyan);
+            namePanel.Background = ThemeManager.AssetBrushes.ListRowSelected;
+            namePanel.Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderFocus);
             namePanel.BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal);
-            UpdateBadgePanel(badgePanel, ThemeManager.Colors.AccentBlue, "HOST");
+            UpdateBadgePanel(badgePanel, ThemeManager.Colors.TextAccent, "HOST");
 
             if (shuffleButton != null)
             {
@@ -516,9 +504,9 @@ public class SinglePlayerLobbyScreen
         if (slot.IsAI)
         {
             nameLabel.Text = slot.PlayerName;
-            nameLabel.TextColor = Color.LightBlue;
-            namePanel.Background = ThemeManager.CreateSolidBrush(new Color(34, 49, 68));
-            namePanel.Border = ThemeManager.CreateSolidBrush(new Color(72, 102, 140));
+            nameLabel.TextColor = ThemeManager.Colors.TextPrimary;
+            namePanel.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.SlotPanelReady);
+            namePanel.Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderFocus);
             namePanel.BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin);
 
             var badgeColor = slot.PlayerType switch
@@ -541,7 +529,7 @@ public class SinglePlayerLobbyScreen
         {
             nameLabel.Text = "Open slot";
             nameLabel.TextColor = ThemeManager.Colors.TextSecondary;
-            namePanel.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.PrimaryMedium);
+            namePanel.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.SlotPanelNormal);
             namePanel.Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderNormal);
             namePanel.BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin);
             UpdateBadgePanel(badgePanel, ThemeManager.Colors.DisabledColor, "OFF", ThemeManager.Colors.TextSecondary);
@@ -581,10 +569,10 @@ public class SinglePlayerLobbyScreen
         var label = new Label
         {
             Text = text.ToUpperInvariant(),
+            Font = ThemeManager.UiFonts.Tiny,
             TextColor = textColor ?? ThemeManager.Colors.TextPrimary,
             HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            Scale = ThemeManager.FontScale.Tiny
+            VerticalAlignment = VerticalAlignment.Center
         };
         panel.Widgets.Add(label);
     }

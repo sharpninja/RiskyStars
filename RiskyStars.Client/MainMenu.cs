@@ -1,9 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Myra;
-using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
+using MyraButton = Myra.Graphics2D.UI.Button;
 
 namespace RiskyStars.Client;
 
@@ -16,7 +14,6 @@ public enum MainMenuState
 
 public class MainMenu
 {
-    private readonly GraphicsDevice _graphicsDevice;
     private readonly int _screenWidth;
     private readonly int _screenHeight;
     private Settings _settings;
@@ -25,45 +22,31 @@ public class MainMenu
     private DialogManager? _dialogManager;
     private MainMenuState _state = MainMenuState.Main;
 
-    // Main menu widgets
     private Panel? _mainMenuPanel;
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _connectButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _settingsButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _exitButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+    private MyraButton? _connectButton;
+    private MyraButton? _settingsButton;
+    private MyraButton? _exitButton;
 
-    // Settings screen widgets
     private Panel? _settingsPanel;
     private ValidatedTextBox? _serverAddressTextBox;
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618
     private ComboBox? _resolutionComboBox;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+    private ComboBox? _themeAccentComboBox;
+    private ComboBox? _themeWarningComboBox;
+    private ComboBox? _themeFontStyleComboBox;
+#pragma warning restore CS0618
     private CheckButton? _fullscreenCheckButton;
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _saveSettingsButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _backButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+    private HorizontalSlider? _themeFontScaleSlider;
+    private HorizontalSlider? _themePaddingSlider;
+    private HorizontalSlider? _themeFramePaddingSlider;
+    private HorizontalSlider? _themeContrastSlider;
+    private Label? _themeFontScaleValueLabel;
+    private Label? _themePaddingValueLabel;
+    private Label? _themeFramePaddingValueLabel;
+    private Label? _themeContrastValueLabel;
+    private MyraButton? _saveSettingsButton;
+    private MyraButton? _backButton;
 
-    // Connecting screen widgets
     private Panel? _connectingPanel;
 
     public bool ShouldConnect { get; private set; }
@@ -74,7 +57,6 @@ public class MainMenu
 
     public MainMenu(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight, Settings settings)
     {
-        _graphicsDevice = graphicsDevice;
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
         _settings = settings;
@@ -82,330 +64,479 @@ public class MainMenu
 
     public void LoadContent(SpriteFont font)
     {
-        // Create desktop for UI rendering
         _desktop = new Desktop();
+        ThemeManager.ApplyThemeSettings(_settings.Theme);
+        ThemeManager.ApplyDesktopTheme(_desktop);
         _dialogManager = new DialogManager(_desktop);
 
-        // Build all UI panels
         BuildMainMenuUI();
         BuildSettingsUI();
         BuildConnectingUI();
-
-        // Show main menu by default
         ShowMainMenuUI();
     }
 
     private void BuildMainMenuUI()
     {
-        var grid = new Grid
-        {
-            RowSpacing = 20,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        int frameWidth = Math.Min(_screenWidth - 120, 1160);
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, Math.Min(_screenHeight - 120, 700));
+        frame.HorizontalAlignment = HorizontalAlignment.Center;
+        frame.VerticalAlignment = VerticalAlignment.Center;
 
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        var layout = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Large, ThemeManager.Spacing.XXLarge);
+        layout.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        layout.ColumnsProportions.Add(new Proportion(ProportionType.Pixels, 330));
+        layout.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        layout.RowsProportions.Add(new Proportion(ProportionType.Fill));
+        layout.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
-        // Title
-        var titleLabel = new Label
-        {
-            Text = "RiskyStars",
-            TextColor = Color.Cyan,
-            Scale = new Vector2(2.5f, 2.5f),
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        grid.Widgets.Add(titleLabel);
+        var header = ThemedUIFactory.CreateHeaderPlate("RiskyStars", "Fleet command interface");
+        header.GridRow = 0;
+        header.GridColumnSpan = 2;
+        layout.Widgets.Add(header);
 
-        // Connect button
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _connectButton = new TextButton
-        {
-            Text = "Connect to Server",
-            Width = 250,
-            Height = 50,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 1
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _connectButton.Click += (s, a) => OnConnectClicked();
-        grid.Widgets.Add(_connectButton);
+        var narrativePanel = ThemedUIFactory.CreateConsolePanel();
+        narrativePanel.GridRow = 1;
+        narrativePanel.GridColumn = 0;
 
-        // Single Player button
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        var singlePlayerButton = new TextButton
-        {
-            Text = "Single Player",
-            Width = 250,
-            Height = 50,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 2
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        singlePlayerButton.Click += (s, a) => OnSinglePlayerClicked();
-        grid.Widgets.Add(singlePlayerButton);
+        var narrativeStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
+        var overline = ThemedUIFactory.CreateSmallLabel("SECTOR BRIEF");
+        overline.TextColor = ThemeManager.Colors.TextWarning;
+        narrativeStack.Widgets.Add(overline);
 
-        // Settings button
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _settingsButton = new TextButton
-        {
-            Text = "Settings",
-            Width = 250,
-            Height = 50,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 3
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _settingsButton.Click += (s, a) => OnSettingsClicked();
-        grid.Widgets.Add(_settingsButton);
+        var headline = ThemedUIFactory.CreateTitleLabel("Chart a system. Build a faction. Risk the stars.");
+        headline.Wrap = true;
+        headline.Width = 540;
+        narrativeStack.Widgets.Add(headline);
 
-        // Exit button
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _exitButton = new TextButton
-        {
-            Text = "Exit",
-            Width = 250,
-            Height = 50,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 4
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _exitButton.Click += (s, a) => OnExitClicked();
-        grid.Widgets.Add(_exitButton);
+        var summary = ThemedUIFactory.CreateSecondaryLabel("A framed command deck for multiplayer campaigns, fast single-player setup, and in-game ship-console tooling.");
+        summary.Wrap = true;
+        summary.Width = 520;
+        summary.TextColor = ThemeManager.Colors.TextPrimary;
+        narrativeStack.Widgets.Add(summary);
 
-        _mainMenuPanel = new Panel
-        {
-            Width = _screenWidth,
-            Height = _screenHeight
-        };
-        _mainMenuPanel.Widgets.Add(grid);
+        var featureStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
+        featureStack.Widgets.Add(CreateMenuBullet("Multiplayer lobbies with a shared command shell."));
+        featureStack.Widgets.Add(CreateMenuBullet("Single-player lineup builder with AI command slots."));
+        featureStack.Widgets.Add(CreateMenuBullet("Dockable in-game windows styled as one console family."));
+        narrativeStack.Widgets.Add(featureStack);
+
+        narrativePanel.Widgets.Add(narrativeStack);
+        layout.Widgets.Add(narrativePanel);
+
+        var commandPanel = ThemedUIFactory.CreateFramePanel();
+        commandPanel.GridRow = 1;
+        commandPanel.GridColumn = 1;
+
+        var commandStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
+        var commandHeading = ThemedUIFactory.CreateHeadingLabel("Command Actions");
+        commandStack.Widgets.Add(commandHeading);
+
+        _connectButton = ThemedUIFactory.CreateLargeButton("Multiplayer", ThemeManager.ButtonTheme.Primary);
+        _connectButton.Click += (_, _) => OnConnectClicked();
+        commandStack.Widgets.Add(_connectButton);
+
+        var singlePlayerButton = ThemedUIFactory.CreateLargeButton("Single Player", ThemeManager.ButtonTheme.Primary);
+        singlePlayerButton.Click += (_, _) => OnSinglePlayerClicked();
+        commandStack.Widgets.Add(singlePlayerButton);
+
+        _settingsButton = ThemedUIFactory.CreateLargeButton("Settings", ThemeManager.ButtonTheme.Default);
+        _settingsButton.Click += (_, _) => OnSettingsClicked();
+        commandStack.Widgets.Add(_settingsButton);
+
+        _exitButton = ThemedUIFactory.CreateLargeButton("Exit", ThemeManager.ButtonTheme.Danger);
+        _exitButton.Click += (_, _) => OnExitClicked();
+        commandStack.Widgets.Add(_exitButton);
+
+        commandPanel.Widgets.Add(commandStack);
+        layout.Widgets.Add(commandPanel);
+
+        var footer = ThemedUIFactory.CreateConsolePanel();
+        footer.GridRow = 2;
+        footer.GridColumnSpan = 2;
+
+        var footerGrid = ThemedUIFactory.CreateGrid(0, ThemeManager.Spacing.Large);
+        footerGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        footerGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+
+        var endpointLabel = ThemedUIFactory.CreateSmallLabel($"Default uplink: {_settings.ServerAddress}");
+        endpointLabel.TextColor = ThemeManager.Colors.TextSecondary;
+        endpointLabel.GridColumn = 0;
+        footerGrid.Widgets.Add(endpointLabel);
+
+        var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        var versionLabel = ThemedUIFactory.CreateSmallLabel($"Build {version?.Major}.{version?.Minor}.{version?.Build}-{version?.Revision}");
+        versionLabel.TextColor = ThemeManager.Colors.TextSecondary;
+        versionLabel.GridColumn = 1;
+        footerGrid.Widgets.Add(versionLabel);
+
+        footer.Widgets.Add(footerGrid);
+        layout.Widgets.Add(footer);
+
+        frame.Widgets.Add(layout);
+
+        _mainMenuPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
+        _mainMenuPanel.Widgets.Add(frame);
     }
 
     private void BuildSettingsUI()
     {
-        var mainGrid = new Grid
-        {
-            RowSpacing = 8,
-            ColumnSpacing = 8,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        int frameWidth = Math.Min(_screenWidth - 140, 1040);
+        int frameHeight = Math.Min(_screenHeight - 120, 760);
+        int contentWidth = frameWidth - 96;
 
-        // Set up grid structure
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Server Address Label
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Server Address TextBox
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Resolution Label
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Resolution ComboBox
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Fullscreen
-        mainGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, frameHeight);
+        frame.HorizontalAlignment = HorizontalAlignment.Center;
+        frame.VerticalAlignment = VerticalAlignment.Center;
 
-        // Title
-#pragma warning disable CS0618 // Type or member is obsolete
-        var titleLabel = new Label
-        {
-            Text = "Settings",
-            TextColor = Color.Cyan,
-            Scale = new Vector2(1.2f, 1.2f),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 0
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        mainGrid.Widgets.Add(titleLabel);
+        var layout = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Large, 0);
+        layout.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        layout.RowsProportions.Add(new Proportion(ProportionType.Fill));
+        layout.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
-        // Server Address Label
-#pragma warning disable CS0618 // Type or member is obsolete
-        var serverLabel = new Label
-        {
-            Text = "Server Address",
-            TextColor = Color.White,
-            GridRow = 1,
-            Margin = new Thickness(0, 10, 0, 0)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        mainGrid.Widgets.Add(serverLabel);
+        var header = ThemedUIFactory.CreateHeaderPlate("Command Settings", "Display, server, session, and theme controls");
+        header.GridRow = 0;
+        layout.Widgets.Add(header);
 
-        // Server Address TextBox with validation
-        _serverAddressTextBox = new ValidatedTextBox(500, Settings.Load().ServerAddress, showErrorLabel: true);
+        var settingsContent = BuildSettingsContent(contentWidth);
+        var scrollViewer = ThemedUIFactory.CreateAutoScrollViewer(settingsContent, frameHeight - 260);
+        scrollViewer.GridRow = 1;
+        layout.Widgets.Add(scrollViewer);
+
+        var actions = ThemedUIFactory.CreateActionBar();
+        actions.HorizontalAlignment = HorizontalAlignment.Center;
+
+        _saveSettingsButton = ThemedUIFactory.CreateButton("Save Settings", 220, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Primary);
+        _saveSettingsButton.Click += (_, _) => OnSaveSettingsClicked();
+        actions.Widgets.Add(_saveSettingsButton);
+
+        _backButton = ThemedUIFactory.CreateButton("Back", 180, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Default);
+        _backButton.Click += (_, _) => OnBackClicked();
+        actions.Widgets.Add(_backButton);
+
+        actions.GridRow = 2;
+        layout.Widgets.Add(actions);
+
+        frame.Widgets.Add(layout);
+
+        _settingsPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
+        _settingsPanel.Widgets.Add(frame);
+    }
+
+    private VerticalStackPanel BuildSettingsContent(int contentWidth)
+    {
+        var contentStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Large);
+        contentStack.Width = contentWidth;
+
+        var cards = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Large, ThemeManager.Spacing.Large);
+        cards.Width = contentWidth;
+        cards.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        cards.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+
+        int cardWidth = (contentWidth - ThemeManager.Spacing.Large) / 2;
+
+        _serverAddressTextBox = new ValidatedTextBox(cardWidth - 40, Settings.Load().ServerAddress, showErrorLabel: true);
         _serverAddressTextBox.Text = _settings.ServerAddress;
         _serverAddressTextBox.SetValidator(InputValidator.ValidateServerAddress);
-#pragma warning disable CS0618 // Type or member is obsolete
-        _serverAddressTextBox.Container.GridRow = 2;
-#pragma warning restore CS0618 // Type or member is obsolete
-        mainGrid.Widgets.Add(_serverAddressTextBox.Container);
+        var serverCard = ThemedUIFactory.CreateFieldCard("Server Endpoint", "Used as the default multiplayer uplink.", _serverAddressTextBox.Container, cardWidth);
+        serverCard.GridColumn = 0;
+        cards.Widgets.Add(serverCard);
 
-        // Resolution Label
-#pragma warning disable CS0618 // Type or member is obsolete
-        var resolutionLabel = new Label
-        {
-            Text = "Resolution",
-            TextColor = Color.White,
-            GridRow = 3,
-            Margin = new Thickness(0, 10, 0, 0)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        mainGrid.Widgets.Add(resolutionLabel);
-
-        // Resolution ComboBox
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _resolutionComboBox = new ComboBox
-        {
-            Width = 500,
-            GridRow = 4
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        
-        var resolutions = new List<string>
-        {
-            "1280x720",
-            "1366x768",
-            "1920x1080",
-            "2560x1440",
-            "3840x2160"
-        };
-
+#pragma warning disable CS0618
+        _resolutionComboBox = ThemedUIFactory.CreateComboBox(cardWidth - 40);
+#pragma warning restore CS0618
+        var resolutions = new List<string> { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
         foreach (var resolution in resolutions)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618
             _resolutionComboBox.Items.Add(new ListItem(resolution));
-#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618
         }
 
         var currentResolution = $"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}";
         var selectedIndex = resolutions.IndexOf(currentResolution);
-        if (selectedIndex >= 0)
-        {
-            _resolutionComboBox.SelectedIndex = selectedIndex;
-        }
-        else
-        {
-            _resolutionComboBox.SelectedIndex = 0;
-        }
+        _resolutionComboBox.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
 
-        mainGrid.Widgets.Add(_resolutionComboBox);
+        var displayStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
+        displayStack.Widgets.Add(_resolutionComboBox);
 
-        // Fullscreen CheckButton with Label
-#pragma warning disable CS0618 // Type or member is obsolete
-        var fullscreenGrid = new Grid
+        var fullscreenRow = ThemedUIFactory.CreateHorizontalStack(ThemeManager.Spacing.Small);
+        _fullscreenCheckButton = ThemedUIFactory.CreateCheckButton(_settings.Fullscreen);
+        fullscreenRow.Widgets.Add(_fullscreenCheckButton);
+        fullscreenRow.Widgets.Add(ThemedUIFactory.CreateLabel("Fullscreen output"));
+        displayStack.Widgets.Add(fullscreenRow);
+
+        var displayCard = ThemedUIFactory.CreateFieldCard("Display Profile", "Choose the monitor profile for the command deck.", displayStack, cardWidth);
+        displayCard.GridColumn = 1;
+        cards.Widgets.Add(displayCard);
+
+        contentStack.Widgets.Add(cards);
+        contentStack.Widgets.Add(BuildThemeSettingsCard(contentWidth));
+        return contentStack;
+    }
+
+    private Panel BuildThemeSettingsCard(int contentWidth)
+    {
+        var panel = ThemedUIFactory.CreateFramePanel();
+        panel.Width = contentWidth;
+
+        var stack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
+        var heading = ThemedUIFactory.CreateHeadingLabel("Theme Console");
+        stack.Widgets.Add(heading);
+
+        var description = ThemedUIFactory.CreateSmallLabel("Adjust accent colors, font profile, scale, contrast, and padding. Panel contents are scrollable so the command deck can grow without clipping.");
+        description.Wrap = true;
+        description.TextColor = ThemeManager.Colors.TextPrimary;
+        stack.Widgets.Add(description);
+
+        var columns = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Large, ThemeManager.Spacing.Large);
+        columns.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        columns.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+
+        int columnWidth = (contentWidth - (ThemeManager.Spacing.Large + ThemeManager.Padding.Panel.Left + ThemeManager.Padding.Panel.Right)) / 2;
+
+        var palettePanel = ThemedUIFactory.CreateDarkPanel();
+        palettePanel.Width = columnWidth;
+        palettePanel.GridColumn = 0;
+
+        var paletteStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
+        paletteStack.Widgets.Add(ThemedUIFactory.CreateHeadingLabel("Palette"));
+
+        _themeAccentComboBox = CreateSettingsComboBox(UiThemeSettings.AccentColorOptions, 220);
+        paletteStack.Widgets.Add(CreateThemeSelectField("Accent Color", "Primary action, selection, and focus color.", _themeAccentComboBox));
+
+        _themeWarningComboBox = CreateSettingsComboBox(UiThemeSettings.WarningColorOptions, 220);
+        paletteStack.Widgets.Add(CreateThemeSelectField("Warning Tone", "Headings, warnings, and secondary data highlights.", _themeWarningComboBox));
+        palettePanel.Widgets.Add(paletteStack);
+        columns.Widgets.Add(palettePanel);
+
+        var metricsPanel = ThemedUIFactory.CreateDarkPanel();
+        metricsPanel.Width = columnWidth;
+        metricsPanel.GridColumn = 1;
+
+        var metricsStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
+        metricsStack.Widgets.Add(ThemedUIFactory.CreateHeadingLabel("Typography & Spacing"));
+
+        _themeFontStyleComboBox = CreateSettingsComboBox(UiThemeSettings.FontStyleOptions, 220);
+        metricsStack.Widgets.Add(CreateThemeSelectField("Font Profile", "Compact, neutral, or heavier command-deck typography.", _themeFontStyleComboBox));
+
+        metricsStack.Widgets.Add(CreateThemeSliderField("Font Size", "Scales all Myra text.", 80, 140, out _themeFontScaleSlider, out _themeFontScaleValueLabel));
+        metricsStack.Widgets.Add(CreateThemeSliderField("Panel Padding", "Adjusts general spacing inside fields and consoles.", 80, 150, out _themePaddingSlider, out _themePaddingValueLabel));
+        metricsStack.Widgets.Add(CreateThemeSliderField("Frame Padding", "Controls the chrome margin around framed screens.", 70, 140, out _themeFramePaddingSlider, out _themeFramePaddingValueLabel));
+        metricsStack.Widgets.Add(CreateThemeSliderField("Contrast", "Brightens text and accents against the dark panels.", 85, 140, out _themeContrastSlider, out _themeContrastValueLabel));
+
+        metricsPanel.Widgets.Add(metricsStack);
+        columns.Widgets.Add(metricsPanel);
+
+        stack.Widgets.Add(columns);
+        panel.Widgets.Add(stack);
+
+        HookThemeSlider(_themeFontScaleSlider, _themeFontScaleValueLabel);
+        HookThemeSlider(_themePaddingSlider, _themePaddingValueLabel);
+        HookThemeSlider(_themeFramePaddingSlider, _themeFramePaddingValueLabel);
+        HookThemeSlider(_themeContrastSlider, _themeContrastValueLabel);
+
+        SyncThemeControlsFromSettings();
+        return panel;
+    }
+
+    private Panel CreateThemeSelectField(string title, string description, Widget control)
+    {
+        var field = ThemedUIFactory.CreateFramePanel();
+        var stack = ThemedUIFactory.CreateCompactVerticalStack();
+        stack.Spacing = ThemeManager.Spacing.Small;
+
+        var titleLabel = ThemedUIFactory.CreateSmallLabel(title);
+        titleLabel.TextColor = ThemeManager.Colors.TextWarning;
+        stack.Widgets.Add(titleLabel);
+
+        var descriptionLabel = ThemedUIFactory.CreateSmallLabel(description);
+        descriptionLabel.TextColor = ThemeManager.Colors.TextSecondary;
+        descriptionLabel.Wrap = true;
+        stack.Widgets.Add(descriptionLabel);
+        stack.Widgets.Add(control);
+
+        field.Widgets.Add(stack);
+        return field;
+    }
+
+    private Panel CreateThemeSliderField(string title, string description, int min, int max, out HorizontalSlider slider, out Label valueLabel)
+    {
+        var field = ThemedUIFactory.CreateFramePanel();
+        var stack = ThemedUIFactory.CreateCompactVerticalStack();
+        stack.Spacing = ThemeManager.Spacing.Small;
+
+        var titleLabel = ThemedUIFactory.CreateSmallLabel(title);
+        titleLabel.TextColor = ThemeManager.Colors.TextWarning;
+        stack.Widgets.Add(titleLabel);
+
+        var descriptionLabel = ThemedUIFactory.CreateSmallLabel(description);
+        descriptionLabel.TextColor = ThemeManager.Colors.TextSecondary;
+        descriptionLabel.Wrap = true;
+        stack.Widgets.Add(descriptionLabel);
+
+        var sliderGrid = ThemedUIFactory.CreateGrid(0, ThemeManager.Spacing.Medium);
+        sliderGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        sliderGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+
+        slider = new HorizontalSlider
         {
-            ColumnSpacing = 10,
-            GridRow = 5,
-            Margin = new Thickness(0, 10, 0, 0)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        fullscreenGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-        fullscreenGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-        
-#pragma warning disable CS0618 // Type or member is obsolete
-        _fullscreenCheckButton = new CheckButton
-        {
-            IsPressed = _settings.Fullscreen,
-            GridColumn = 0
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-        fullscreenGrid.Widgets.Add(_fullscreenCheckButton);
-        
-#pragma warning disable CS0618 // Type or member is obsolete
-        var fullscreenLabel = new Label
-        {
-            Text = "Fullscreen",
-            TextColor = Color.White,
-            GridColumn = 1,
+            Minimum = min,
+            Maximum = max,
+            Value = min,
+            Width = 220,
             VerticalAlignment = VerticalAlignment.Center
         };
-#pragma warning restore CS0618 // Type or member is obsolete
-        fullscreenGrid.Widgets.Add(fullscreenLabel);
-        mainGrid.Widgets.Add(fullscreenGrid);
+        slider.GridColumn = 0;
+        sliderGrid.Widgets.Add(slider);
 
-        // Buttons Grid
-#pragma warning disable CS0618 // Type or member is obsolete
-        var buttonsGrid = new Grid
+        valueLabel = ThemedUIFactory.CreateSmallLabel($"{min}%");
+        valueLabel.TextColor = ThemeManager.Colors.TextPrimary;
+        valueLabel.GridColumn = 1;
+        valueLabel.VerticalAlignment = VerticalAlignment.Center;
+        sliderGrid.Widgets.Add(valueLabel);
+
+        stack.Widgets.Add(sliderGrid);
+        field.Widgets.Add(stack);
+        return field;
+    }
+
+    private static void HookThemeSlider(HorizontalSlider? slider, Label? valueLabel)
+    {
+        if (slider == null || valueLabel == null)
         {
-            ColumnSpacing = 20,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 6,
-            Margin = new Thickness(0, 20, 0, 0)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
+            return;
+        }
 
-        buttonsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-        buttonsGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        slider.ValueChanged += (_, _) => valueLabel.Text = $"{(int)Math.Round(slider.Value)}%";
+    }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _saveSettingsButton = new TextButton
+    private static void SetComboSelection(ComboBox? comboBox, string[] options, string selectedValue)
+    {
+        if (comboBox == null)
         {
-            Text = "Save",
-            Width = 150,
-            Height = 50,
-            GridColumn = 0
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _saveSettingsButton.Click += (s, a) => OnSaveSettingsClicked();
-        buttonsGrid.Widgets.Add(_saveSettingsButton);
+            return;
+        }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _backButton = new TextButton
+        int selectedIndex = Array.IndexOf(options, selectedValue);
+        comboBox.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
+    }
+
+    private static ComboBox CreateSettingsComboBox(string[] options, int width)
+    {
+#pragma warning disable CS0618
+        var comboBox = ThemedUIFactory.CreateComboBox(width);
+        foreach (var option in options)
         {
-            Text = "Back",
-            Width = 150,
-            Height = 50,
-            GridColumn = 1
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _backButton.Click += (s, a) => OnBackClicked();
-        buttonsGrid.Widgets.Add(_backButton);
+            comboBox.Items.Add(new ListItem(option));
+        }
 
-        mainGrid.Widgets.Add(buttonsGrid);
+        return comboBox;
+#pragma warning restore CS0618
+    }
 
-        // Create panel with background
-        _settingsPanel = new Panel
+    private void SyncThemeControlsFromSettings()
+    {
+        var theme = _settings.Theme;
+        theme.Normalize();
+
+        SetComboSelection(_themeAccentComboBox, UiThemeSettings.AccentColorOptions, theme.AccentColor);
+        SetComboSelection(_themeWarningComboBox, UiThemeSettings.WarningColorOptions, theme.WarningColor);
+        SetComboSelection(_themeFontStyleComboBox, UiThemeSettings.FontStyleOptions, theme.FontStyle);
+
+        if (_themeFontScaleSlider != null)
         {
-            Width = _screenWidth,
-            Height = _screenHeight,
-            Background = new SolidBrush(new Color(10, 10, 20) * 0.95f)
-        };
-        _settingsPanel.Widgets.Add(mainGrid);
+            _themeFontScaleSlider.Value = theme.FontScalePercent;
+        }
+
+        if (_themePaddingSlider != null)
+        {
+            _themePaddingSlider.Value = theme.PaddingScalePercent;
+        }
+
+        if (_themeFramePaddingSlider != null)
+        {
+            _themeFramePaddingSlider.Value = theme.FramePaddingPercent;
+        }
+
+        if (_themeContrastSlider != null)
+        {
+            _themeContrastSlider.Value = theme.ContrastPercent;
+        }
+
+        if (_themeFontScaleValueLabel != null)
+        {
+            _themeFontScaleValueLabel.Text = $"{theme.FontScalePercent}%";
+        }
+
+        if (_themePaddingValueLabel != null)
+        {
+            _themePaddingValueLabel.Text = $"{theme.PaddingScalePercent}%";
+        }
+
+        if (_themeFramePaddingValueLabel != null)
+        {
+            _themeFramePaddingValueLabel.Text = $"{theme.FramePaddingPercent}%";
+        }
+
+        if (_themeContrastValueLabel != null)
+        {
+            _themeContrastValueLabel.Text = $"{theme.ContrastPercent}%";
+        }
+    }
+
+    private void ApplyThemeSelectionsToSettings()
+    {
+        _settings.Theme.AccentColor = _themeAccentComboBox?.SelectedItem?.Text ?? _settings.Theme.AccentColor;
+        _settings.Theme.WarningColor = _themeWarningComboBox?.SelectedItem?.Text ?? _settings.Theme.WarningColor;
+        _settings.Theme.FontStyle = _themeFontStyleComboBox?.SelectedItem?.Text ?? _settings.Theme.FontStyle;
+        _settings.Theme.FontScalePercent = (int)Math.Round(_themeFontScaleSlider?.Value ?? _settings.Theme.FontScalePercent);
+        _settings.Theme.PaddingScalePercent = (int)Math.Round(_themePaddingSlider?.Value ?? _settings.Theme.PaddingScalePercent);
+        _settings.Theme.FramePaddingPercent = (int)Math.Round(_themeFramePaddingSlider?.Value ?? _settings.Theme.FramePaddingPercent);
+        _settings.Theme.ContrastPercent = (int)Math.Round(_themeContrastSlider?.Value ?? _settings.Theme.ContrastPercent);
+        _settings.Theme.Normalize();
     }
 
     private void BuildConnectingUI()
     {
-        var grid = new Grid
-        {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
+        var frame = ThemedUIFactory.CreateViewportFrame(Math.Min(_screenWidth - 240, 700));
+        frame.HorizontalAlignment = HorizontalAlignment.Center;
+        frame.VerticalAlignment = VerticalAlignment.Center;
 
-        var messageLabel = new Label
-        {
-            Text = "Connecting to server...",
-            TextColor = Color.Yellow,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        grid.Widgets.Add(messageLabel);
+        var stack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Large);
+        stack.Widgets.Add(ThemedUIFactory.CreateHeaderPlate("Establishing Uplink", "Preparing the next command surface"));
 
-        _connectingPanel = new Panel
-        {
-            Width = _screenWidth,
-            Height = _screenHeight
-        };
-        _connectingPanel.Widgets.Add(grid);
+        var messagePanel = ThemedUIFactory.CreateConsolePanel();
+        var messageStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
+        var headline = ThemedUIFactory.CreateHeadingLabel("Connecting to the sector network...");
+        headline.HorizontalAlignment = HorizontalAlignment.Center;
+        messageStack.Widgets.Add(headline);
+
+        var subtitle = ThemedUIFactory.CreateSecondaryLabel("The multiplayer lobby browser will appear when the uplink is ready.");
+        subtitle.HorizontalAlignment = HorizontalAlignment.Center;
+        subtitle.Wrap = true;
+        subtitle.Width = 440;
+        messageStack.Widgets.Add(subtitle);
+
+        messagePanel.Widgets.Add(messageStack);
+        stack.Widgets.Add(messagePanel);
+
+        frame.Widgets.Add(stack);
+
+        _connectingPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
+        _connectingPanel.Widgets.Add(frame);
+    }
+
+    private static Widget CreateMenuBullet(string text)
+    {
+        var row = ThemedUIFactory.CreateHorizontalStack(ThemeManager.Spacing.Small);
+        row.Widgets.Add(ThemedUIFactory.CreateStatusBadge(ThemeManager.Colors.TextAccent, "SYS", 68));
+
+        var label = ThemedUIFactory.CreateSecondaryLabel(text);
+        label.TextColor = ThemeManager.Colors.TextPrimary;
+        label.Wrap = true;
+        label.Width = 420;
+        row.Widgets.Add(label);
+        return row;
     }
 
     private void ShowMainMenuUI()
@@ -418,6 +549,11 @@ public class MainMenu
 
     private void ShowSettingsUI()
     {
+        if (_desktop == null || _settingsPanel == null)
+        {
+            return;
+        }
+
         if (_serverAddressTextBox != null)
         {
             _serverAddressTextBox.Text = _settings.ServerAddress;
@@ -440,10 +576,9 @@ public class MainMenu
             _fullscreenCheckButton.IsPressed = _settings.Fullscreen;
         }
 
-        if (_desktop != null)
-        {
-            _desktop.Root = _settingsPanel;
-        }
+        SyncThemeControlsFromSettings();
+
+        _desktop.Root = _settingsPanel;
     }
 
     private void ShowConnectingUI()
@@ -462,7 +597,7 @@ public class MainMenu
 
     public void ShowError(string message)
     {
-        _dialogManager?.ShowError("Connection Error", message, (result) =>
+        _dialogManager?.ShowError("Connection Error", message, _ =>
         {
             _state = MainMenuState.Main;
             UpdateUI();
@@ -512,7 +647,6 @@ public class MainMenu
 
     private void OnSaveSettingsClicked()
     {
-        // Validate all inputs before saving
         if (_serverAddressTextBox != null && !_serverAddressTextBox.IsValid)
         {
             _dialogManager?.ShowError("Validation Error", "Please fix the server address before saving.");
@@ -524,7 +658,7 @@ public class MainMenu
             _settings.ServerAddress = _serverAddressTextBox.Text.Trim();
         }
 
-        if (_resolutionComboBox != null && _resolutionComboBox.SelectedItem != null)
+        if (_resolutionComboBox?.SelectedItem != null)
         {
             var selectedResolution = _resolutionComboBox.SelectedItem.Text;
             if (!string.IsNullOrEmpty(selectedResolution))
@@ -545,36 +679,30 @@ public class MainMenu
             _settings.Fullscreen = _fullscreenCheckButton.IsPressed;
         }
 
+        ApplyThemeSelectionsToSettings();
+        ThemeManager.ApplyThemeSettings(_settings.Theme);
         _settings.Save();
-
+        BuildMainMenuUI();
+        BuildSettingsUI();
+        BuildConnectingUI();
         _state = MainMenuState.Main;
         UpdateUI();
     }
 
     private void OnBackClicked()
     {
-        // Restore original settings
         if (_serverAddressTextBox != null)
         {
             _serverAddressTextBox.Text = _settings.ServerAddress;
             _serverAddressTextBox.ClearValidation();
         }
 
-        if (_resolutionComboBox != null)
-        {
-            var currentResolution = $"{_settings.ResolutionWidth}x{_settings.ResolutionHeight}";
-            var resolutions = new List<string> { "1280x720", "1366x768", "1920x1080", "2560x1440", "3840x2160" };
-            var selectedIndex = resolutions.IndexOf(currentResolution);
-            if (selectedIndex >= 0)
-            {
-                _resolutionComboBox.SelectedIndex = selectedIndex;
-            }
-        }
-
         if (_fullscreenCheckButton != null)
         {
             _fullscreenCheckButton.IsPressed = _settings.Fullscreen;
         }
+
+        SyncThemeControlsFromSettings();
 
         _state = MainMenuState.Main;
         UpdateUI();
@@ -590,5 +718,3 @@ public class MainMenu
         _desktop?.Render();
     }
 }
-
-

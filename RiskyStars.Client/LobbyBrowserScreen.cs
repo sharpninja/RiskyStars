@@ -1,48 +1,30 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using RiskyStars.Shared;
-using Myra;
-using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
-using System.Linq;
+using RiskyStars.Shared;
+using MyraButton = Myra.Graphics2D.UI.Button;
 
 namespace RiskyStars.Client;
 
 public class LobbyBrowserScreen
 {
-    private readonly GraphicsDevice _graphicsDevice;
     private readonly int _screenWidth;
     private readonly int _screenHeight;
-    private SpriteFont? _font;
 
     private Desktop? _desktop;
     private Panel? _mainPanel;
     private Grid? _lobbiesGrid;
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _createLobbyButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _joinLobbyButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-    private TextButton? _refreshButton;
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+    private MyraButton? _createLobbyButton;
+    private MyraButton? _joinLobbyButton;
+    private MyraButton? _refreshButton;
     private Label? _countLabel;
+    private Label? _statusLabel;
 
     private List<LobbyInfo> _lobbies = new();
     private int _selectedLobbyIndex = -1;
-    private double _refreshTimer = 0;
+    private double _refreshTimer;
     private const double RefreshInterval = 2000;
-
-    private const int MaxVisibleLobbies = 8;
 
     public string? SelectedLobbyId { get; private set; }
     public bool ShouldCreateLobby { get; private set; }
@@ -51,122 +33,107 @@ public class LobbyBrowserScreen
 
     public LobbyBrowserScreen(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
     {
-        _graphicsDevice = graphicsDevice;
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
     }
 
     public void LoadContent(SpriteFont font)
     {
-        _font = font;
         _desktop = new Desktop();
+        ThemeManager.ApplyDesktopTheme(_desktop);
         BuildUI();
     }
 
     private void BuildUI()
     {
-        var rootGrid = new Grid
+        int frameWidth = Math.Min(_screenWidth - 120, 1120);
+        var frame = ThemedUIFactory.CreateViewportFrame(frameWidth, Math.Min(_screenHeight - 120, 760));
+        frame.HorizontalAlignment = HorizontalAlignment.Center;
+        frame.VerticalAlignment = VerticalAlignment.Center;
+
+        var layout = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Large);
+        layout.Widgets.Add(ThemedUIFactory.CreateHeaderPlate("Game Lobbies", "Review active multiplayer sessions and join a command room"));
+
+        var metaStrip = ThemedUIFactory.CreateConsolePanel();
+        var metaGrid = ThemedUIFactory.CreateGrid(0, ThemeManager.Spacing.Large);
+        metaGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        metaGrid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+
+        _countLabel = ThemedUIFactory.CreateSecondaryLabel("Available Lobbies: 0");
+        _countLabel.TextColor = ThemeManager.Colors.TextWarning;
+        _countLabel.GridColumn = 0;
+        metaGrid.Widgets.Add(_countLabel);
+
+        _statusLabel = ThemedUIFactory.CreateSmallLabel("Refreshes automatically every 2 seconds.");
+        _statusLabel.TextColor = ThemeManager.Colors.TextSecondary;
+        _statusLabel.GridColumn = 1;
+        metaGrid.Widgets.Add(_statusLabel);
+
+        metaStrip.Widgets.Add(metaGrid);
+        layout.Widgets.Add(metaStrip);
+
+        var listPanel = ThemedUIFactory.CreateFramePanel();
+        var scrollViewer = new ScrollViewer
         {
-            RowSpacing = 15,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Stretch,
-            Width = _screenWidth,
-            Height = _screenHeight
+            ShowHorizontalScrollBar = false,
+            ShowVerticalScrollBar = true,
+            Height = 420
         };
 
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Title
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Count
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Fill)); // Lobbies list
-        rootGrid.RowsProportions.Add(new Proportion(ProportionType.Auto)); // Buttons
+        _lobbiesGrid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, ThemeManager.Spacing.Small);
+        _lobbiesGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        scrollViewer.Content = _lobbiesGrid;
+        listPanel.Widgets.Add(scrollViewer);
+        layout.Widgets.Add(listPanel);
 
-        // Title
-#pragma warning disable CS0618 // Type or member is obsolete
-        var titleLabel = new Label
+        var buttons = ThemedUIFactory.CreateActionBar();
+        buttons.HorizontalAlignment = HorizontalAlignment.Center;
+
+        _createLobbyButton = ThemedUIFactory.CreateButton("Create Lobby", 200, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Primary);
+        _createLobbyButton.Click += (_, _) => ShouldCreateLobby = true;
+        buttons.Widgets.Add(_createLobbyButton);
+
+        _joinLobbyButton = ThemedUIFactory.CreateButton("Join Lobby", 200, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Primary);
+        _joinLobbyButton.Enabled = false;
+        _joinLobbyButton.Click += (_, _) =>
         {
-            Text = "Game Lobbies",
-            TextColor = Color.Cyan,
-            Scale = new Vector2(1.8f, 1.8f),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 0,
-            Margin = new Thickness(0, 30, 0, 10)
+            if (_selectedLobbyIndex >= 0 && _selectedLobbyIndex < _lobbies.Count)
+            {
+                SelectedLobbyId = _lobbies[_selectedLobbyIndex].LobbyId;
+                ShouldJoinLobby = true;
+            }
         };
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(titleLabel);
+        buttons.Widgets.Add(_joinLobbyButton);
 
-        // Lobby count
-#pragma warning disable CS0618 // Type or member is obsolete
-        _countLabel = new Label
+        _refreshButton = ThemedUIFactory.CreateButton("Refresh", 180, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Default);
+        _refreshButton.Click += (_, _) =>
         {
-            Text = "Available Lobbies: 0",
-            TextColor = Color.White,
-            Scale = new Vector2(0.9f, 0.9f),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            GridRow = 1,
-            Margin = new Thickness(0, 0, 0, 15)
+            ShouldRefresh = true;
+            _refreshTimer = 0;
+            SetStatus("Refreshing lobby manifest...");
         };
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(_countLabel);
+        buttons.Widgets.Add(_refreshButton);
 
-        // Lobbies list panel
-        var lobbiesPanel = BuildLobbiesPanel();
-#pragma warning disable CS0618 // Type or member is obsolete
-        lobbiesPanel.GridRow = 2;
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(lobbiesPanel);
+        layout.Widgets.Add(buttons);
+        frame.Widgets.Add(layout);
 
-        // Buttons
-        var buttonsPanel = BuildButtonsPanel();
-#pragma warning disable CS0618 // Type or member is obsolete
-        buttonsPanel.GridRow = 3;
-#pragma warning restore CS0618 // Type or member is obsolete
-        rootGrid.Widgets.Add(buttonsPanel);
-
-        _mainPanel = new Panel
-        {
-            Width = _screenWidth,
-            Height = _screenHeight,
-            Background = new SolidBrush(new Color(10, 10, 20))
-        };
-        _mainPanel.Widgets.Add(rootGrid);
+        _mainPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
+        _mainPanel.Widgets.Add(frame);
 
         if (_desktop != null)
         {
             _desktop.Root = _mainPanel;
         }
+
+        RebuildLobbiesList();
     }
 
-    private Panel BuildLobbiesPanel()
+    private void SetStatus(string text)
     {
-        var scrollViewer = new ScrollViewer
+        if (_statusLabel != null)
         {
-            Width = _screenWidth - 100,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Stretch,
-            ShowHorizontalScrollBar = false,
-            ShowVerticalScrollBar = true
-        };
-
-        _lobbiesGrid = new Grid
-        {
-            RowSpacing = 10,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
-
-        _lobbiesGrid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
-
-        scrollViewer.Content = _lobbiesGrid;
-
-        var panel = new Panel
-        {
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Stretch,
-            Padding = new Thickness(20),
-            Background = new SolidBrush(new Color(0, 0, 0, 180)),
-            Margin = new Thickness(50, 0, 50, 20)
-        };
-        panel.Widgets.Add(scrollViewer);
-
-        return panel;
+            _statusLabel.Text = text;
+        }
     }
 
     private void RebuildLobbiesList()
@@ -182,27 +149,22 @@ public class LobbyBrowserScreen
         if (_lobbies.Count == 0)
         {
             _lobbiesGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            var emptyPanel = ThemedUIFactory.CreateConsolePanel();
+            emptyPanel.GridRow = 0;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            var emptyLabel = new Label
-            {
-                Text = "No lobbies available. Create one to start playing!",
-                TextColor = Color.Gray,
-                Scale = new Vector2(0.9f, 0.9f),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                GridRow = 0,
-                Margin = new Thickness(0, 50, 0, 50)
-            };
-#pragma warning restore CS0618 // Type or member is obsolete
-            _lobbiesGrid.Widgets.Add(emptyLabel);
+            var emptyLabel = ThemedUIFactory.CreateSecondaryLabel("No active lobbies. Create one to open the first command room.");
+            emptyLabel.Wrap = true;
+            emptyLabel.TextColor = ThemeManager.Colors.TextSecondary;
+            emptyLabel.Width = 720;
+            emptyPanel.Widgets.Add(emptyLabel);
+            _lobbiesGrid.Widgets.Add(emptyPanel);
+            return;
         }
-        else
+
+        for (int i = 0; i < _lobbies.Count; i++)
         {
-            for (int i = 0; i < _lobbies.Count; i++)
-            {
-                _lobbiesGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-                BuildLobbyItem(i);
-            }
+            _lobbiesGrid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+            BuildLobbyItem(i);
         }
     }
 
@@ -216,85 +178,39 @@ public class LobbyBrowserScreen
         var lobby = _lobbies[index];
         bool isSelected = index == _selectedLobbyIndex;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        var itemPanel = new Panel
-        {
-            Background = new SolidBrush(isSelected ? new Color(50, 80, 120) : new Color(30, 30, 40)),
-            Padding = new Thickness(15, 12),
-            GridRow = index,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            Border = new SolidBrush(isSelected ? Color.Cyan : Color.Gray),
-            BorderThickness = new Thickness(2)
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
+        var row = ThemedUIFactory.CreateListRowPanel(isSelected);
+        row.GridRow = index;
 
-        var grid = new Grid
-        {
-            RowSpacing = 5,
-            ColumnSpacing = 20,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
-
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        var grid = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.XSmall, ThemeManager.Spacing.Medium);
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
         grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        grid.RowsProportions.Add(new Proportion(ProportionType.Auto));
 
-        // Host name (row 0, col 0)
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        var hostLabel = new Label
-        {
-            Text = $"Host: {lobby.HostPlayerName}",
-            TextColor = Color.White,
-            Scale = new Vector2(0.8f, 0.8f),
-            GridRow = 0,
-            GridColumn = 0
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+        var hostLabel = ThemedUIFactory.CreateHeadingLabel(lobby.HostPlayerName);
+        hostLabel.Scale = ThemeManager.FontScale.Medium;
+        hostLabel.GridRow = 0;
+        hostLabel.GridColumn = 0;
         grid.Widgets.Add(hostLabel);
 
-        // Player count (row 0, col 1)
-        Color playersColor = lobby.CurrentPlayers >= lobby.MaxPlayers ? Color.Red : Color.LightGreen;
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        var playersLabel = new Label
-        {
-            Text = $"{lobby.CurrentPlayers}/{lobby.MaxPlayers} Players",
-            TextColor = playersColor,
-            Scale = new Vector2(0.8f, 0.8f),
-            GridRow = 0,
-            GridColumn = 1,
-            HorizontalAlignment = HorizontalAlignment.Right
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        grid.Widgets.Add(playersLabel);
+        var availabilityColor = lobby.CurrentPlayers >= lobby.MaxPlayers
+            ? ThemeManager.Colors.TextError
+            : ThemeManager.Colors.TextSuccess;
+        var playersBadge = ThemedUIFactory.CreateStatusBadge(availabilityColor, $"{lobby.CurrentPlayers}/{lobby.MaxPlayers}");
+        playersBadge.GridRow = 0;
+        playersBadge.GridColumn = 1;
+        grid.Widgets.Add(playersBadge);
 
-        // Mode and map info (row 1, spanning both columns)
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        var infoLabel = new Label
-        {
-            Text = $"Mode: {lobby.GameMode} | Map: {lobby.MapName}",
-            TextColor = Color.LightGray,
-            Scale = new Vector2(0.7f, 0.7f),
-            GridRow = 1,
-            GridColumn = 0,
-            GridColumnSpan = 2
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
+        var infoLabel = ThemedUIFactory.CreateSecondaryLabel($"Mode: {lobby.GameMode}   |   Map: {lobby.MapName}");
+        infoLabel.TextColor = ThemeManager.Colors.TextPrimary;
+        infoLabel.GridRow = 1;
+        infoLabel.GridColumn = 0;
         grid.Widgets.Add(infoLabel);
 
-        itemPanel.Widgets.Add(grid);
+        row.Widgets.Add(grid);
 
-        // Handle selection
         int capturedIndex = index;
-        itemPanel.TouchDown += (s, a) =>
+        row.TouchDown += (_, _) =>
         {
             _selectedLobbyIndex = capturedIndex;
             if (_joinLobbyButton != null)
@@ -302,86 +218,11 @@ public class LobbyBrowserScreen
                 _joinLobbyButton.Enabled = true;
             }
 
+            SetStatus($"Selected lobby hosted by {lobby.HostPlayerName}.");
             RebuildLobbiesList();
         };
 
-        _lobbiesGrid.Widgets.Add(itemPanel);
-    }
-
-    private Panel BuildButtonsPanel()
-    {
-        var grid = new Grid
-        {
-            ColumnSpacing = 20,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, 10, 0, 30)
-        };
-
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-        grid.ColumnsProportions.Add(new Proportion(ProportionType.Auto));
-
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _createLobbyButton = new TextButton
-        {
-            Text = "Create Lobby",
-            Width = 160,
-            Height = 45,
-            GridColumn = 0
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _createLobbyButton.Click += (s, a) => { ShouldCreateLobby = true; };
-        grid.Widgets.Add(_createLobbyButton);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _joinLobbyButton = new TextButton
-        {
-            Text = "Join Lobby",
-            Width = 160,
-            Height = 45,
-            GridColumn = 1,
-            Enabled = false
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _joinLobbyButton.Click += (s, a) =>
-        {
-            if (_selectedLobbyIndex >= 0 && _selectedLobbyIndex < _lobbies.Count)
-            {
-                SelectedLobbyId = _lobbies[_selectedLobbyIndex].LobbyId;
-                ShouldJoinLobby = true;
-            }
-        };
-        grid.Widgets.Add(_joinLobbyButton);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-#pragma warning disable CS0618 // Type or member is obsolete
-        _refreshButton = new TextButton
-        {
-            Text = "Refresh",
-            Width = 160,
-            Height = 45,
-            GridColumn = 2
-        };
-#pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CS0618 // Type or member is obsolete
-        _refreshButton.Click += (s, a) =>
-        {
-            ShouldRefresh = true;
-            _refreshTimer = 0;
-        };
-        grid.Widgets.Add(_refreshButton);
-
-        var panel = new Panel
-        {
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        panel.Widgets.Add(grid);
-
-        return panel;
+        _lobbiesGrid.Widgets.Add(row);
     }
 
     public void Update(GameTime gameTime, MouseState mouseState)
@@ -416,6 +257,7 @@ public class LobbyBrowserScreen
             }
         }
 
+        SetStatus(_lobbies.Count == 0 ? "No sessions discovered on the uplink." : $"Showing {_lobbies.Count} active multiplayer sessions.");
         RebuildLobbiesList();
     }
 
@@ -425,6 +267,16 @@ public class LobbyBrowserScreen
         ShouldJoinLobby = false;
         ShouldRefresh = false;
         SelectedLobbyId = null;
+        _selectedLobbyIndex = -1;
+        _refreshTimer = 0;
+
+        if (_joinLobbyButton != null)
+        {
+            _joinLobbyButton.Enabled = false;
+        }
+
+        SetStatus("Refreshes automatically every 2 seconds.");
+        RebuildLobbiesList();
     }
 
     public void Draw(SpriteBatch spriteBatch)

@@ -5,6 +5,7 @@ namespace RiskyStars.Client;
 
 public class Settings
 {
+    public UiThemeSettings Theme { get; set; } = new();
     public string ServerAddress { get; set; } = "http://localhost:5000";
     public int ResolutionWidth { get; set; } = 1280;
     public int ResolutionHeight { get; set; } = 720;
@@ -32,7 +33,10 @@ public class Settings
             if (File.Exists(SettingsPath))
             {
                 var json = File.ReadAllText(SettingsPath);
-                return JsonSerializer.Deserialize<Settings>(json) ?? new Settings();
+                var settings = JsonSerializer.Deserialize<Settings>(json) ?? new Settings();
+                settings.Theme ??= new UiThemeSettings();
+                settings.Theme.Normalize();
+                return settings;
             }
         }
         catch (Exception ex)
@@ -59,6 +63,7 @@ public class Settings
     {
         return new Settings
         {
+            Theme = Theme.Clone(),
             ServerAddress = ServerAddress,
             ResolutionWidth = ResolutionWidth,
             ResolutionHeight = ResolutionHeight,
@@ -74,6 +79,77 @@ public class Settings
             ShowDebugInfo = ShowDebugInfo,
             ShowFPS = ShowFPS
         };
+    }
+}
+
+public class UiThemeSettings
+{
+    public static readonly string[] AccentColorOptions =
+    [
+        "Classic Green",
+        "Ice Cyan",
+        "Amber Gold",
+        "Signal Red"
+    ];
+
+    public static readonly string[] WarningColorOptions =
+    [
+        "Amber",
+        "Ivory",
+        "Crimson",
+        "Cyan"
+    ];
+
+    public static readonly string[] FontStyleOptions =
+    [
+        "Compact",
+        "Standard",
+        "Command"
+    ];
+
+    public string AccentColor { get; set; } = "Classic Green";
+    public string WarningColor { get; set; } = "Amber";
+    public string FontStyle { get; set; } = "Standard";
+    public int FontScalePercent { get; set; } = 100;
+    public int PaddingScalePercent { get; set; } = 100;
+    public int FramePaddingPercent { get; set; } = 100;
+    public int ContrastPercent { get; set; } = 100;
+
+    public UiThemeSettings Clone()
+    {
+        return new UiThemeSettings
+        {
+            AccentColor = AccentColor,
+            WarningColor = WarningColor,
+            FontStyle = FontStyle,
+            FontScalePercent = FontScalePercent,
+            PaddingScalePercent = PaddingScalePercent,
+            FramePaddingPercent = FramePaddingPercent,
+            ContrastPercent = ContrastPercent
+        };
+    }
+
+    public void Normalize()
+    {
+        if (!AccentColorOptions.Contains(AccentColor))
+        {
+            AccentColor = AccentColorOptions[0];
+        }
+
+        if (!WarningColorOptions.Contains(WarningColor))
+        {
+            WarningColor = WarningColorOptions[0];
+        }
+
+        if (!FontStyleOptions.Contains(FontStyle))
+        {
+            FontStyle = FontStyleOptions[1];
+        }
+
+        FontScalePercent = Math.Clamp(FontScalePercent, 80, 140);
+        PaddingScalePercent = Math.Clamp(PaddingScalePercent, 80, 150);
+        FramePaddingPercent = Math.Clamp(FramePaddingPercent, 70, 140);
+        ContrastPercent = Math.Clamp(ContrastPercent, 85, 140);
     }
 }
 

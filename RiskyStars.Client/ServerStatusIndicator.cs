@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
+using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
-
 namespace RiskyStars.Client;
 
 public class ServerStatusIndicator
@@ -36,7 +35,7 @@ public class ServerStatusIndicator
         {
             Width = 12,
             Height = 12,
-            Background = new SolidBrush(Color.Gray),
+            Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.DisabledColor),
             GridColumn = 0,
             VerticalAlignment = VerticalAlignment.Center
         };
@@ -47,8 +46,8 @@ public class ServerStatusIndicator
         _statusLabel = new Label
         {
             Text = "Server: Stopped",
+            Font = ThemeManager.UiFonts.Small,
             TextColor = ThemeManager.Colors.TextSecondary,
-            Scale = ThemeManager.FontScale.Small,
             GridColumn = 1,
             VerticalAlignment = VerticalAlignment.Center
         };
@@ -59,8 +58,8 @@ public class ServerStatusIndicator
         _detailsLabel = new Label
         {
             Text = "",
+            Font = ThemeManager.UiFonts.Tiny,
             TextColor = ThemeManager.Colors.TextSecondary,
-            Scale = ThemeManager.FontScale.Tiny,
             GridColumn = 2,
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Right
@@ -71,7 +70,9 @@ public class ServerStatusIndicator
         _container = new Panel
         {
             Padding = ThemeManager.Padding.Small,
-            Background = new SolidBrush(ThemeManager.Colors.BackgroundMedium)
+            Background = ThemeManager.AssetBrushes.TerminalPanel,
+            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderNormal),
+            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin)
         };
         _container.Widgets.Add(grid);
     }
@@ -99,21 +100,21 @@ public class ServerStatusIndicator
         switch (status)
         {
             case ServerStatus.Stopped:
-                _statusDot.Background = new SolidBrush(Color.Gray);
+                _statusDot.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.DisabledColor);
                 _statusLabel.Text = "Server: Stopped";
                 _statusLabel.TextColor = ThemeManager.Colors.TextSecondary;
                 _detailsLabel.Text = "";
                 break;
 
             case ServerStatus.Starting:
-                _statusDot.Background = new SolidBrush(Color.Yellow);
+                _statusDot.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.TextWarning);
                 _statusLabel.Text = "Server: Starting...";
                 _statusLabel.TextColor = ThemeManager.Colors.TextWarning;
                 _detailsLabel.Text = "Initializing";
                 break;
 
             case ServerStatus.Running:
-                _statusDot.Background = new SolidBrush(Color.LimeGreen);
+                _statusDot.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.TextSuccess);
                 _statusLabel.Text = "Server: Running";
                 _statusLabel.TextColor = ThemeManager.Colors.TextSuccess;
                 
@@ -129,14 +130,14 @@ public class ServerStatusIndicator
                 break;
 
             case ServerStatus.Error:
-                _statusDot.Background = new SolidBrush(Color.Red);
+                _statusDot.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.TextError);
                 _statusLabel.Text = "Server: Error";
                 _statusLabel.TextColor = ThemeManager.Colors.TextError;
                 _detailsLabel.Text = errorMessage != null ? TruncateError(errorMessage) : "Failed";
                 break;
 
             case ServerStatus.Reconnecting:
-                _statusDot.Background = new SolidBrush(Color.Orange);
+                _statusDot.Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.TextWarning);
                 _statusLabel.Text = "Server: Reconnecting";
                 _statusLabel.TextColor = ThemeManager.Colors.TextWarning;
                 

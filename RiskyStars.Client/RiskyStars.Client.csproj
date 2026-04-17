@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Grpc.Net.Client" Version="2.76.0" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.4.1" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.76.0" />
     <PackageReference Include="Myra" Version="1.5.11" />
   </ItemGroup>
@@ -28,6 +29,10 @@
     <Content Include="UITheme.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Fonts\*.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Content\Fonts\OFL.txt" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D;
 
 namespace RiskyStars.Client;
@@ -34,13 +33,9 @@ public class DockableWindow
         
         _window = new Window
         {
-            Title = title,
-            TitleTextColor = ThemeManager.Colors.TextAccent,
-            Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BackgroundDark),
-            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.AccentCyan),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal),
-            Padding = ThemeManager.Padding.Medium
+            Title = title
         };
+        ThemeManager.ApplyWindowTheme(_window);
         
         var savedState = _preferences.GetWindowState(_windowId);
         if (savedState != null)
@@ -76,14 +71,7 @@ public class DockableWindow
     
     protected virtual void UpdateWindowStyle(bool isHovered)
     {
-        if (isHovered)
-        {
-            _window.Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderHover);
-        }
-        else
-        {
-            _window.Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.AccentCyan);
-        }
+        ThemeManager.ApplyWindowTheme(_window, isHovered);
     }
     
     public void Toggle()

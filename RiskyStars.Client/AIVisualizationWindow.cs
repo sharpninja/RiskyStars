@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Myra.Graphics2D.UI;
-using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D;
 using RiskyStars.Shared;
 
@@ -49,14 +48,8 @@ public class AIVisualizationWindow : DockableWindow
     
     private Widget BuildStatusPanel()
     {
-        var panel = new Panel
-        {
-            Background = new SolidBrush(ThemeManager.Colors.BackgroundMedium),
-            Border = new SolidBrush(ThemeManager.Colors.AccentCyan),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal),
-            Padding = ThemeManager.Padding.Medium,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
+        var panel = ThemedUIFactory.CreateFramePanel();
+        panel.HorizontalAlignment = HorizontalAlignment.Stretch;
         
         var layout = new VerticalStackPanel
         {
@@ -80,14 +73,8 @@ public class AIVisualizationWindow : DockableWindow
     
     private Widget BuildOptionsPanel()
     {
-        var panel = new Panel
-        {
-            Background = new SolidBrush(ThemeManager.Colors.BackgroundMedium),
-            Border = new SolidBrush(ThemeManager.Colors.AccentCyan),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal),
-            Padding = ThemeManager.Padding.Medium,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
+        var panel = ThemedUIFactory.CreateFramePanel();
+        panel.HorizontalAlignment = HorizontalAlignment.Stretch;
         
         var layout = new VerticalStackPanel
         {
@@ -119,14 +106,8 @@ public class AIVisualizationWindow : DockableWindow
     
     private Widget BuildActivityLogPanel()
     {
-        var panel = new Panel
-        {
-            Background = new SolidBrush(ThemeManager.Colors.BackgroundMedium),
-            Border = new SolidBrush(ThemeManager.Colors.AccentCyan),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Normal),
-            Padding = ThemeManager.Padding.Medium,
-            HorizontalAlignment = HorizontalAlignment.Stretch
-        };
+        var panel = ThemedUIFactory.CreateFramePanel();
+        panel.HorizontalAlignment = HorizontalAlignment.Stretch;
         
         var layout = new VerticalStackPanel
         {
