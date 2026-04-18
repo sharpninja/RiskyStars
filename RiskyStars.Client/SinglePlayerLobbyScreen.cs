@@ -736,8 +736,6 @@ public class SinglePlayerLobbyScreen
 
     public void Update(GameTime gameTime, MouseState mouseState, KeyboardState keyState)
     {
-        ShouldStartGame = false;
-        ShouldGoBack = false;
         _dialogManager?.Update();
 
         if (keyState.IsKeyDown(Keys.Escape) && _previousKeyState.IsKeyUp(Keys.Escape))

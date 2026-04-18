@@ -18,11 +18,13 @@ public class LobbyServiceImpl : LobbyService.LobbyServiceBase
         try
         {
             var authToken = _sessionManager.AuthenticatePlayer(request.PlayerName, request.Password);
+            _sessionManager.ValidateAuthToken(authToken, out var playerId);
 
             return Task.FromResult(new AuthenticateResponse
             {
                 Success = true,
                 AuthToken = authToken,
+                PlayerId = playerId,
                 Message = "Authentication successful"
             });
         }
@@ -199,6 +201,85 @@ public class LobbyServiceImpl : LobbyService.LobbyServiceBase
         }
     }
 
+    public override Task<StartSinglePlayerGameResponse> StartSinglePlayerGame(StartSinglePlayerGameRequest request, ServerCallContext context)
+    {
+        try
+        {
+            context.ThrowIfNotAuthenticated(_sessionManager, out var playerId);
+
+            if (string.IsNullOrWhiteSpace(request.PlayerName))
+            {
+                return Task.FromResult(new StartSinglePlayerGameResponse
+                {
+                    Success = false,
+                    Message = "Player name is required"
+                });
+            }
+
+            if (request.AiPlayers.Count == 0)
+            {
+                return Task.FromResult(new StartSinglePlayerGameResponse
+                {
+                    Success = false,
+                    Message = "At least one AI opponent is required"
+                });
+            }
+
+            var totalPlayers = request.AiPlayers.Count + 1;
+            var settings = new LobbySettings
+            {
+                MinPlayers = totalPlayers,
+                MaxPlayers = totalPlayers,
+                GameMode = "SinglePlayer",
+                MapName = string.IsNullOrWhiteSpace(request.MapName) ? "Default" : request.MapName
+            };
+
+            var lobbyId = _sessionManager.CreateLobby(playerId, request.PlayerName.Trim(), settings);
+
+            foreach (var aiPlayer in request.AiPlayers)
+            {
+                var aiName = string.IsNullOrWhiteSpace(aiPlayer.PlayerName) ? "AI Commander" : aiPlayer.PlayerName.Trim();
+                var difficulty = ParseDifficulty(aiPlayer.Difficulty);
+                var added = _sessionManager.AddAIPlayerToLobby(lobbyId, aiName, difficulty);
+
+                if (!added)
+                {
+                    return Task.FromResult(new StartSinglePlayerGameResponse
+                    {
+                        Success = false,
+                        Message = $"Failed to add AI opponent '{aiName}'"
+                    });
+                }
+            }
+
+            var sessionId = _sessionManager.StartGame(lobbyId);
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return Task.FromResult(new StartSinglePlayerGameResponse
+                {
+                    Success = false,
+                    Message = "Failed to create the single-player session"
+                });
+            }
+
+            return Task.FromResult(new StartSinglePlayerGameResponse
+            {
+                Success = true,
+                SessionId = sessionId,
+                PlayerId = playerId,
+                Message = "Single-player game started successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult(new StartSinglePlayerGameResponse
+            {
+                Success = false,
+                Message = $"Failed to start single-player game: {ex.Message}"
+            });
+        }
+    }
+
     public override Task<ListLobbiesResponse> ListLobbies(ListLobbiesRequest request, ServerCallContext context)
     {
         try
@@ -296,5 +377,12 @@ public class LobbyServiceImpl : LobbyService.LobbyServiceBase
                 Message = $"Failed to get lobby: {ex.Message}"
             });
         }
+    }
+
+    private static DifficultyLevel ParseDifficulty(string difficulty)
+    {
+        return Enum.TryParse<DifficultyLevel>(difficulty, ignoreCase: true, out var parsedDifficulty)
+            ? parsedDifficulty
+            : DifficultyLevel.Medium;
     }
 }

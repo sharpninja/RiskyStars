@@ -44,6 +44,7 @@ public class LobbyManager
     private LobbyState _state = LobbyState.ModeSelection;
     private GameMode _selectedGameMode = GameMode.Multiplayer;
     private string? _currentLobbyId;
+    private string? _playerId;
     private string? _playerName;
     private string? _sessionId;
 
@@ -52,6 +53,7 @@ public class LobbyManager
 
     public LobbyState State => _state;
     public GameMode SelectedGameMode => _selectedGameMode;
+    public string? PlayerId => _playerId;
     public string? SessionId => _sessionId;
     public string? PlayerName => _playerName;
     public bool IsInGame => _state == LobbyState.InGame;
@@ -199,7 +201,25 @@ public class LobbyManager
 
                     if (success)
                     {
-                        _sessionId = Guid.NewGuid().ToString();
+                        using var embeddedLobbyClient = new LobbyClient(_embeddedServerHost.ServerUrl);
+                        var authResponse = await embeddedLobbyClient.AuthenticateAsync(_playerName ?? "Player");
+                        if (!authResponse.Success)
+                        {
+                            throw new InvalidOperationException(authResponse.Message);
+                        }
+
+                        var startResponse = await embeddedLobbyClient.StartSinglePlayerGameAsync(
+                            _playerName ?? "Player",
+                            selectedMap,
+                            playerSlots.Where(slot => slot.IsAI));
+
+                        if (!startResponse.Success || string.IsNullOrWhiteSpace(startResponse.SessionId))
+                        {
+                            throw new InvalidOperationException(startResponse.Message);
+                        }
+
+                        _playerId = startResponse.PlayerId;
+                        _sessionId = startResponse.SessionId;
                         _state = LobbyState.InGame;
                     }
                     else
@@ -262,6 +282,8 @@ public class LobbyManager
                 _singlePlayerLobbyScreen.SetEmbeddedServerHost(null);
             }
             
+            _playerId = null;
+            _sessionId = null;
             _singlePlayerLobbyScreen.Reset();
             _state = LobbyState.ModeSelection;
         }
@@ -288,6 +310,7 @@ public class LobbyManager
 
                     if (response.Success)
                     {
+                        _playerId = _lobbyClient.PlayerId;
                         _playerName = _connectionScreen.PlayerName;
                         _connectionScreen.SetConnectionResult(true, "Connected successfully!");
                         await Task.Delay(500);

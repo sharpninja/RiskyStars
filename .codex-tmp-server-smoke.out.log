@@ -1,0 +1,107 @@
+Using launch settings from F:\GitHub\RiskyStars\RiskyStars.Server\Properties\launchSettings.json...
+Building...
+[2026-04-17 17:45:12] info: Program[0]
+      =================================================
+[2026-04-17 17:45:12] info: Program[0]
+      RiskyStars gRPC Server Starting
+[2026-04-17 17:45:12] info: Program[0]
+      =================================================
+[2026-04-17 17:45:12] info: Program[0]
+      Environment: Development
+[2026-04-17 17:45:12] info: Program[0]
+      Listening on: http://0.0.0.0:54123
+[2026-04-17 17:45:12] info: Program[0]
+      Protocol: HTTP/2 (gRPC)
+[2026-04-17 17:45:12] info: Program[0]
+      Max Receive Message Size: 16 MB
+[2026-04-17 17:45:12] info: Program[0]
+      Max Send Message Size: 16 MB
+[2026-04-17 17:45:12] info: Program[0]
+      Detailed Errors: True
+[2026-04-17 17:45:12] info: Program[0]
+      =================================================
+[2026-04-17 17:45:12] dbug: Microsoft.Extensions.Hosting.Internal.Host[1]
+      Hosting starting
+[2026-04-17 17:45:12] info: RiskyStars.Server.Services.SessionCleanupService[0]
+      Session Cleanup Service started - Cleanup Interval: 00:05:00, Inactivity Threshold: 01:00:00
+[2026-04-17 17:45:12] info: RiskyStars.Server.Services.GameRecoveryService[0]
+      Starting game recovery service...
+[2026-04-17 17:45:12] info: RiskyStars.Server.Services.GameStateManager[0]
+      Starting auto-recovery of saved games...
+[2026-04-17 17:45:12] info: RiskyStars.Server.Services.GameStateManager[0]
+      Auto-recovery complete: 0 game(s) recovered
+[2026-04-17 17:45:12] warn: Microsoft.AspNetCore.Server.Kestrel[0]
+      Overriding address(es) 'http://localhost:54123'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead.
+[2026-04-17 17:45:12] info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://[::]:54123
+[2026-04-17 17:45:12] info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+[2026-04-17 17:45:12] info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+[2026-04-17 17:45:12] info: Microsoft.Hosting.Lifetime[0]
+      Content root path: F:\GitHub\RiskyStars\RiskyStars.Server
+[2026-04-17 17:45:12] dbug: Microsoft.Extensions.Hosting.Internal.Host[2]
+      Hosting started
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      => SpanId:314a482281969e9e, TraceId:44f8ac2558a9afa2e17bf3ec73ff5d7e, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/Authenticate RequestId:0HNKSQC1UV3HN:00000001
+      Request starting HTTP/2 POST http://localhost:54123/risky_stars.LobbyService/Authenticate - application/grpc -
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      => SpanId:314a482281969e9e, TraceId:44f8ac2558a9afa2e17bf3ec73ff5d7e, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/Authenticate RequestId:0HNKSQC1UV3HN:00000001
+      Executing endpoint 'gRPC - /risky_stars.LobbyService/Authenticate'
+[2026-04-17 17:45:25] dbug: Grpc.AspNetCore.Server.ServerCallHandler[10]
+      => SpanId:314a482281969e9e, TraceId:44f8ac2558a9afa2e17bf3ec73ff5d7e, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/Authenticate RequestId:0HNKSQC1UV3HN:00000001
+      Reading message.
+[2026-04-17 17:45:25] dbug: Grpc.AspNetCore.Server.ServerCallHandler[15]
+      => SpanId:314a482281969e9e, TraceId:44f8ac2558a9afa2e17bf3ec73ff5d7e, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/Authenticate RequestId:0HNKSQC1UV3HN:00000001
+      Sending message.
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      => SpanId:314a482281969e9e, TraceId:44f8ac2558a9afa2e17bf3ec73ff5d7e, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/Authenticate RequestId:0HNKSQC1UV3HN:00000001
+      Executed endpoint 'gRPC - /risky_stars.LobbyService/Authenticate'
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      => SpanId:314a482281969e9e, TraceId:44f8ac2558a9afa2e17bf3ec73ff5d7e, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/Authenticate RequestId:0HNKSQC1UV3HN:00000001
+      Request finished HTTP/2 POST http://localhost:54123/risky_stars.LobbyService/Authenticate - 200 - application/grpc 159.8160ms
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      => SpanId:0ad1e4f3488b806c, TraceId:c28ca690968114d7b2b9e3d212075c1d, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/StartSinglePlayerGame RequestId:0HNKSQC1UV3HN:00000003
+      Request starting HTTP/2 POST http://localhost:54123/risky_stars.LobbyService/StartSinglePlayerGame - application/grpc -
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      => SpanId:0ad1e4f3488b806c, TraceId:c28ca690968114d7b2b9e3d212075c1d, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/StartSinglePlayerGame RequestId:0HNKSQC1UV3HN:00000003
+      Executing endpoint 'gRPC - /risky_stars.LobbyService/StartSinglePlayerGame'
+[2026-04-17 17:45:25] dbug: Grpc.AspNetCore.Server.ServerCallHandler[10]
+      => SpanId:0ad1e4f3488b806c, TraceId:c28ca690968114d7b2b9e3d212075c1d, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/StartSinglePlayerGame RequestId:0HNKSQC1UV3HN:00000003
+      Reading message.
+[2026-04-17 17:45:25] dbug: Grpc.AspNetCore.Server.ServerCallHandler[15]
+      => SpanId:0ad1e4f3488b806c, TraceId:c28ca690968114d7b2b9e3d212075c1d, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/StartSinglePlayerGame RequestId:0HNKSQC1UV3HN:00000003
+      Sending message.
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      => SpanId:0ad1e4f3488b806c, TraceId:c28ca690968114d7b2b9e3d212075c1d, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/StartSinglePlayerGame RequestId:0HNKSQC1UV3HN:00000003
+      Executed endpoint 'gRPC - /risky_stars.LobbyService/StartSinglePlayerGame'
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      => SpanId:0ad1e4f3488b806c, TraceId:c28ca690968114d7b2b9e3d212075c1d, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/StartSinglePlayerGame RequestId:0HNKSQC1UV3HN:00000003
+      Request finished HTTP/2 POST http://localhost:54123/risky_stars.LobbyService/StartSinglePlayerGame - 200 - application/grpc 30.4698ms
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      => SpanId:2c023fa8bed84788, TraceId:71afad125b2162d464e7b567249d84ee, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/game.GameService/PlayGame RequestId:0HNKSQC1UV3HN:00000005
+      Request starting HTTP/2 POST http://localhost:54123/game.GameService/PlayGame - application/grpc -
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      => SpanId:2c023fa8bed84788, TraceId:71afad125b2162d464e7b567249d84ee, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/game.GameService/PlayGame RequestId:0HNKSQC1UV3HN:00000005
+      Executing endpoint 'gRPC - /game.GameService/PlayGame'
+[2026-04-17 17:45:25] dbug: Grpc.AspNetCore.Server.ServerCallHandler[10]
+      => SpanId:2c023fa8bed84788, TraceId:71afad125b2162d464e7b567249d84ee, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/game.GameService/PlayGame RequestId:0HNKSQC1UV3HN:00000005
+      Reading message.
+[2026-04-17 17:45:25] dbug: Grpc.AspNetCore.Server.ServerCallHandler[15]
+      => SpanId:2c023fa8bed84788, TraceId:71afad125b2162d464e7b567249d84ee, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/game.GameService/PlayGame RequestId:0HNKSQC1UV3HN:00000005
+      Sending message.
+[2026-04-17 17:45:25] dbug: Grpc.AspNetCore.Server.ServerCallHandler[10]
+      => SpanId:2c023fa8bed84788, TraceId:71afad125b2162d464e7b567249d84ee, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/game.GameService/PlayGame RequestId:0HNKSQC1UV3HN:00000005
+      Reading message.
+[2026-04-17 17:45:25] dbug: Grpc.AspNetCore.Server.ServerCallHandler[15]
+      => SpanId:2c023fa8bed84788, TraceId:71afad125b2162d464e7b567249d84ee, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/game.GameService/PlayGame RequestId:0HNKSQC1UV3HN:00000005
+      Sending message.
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      => SpanId:2c023fa8bed84788, TraceId:71afad125b2162d464e7b567249d84ee, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/game.GameService/PlayGame RequestId:0HNKSQC1UV3HN:00000005
+      Executed endpoint 'gRPC - /game.GameService/PlayGame'
+[2026-04-17 17:45:25] info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      => SpanId:2c023fa8bed84788, TraceId:71afad125b2162d464e7b567249d84ee, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/game.GameService/PlayGame RequestId:0HNKSQC1UV3HN:00000005
+      Request finished HTTP/2 POST http://localhost:54123/game.GameService/PlayGame - 200 - application/grpc 45.6903ms
+[2026-04-17 17:45:25] info: RiskyStars.Server.Services.GameRepository[0]
+      => SpanId:0ad1e4f3488b806c, TraceId:c28ca690968114d7b2b9e3d212075c1d, ParentId:0000000000000000 => ConnectionId:0HNKSQC1UV3HN => RequestPath:/risky_stars.LobbyService/StartSinglePlayerGame RequestId:0HNKSQC1UV3HN:00000003
+      Saved game b4c7c3c3-67ac-4958-ae65-dade3a8433ce at turn 1 to F:\GitHub\RiskyStars\RiskyStars.Server\bin\Debug\net9.0\GameSaves\game_b4c7c3c3-67ac-4958-ae65-dade3a8433ce.json

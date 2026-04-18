@@ -15,6 +15,7 @@ service LobbyService {
   rpc LeaveLobby (LeaveLobbyRequest) returns (LeaveLobbyResponse);
   rpc SetReady (SetReadyRequest) returns (SetReadyResponse);
   rpc StartGame (StartGameRequest) returns (StartGameResponse);
+  rpc StartSinglePlayerGame (StartSinglePlayerGameRequest) returns (StartSinglePlayerGameResponse);
   rpc ListLobbies (ListLobbiesRequest) returns (ListLobbiesResponse);
   rpc GetLobby (GetLobbyRequest) returns (GetLobbyResponse);
 }
@@ -257,6 +258,7 @@ message AuthenticateResponse {
   bool success = 1;
   string auth_token = 2;
   string message = 3;
+  string player_id = 4;
 }
 
 message CreateLobbyRequest {
@@ -307,6 +309,24 @@ message StartGameResponse {
   bool success = 1;
   string session_id = 2;
   string message = 3;
+}
+
+message SinglePlayerAISlot {
+  string player_name = 1;
+  string difficulty = 2;
+}
+
+message StartSinglePlayerGameRequest {
+  string player_name = 1;
+  string map_name = 2;
+  repeated SinglePlayerAISlot ai_players = 3;
+}
+
+message StartSinglePlayerGameResponse {
+  bool success = 1;
+  string session_id = 2;
+  string message = 3;
+  string player_id = 4;
 }
 
 message ListLobbiesRequest {

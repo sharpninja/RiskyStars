@@ -1,5 +1,5 @@
 using System;
-using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -143,27 +143,18 @@ public class ServerHealthMonitor
 
     private async Task<bool> PerformHealthCheckAsync()
     {
+        var serverUri = new Uri(_serverUrl);
+
         try
         {
-            using var httpClient = new HttpClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(2);
-            
-            var response = await httpClient.GetAsync($"{_serverUrl}/health");
-            
-            if (response.IsSuccessStatusCode)
+            using var tcpClient = new TcpClient();
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            await tcpClient.ConnectAsync(serverUri.Host, serverUri.Port, cts.Token);
+
+            if (tcpClient.Connected)
             {
                 return true;
             }
-            else
-            {
-                LastError = $"Health check failed with status: {response.StatusCode}";
-                return false;
-            }
-        }
-        catch (HttpRequestException ex)
-        {
-            LastError = $"Connection failed: {ex.Message}";
-            return false;
         }
         catch (TaskCanceledException)
         {
@@ -175,6 +166,9 @@ public class ServerHealthMonitor
             LastError = $"Health check error: {ex.Message}";
             return false;
         }
+
+        LastError = "Server socket did not report a connected state";
+        return false;
     }
 
     private int CalculateExponentialBackoff(int attempt)

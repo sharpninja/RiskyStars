@@ -1,0 +1,11 @@
+Unhandled exception. System.NullReferenceException: Object reference not set to an instance of an object.
+   at RiskyStars.Client.ThemeManager.ConfigureDesktopStyle(DesktopStyle style) in F:\GitHub\RiskyStars\RiskyStars.Client\ThemeManager.cs:line 298
+   at RiskyStars.Client.ThemeManager.ApplyGlobalStylesheet() in F:\GitHub\RiskyStars\RiskyStars.Client\ThemeManager.cs:line 121
+   at RiskyStars.Client.ThemeManager.LoadContent(ContentManager content) in F:\GitHub\RiskyStars\RiskyStars.Client\ThemeManager.cs:line 82
+   at RiskyStars.Client.RiskyStarsGame.LoadContent() in F:\GitHub\RiskyStars\RiskyStars.Client\RiskyStarsGame.cs:line 127
+   at Microsoft.Xna.Framework.Game.Initialize()
+   at RiskyStars.Client.RiskyStarsGame.Initialize() in F:\GitHub\RiskyStars\RiskyStars.Client\RiskyStarsGame.cs:line 121
+   at Microsoft.Xna.Framework.Game.DoInitialize()
+   at Microsoft.Xna.Framework.Game.Run(GameRunBehavior runBehavior)
+   at Microsoft.Xna.Framework.Game.Run()
+   at Program.<Main>$(String[] args) in F:\GitHub\RiskyStars\RiskyStars.Client\Program.cs:line 4

@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Stylesheet>
+  <!-- Color Palette -->
+  <Colors>
+    <!-- Primary Colors -->
+    <Color Id="PrimaryDark">#0A0A14</Color>
+    <Color Id="PrimaryMedium">#1E1E28</Color>
+    <Color Id="PrimaryLight">#28283C</Color>
+    
+    <!-- Accent Colors -->
+    <Color Id="AccentCyan">#64B4FF</Color>
+    <Color Id="AccentBlue">#3C64B4</Color>
+    <Color Id="AccentDarkBlue">#1E3C64</Color>
+    
+    <!-- UI State Colors -->
+    <Color Id="HoverColor">#32648C</Color>
+    <Color Id="PressedColor">#1E3C5A</Color>
+    <Color Id="DisabledColor">#3C3C3C</Color>
+    
+    <!-- Text Colors -->
+    <Color Id="TextPrimary">#FFFFFF</Color>
+    <Color Id="TextSecondary">#C8C8C8</Color>
+    <Color Id="TextDisabled">#787878</Color>
+    <Color Id="TextAccent">#64B4FF</Color>
+    <Color Id="TextWarning">#FFC864</Color>
+    <Color Id="TextError">#FF6464</Color>
+    <Color Id="TextSuccess">#64FF64</Color>
+    
+    <!-- Border Colors -->
+    <Color Id="BorderNormal">#787878</Color>
+    <Color Id="BorderFocus">#00FFFF</Color>
+    <Color Id="BorderHover">#64B4FF</Color>
+    
+    <!-- Background Colors -->
+    <Color Id="BackgroundDark">#000000D9</Color>
+    <Color Id="BackgroundMedium">#1E1E28B4</Color>
+    <Color Id="BackgroundLight">#28283C80</Color>
+    
+    <!-- Resource Colors -->
+    <Color Id="PopulationColor">#64C864</Color>
+    <Color Id="MetalColor">#B4B4B4</Color>
+    <Color Id="FuelColor">#DCA050</Color>
+    
+    <!-- Player/AI Colors -->
+    <Color Id="HeroColor">#B464DC</Color>
+    <Color Id="AIEasyColor">#64B464</Color>
+    <Color Id="AIMediumColor">#C8B464</Color>
+    <Color Id="AIHardColor">#C86464</Color>
+  </Colors>
+  
+  <!-- Text Styles -->
+  <TextBlockStyle Id="default">
+    <TextColor>TextPrimary</TextColor>
+  </TextBlockStyle>
+  
+  <TextBlockStyle Id="heading">
+    <TextColor>TextAccent</TextColor>
+    <Scale>1.5, 1.5</Scale>
+  </TextBlockStyle>
+  
+  <TextBlockStyle Id="subheading">
+    <TextColor>TextAccent</TextColor>
+    <Scale>1.2, 1.2</Scale>
+  </TextBlockStyle>
+  
+  <TextBlockStyle Id="small">
+    <TextColor>TextSecondary</TextColor>
+    <Scale>0.8, 0.8</Scale>
+  </TextBlockStyle>
+  
+  <!-- Label Styles -->
+  <LabelStyle Id="default">
+    <TextColor>TextPrimary</TextColor>
+  </LabelStyle>
+  
+  <LabelStyle Id="title">
+    <TextColor>TextAccent</TextColor>
+    <Scale>1.8, 1.8</Scale>
+  </LabelStyle>
+  
+  <LabelStyle Id="subtitle">
+    <TextColor>TextAccent</TextColor>
+    <Scale>1.2, 1.2</Scale>
+  </LabelStyle>
+  
+  <LabelStyle Id="secondary">
+    <TextColor>TextSecondary</TextColor>
+    <Scale>0.9, 0.9</Scale>
+  </LabelStyle>
+  
+  <LabelStyle Id="warning">
+    <TextColor>TextWarning</TextColor>
+  </LabelStyle>
+  
+  <LabelStyle Id="error">
+    <TextColor>TextError</TextColor>
+  </LabelStyle>
+  
+  <!-- Button Styles -->
+  <TextButtonStyle Id="default">
+    <Background>#3C64B4</Background>
+    <OverBackground>#5082D2</OverBackground>
+    <PressedBackground>#2850A0</PressedBackground>
+    <DisabledBackground>DisabledColor</DisabledBackground>
+    <Border>BorderNormal</Border>
+    <BorderThickness>2</BorderThickness>
+    <TextColor>TextPrimary</TextColor>
+    <DisabledTextColor>TextDisabled</DisabledTextColor>
+    <Padding>12, 10</Padding>
+    <ContentHorizontalAlignment>Center</ContentHorizontalAlignment>
+    <ContentVerticalAlignment>Center</ContentVerticalAlignment>
+  </TextButtonStyle>
+  
+  <TextButtonStyle Id="primary" BasedOn="default">
+    <Background>AccentBlue</Background>
+    <OverBackground>AccentCyan</OverBackground>
+    <PressedBackground>AccentDarkBlue</PressedBackground>
+    <Border>BorderHover</Border>
+  </TextButtonStyle>
+  
+  <TextButtonStyle Id="danger" BasedOn="default">
+    <Background>#963C3C</Background>
+    <OverBackground>#C85050</OverBackground>
+    <PressedBackground>#782828</PressedBackground>
+    <Border>#FF6464</Border>
+  </TextButtonStyle>
+  
+  <TextButtonStyle Id="success" BasedOn="default">
+    <Background>#3C963C</Background>
+    <OverBackground>#50C850</OverBackground>
+    <PressedBackground>#287828</PressedBackground>
+    <Border>#64FF64</Border>
+  </TextButtonStyle>
+  
+  <TextButtonStyle Id="hero" BasedOn="default">
+    <Background>#783C8C</Background>
+    <OverBackground>#9650AA</OverBackground>
+    <PressedBackground>#5A2878</PressedBackground>
+    <Border>HeroColor</Border>
+  </TextButtonStyle>
+  
+  <!-- TextBox Styles -->
+  <TextBoxStyle Id="default">
+    <Background>PrimaryLight</Background>
+    <OverBackground>#323246</OverBackground>
+    <FocusedBackground>#28283C</FocusedBackground>
+    <DisabledBackground>DisabledColor</DisabledBackground>
+    <Border>BorderNormal</Border>
+    <OverBorder>BorderHover</OverBorder>
+    <FocusedBorder>BorderFocus</FocusedBorder>
+    <BorderThickness>2</BorderThickness>
+    <TextColor>TextPrimary</TextColor>
+    <DisabledTextColor>TextDisabled</DisabledTextColor>
+    <MessageTextColor>TextSecondary</MessageTextColor>
+    <CursorColor>TextPrimary</CursorColor>
+    <SelectionColor>#64B4FF80</SelectionColor>
+    <Padding>10, 8</Padding>
+  </TextBoxStyle>
+  
+  <!-- Panel Styles -->
+  <PanelStyle Id="default">
+    <Background>BackgroundDark</Background>
+    <Border>BorderNormal</Border>
+    <BorderThickness>0</BorderThickness>
+  </PanelStyle>
+  
+  <PanelStyle Id="frame">
+    <Background>BackgroundDark</Background>
+    <Border>BorderNormal</Border>
+    <BorderThickness>2</BorderThickness>
+    <Padding>15</Padding>
+  </PanelStyle>
+  
+  <PanelStyle Id="accentFrame">
+    <Background>BackgroundDark</Background>
+    <Border>AccentCyan</Border>
+    <BorderThickness>2</BorderThickness>
+    <Padding>15</Padding>
+  </PanelStyle>
+  
+  <PanelStyle Id="resourcePanel">
+    <Background>BackgroundDark</Background>
+    <Border>AccentCyan</Border>
+    <BorderThickness>2</BorderThickness>
+    <Padding>10</Padding>
+  </PanelStyle>
+  
+  <PanelStyle Id="heroPanel">
+    <Background>BackgroundDark</Background>
+    <Border>HeroColor</Border>
+    <BorderThickness>2</BorderThickness>
+    <Padding>10</Padding>
+  </PanelStyle>
+  
+  <PanelStyle Id="darkPanel">
+    <Background>BackgroundMedium</Background>
+    <BorderThickness>0</BorderThickness>
+    <Padding>10</Padding>
+  </PanelStyle>
+  
+  <PanelStyle Id="slotPanel">
+    <Background>#28283C64</Background>
+    <Padding>10, 8</Padding>
+  </PanelStyle>
+  
+  <PanelStyle Id="slotPanelReady">
+    <Background>#003C0064</Background>
+    <Padding>10, 8</Padding>
+  </PanelStyle>
+  
+  <!-- ComboBox Styles -->
+  <ComboBoxStyle Id="default">
+    <Background>PrimaryLight</Background>
+    <OverBackground>#323246</OverBackground>
+    <FocusedBackground>#28283C</FocusedBackground>
+    <DisabledBackground>DisabledColor</DisabledBackground>
+    <Border>BorderNormal</Border>
+    <OverBorder>BorderHover</OverBorder>
+    <FocusedBorder>BorderFocus</FocusedBorder>
+    <BorderThickness>2</BorderThickness>
+    <TextColor>TextPrimary</TextColor>
+    <DisabledTextColor>TextDisabled</DisabledTextColor>
+    <Padding>10, 8</Padding>
+    <ContentHorizontalAlignment>Left</ContentHorizontalAlignment>
+    <ContentVerticalAlignment>Center</ContentVerticalAlignment>
+  </ComboBoxStyle>
+  
+  <!-- ListBox Styles -->
+  <ListBoxStyle Id="default">
+    <Background>PrimaryMedium</Background>
+    <Border>BorderNormal</Border>
+    <BorderThickness>2</BorderThickness>
+    <Padding>5</Padding>
+  </ListBoxStyle>
+  
+  <!-- ListItem Styles -->
+  <ListItemStyle Id="default">
+    <Background>Transparent</Background>
+    <OverBackground>HoverColor</OverBackground>
+    <SelectedBackground>AccentDarkBlue</SelectedBackground>
+    <TextColor>TextPrimary</TextColor>
+    <Padding>8, 6</Padding>
+  </ListItemStyle>
+  
+  <!-- CheckButton (Checkbox) Styles -->
+  <CheckButtonStyle Id="default">
+    <Background>PrimaryLight</Background>
+    <OverBackground>#323246</OverBackground>
+    <PressedBackground>AccentCyan</PressedBackground>
+    <Border>BorderNormal</Border>
+    <OverBorder>BorderHover</OverBorder>
+    <BorderThickness>2</BorderThickness>
+    <Width>20</Width>
+    <Height>20</Height>
+  </CheckButtonStyle>
+  
+  <!-- SpinButton Styles -->
+  <SpinButtonStyle Id="default">
+    <Background>PrimaryLight</Background>
+    <Border>BorderNormal</Border>
+    <BorderThickness>2</BorderThickness>
+    <TextColor>TextPrimary</TextColor>
+    <Padding>10, 8</Padding>
+  </SpinButtonStyle>
+  
+  <!-- Window Styles -->
+  <WindowStyle Id="default">
+    <Background>BackgroundDark</Background>
+    <Border>BorderNormal</Border>
+    <BorderThickness>2</BorderThickness>
+    <TitleStyle>
+      <Background>AccentDarkBlue</Background>
+      <TextColor>TextPrimary</TextColor>
+      <Padding>10, 8</Padding>
+    </TitleStyle>
+    <Padding>15</Padding>
+  </WindowStyle>
+  
+  <!-- ScrollViewer Styles -->
+  <ScrollViewerStyle Id="default">
+    <Background>Transparent</Background>
+  </ScrollViewerStyle>
+  
+  <!-- HorizontalSlider Styles -->
+  <HorizontalSliderStyle Id="default">
+    <Background>PrimaryMedium</Background>
+    <Border>BorderNormal</Border>
+    <BorderThickness>1</BorderThickness>
+  </HorizontalSliderStyle>
+  
+  <!-- VerticalSlider Styles -->
+  <VerticalSliderStyle Id="default">
+    <Background>PrimaryMedium</Background>
+    <Border>BorderNormal</Border>
+    <BorderThickness>1</BorderThickness>
+  </VerticalSliderStyle>
+  
+  <!-- HorizontalProgressBar Styles -->
+  <HorizontalProgressBarStyle Id="default">
+    <Background>PrimaryMedium</Background>
+    <Border>BorderNormal</Border>
+    <BorderThickness>2</BorderThickness>
+    <Filler>AccentCyan</Filler>
+    <FillerBorder>AccentBlue</FillerBorder>
+    <Height>20</Height>
+  </HorizontalProgressBarStyle>
+  
+  <!-- VerticalProgressBar Styles -->
+  <VerticalProgressBarStyle Id="default">
+    <Background>PrimaryMedium</Background>
+    <Border>BorderNormal</Border>
+    <BorderThickness>2</BorderThickness>
+    <Filler>AccentCyan</Filler>
+    <FillerBorder>AccentBlue</FillerBorder>
+    <Width>20</Width>
+  </VerticalProgressBarStyle>
+  
+  <!-- Grid Styles -->
+  <GridStyle Id="default">
+    <RowSpacing>8</RowSpacing>
+    <ColumnSpacing>8</ColumnSpacing>
+  </GridStyle>
+  
+  <GridStyle Id="compact">
+    <RowSpacing>4</RowSpacing>
+    <ColumnSpacing>4</ColumnSpacing>
+  </GridStyle>
+  
+  <GridStyle Id="spacious">
+    <RowSpacing>15</RowSpacing>
+    <ColumnSpacing>15</ColumnSpacing>
+  </GridStyle>
+  
+  <!-- VerticalStackPanel Styles -->
+  <VerticalStackPanelStyle Id="default">
+    <Spacing>8</Spacing>
+  </VerticalStackPanelStyle>
+  
+  <VerticalStackPanelStyle Id="compact">
+    <Spacing>4</Spacing>
+  </VerticalStackPanelStyle>
+  
+  <VerticalStackPanelStyle Id="spacious">
+    <Spacing>15</Spacing>
+  </VerticalStackPanelStyle>
+  
+  <!-- HorizontalStackPanel Styles -->
+  <HorizontalStackPanelStyle Id="default">
+    <Spacing>8</Spacing>
+  </HorizontalStackPanelStyle>
+  
+  <HorizontalStackPanelStyle Id="compact">
+    <Spacing>4</Spacing>
+  </HorizontalStackPanelStyle>
+  
+  <HorizontalStackPanelStyle Id="spacious">
+    <Spacing>15</Spacing>
+  </HorizontalStackPanelStyle>
+  
+  <!-- MenuItem Styles -->
+  <MenuItemStyle Id="default">
+    <Background>Transparent</Background>
+    <OverBackground>HoverColor</OverBackground>
+    <OpenBackground>PressedColor</OpenBackground>
+    <Border>Transparent</Border>
+    <BorderThickness>0</BorderThickness>
+    <TextColor>TextPrimary</TextColor>
+    <Padding>10, 6</Padding>
+  </MenuItemStyle>
+  
+  <!-- Separator Styles -->
+  <HorizontalSeparatorStyle Id="default">
+    <Background>BorderNormal</Background>
+    <Thickness>1</Thickness>
+  </HorizontalSeparatorStyle>
+  
+  <VerticalSeparatorStyle Id="default">
+    <Background>BorderNormal</Background>
+    <Thickness>1</Thickness>
+  </VerticalSeparatorStyle>
+</Stylesheet>

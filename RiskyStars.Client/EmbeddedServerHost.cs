@@ -57,11 +57,11 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
         {
             Status = ServerStatus.Starting;
 
-            var serverPath = Path.Combine(AppContext.BaseDirectory, "RiskyStars.Server.dll");
-            
-            if (!File.Exists(serverPath))
+            var serverPath = ResolveServerPath();
+
+            if (serverPath == null)
             {
-                LastError = $"Server executable not found at: {serverPath}";
+                LastError = $"Server executable not found. Looked beside the client and under RiskyStars.Server/bin from: {AppContext.BaseDirectory}";
                 Status = ServerStatus.Error;
                 return false;
             }
@@ -70,6 +70,7 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
             {
                 FileName = "dotnet",
                 Arguments = $"\"{serverPath}\" --urls {_serverUrl}",
+                WorkingDirectory = Path.GetDirectoryName(serverPath) ?? AppContext.BaseDirectory,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
@@ -270,15 +271,16 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
     {
         var maxAttempts = 50;
         var delayMs = 100;
+        var serverUri = new Uri(_serverUrl);
 
         for (int i = 0; i < maxAttempts; i++)
         {
             try
             {
-                using var httpClient = new HttpClient();
-                httpClient.Timeout = TimeSpan.FromMilliseconds(500);
-                var response = await httpClient.GetAsync($"{_serverUrl}/health");
-                if (response.IsSuccessStatusCode)
+                using var tcpClient = new TcpClient();
+                using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
+                await tcpClient.ConnectAsync(serverUri.Host, serverUri.Port, cts.Token);
+                if (tcpClient.Connected)
                 {
                     return;
                 }
@@ -300,6 +302,66 @@ public class EmbeddedServerHost : IAsyncDisposable, IDisposable
         var port = ((IPEndPoint)listener.LocalEndpoint).Port;
         listener.Stop();
         return port;
+    }
+
+    private static string? ResolveServerPath()
+    {
+        foreach (var searchRoot in EnumerateSearchRoots())
+        {
+            var directPath = Path.Combine(searchRoot, "RiskyStars.Server.dll");
+            if (File.Exists(directPath))
+            {
+                return directPath;
+            }
+
+            var serverProjectDirectory = Path.Combine(searchRoot, "RiskyStars.Server");
+            if (!Directory.Exists(serverProjectDirectory))
+            {
+                continue;
+            }
+
+            var serverBinDirectory = Path.Combine(serverProjectDirectory, "bin");
+            if (!Directory.Exists(serverBinDirectory))
+            {
+                continue;
+            }
+
+            var builtServerPath = Directory
+                .EnumerateFiles(serverBinDirectory, "RiskyStars.Server.dll", SearchOption.AllDirectories)
+                .Where(path =>
+                    !path.Contains($"{Path.DirectorySeparatorChar}ref{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase) &&
+                    !path.Contains($"{Path.DirectorySeparatorChar}refint{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(File.GetLastWriteTimeUtc)
+                .FirstOrDefault();
+
+            if (builtServerPath != null)
+            {
+                return builtServerPath;
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<string> EnumerateSearchRoots()
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var basePath in new[] { AppContext.BaseDirectory, Environment.CurrentDirectory })
+        {
+            if (string.IsNullOrWhiteSpace(basePath) || !Directory.Exists(basePath))
+            {
+                continue;
+            }
+
+            for (var current = new DirectoryInfo(basePath); current != null; current = current.Parent)
+            {
+                if (seen.Add(current.FullName))
+                {
+                    yield return current.FullName;
+                }
+            }
+        }
     }
 
     public async ValueTask DisposeAsync()

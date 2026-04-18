@@ -303,17 +303,17 @@ public class RiskyStarsGame : Game
 
         _lobbyManager.Update(gameTime);
         
-        if (_lobbyManager.IsInGame && _lobbyManager.SessionId != null)
+        if (_lobbyManager.IsInGame && _lobbyManager.SessionId != null && _lobbyManager.PlayerId != null)
         {
             StartTransition("Loading game world");
             
             if (_lobbyManager.SelectedGameMode == GameMode.SinglePlayer)
             {
-                InitializeSinglePlayerGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player");
+                InitializeSinglePlayerGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player", _lobbyManager.PlayerId);
             }
             else
             {
-                InitializeGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player");
+                InitializeGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player", _lobbyManager.PlayerId);
             }
             _gameState = GameState.InGame;
         }
@@ -501,7 +501,7 @@ public class RiskyStarsGame : Game
         }
     }
 
-    private void InitializeGame(string sessionId, string playerName)
+    private void InitializeGame(string sessionId, string playerName, string playerId)
     {
         if (_connectionManager == null)
         {
@@ -543,7 +543,7 @@ public class RiskyStarsGame : Game
         {
             try
             {
-                var success = await _connectionManager.ConnectAsync(playerName, sessionId);
+                var success = await _connectionManager.ConnectAsync(playerId, playerName, sessionId);
                 if (success && _connectionManager.CurrentPlayerId != null)
                 {
                     _currentPlayerId = _connectionManager.CurrentPlayerId;
@@ -564,7 +564,7 @@ public class RiskyStarsGame : Game
         });
     }
 
-    private void InitializeSinglePlayerGame(string sessionId, string playerName)
+    private void InitializeSinglePlayerGame(string sessionId, string playerName, string playerId)
     {
         if (_lobbyManager?.EmbeddedServer == null)
         {
@@ -620,7 +620,7 @@ public class RiskyStarsGame : Game
         {
             try
             {
-                var success = await _connectionManager.ConnectAsync(playerName, sessionId);
+                var success = await _connectionManager.ConnectAsync(playerId, playerName, sessionId);
                 if (success && _connectionManager.CurrentPlayerId != null)
                 {
                     _currentPlayerId = _connectionManager.CurrentPlayerId;

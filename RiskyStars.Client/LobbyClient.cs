@@ -34,7 +34,7 @@ public class LobbyClient : IDisposable
         if (response.Success)
         {
             _authToken = response.AuthToken;
-            _playerId = ExtractPlayerIdFromToken(response.AuthToken);
+            _playerId = response.PlayerId;
         }
 
         return response;
@@ -118,6 +118,34 @@ public class LobbyClient : IDisposable
         return await _client.StartGameAsync(request, GetMetadata());
     }
 
+    public async Task<StartSinglePlayerGameResponse> StartSinglePlayerGameAsync(
+        string playerName,
+        string mapName,
+        IEnumerable<PlayerSlot> aiSlots)
+    {
+        if (!IsAuthenticated)
+        {
+            throw new InvalidOperationException("Not authenticated");
+        }
+
+        var request = new StartSinglePlayerGameRequest
+        {
+            PlayerName = playerName,
+            MapName = mapName
+        };
+
+        foreach (var slot in aiSlots.Where(slot => slot.IsAI))
+        {
+            request.AiPlayers.Add(new SinglePlayerAISlot
+            {
+                PlayerName = slot.PlayerName,
+                Difficulty = slot.GetDifficultyLevel()
+            });
+        }
+
+        return await _client.StartSinglePlayerGameAsync(request, GetMetadata());
+    }
+
     public async Task<ListLobbiesResponse> ListLobbiesAsync()
     {
         var request = new ListLobbiesRequest();
@@ -142,11 +170,6 @@ public class LobbyClient : IDisposable
             metadata.Add("Authorization", $"Bearer {_authToken}");
         }
         return metadata;
-    }
-
-    private string? ExtractPlayerIdFromToken(string token)
-    {
-        return token.Length > 8 ? token.Substring(0, 8) : token;
     }
 
     public void Dispose()

@@ -130,6 +130,7 @@ public class GrpcGameClient : IDisposable
         catch (Exception ex)
         {
             System.Console.WriteLine($"[Error] ConnectAsync: {ex.Message}");
+            ResetStreamState();
             throw;
         }
     }
@@ -169,10 +170,39 @@ public class GrpcGameClient : IDisposable
         }
         finally
         {
-            _cancellationTokenSource?.Cancel();
-            _stream?.Dispose();
-            _stream = null;
+            ResetStreamState();
         }
+    }
+
+    private void ResetStreamState()
+    {
+        try
+        {
+            _cancellationTokenSource?.Cancel();
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            _stream?.Dispose();
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            _cancellationTokenSource?.Dispose();
+        }
+        catch
+        {
+        }
+
+        _receiveTask = null;
+        _stream = null;
+        _cancellationTokenSource = null;
     }
 
     private async Task ReceiveUpdatesAsync()

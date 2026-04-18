@@ -17,11 +17,12 @@ builder.Services.Configure<GrpcOptions>(
 // Get configuration objects
 var serverConfig = builder.Configuration.GetSection("Server").Get<ServerOptions>() ?? new ServerOptions();
 var grpcConfig = builder.Configuration.GetSection("Grpc").Get<GrpcOptions>() ?? new GrpcOptions();
+var listenUri = ResolveListenUri(builder.Configuration["urls"], serverConfig);
 
 // Configure Kestrel for gRPC
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(serverConfig.Port, listenOptions =>
+    options.ListenAnyIP(listenUri.Port, listenOptions =>
     {
         listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
     });
@@ -200,7 +201,7 @@ logger.LogInformation("=================================================");
 logger.LogInformation("RiskyStars gRPC Server Starting");
 logger.LogInformation("=================================================");
 logger.LogInformation("Environment: {Environment}", app.Environment.EnvironmentName);
-logger.LogInformation("Listening on: http://0.0.0.0:{Port}", serverConfig.Port);
+logger.LogInformation("Listening on: {ListenAddress}", $"{listenUri.Scheme}://0.0.0.0:{listenUri.Port}");
 logger.LogInformation("Protocol: HTTP/2 (gRPC)");
 logger.LogInformation("Max Receive Message Size: {Size} MB", grpcConfig.MaxReceiveMessageSize / (1024 * 1024));
 logger.LogInformation("Max Send Message Size: {Size} MB", grpcConfig.MaxSendMessageSize / (1024 * 1024));
@@ -209,5 +210,23 @@ logger.LogInformation("=================================================");
 
 // Run the application
 app.Run();
+
+static Uri ResolveListenUri(string? configuredUrls, ServerOptions serverOptions)
+{
+    if (!string.IsNullOrWhiteSpace(configuredUrls))
+    {
+        foreach (var candidate in configuredUrls.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (Uri.TryCreate(candidate, UriKind.Absolute, out var parsedUri))
+            {
+                return parsedUri;
+            }
+        }
+    }
+
+    var fallbackScheme = serverOptions.UseHttps ? "https" : "http";
+    var fallbackPort = serverOptions.UseHttps ? serverOptions.HttpsPort : serverOptions.Port;
+    return new Uri($"{fallbackScheme}://0.0.0.0:{fallbackPort}");
+}
 
 

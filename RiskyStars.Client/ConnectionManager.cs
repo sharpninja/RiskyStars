@@ -144,9 +144,9 @@ public class ConnectionManager
         }
     }
 
-    public async Task<bool> ConnectAsync(string playerName, string sessionId)
+    public async Task<bool> ConnectAsync(string playerId, string playerName, string sessionId)
     {
-        System.Console.WriteLine($"[Entry] ConnectAsync - Server: {_serverAddress}, Player: {playerName}, Session: {sessionId}, Current Status: {_status}");
+        System.Console.WriteLine($"[Entry] ConnectAsync - Server: {_serverAddress}, PlayerId: {playerId}, Player: {playerName}, Session: {sessionId}, Current Status: {_status}");
         if (_status == ConnectionStatus.Connecting || _status == ConnectionStatus.Reconnecting)
         {
             System.Console.WriteLine("[Exit] ConnectAsync - Already connecting/reconnecting");
@@ -155,6 +155,7 @@ public class ConnectionManager
 
         try
         {
+            _currentPlayerId = playerId;
             _currentPlayerName = playerName;
             _currentSessionId = sessionId;
             _reconnectAttempts = 0;
@@ -200,7 +201,10 @@ public class ConnectionManager
                 System.Console.WriteLine("[Client] GrpcGameClient created successfully");
             }
             
-            _currentPlayerId = Guid.NewGuid().ToString();
+            if (string.IsNullOrWhiteSpace(_currentPlayerId))
+            {
+                throw new InvalidOperationException("Player ID is required before connecting");
+            }
             
             if (_gameClient != null)
             {
