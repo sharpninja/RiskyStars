@@ -27,14 +27,14 @@ dotnet restore RiskyStars.sln
   - `Services/GameServiceImpl.cs` - Service implementation
   - `Program.cs` - Server configuration
 - `RiskyStars.Client/` - MonoGame game client
-  - `RiskyStarsGame.cs` - Main game class
-  - `Camera2D.cs` - 2D camera with pan/zoom controls
-  - `MapRenderer.cs` - Renders star systems and stellar bodies
-  - `RegionRenderer.cs` - Renders ownership and armies
-  - `UIRenderer.cs` - Renders HUD and resource displays
-  - `SpriteManager.cs` - Sprite asset management
-  - `MapData.cs` - Map data structures
-  - `MapLoader.cs` - Sample map creation
+  - `App/` - Entrypoints and main MonoGame host (`Program.cs`, `RiskyStarsGame.cs`)
+  - `Infrastructure/` - Shared settings, window prefs, feedback bus, logging helpers
+  - `Networking/` - gRPC clients, connection manager, embedded server host, health monitor
+  - `Lobby/` - Lobby orchestration, player slots, single-player setup models
+  - `State/` - Map data, loaders, and client-side state cache
+  - `Rendering/` - Camera and world renderers (`Camera2D.cs`, `MapRenderer.cs`, `RegionRenderer.cs`, `SpriteManager.cs`)
+  - `Gameplay/` - Combat, dashboard, and AI action presentation
+  - `UI/` - Myra screens, windows, dialogs, controls, gameplay HUD, validation, and theme helpers
   - `Content/` - Game assets directory
     - `Sprites/` - PNG sprite assets (placeholders)
   - `Tools/` - Development utilities
@@ -78,22 +78,26 @@ No linter currently configured.
 
 ## Rendering System
 
-The MonoGame client uses a three-renderer architecture:
+The MonoGame client uses world renderers plus a Myra gameplay HUD:
 - **MapRenderer**: Displays static map elements (star systems, stellar bodies, hyperspace lanes)
 - **RegionRenderer**: Displays dynamic game state (ownership, armies)
-- **UIRenderer**: Displays HUD elements (resources, turn info, player list)
+- **GameplayHudOverlay**: Displays HUD elements (resources, turn info, legend, selection, AI activity)
 
 ### Camera Controls
 - **WASD/Arrow Keys**: Pan camera
 - **Shift + Movement**: Fast pan
 - **Mouse Wheel**: Zoom
-- **Middle Mouse**: Pan by dragging
+- **Right Mouse Drag**: Pan camera
+- **Right Mouse Click**: Open context menu
 
 ### Window Management
 - **ESC**: Open/Close In-Game Settings Window
 - **F1**: Toggle Debug Info Window
 - **F2**: Toggle Player Dashboard Window
 - **F3**: Toggle AI Visualization Window
+- **F4**: Toggle UI Scale Window
+- **F5**: Toggle In-Game Encyclopedia
+- **F6**: Toggle In-Game Tutorial
 - All windows are resizable and dockable
 - Window positions and sizes are saved automatically
 
@@ -130,8 +134,8 @@ See `RiskyStars.Client/SPRITES.md` for detailed sprite specifications.
 The client uses a Myra-based theme system for consistent UI styling:
 
 - **UITheme.xml** - XML stylesheet defining colors, fonts, borders, and spacing for all widgets
-- **ThemeManager.cs** - Centralized theme constants and helper methods
-- **ThemedUIFactory.cs** - Factory for creating pre-styled UI widgets
+- **UI/Theme/ThemeManager.cs** - Centralized theme constants and helper methods
+- **UI/Theme/ThemedUIFactory.cs** - Factory for creating pre-styled UI widgets
 - **UI_THEME.md** - Complete documentation of the theme system
 
 ### Usage Examples
@@ -156,18 +160,18 @@ See `RiskyStars.Client/UI_THEME.md` for complete documentation.
 
 The client uses resizable and dockable UI panels for game information:
 
-- **WindowPreferences.cs** - User preference persistence for window states
-- **DockableWindow.cs** - Base class for all dockable windows
-- **PlayerDashboardWindow.cs** - Resource management and army purchasing
-- **AIVisualizationWindow.cs** - AI action tracking and visualization controls
-- **DebugInfoWindow.cs** - Performance metrics and debug information
+- **Infrastructure/WindowPreferences.cs** - User preference persistence for window states
+- **UI/Windows/DockableWindow.cs** - Base class for all dockable windows
+- **UI/Windows/PlayerDashboardWindow.cs** - Resource management and army purchasing
+- **UI/Windows/AIVisualizationWindow.cs** - AI action tracking and visualization controls
+- **UI/Windows/DebugInfoWindow.cs** - Performance metrics and debug information
 - **DOCKABLE_WINDOWS.md** - Complete documentation of the window system
 
 ### Features
 - Resizable windows with drag handles
 - Dockable to screen edges and corners
 - Automatic state persistence (position, size, visibility)
-- Keyboard shortcuts (F1-F3) for quick access
+- Keyboard shortcuts (F1-F6) for quick access
 - Themed styling using ThemeManager
 - Integration with AI action tracking
 
@@ -175,8 +179,8 @@ The client uses resizable and dockable UI panels for game information:
 
 The client uses Myra's Dialog system for modal notifications and user prompts:
 
-- **DialogManager.cs** - Centralized dialog system for errors, warnings, confirmations, and questions
-- **CombatEventDialog.cs** - Specialized dialog for combat event notifications
+- **UI/Dialogs/DialogManager.cs** - Centralized dialog system for errors, warnings, confirmations, and questions
+- **UI/Dialogs/CombatEventDialog.cs** - Specialized dialog for combat event notifications
 - **DIALOG_SYSTEM.md** - Complete documentation of the dialog system
 
 ### Features
@@ -216,8 +220,8 @@ See `RiskyStars.Client/DIALOG_SYSTEM.md` for complete documentation.
 
 The client features a comprehensive settings overlay accessible via the Escape key:
 
-- **SettingsWindow.cs** - Tabbed settings interface for in-game configuration
-- **Settings.cs** - Extended settings class with graphics, audio, controls, and server options
+- **UI/Windows/SettingsWindow.cs** - Tabbed settings interface for in-game configuration
+- **Infrastructure/Settings.cs** - Extended settings class with graphics, audio, controls, and server options
 - **SETTINGS_WINDOW.md** - Complete documentation of the settings system
 
 ### Features
@@ -241,9 +245,9 @@ See `RiskyStars.Client/SETTINGS_WINDOW.md` for complete documentation.
 
 The client implements comprehensive input validation with visual error feedback:
 
-- **InputValidator.cs** - Static validation methods for all input types
-- **ValidatedTextBox.cs** - Myra TextBox wrapper with validation and error display
-- **ValidatedTextInputField.cs** - Custom TextInputField wrapper with validation
+- **UI/Validation/InputValidator.cs** - Static validation methods for all input types
+- **UI/Validation/ValidatedTextBox.cs** - Myra TextBox wrapper with validation and error display
+- **UI/Validation/ValidatedTextInputField.cs** - Custom TextInputField wrapper with validation
 - **INPUT_VALIDATION.md** - Complete documentation of the validation system
 
 ### Features
@@ -283,9 +287,9 @@ See `RiskyStars.Client/INPUT_VALIDATION.md` for complete documentation.
 
 The client implements comprehensive health monitoring for the embedded single-player server:
 
-- **ServerHealthMonitor.cs** - Periodic health checks with exponential backoff reconnection
-- **ServerStatusIndicator.cs** - Visual UI component showing server state
-- **EmbeddedServerHost.cs** - Enhanced with ServerStatus enum and health monitoring integration
+- **Networking/ServerHealthMonitor.cs** - Periodic health checks with exponential backoff reconnection
+- **UI/Controls/ServerStatusIndicator.cs** - Visual UI component showing server state
+- **Networking/EmbeddedServerHost.cs** - Enhanced with ServerStatus enum and health monitoring integration
 - **EMBEDDED_SERVER_MONITORING.md** - Complete documentation of the monitoring system
 
 ### Features
@@ -301,7 +305,7 @@ See `RiskyStars.Client/EMBEDDED_SERVER_MONITORING.md` for complete documentation
 
 The client implements a comprehensive context menu system using Myra.Menu for right-click interactions:
 
-- **ContextMenuManager.cs** - Central manager for all context menu operations
+- **UI/Controls/ContextMenuManager.cs** - Central manager for all context menu operations
 - **CONTEXT_MENU.md** - Complete documentation of the context menu system
 
 ### Features

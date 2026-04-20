@@ -2,11 +2,11 @@
 
 ## Overview
 
-The MonoGame rendering system consists of three main components that work together to display the game state:
+The MonoGame rendering system consists of map/world renderers plus a Myra gameplay HUD:
 
 1. **MapRenderer** - Displays star systems, stellar bodies, and hyperspace lanes
 2. **RegionRenderer** - Shows ownership indicators and army counts for regions and hyperspace lane mouths
-3. **UIRenderer** - Renders resource displays, game information, and HUD elements
+3. **GameplayHudOverlay** - Myra-based gameplay HUD for status, resources, legend, selection details, and help
 
 ## Camera Controls
 
@@ -22,7 +22,8 @@ The `Camera2D` class provides full camera control for navigating the map:
 - **-** - Zoom out
 
 ### Mouse Controls
-- **Middle Mouse Button (Hold & Drag)** - Pan camera
+- **Right Mouse Button (Hold & Drag)** - Pan camera
+- **Right Mouse Button (Click)** - Open context menu
 - **Scroll Wheel** - Zoom in/out
 
 ### Debug Controls
@@ -53,13 +54,15 @@ Displays dynamic game state:
 - Multiple armies at same location (stacked display)
 - Player color assignment (Red, Blue, Green, Yellow, Purple, Cyan)
 
-### UIRenderer
+### GameplayHudOverlay
 
-Displays HUD elements:
+Displays gameplay HUD elements through Myra:
 - **Top Bar**: Turn number, current phase, current player, event messages
-- **Resource Panel** (top-right): Player name, Population/Metal/Fuel stockpiles, region/army counts
-- **Game Info Panel** (top-left): Player list with turn order, current player highlighted, combat status
-- **Debug Info** (bottom-left, F1 to toggle): Camera position and zoom level
+- **Resource chips**: Population/Metal/Fuel stockpiles with production deltas
+- **Map Key**: Always-visible legend for orbit/system/body markers
+- **Selection Panel**: Current army/system/body/region details
+- **AI Activity Panel**: Current AI turn plus recent AI action log
+- **Help Overlay**: Keyboard/mouse shortcut reference
 
 ## MapData Structure
 
@@ -85,7 +88,7 @@ The map is defined using the following data structures:
 3. Star systems and stellar bodies
 4. Region ownership indicators
 5. Army count displays
-6. UI panels and HUD
+6. Myra gameplay HUD and docked panels
 7. Debug overlay
 
 ## Integration with Game State
@@ -103,6 +106,6 @@ To add new visual elements:
 
 1. **Static map elements** - Add to MapRenderer (e.g., nebulae, asteroids)
 2. **Dynamic game state** - Add to RegionRenderer (e.g., combat indicators, fleet icons)
-3. **UI elements** - Add to UIRenderer (e.g., buttons, dialogs, tooltips)
+3. **Gameplay UI elements** - Add to Myra overlays/windows (e.g., docked panels, HUD widgets, dialogs)
 
-All renderers use `SpriteBatch` for 2D rendering with basic primitives created from 1x1 pixel textures.
+Map/world renderers use `SpriteBatch` for 2D rendering with basic primitives created from 1x1 pixel textures. Gameplay workspace UI should be implemented in Myra.

@@ -43,12 +43,9 @@ Tracks the currently selected object, which can be:
 - **Clear Selection**: Click on empty space to clear selection
 
 ### Right Click
-- **Move Army**: Right-click on a destination while an army is selected to issue a move command
-- Can target regions or hyperspace lane mouths
-- Only works when an army is selected
-
-### Middle Mouse
-- **Pan Camera**: Hold middle mouse button and drag to pan the camera (handled by Camera2D)
+- **Open Context Menu**: Right-click release opens the contextual command menu
+- **Pan Camera**: Hold right mouse button and drag to pan the camera
+- Context menu only opens if no drag happened
 
 ### Mouse Wheel
 - **Zoom**: Scroll to zoom in/out (handled by Camera2D)
@@ -71,9 +68,14 @@ Tracks the currently selected object, which can be:
 ### UI Controls
 - **H**: Toggle keyboard shortcuts help panel
 - **F1**: Toggle debug info
+- **F2**: Toggle player dashboard
+- **F3**: Toggle AI panel
+- **F4**: Toggle UI scale panel
+- **F5**: Toggle encyclopedia
+- **F6**: Toggle tutorial
 - **WASD/Arrow Keys**: Pan camera (handled by Camera2D)
 - **Shift + Movement**: Fast pan (handled by Camera2D)
-- **+/-**: Zoom in/out (handled by Camera2D)
+- **Mouse Wheel**: Zoom in/out (handled by Camera2D)
 
 ![Keyboard Shortcuts Help Panel](screenshots/input_shortcuts_help.png)
 

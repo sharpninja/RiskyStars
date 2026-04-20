@@ -2,7 +2,6 @@ syntax = "proto3";
 
 option csharp_namespace = "RiskyStars.Shared";
 
-import "Protos/risky_stars.proto";
 import "Protos/turn_based_game.proto";
 
 package game;

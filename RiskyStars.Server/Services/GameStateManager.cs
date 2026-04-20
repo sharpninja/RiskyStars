@@ -64,7 +64,10 @@ public class GameStateManager
             if (game != null)
             {
                 var initialUpdate = GenerateGameStateUpdate(game, "Player connected");
-                channel.Writer.TryWrite(initialUpdate);
+                if (!channel.Writer.TryWrite(initialUpdate))
+                {
+                    _logger.LogWarning("Failed to queue initial game-state update for subscriber in game {GameId}", gameId);
+                }
             }
         }
         
@@ -508,7 +511,7 @@ public class GameStateManager
             {
                 foreach (var channel in subscribers.ToList())
                 {
-                    channel.Writer.TryWrite(update);
+                    PublishToSubscriber(game.Id, channel, update, subscribers);
                 }
             }
         }
@@ -533,10 +536,26 @@ public class GameStateManager
             {
                 foreach (var channel in subscribers.ToList())
                 {
-                    channel.Writer.TryWrite(update);
+                    PublishToSubscriber(game.Id, channel, update, subscribers);
                 }
             }
         }
+    }
+
+    private void PublishToSubscriber(
+        string gameId,
+        Channel<Shared.TurnBasedGameStateUpdate> channel,
+        Shared.TurnBasedGameStateUpdate update,
+        List<Channel<Shared.TurnBasedGameStateUpdate>> subscribers)
+    {
+        if (channel.Writer.TryWrite(update))
+        {
+            return;
+        }
+
+        subscribers.Remove(channel);
+        channel.Writer.TryComplete();
+        _logger.LogWarning("Dropped an unwriteable game-state subscriber channel for game {GameId}", gameId);
     }
 
     private Shared.TurnBasedGameStateUpdate GenerateGameStateUpdate(Game game, string eventMessage)

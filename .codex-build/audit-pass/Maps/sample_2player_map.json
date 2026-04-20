@@ -1,0 +1,622 @@
+{
+  "configuration": {
+    "playerCount": 2,
+    "homeSystemRegionCount": 8
+  },
+  "starSystems": [
+    {
+      "id": "home_1",
+      "name": "Home System 1",
+      "type": 0,
+      "stellarBodies": [
+        {
+          "id": "body_1",
+          "name": "Planet 5432",
+          "type": 1,
+          "surfaceType": 1,
+          "continentCount": 4,
+          "starSystemId": "home_1",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_1_region_1",
+              "name": "Continent 1",
+              "stellarBodyId": "body_1",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_1_region_2",
+              "name": "Continent 2",
+              "stellarBodyId": "body_1",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_1_region_3",
+              "name": "Continent 3",
+              "stellarBodyId": "body_1",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_1_region_4",
+              "name": "Continent 4",
+              "stellarBodyId": "body_1",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_2",
+          "name": "Gas Giant 7821",
+          "type": 0,
+          "surfaceType": null,
+          "continentCount": null,
+          "starSystemId": "home_1",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_2_region_1",
+              "name": "Surface",
+              "stellarBodyId": "body_2",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_3",
+          "name": "Planetoid 3142",
+          "type": 2,
+          "surfaceType": null,
+          "continentCount": null,
+          "starSystemId": "home_1",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_3_region_1",
+              "name": "Surface",
+              "stellarBodyId": "body_3",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_4",
+          "name": "Planet 6789",
+          "type": 1,
+          "surfaceType": 0,
+          "continentCount": null,
+          "starSystemId": "home_1",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_4_region_1",
+              "name": "Northern Hemisphere",
+              "stellarBodyId": "body_4",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_4_region_2",
+              "name": "Southern Hemisphere",
+              "stellarBodyId": "body_4",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        }
+      ],
+      "hyperspaceLanes": []
+    },
+    {
+      "id": "home_2",
+      "name": "Home System 2",
+      "type": 0,
+      "stellarBodies": [
+        {
+          "id": "body_5",
+          "name": "Planet 2345",
+          "type": 1,
+          "surfaceType": 1,
+          "continentCount": 5,
+          "starSystemId": "home_2",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_5_region_1",
+              "name": "Continent 1",
+              "stellarBodyId": "body_5",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_5_region_2",
+              "name": "Continent 2",
+              "stellarBodyId": "body_5",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_5_region_3",
+              "name": "Continent 3",
+              "stellarBodyId": "body_5",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_5_region_4",
+              "name": "Continent 4",
+              "stellarBodyId": "body_5",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_5_region_5",
+              "name": "Continent 5",
+              "stellarBodyId": "body_5",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_6",
+          "name": "Comet 4567",
+          "type": 3,
+          "surfaceType": null,
+          "continentCount": null,
+          "starSystemId": "home_2",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_6_region_1",
+              "name": "Surface",
+              "stellarBodyId": "body_6",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_7",
+          "name": "Planet 8901",
+          "type": 1,
+          "surfaceType": 0,
+          "continentCount": null,
+          "starSystemId": "home_2",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_7_region_1",
+              "name": "Northern Hemisphere",
+              "stellarBodyId": "body_7",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_7_region_2",
+              "name": "Southern Hemisphere",
+              "stellarBodyId": "body_7",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        }
+      ],
+      "hyperspaceLanes": []
+    },
+    {
+      "id": "featured",
+      "name": "Featured System",
+      "type": 1,
+      "stellarBodies": [
+        {
+          "id": "body_8",
+          "name": "Planet 1234",
+          "type": 1,
+          "surfaceType": 1,
+          "continentCount": 8,
+          "starSystemId": "featured",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_8_region_1",
+              "name": "Continent 1",
+              "stellarBodyId": "body_8",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_8_region_2",
+              "name": "Continent 2",
+              "stellarBodyId": "body_8",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_8_region_3",
+              "name": "Continent 3",
+              "stellarBodyId": "body_8",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_8_region_4",
+              "name": "Continent 4",
+              "stellarBodyId": "body_8",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_8_region_5",
+              "name": "Continent 5",
+              "stellarBodyId": "body_8",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_8_region_6",
+              "name": "Continent 6",
+              "stellarBodyId": "body_8",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_8_region_7",
+              "name": "Continent 7",
+              "stellarBodyId": "body_8",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_8_region_8",
+              "name": "Continent 8",
+              "stellarBodyId": "body_8",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_9",
+          "name": "Gas Giant 5678",
+          "type": 0,
+          "surfaceType": null,
+          "continentCount": null,
+          "starSystemId": "featured",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_9_region_1",
+              "name": "Surface",
+              "stellarBodyId": "body_9",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_10",
+          "name": "Planet 9012",
+          "type": 1,
+          "surfaceType": 1,
+          "continentCount": 7,
+          "starSystemId": "featured",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_10_region_1",
+              "name": "Continent 1",
+              "stellarBodyId": "body_10",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_10_region_2",
+              "name": "Continent 2",
+              "stellarBodyId": "body_10",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_10_region_3",
+              "name": "Continent 3",
+              "stellarBodyId": "body_10",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_10_region_4",
+              "name": "Continent 4",
+              "stellarBodyId": "body_10",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_10_region_5",
+              "name": "Continent 5",
+              "stellarBodyId": "body_10",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_10_region_6",
+              "name": "Continent 6",
+              "stellarBodyId": "body_10",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_10_region_7",
+              "name": "Continent 7",
+              "stellarBodyId": "body_10",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        }
+      ],
+      "hyperspaceLanes": []
+    },
+    {
+      "id": "minor_1",
+      "name": "Minor System 1",
+      "type": 2,
+      "stellarBodies": [
+        {
+          "id": "body_11",
+          "name": "Gas Giant 3456",
+          "type": 0,
+          "surfaceType": null,
+          "continentCount": null,
+          "starSystemId": "minor_1",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_11_region_1",
+              "name": "Surface",
+              "stellarBodyId": "body_11",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_12",
+          "name": "Planetoid 6789",
+          "type": 2,
+          "surfaceType": null,
+          "continentCount": null,
+          "starSystemId": "minor_1",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_12_region_1",
+              "name": "Surface",
+              "stellarBodyId": "body_12",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        }
+      ],
+      "hyperspaceLanes": []
+    },
+    {
+      "id": "minor_2",
+      "name": "Minor System 2",
+      "type": 2,
+      "stellarBodies": [
+        {
+          "id": "body_13",
+          "name": "Comet 7890",
+          "type": 3,
+          "surfaceType": null,
+          "continentCount": null,
+          "starSystemId": "minor_2",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_13_region_1",
+              "name": "Surface",
+              "stellarBodyId": "body_13",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_14",
+          "name": "Planet 2345",
+          "type": 1,
+          "surfaceType": 2,
+          "continentCount": null,
+          "starSystemId": "minor_2",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_14_region_1",
+              "name": "Ocean Surface",
+              "stellarBodyId": "body_14",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        }
+      ],
+      "hyperspaceLanes": []
+    },
+    {
+      "id": "minor_3",
+      "name": "Minor System 3",
+      "type": 2,
+      "stellarBodies": [
+        {
+          "id": "body_15",
+          "name": "Planet 4567",
+          "type": 1,
+          "surfaceType": 0,
+          "continentCount": null,
+          "starSystemId": "minor_3",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_15_region_1",
+              "name": "Northern Hemisphere",
+              "stellarBodyId": "body_15",
+              "ownerId": null,
+              "army": null
+            },
+            {
+              "id": "body_15_region_2",
+              "name": "Southern Hemisphere",
+              "stellarBodyId": "body_15",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        }
+      ],
+      "hyperspaceLanes": []
+    },
+    {
+      "id": "minor_4",
+      "name": "Minor System 4",
+      "type": 2,
+      "stellarBodies": [
+        {
+          "id": "body_16",
+          "name": "Gas Giant 6789",
+          "type": 0,
+          "surfaceType": null,
+          "continentCount": null,
+          "starSystemId": "minor_4",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_16_region_1",
+              "name": "Surface",
+              "stellarBodyId": "body_16",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        },
+        {
+          "id": "body_17",
+          "name": "Planetoid 8901",
+          "type": 2,
+          "surfaceType": null,
+          "continentCount": null,
+          "starSystemId": "minor_4",
+          "upgradeLevel": 0,
+          "regions": [
+            {
+              "id": "body_17_region_1",
+              "name": "Surface",
+              "stellarBodyId": "body_17",
+              "ownerId": null,
+              "army": null
+            }
+          ],
+          "heroes": []
+        }
+      ],
+      "hyperspaceLanes": []
+    }
+  ],
+  "hyperspaceLanes": [
+    {
+      "id": "lane_1",
+      "name": "Home System 1 - Featured System",
+      "starSystemAId": "home_1",
+      "starSystemBId": "featured",
+      "mouthAId": "lane_1_mouth_a",
+      "mouthBId": "lane_1_mouth_b",
+      "mouthAOwnerId": null,
+      "mouthBOwnerId": null,
+      "mouthAArmy": null,
+      "mouthBArmy": null
+    },
+    {
+      "id": "lane_2",
+      "name": "Home System 2 - Featured System",
+      "starSystemAId": "home_2",
+      "starSystemBId": "featured",
+      "mouthAId": "lane_2_mouth_a",
+      "mouthBId": "lane_2_mouth_b",
+      "mouthAOwnerId": null,
+      "mouthBOwnerId": null,
+      "mouthAArmy": null,
+      "mouthBArmy": null
+    },
+    {
+      "id": "lane_3",
+      "name": "Home System 1 - Minor System 1",
+      "starSystemAId": "home_1",
+      "starSystemBId": "minor_1",
+      "mouthAId": "lane_3_mouth_a",
+      "mouthBId": "lane_3_mouth_b",
+      "mouthAOwnerId": null,
+      "mouthBOwnerId": null,
+      "mouthAArmy": null,
+      "mouthBArmy": null
+    },
+    {
+      "id": "lane_4",
+      "name": "Home System 1 - Minor System 2",
+      "starSystemAId": "home_1",
+      "starSystemBId": "minor_2",
+      "mouthAId": "lane_4_mouth_a",
+      "mouthBId": "lane_4_mouth_b",
+      "mouthAOwnerId": null,
+      "mouthBOwnerId": null,
+      "mouthAArmy": null,
+      "mouthBArmy": null
+    },
+    {
+      "id": "lane_5",
+      "name": "Home System 2 - Minor System 3",
+      "starSystemAId": "home_2",
+      "starSystemBId": "minor_3",
+      "mouthAId": "lane_5_mouth_a",
+      "mouthBId": "lane_5_mouth_b",
+      "mouthAOwnerId": null,
+      "mouthBOwnerId": null,
+      "mouthAArmy": null,
+      "mouthBArmy": null
+    },
+    {
+      "id": "lane_6",
+      "name": "Home System 2 - Minor System 4",
+      "starSystemAId": "home_2",
+      "starSystemBId": "minor_4",
+      "mouthAId": "lane_6_mouth_a",
+      "mouthBId": "lane_6_mouth_b",
+      "mouthAOwnerId": null,
+      "mouthBOwnerId": null,
+      "mouthAArmy": null,
+      "mouthBArmy": null
+    }
+  ]
+}

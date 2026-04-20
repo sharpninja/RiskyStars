@@ -121,13 +121,10 @@ public class GameServiceImpl : GameService.GameServiceBase
                     await foreach (var update in gameStateChannel.Reader.ReadAllAsync(context.CancellationToken))
                     {
                         var gameUpdate = ConvertToGameUpdate(update);
-                        await BroadcastToAllPlayers(gameId, gameUpdate);
+                        await responseStream.WriteAsync(gameUpdate);
                     }
                 }
                 catch (OperationCanceledException)
-                {
-                }
-                catch (Exception)
                 {
                 }
             });
@@ -152,7 +149,8 @@ public class GameServiceImpl : GameService.GameServiceBase
                 }
             });
 
-            await Task.WhenAny(broadcastTask, receiveTask);
+            var completedTask = await Task.WhenAny(broadcastTask, receiveTask);
+            await completedTask;
         }
         catch (RpcException)
         {
@@ -246,27 +244,13 @@ public class GameServiceImpl : GameService.GameServiceBase
                     break;
 
                 default:
+                    await SendActionErrorToPlayer(playerId, gameId, "ACTION_UNSUPPORTED", $"Unsupported action type: {action.ActionCase}");
                     break;
             }
         }
         catch (Exception ex)
         {
-            var errorUpdate = new GameUpdate
-            {
-                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                GameId = gameId,
-                Error = new GameErrorMessage
-                {
-                    ErrorCode = "ACTION_FAILED",
-                    ErrorMessage = $"Failed to process action: {ex.Message}",
-                    Details = ex.GetType().Name
-                }
-            };
-
-            if (_activeStreams.TryGetValue(playerId, out var streamContext))
-            {
-                await streamContext.ResponseStream.WriteAsync(errorUpdate);
-            }
+            await SendActionErrorToPlayer(playerId, gameId, "ACTION_FAILED", $"Failed to process action: {ex.Message}", ex.GetType().Name);
         }
     }
 
@@ -282,9 +266,31 @@ public class GameServiceImpl : GameService.GameServiceBase
             {
                 await streamContext.ResponseStream.WriteAsync(update);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _activeStreams.TryRemove(streamContext.PlayerId, out _);
+                Console.WriteLine($"Failed to broadcast update to player {streamContext.PlayerId}: {ex.Message}");
             }
+        }
+    }
+
+    private async Task SendActionErrorToPlayer(string playerId, string gameId, string errorCode, string errorMessage, string? details = null)
+    {
+        var update = new GameUpdate
+        {
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            GameId = gameId,
+            Error = new GameErrorMessage
+            {
+                ErrorCode = errorCode,
+                ErrorMessage = errorMessage,
+                Details = details ?? string.Empty
+            }
+        };
+
+        if (_activeStreams.TryGetValue(playerId, out var streamContext))
+        {
+            await streamContext.ResponseStream.WriteAsync(update);
         }
     }
 
