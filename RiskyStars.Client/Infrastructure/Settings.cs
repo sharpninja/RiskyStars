@@ -56,6 +56,7 @@ public class Settings
     
     public bool ShowDebugInfo { get; set; } = false;
     public bool ShowFPS { get; set; } = true;
+    public MapCameraSettings MapCamera { get; set; } = new();
 
     private static readonly string SettingsPath = "settings.json";
 
@@ -112,7 +113,8 @@ public class Settings
             CameraZoomSpeed = CameraZoomSpeed,
             InvertCameraZoom = InvertCameraZoom,
             ShowDebugInfo = ShowDebugInfo,
-            ShowFPS = ShowFPS
+            ShowFPS = ShowFPS,
+            MapCamera = MapCamera?.Clone() ?? new MapCameraSettings()
         };
     }
 
@@ -120,6 +122,8 @@ public class Settings
     {
         Theme ??= new UiThemeSettings();
         Theme.Normalize();
+        MapCamera ??= new MapCameraSettings();
+        MapCamera.Normalize();
 
         if (string.IsNullOrWhiteSpace(ServerAddress))
         {

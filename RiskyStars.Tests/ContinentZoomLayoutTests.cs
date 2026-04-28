@@ -53,7 +53,40 @@ public class ContinentZoomLayoutTests
             Assert.True(layout.Bounds.Height >= ContinentZoomLayout.MinimumButtonSize);
             Assert.InRange(layout.Bounds.Left, 0, 640 - layout.Bounds.Width);
             Assert.InRange(layout.Bounds.Top, 0, 420 - layout.Bounds.Height);
+            Assert.True(ContinentZoomLayout.GetPlanetSurfaceBounds(640, 420).Contains(layout.Bounds));
         });
+    }
+
+    [Fact]
+    public void Build_PreservesPlanetRelativePositionsForCrossLayout()
+    {
+        var body = CreateCrossBody();
+
+        var layouts = ContinentZoomLayout.Build(body, width: 640, height: 420)
+            .ToDictionary(layout => layout.Region.Id, layout => CenterOf(layout.Bounds));
+        var center = layouts["center"];
+
+        Assert.InRange(Vector2.Distance(center, new Vector2(320, 210)), 0, 1);
+        Assert.True(layouts["left"].X < center.X, "Left continent should remain left of the planet center.");
+        Assert.True(layouts["right"].X > center.X, "Right continent should remain right of the planet center.");
+        Assert.True(layouts["top"].Y < center.Y, "Top continent should remain above the planet center.");
+        Assert.True(layouts["bottom"].Y > center.Y, "Bottom continent should remain below the planet center.");
+        Assert.InRange(layouts["left"].Y, center.Y - 1, center.Y + 1);
+        Assert.InRange(layouts["right"].Y, center.Y - 1, center.Y + 1);
+        Assert.InRange(layouts["top"].X, center.X - 1, center.X + 1);
+        Assert.InRange(layouts["bottom"].X, center.X - 1, center.X + 1);
+    }
+
+    [Fact]
+    public void GetPlanetSurfaceBounds_CreatesCenteredSquareSurface()
+    {
+        var bounds = ContinentZoomLayout.GetPlanetSurfaceBounds(width: 640, height: 420);
+
+        Assert.Equal(bounds.Width, bounds.Height);
+        Assert.Equal(320, bounds.Center.X);
+        Assert.Equal(210, bounds.Center.Y);
+        Assert.True(bounds.Width < 420);
+        Assert.True(bounds.Width > ContinentZoomLayout.MaximumButtonSize);
     }
 
     [Fact]
@@ -139,5 +172,30 @@ public class ContinentZoomLayoutTests
         }
 
         return body;
+    }
+
+    private static StellarBodyData CreateCrossBody()
+    {
+        var body = new StellarBodyData
+        {
+            Id = "body-1",
+            Name = "Canopus b",
+            StarSystemId = "star-1",
+            Type = StellarBodyType.RockyPlanet,
+            Position = new Vector2(100, 100)
+        };
+
+        body.Regions.Add(new RegionData { Id = "left", Name = "Left", StellarBodyId = body.Id, Position = body.Position + new Vector2(-12, 0) });
+        body.Regions.Add(new RegionData { Id = "top", Name = "Top", StellarBodyId = body.Id, Position = body.Position + new Vector2(0, -8) });
+        body.Regions.Add(new RegionData { Id = "right", Name = "Right", StellarBodyId = body.Id, Position = body.Position + new Vector2(12, 0) });
+        body.Regions.Add(new RegionData { Id = "bottom", Name = "Bottom", StellarBodyId = body.Id, Position = body.Position + new Vector2(0, 8) });
+        body.Regions.Add(new RegionData { Id = "center", Name = "Center", StellarBodyId = body.Id, Position = body.Position });
+
+        return body;
+    }
+
+    private static Vector2 CenterOf(Rectangle bounds)
+    {
+        return new Vector2(bounds.Left + bounds.Width / 2f, bounds.Top + bounds.Height / 2f);
     }
 }

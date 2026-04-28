@@ -101,6 +101,14 @@ public class RegionRenderer
         }
     }
 
+    public void SyncPlayerColors(GameStateCache? gameStateCache)
+    {
+        if (gameStateCache != null)
+        {
+            AssignPlayerColors(gameStateCache);
+        }
+    }
+
     private void DrawRegionOwnership(SpriteBatch spriteBatch, RegionData region, GameStateCache gameStateCache)
     {
         if (_pixelTexture == null)

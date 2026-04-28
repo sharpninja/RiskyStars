@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
 
@@ -5,9 +6,14 @@ namespace RiskyStars.Client;
 
 public sealed class ContinentZoomWindow
 {
+    private const int CanvasHorizontalInset = 24;
+    private const int CanvasHeaderOffset = 140;
+    private const int CanvasFooterInset = 58;
+
     private readonly Label _titleLabel;
     private readonly Label _subtitleLabel;
     private readonly Panel _mapPanel;
+    private readonly Image _mapImage;
     private readonly List<ContinentZoomButtonLayout> _currentLayouts = new();
     private int _screenWidth;
     private int _screenHeight;
@@ -15,11 +21,15 @@ public sealed class ContinentZoomWindow
 
     public Window Window { get; }
     public bool IsVisible => Window.Visible;
+    public StellarBodyData? CurrentBody => _currentBody;
+    public Rectangle CanvasBounds { get; private set; }
     public event Action<RegionData>? RegionSelected;
 
     internal IReadOnlyList<ContinentZoomButtonLayout> CurrentLayouts => _currentLayouts;
     internal string TitleText => _titleLabel.Text;
     internal string SubtitleText => _subtitleLabel.Text;
+    internal Widget RenderSurfaceWidget => _mapImage;
+    internal IImage? RenderSurface => _mapImage.Renderable;
 
     public ContinentZoomWindow(int screenWidth, int screenHeight)
     {
@@ -43,6 +53,14 @@ public sealed class ContinentZoomWindow
         _mapPanel.HorizontalAlignment = HorizontalAlignment.Stretch;
         _mapPanel.VerticalAlignment = VerticalAlignment.Stretch;
 
+        _mapImage = new Image
+        {
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            ResizeMode = ImageResizeMode.Stretch
+        };
+        _mapPanel.Widgets.Add(_mapImage);
+
         Window.Content = BuildContent();
         ResizeViewport(screenWidth, screenHeight);
     }
@@ -55,7 +73,7 @@ public sealed class ContinentZoomWindow
         _subtitleLabel.Text = starSystem == null
             ? "Select a continent."
             : $"Star: {starSystem.Name} | Select a continent.";
-        RebuildRegionButtons(body);
+        RebuildRegionLayouts(body);
         Window.Visible = true;
     }
 
@@ -82,17 +100,34 @@ public sealed class ContinentZoomWindow
         Window.Left = Math.Max(ThemeManager.ScalePixels(20), (screenWidth - width) / 2);
         Window.Top = Math.Max(ThemeManager.ScalePixels(48), (screenHeight - height) / 2);
         _mapPanel.Height = Math.Max(ThemeManager.ScalePixels(240), height - ThemeManager.ScalePixels(150));
+        UpdateCanvasBounds();
 
         if (_currentBody != null)
         {
-            RebuildRegionButtons(_currentBody);
+            RebuildRegionLayouts(_currentBody);
         }
+    }
+
+    public bool TrySelectRegion(Point screenPoint)
+    {
+        var selectedRegion = ContinentZoomRenderModel.HitTest(_currentBody, CanvasBounds, screenPoint);
+        if (selectedRegion == null)
+        {
+            return false;
+        }
+
+        SelectRegion(selectedRegion);
+        return true;
     }
 
     internal void SelectRegion(RegionData region)
     {
         RegionSelected?.Invoke(region);
-        Hide();
+    }
+
+    internal void SetRenderedSurface(IImage? renderSurface)
+    {
+        _mapImage.Renderable = renderSurface;
     }
 
     private Widget BuildContent()
@@ -101,7 +136,7 @@ public sealed class ContinentZoomWindow
         root.Widgets.Add(_titleLabel);
         root.Widgets.Add(_subtitleLabel);
 
-        var hint = ThemedUIFactory.CreateSmallLabel("The enlarged buttons below are intentionally oversized for dense center continents.");
+        var hint = ThemedUIFactory.CreateSmallLabel("The XNA zoom surface keeps the planet layout, fills owned regions by player color, and highlights the selected boundary.");
         hint.TextColor = ThemeManager.Colors.TextWarning;
         hint.Wrap = true;
         root.Widgets.Add(hint);
@@ -118,41 +153,31 @@ public sealed class ContinentZoomWindow
         return root;
     }
 
-    private void RebuildRegionButtons(StellarBodyData body)
+    private void RebuildRegionLayouts(StellarBodyData body)
     {
-        _mapPanel.Widgets.Clear();
         _currentLayouts.Clear();
 
-        int width = Window.Width.GetValueOrDefault(Math.Max(360, _screenWidth / 2));
-        int height = _mapPanel.Height.GetValueOrDefault(Math.Max(240, _screenHeight / 3));
+        int width = CanvasBounds.Width > 0 ? CanvasBounds.Width : Math.Max(360, _screenWidth / 2);
+        int height = CanvasBounds.Height > 0 ? CanvasBounds.Height : Math.Max(240, _screenHeight / 3);
         _currentLayouts.AddRange(ContinentZoomLayout.Build(body, width, height));
+    }
 
-        var planetCore = new Panel
-        {
-            Width = ThemeManager.ScalePixels(96),
-            Height = ThemeManager.ScalePixels(96),
-            Left = Math.Max(0, (width - ThemeManager.ScalePixels(96)) / 2),
-            Top = Math.Max(0, (height - ThemeManager.ScalePixels(96)) / 2),
-            Background = ThemeManager.CreateSolidBrush(ThemeManager.Colors.AccentCyan * 0.18f),
-            Border = ThemeManager.CreateSolidBrush(ThemeManager.Colors.BorderNormal),
-            BorderThickness = new Thickness(ThemeManager.BorderThickness.Thin)
-        };
-        _mapPanel.Widgets.Add(planetCore);
+    private void UpdateCanvasBounds()
+    {
+        int windowLeft = Window.Left;
+        int windowTop = Window.Top;
+        int windowWidth = Window.Width.GetValueOrDefault(Math.Min(ThemeManager.ScalePixels(620), Math.Max(360, _screenWidth - ThemeManager.ScalePixels(80))));
+        int windowHeight = Window.Height.GetValueOrDefault(Math.Min(ThemeManager.ScalePixels(520), Math.Max(320, _screenHeight - ThemeManager.ScalePixels(120))));
+        int inset = ThemeManager.ScalePixels(CanvasHorizontalInset);
+        int top = windowTop + ThemeManager.ScalePixels(CanvasHeaderOffset);
+        int height = Math.Max(
+            ThemeManager.ScalePixels(210),
+            windowHeight - ThemeManager.ScalePixels(CanvasHeaderOffset + CanvasFooterInset));
 
-        foreach (var layout in _currentLayouts)
-        {
-            var region = layout.Region;
-            var button = ThemedUIFactory.CreateButton(
-                region.Name,
-                layout.Bounds.Width,
-                layout.Bounds.Height,
-                ThemeManager.ButtonTheme.Primary);
-            button.Left = layout.Bounds.Left;
-            button.Top = layout.Bounds.Top;
-            button.HorizontalAlignment = HorizontalAlignment.Left;
-            button.VerticalAlignment = VerticalAlignment.Top;
-            button.Click += (_, _) => SelectRegion(region);
-            _mapPanel.Widgets.Add(button);
-        }
+        CanvasBounds = new Rectangle(
+            windowLeft + inset,
+            top,
+            Math.Max(ThemeManager.ScalePixels(260), windowWidth - inset * 2),
+            height);
     }
 }

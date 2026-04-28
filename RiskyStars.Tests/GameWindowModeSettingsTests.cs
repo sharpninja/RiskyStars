@@ -305,6 +305,7 @@ public class GameWindowModeSettingsTests
             ResolutionWidth = 1,
             ResolutionHeight = 1,
             UiScalePercent = -25,
+            MapCamera = null!,
             Theme = new UiThemeSettings
             {
                 AccentColor = "Bad Accent",
@@ -330,6 +331,8 @@ public class GameWindowModeSettingsTests
         Assert.Equal(150, settings.Theme.PaddingScalePercent);
         Assert.Equal(70, settings.Theme.FramePaddingPercent);
         Assert.Equal(140, settings.Theme.ContrastPercent);
+        Assert.NotNull(settings.MapCamera);
+        Assert.False(settings.MapCamera.HasSavedView);
     }
 
     [Fact]
@@ -354,6 +357,13 @@ public class GameWindowModeSettingsTests
                 InvertCameraZoom = true,
                 ShowDebugInfo = true,
                 ShowFPS = false,
+                MapCamera = new MapCameraSettings
+                {
+                    HasSavedView = true,
+                    PositionX = 245.5f,
+                    PositionY = -130.25f,
+                    Zoom = 2.5f
+                },
                 Theme = new UiThemeSettings
                 {
                     AccentColor = "Ice Cyan",
@@ -385,6 +395,10 @@ public class GameWindowModeSettingsTests
             Assert.True(loaded.InvertCameraZoom);
             Assert.True(loaded.ShowDebugInfo);
             Assert.False(loaded.ShowFPS);
+            Assert.True(loaded.MapCamera.HasSavedView);
+            Assert.Equal(245.5f, loaded.MapCamera.PositionX);
+            Assert.Equal(-130.25f, loaded.MapCamera.PositionY);
+            Assert.Equal(2.5f, loaded.MapCamera.Zoom);
             Assert.Equal("Ice Cyan", loaded.Theme.AccentColor);
             Assert.Equal("Cyan", loaded.Theme.WarningColor);
             Assert.Equal("Command", loaded.Theme.FontStyle);
@@ -402,12 +416,14 @@ public class GameWindowModeSettingsTests
         {
             var missingFileSettings = Settings.Load();
             Assert.Equal(GameWindowMode.Normal, missingFileSettings.WindowMode);
+            Assert.False(missingFileSettings.MapCamera.HasSavedView);
 
             File.WriteAllText("settings.json", "{ invalid json");
             var invalidFileSettings = Settings.Load();
 
             Assert.Equal("http://localhost:5000", invalidFileSettings.ServerAddress);
             Assert.Equal(GameWindowMode.Normal, invalidFileSettings.WindowMode);
+            Assert.False(invalidFileSettings.MapCamera.HasSavedView);
         });
     }
 
@@ -431,6 +447,13 @@ public class GameWindowModeSettingsTests
             InvertCameraZoom = true,
             ShowDebugInfo = true,
             ShowFPS = false,
+            MapCamera = new MapCameraSettings
+            {
+                HasSavedView = true,
+                PositionX = 512f,
+                PositionY = -256f,
+                Zoom = 3f
+            },
             Theme = new UiThemeSettings
             {
                 AccentColor = "Amber Gold",
@@ -447,6 +470,7 @@ public class GameWindowModeSettingsTests
         var clone = settings.Clone();
 
         Assert.NotSame(settings.Theme, clone.Theme);
+        Assert.NotSame(settings.MapCamera, clone.MapCamera);
         Assert.Equal(settings.ServerAddress, clone.ServerAddress);
         Assert.Equal(settings.ResolutionWidth, clone.ResolutionWidth);
         Assert.Equal(settings.ResolutionHeight, clone.ResolutionHeight);
@@ -463,6 +487,10 @@ public class GameWindowModeSettingsTests
         Assert.Equal(settings.InvertCameraZoom, clone.InvertCameraZoom);
         Assert.Equal(settings.ShowDebugInfo, clone.ShowDebugInfo);
         Assert.Equal(settings.ShowFPS, clone.ShowFPS);
+        Assert.Equal(settings.MapCamera.HasSavedView, clone.MapCamera.HasSavedView);
+        Assert.Equal(settings.MapCamera.PositionX, clone.MapCamera.PositionX);
+        Assert.Equal(settings.MapCamera.PositionY, clone.MapCamera.PositionY);
+        Assert.Equal(settings.MapCamera.Zoom, clone.MapCamera.Zoom);
         Assert.Equal(settings.Theme.AccentColor, clone.Theme.AccentColor);
         Assert.Equal(settings.Theme.WarningColor, clone.Theme.WarningColor);
         Assert.Equal(settings.Theme.FontStyle, clone.Theme.FontStyle);

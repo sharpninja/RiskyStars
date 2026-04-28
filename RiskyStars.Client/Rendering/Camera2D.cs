@@ -11,8 +11,8 @@ public class Camera2D
     private int _viewportWidth;
     private int _viewportHeight;
 
-    private const float MinZoom = 0.1f;
-    private const float MaxZoom = 5.0f;
+    public const float MinimumZoom = 0.1f;
+    public const float MaximumZoom = 5.0f;
     private const float SmoothSpeed = 0.1f;
 
     private Vector2? _lastMousePosition;
@@ -109,7 +109,7 @@ public class Camera2D
             var worldBeforeZoom = ScreenToWorld(cursorScreenPosition);
 
             float zoomFactorPerStep = MathF.Max(1.01f, 1f + (ZoomSpeed * 0.6f));
-            _zoom = MathHelper.Clamp(_zoom * MathF.Pow(zoomFactorPerStep, wheelSteps), MinZoom, MaxZoom);
+            _zoom = MathHelper.Clamp(_zoom * MathF.Pow(zoomFactorPerStep, wheelSteps), MinimumZoom, MaximumZoom);
 
             var worldAfterZoom = ScreenToWorld(cursorScreenPosition);
             _position += worldBeforeZoom - worldAfterZoom;
@@ -120,12 +120,12 @@ public class Camera2D
 
         if (keyState.IsKeyDown(Keys.OemPlus) || keyState.IsKeyDown(Keys.Add))
         {
-            _zoom = MathHelper.Clamp(_zoom + ZoomSpeed * deltaTime, MinZoom, MaxZoom);
+            _zoom = MathHelper.Clamp(_zoom + ZoomSpeed * deltaTime, MinimumZoom, MaximumZoom);
         }
 
         if (keyState.IsKeyDown(Keys.OemMinus) || keyState.IsKeyDown(Keys.Subtract))
         {
-            _zoom = MathHelper.Clamp(_zoom - ZoomSpeed * deltaTime, MinZoom, MaxZoom);
+            _zoom = MathHelper.Clamp(_zoom - ZoomSpeed * deltaTime, MinimumZoom, MaximumZoom);
         }
 
         if (userInput)
@@ -168,7 +168,15 @@ public class Camera2D
 
     public void SetZoom(float zoom)
     {
-        _zoom = MathHelper.Clamp(zoom, MinZoom, MaxZoom);
+        _zoom = MathHelper.Clamp(zoom, MinimumZoom, MaximumZoom);
+    }
+
+    public void SetView(Vector2 position, float zoom)
+    {
+        _position = position;
+        SetZoom(zoom);
+        _isTracking = false;
+        _targetPosition = null;
     }
 
     public void PanByScreenDelta(Vector2 screenDelta)

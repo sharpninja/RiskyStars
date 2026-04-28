@@ -30,6 +30,7 @@ public class RiskyStarsGame : Game
     private MapRenderer? _mapRenderer;
     private RegionRenderer? _regionRenderer;
     private SelectionRenderer? _selectionRenderer;
+    private ContinentZoomRenderer? _continentZoomRenderer;
     private InputController? _inputController;
     private CombatScreen? _combatScreen;
     private PlayerDashboard? _playerDashboard;
@@ -49,7 +50,6 @@ public class RiskyStarsGame : Game
     private DebugInfoWindow? _debugInfoWindow;
     private UiScaleWindow? _uiScaleWindow;
     private EncyclopediaWindow? _encyclopediaWindow;
-    private TutorialWindow? _tutorialWindow;
     private TutorialModeWindow? _tutorialModeWindow;
     private ContinentZoomWindow? _continentZoomWindow;
     private SettingsWindow? _settingsWindow;
@@ -63,6 +63,7 @@ public class RiskyStarsGame : Game
     
     private string? _currentPlayerId;
     private KeyboardState _previousKeyState;
+    private MouseState _previousMouseState;
     
     private GameState _gameState = GameState.MainMenu;
     private bool _pendingResolutionChange = false;
@@ -166,14 +167,12 @@ public class RiskyStarsGame : Game
     {
         _gameStateCache = new GameStateCache();
         
-        _camera = new Camera2D(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
-        _camera.PanSpeed = _settings.CameraPanSpeed;
-        _camera.ZoomSpeed = _settings.CameraZoomSpeed;
-        _camera.InvertScrollZoom = _settings.InvertCameraZoom;
+        _camera = CreateConfiguredCamera();
         
         _mapRenderer = new MapRenderer(GraphicsDevice);
         _regionRenderer = new RegionRenderer(GraphicsDevice);
         _selectionRenderer = new SelectionRenderer(GraphicsDevice);
+        _continentZoomRenderer = new ContinentZoomRenderer(GraphicsDevice);
         _combatScreen = new CombatScreen(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _lobbyManager = new LobbyManager(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _mainMenu = new MainMenu(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight, _settings);
@@ -219,6 +218,7 @@ public class RiskyStarsGame : Game
             _mapRenderer?.LoadContent(_defaultFont);
             _regionRenderer?.LoadContent(_defaultFont);
             _selectionRenderer?.LoadContent(_defaultFont);
+            _continentZoomRenderer?.LoadContent(_defaultFont);
             _combatScreen?.LoadContent(_defaultFont);
             _playerDashboard?.LoadContent(_defaultFont);
             _lobbyManager?.LoadContent(_defaultFont);
@@ -422,36 +422,7 @@ public class RiskyStarsGame : Game
             return;
         }
 
-        if (keyState.IsKeyDown(Keys.F1) && _previousKeyState.IsKeyUp(Keys.F1))
-        {
-            _debugInfoWindow?.Toggle();
-        }
-        
-        if (keyState.IsKeyDown(Keys.F2) && _previousKeyState.IsKeyUp(Keys.F2))
-        {
-            _playerDashboardWindow?.Toggle();
-        }
-        
-        if (keyState.IsKeyDown(Keys.F3) && _previousKeyState.IsKeyUp(Keys.F3))
-        {
-            _aiVisualizationWindow?.Toggle();
-        }
-
-        if (keyState.IsKeyDown(Keys.F4) && _previousKeyState.IsKeyUp(Keys.F4))
-        {
-            _uiScaleWindow?.SyncFromSettings();
-            _uiScaleWindow?.Toggle();
-        }
-
-        if (keyState.IsKeyDown(Keys.F5) && _previousKeyState.IsKeyUp(Keys.F5))
-        {
-            _encyclopediaWindow?.Toggle();
-        }
-
-        if (keyState.IsKeyDown(Keys.F6) && _previousKeyState.IsKeyUp(Keys.F6))
-        {
-            _tutorialWindow?.Toggle();
-        }
+        HandlePanelShortcuts(keyState);
 
         _connectionManager?.Update();
         _inGameDialogManager?.Update();
@@ -479,6 +450,13 @@ public class RiskyStarsGame : Game
         else if (!(_combatEventDialog?.IsOpen ?? false) && !(_settingsWindow?.IsOpen ?? false))
         {
             bool isContinentZoomOpen = _continentZoomWindow?.IsVisible == true;
+            var mouseState = Mouse.GetState();
+
+            if (isContinentZoomOpen && HandleContinentZoomPointer(mouseState))
+            {
+                _previousMouseState = mouseState;
+                return;
+            }
 
             if (!isContinentZoomOpen)
             {
@@ -495,6 +473,8 @@ public class RiskyStarsGame : Game
             {
                 _selectionRenderer?.Update(gameTime);
             }
+
+            _previousMouseState = mouseState;
             
             if (_gameStateCache != null && _mapData != null)
             {
@@ -518,10 +498,49 @@ public class RiskyStarsGame : Game
             }
         }
         
+        CaptureCurrentCameraView();
         DrainPendingGameUpdates();
         UpdateTutorialWindow();
         UpdateCombatHud();
         UpdateGameplayHud();
+    }
+
+    private void HandlePanelShortcuts(KeyboardState keyState)
+    {
+        foreach (var toggle in InGameShortcutRouter.PanelToggles)
+        {
+            if (keyState.IsKeyDown(toggle.Key) && _previousKeyState.IsKeyUp(toggle.Key))
+            {
+                TogglePanel(toggle.Panel);
+            }
+        }
+    }
+
+    private void TogglePanel(InGamePanelToggle panel)
+    {
+        switch (panel)
+        {
+            case InGamePanelToggle.DebugInfo:
+                _debugInfoWindow?.Toggle();
+                break;
+            case InGamePanelToggle.CommandDashboard:
+                _playerDashboardWindow?.Toggle();
+                break;
+            case InGamePanelToggle.AiVisualization:
+                _aiVisualizationWindow?.Toggle();
+                break;
+            case InGamePanelToggle.UiScale:
+                _uiScaleWindow?.SyncFromSettings();
+                _uiScaleWindow?.Toggle();
+                break;
+            case InGamePanelToggle.Encyclopedia:
+                _encyclopediaWindow?.Toggle();
+                break;
+            case InGamePanelToggle.GuidedTutorial:
+                _tutorialModeWindow?.Toggle();
+                AnchorTutorialWindowToMapLeft();
+                break;
+        }
     }
 
     private void DrainPendingGameUpdates()
@@ -586,15 +605,9 @@ public class RiskyStarsGame : Game
         
         if (resolutionChanged)
         {
+            CaptureCurrentCameraView();
             ApplySettings();
-            
-            if (_camera != null)
-            {
-                _camera = new Camera2D(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
-                _camera.PanSpeed = settings.CameraPanSpeed;
-                _camera.ZoomSpeed = settings.CameraZoomSpeed;
-                _camera.InvertScrollZoom = settings.InvertCameraZoom;
-            }
+            _camera = CreateConfiguredCamera();
         }
         
         if (_graphics.SynchronizeWithVerticalRetrace != settings.VSync)
@@ -615,9 +628,7 @@ public class RiskyStarsGame : Game
         
         if (_camera != null)
         {
-            _camera.PanSpeed = settings.CameraPanSpeed;
-            _camera.ZoomSpeed = settings.CameraZoomSpeed;
-            _camera.InvertScrollZoom = settings.InvertCameraZoom;
+            ApplyCameraRuntimeSettings(_camera, settings);
         }
 
         if (uiScaleChanged && (_gameState == GameState.InGame || _gameState == GameState.Transition))
@@ -639,6 +650,31 @@ public class RiskyStarsGame : Game
     private void RecreateSettingsWindow()
     {
         _settingsWindow = new SettingsWindow(_graphics, _settings, OnSettingsApplied, PreviewUiScale);
+    }
+
+    private Camera2D CreateConfiguredCamera()
+    {
+        var camera = new Camera2D(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        ApplyCameraRuntimeSettings(camera, _settings);
+        MapCameraPersistence.Restore(_settings.MapCamera, camera);
+        return camera;
+    }
+
+    private static void ApplyCameraRuntimeSettings(Camera2D camera, Settings settings)
+    {
+        camera.PanSpeed = settings.CameraPanSpeed;
+        camera.ZoomSpeed = settings.CameraZoomSpeed;
+        camera.InvertScrollZoom = settings.InvertCameraZoom;
+    }
+
+    private void CaptureCurrentCameraView()
+    {
+        if (_camera == null)
+        {
+            return;
+        }
+
+        MapCameraPersistence.Capture(_settings.MapCamera, _camera);
     }
 
     private void RebuildMainMenuForCurrentDisplay()
@@ -669,7 +705,6 @@ public class RiskyStarsGame : Game
         _debugInfoWindow?.ResizeViewport(width, height);
         _uiScaleWindow?.ResizeViewport(width, height);
         _encyclopediaWindow?.ResizeViewport(width, height);
-        _tutorialWindow?.ResizeViewport(width, height);
         _tutorialModeWindow?.ResizeViewport(width, height);
         _continentZoomWindow?.ResizeViewport(width, height);
 
@@ -678,6 +713,7 @@ public class RiskyStarsGame : Game
         System.Diagnostics.Debug.WriteLine($"[UI] Resizing panels: size={width}x{height}, topBar={topBarHeight}");
         _leftSidePanel?.ResizeViewport(width, height, panelTopOffset);
         _rightSidePanel?.ResizeViewport(width, height, panelTopOffset);
+        AnchorTutorialWindowToMapLeft();
 
         if (_serverStatusIndicator != null)
         {
@@ -828,6 +864,7 @@ public class RiskyStarsGame : Game
 
     private void ReturnToMainMenu()
     {
+        PersistWindowDisplaySettings();
         StartTransition("Returning to main menu");
         _pendingGameEntry = false;
         _latestFeedback = null;
@@ -871,7 +908,6 @@ public class RiskyStarsGame : Game
         _debugInfoWindow = null;
         _uiScaleWindow = null;
         _encyclopediaWindow = null;
-        _tutorialWindow = null;
         _tutorialModeWindow = null;
         _continentZoomWindow = null;
         _serverStatusIndicator = null;
@@ -895,6 +931,7 @@ public class RiskyStarsGame : Game
 
     protected override void Draw(GameTime gameTime)
     {
+        PrepareBackBufferDrawState();
         GraphicsDevice.Clear(new Color(10, 10, 20));
 
         if (_spriteBatch == null)
@@ -1185,6 +1222,31 @@ public class RiskyStarsGame : Game
             return;
         }
 
+        foreach (var pass in WorldRenderPipeline.OrderedPasses)
+        {
+            switch (pass)
+            {
+                case WorldRenderPass.OffscreenZoomSurface:
+                    UpdateContinentZoomSurface(spriteBatch);
+                    break;
+                case WorldRenderPass.BackBufferWorld:
+                    DrawBackBufferWorld(spriteBatch);
+                    break;
+                case WorldRenderPass.UiOverlay:
+                    DrawInGameUi();
+                    break;
+            }
+        }
+    }
+
+    private void DrawBackBufferWorld(SpriteBatch spriteBatch)
+    {
+        if (_mapData == null || _gameStateCache == null)
+        {
+            return;
+        }
+
+        PrepareBackBufferDrawState();
         if (_camera != null)
         {
             _mapRenderer?.Draw(spriteBatch, _mapData, _camera);
@@ -1197,9 +1259,50 @@ public class RiskyStarsGame : Game
             
             _aiActionIndicator?.Draw(spriteBatch, _camera, _mapData);
         }
+    }
 
+    private void UpdateContinentZoomSurface(SpriteBatch spriteBatch)
+    {
+        _continentZoomRenderer?.UpdateSurface(
+            spriteBatch,
+            _continentZoomWindow,
+            _gameStateCache,
+            _inputController?.Selection,
+            _regionRenderer);
+    }
+
+    private void DrawInGameUi()
+    {
         _inGameDesktop?.Render();
         _settingsWindow?.Render();
+    }
+
+    private void PrepareBackBufferDrawState()
+    {
+        var state = WorldBackBufferDrawState.Create(
+            _graphics.PreferredBackBufferWidth,
+            _graphics.PreferredBackBufferHeight);
+
+        GraphicsDevice.SetRenderTarget(null);
+        GraphicsDevice.Viewport = state.Viewport;
+        GraphicsDevice.ScissorRectangle = state.ScissorRectangle;
+        GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+        GraphicsDevice.Textures[0] = null;
+    }
+
+    private bool HandleContinentZoomPointer(MouseState mouseState)
+    {
+        if (_continentZoomWindow?.IsVisible != true)
+        {
+            return false;
+        }
+
+        if (mouseState.LeftButton == ButtonState.Pressed && _previousMouseState.LeftButton == ButtonState.Released)
+        {
+            return _continentZoomWindow.TrySelectRegion(mouseState.Position);
+        }
+
+        return false;
     }
 
     private void ApplyDesktopWindowMode(WindowModePlan plan, GameWindowMode mode)
@@ -1244,6 +1347,7 @@ public class RiskyStarsGame : Game
     {
         try
         {
+            CaptureCurrentCameraView();
             var currentMode = GetCurrentWindowMode();
             var width = currentMode == GameWindowMode.Full
                 ? _graphics.PreferredBackBufferWidth
@@ -1406,18 +1510,17 @@ public class RiskyStarsGame : Game
             _uiScaleWindow.SyncFromSettings();
         }
         _encyclopediaWindow = new EncyclopediaWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
-        _tutorialWindow = new TutorialWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
-        _tutorialModeWindow = _tutorialModeActive
-            ? new TutorialModeWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)
-            : null;
+        _tutorialModeWindow = new TutorialModeWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        if (!_tutorialModeActive)
+        {
+            _tutorialModeWindow.Hide();
+        }
+
         _continentZoomWindow = new ContinentZoomWindow(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _continentZoomWindow.RegionSelected += OnContinentZoomRegionSelected;
 
-        if (_tutorialModeWindow != null)
-        {
-            _tutorialModeWindow.ReferenceRequested += OpenTutorialReference;
-            _tutorialModeWindow.EndRequested += EndTutorialMode;
-        }
+        _tutorialModeWindow.EndRequested += EndTutorialMode;
+        AnchorTutorialWindowToMapLeft();
 
         PopulateSidePanels();
 
@@ -1439,6 +1542,8 @@ public class RiskyStarsGame : Game
         {
             _windowPreferences.RightPanelWidth = width;
         }
+
+        AnchorTutorialWindowToMapLeft();
         //_windowPreferences.Save(); // disabled for testing
     }
 
@@ -1452,6 +1557,8 @@ public class RiskyStarsGame : Game
         {
             _windowPreferences.RightPanelCollapsed = isCollapsed;
         }
+
+        AnchorTutorialWindowToMapLeft();
         //_windowPreferences.Save(); // disabled for testing
     }
 
@@ -1533,11 +1640,6 @@ public class RiskyStarsGame : Game
             _inGameDesktop.Widgets.Remove(_encyclopediaWindow.Window);
         }
 
-        if (_tutorialWindow != null)
-        {
-            _inGameDesktop.Widgets.Remove(_tutorialWindow.Window);
-        }
-
         if (_tutorialModeWindow != null)
         {
             _inGameDesktop.Widgets.Remove(_tutorialModeWindow.Window);
@@ -1579,6 +1681,7 @@ public class RiskyStarsGame : Game
                 System.Diagnostics.Debug.WriteLine($"[UI] Right panel attached at Left={_rightSidePanel.Container.Left}, Top={_rightSidePanel.Container.Top}, visible: {_rightSidePanel.Container.Visible}");
             }
 
+            AnchorTutorialWindowToMapLeft();
             AttachDesktopWidget(_gameplayHudOverlay?.TopBar);
             AttachDesktopWidget(_gameplayHudOverlay?.HelpPanel);
             HideStandardWorkspaceWindows();
@@ -1630,13 +1733,45 @@ public class RiskyStarsGame : Game
         {
             _encyclopediaWindow.Window.Visible = false;
         }
-        if (_tutorialWindow != null)
-        {
-            _tutorialWindow.Window.Visible = false;
-        }
         AttachDockableWorkspaceWindows();
 
+        AnchorTutorialWindowToMapLeft();
         AttachStatusAndCombatOverlays();
+    }
+
+    private void AnchorTutorialWindowToMapLeft()
+    {
+        if (_tutorialModeWindow == null)
+        {
+            return;
+        }
+
+        int screenWidth = _graphics.PreferredBackBufferWidth;
+        int screenHeight = _graphics.PreferredBackBufferHeight;
+        int topBarHeight = _gameplayHudOverlay?.GetTopBarHeight() ?? ThemeManager.ScalePixels(80);
+        int mapTop = topBarHeight + ThemeManager.ScalePixels(12);
+        int leftDockRight = 0;
+        int rightDockLeft = screenWidth;
+
+        if (_leftSidePanel != null)
+        {
+            leftDockRight = _leftSidePanel.Container.Left + (_leftSidePanel.Container.Width ?? _leftSidePanel.Width);
+        }
+
+        if (_rightSidePanel != null)
+        {
+            rightDockLeft = _rightSidePanel.Container.Left;
+        }
+
+        TutorialModeWindowAnchor.Apply(
+            _tutorialModeWindow.Window,
+            screenWidth,
+            screenHeight,
+            leftDockRight,
+            rightDockLeft,
+            mapTop,
+            ThemeManager.ScalePixels(520),
+            ThemeManager.ScalePixels(640));
     }
 
     private void AttachDockableWorkspaceWindows()
@@ -1646,7 +1781,6 @@ public class RiskyStarsGame : Game
         AttachDesktopWidget(_debugInfoWindow?.Window);
         AttachDesktopWidget(_uiScaleWindow?.Window);
         AttachDesktopWidget(_encyclopediaWindow?.Window);
-        AttachDesktopWidget(_tutorialWindow?.Window);
         AttachDesktopWidget(_tutorialModeWindow?.Window);
         AttachDesktopWidget(_continentZoomWindow?.Window);
     }
@@ -1672,10 +1806,6 @@ public class RiskyStarsGame : Game
         if (_encyclopediaWindow != null)
         {
             _encyclopediaWindow.Window.Visible = false;
-        }
-        if (_tutorialWindow != null)
-        {
-            _tutorialWindow.Window.Visible = false;
         }
     }
 
@@ -1725,13 +1855,12 @@ public class RiskyStarsGame : Game
 
     private void UpdateTutorialWindow()
     {
-        _tutorialWindow?.UpdateContent(_gameStateCache, _currentPlayerId, _inputController?.Selection, _combatScreen?.IsActive == true);
-
-        if (!_tutorialModeActive || _tutorialModeWindow == null)
+        if (_tutorialModeWindow == null || (!_tutorialModeActive && !_tutorialModeWindow.IsVisible))
         {
             return;
         }
 
+        AnchorTutorialWindowToMapLeft();
         _tutorialModeWindow.UpdateContent(new TutorialModeSnapshot(
             _gameStateCache,
             _currentPlayerId,
@@ -1739,26 +1868,19 @@ public class RiskyStarsGame : Game
             _inputController?.ShowHelp == true,
             _playerDashboardWindow?.IsVisible == true,
             _encyclopediaWindow?.IsVisible == true,
-            _tutorialWindow?.IsVisible == true,
             _contextMenuManager?.IsMenuOpen == true,
             _combatScreen?.IsActive == true));
     }
 
-    private void OpenTutorialReference()
-    {
-        _tutorialWindow?.Show();
-    }
-
     private void EndTutorialMode()
     {
-        if (!_tutorialModeActive)
-        {
-            return;
-        }
-
+        bool wasTutorialModeActive = _tutorialModeActive;
         _tutorialModeActive = false;
         _tutorialModeWindow?.Hide();
-        GameFeedbackBus.PublishSuccess("Tutorial mode ended", "Free play continues in the current single-player session.");
+        if (wasTutorialModeActive)
+        {
+            GameFeedbackBus.PublishSuccess("Tutorial mode ended", "Free play continues in the current single-player session.");
+        }
     }
 
     private void OnContinentZoomRequested(object? sender, StellarBodyData body)
@@ -1805,7 +1927,7 @@ public class RiskyStarsGame : Game
             _debugInfoWindow?.IsVisible == true,
             _uiScaleWindow?.IsVisible == true,
             _encyclopediaWindow?.IsVisible == true,
-            _tutorialWindow?.IsVisible == true);
+            _tutorialModeWindow?.IsVisible == true);
     }
     
     private void ShowCombatEventNotification(CombatEvent combatEvent)
@@ -1879,6 +2001,8 @@ public class RiskyStarsGame : Game
                     System.Console.WriteLine($"Error disposing lobby manager: {ex.Message}");
                 }
             }
+
+            _continentZoomRenderer?.Dispose();
         }
         base.Dispose(disposing);
     }

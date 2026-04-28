@@ -650,7 +650,7 @@ public sealed class GameplayHudOverlay
             ("F3", "Toggle AI panel"),
             ("F4", "Toggle UI scale panel"),
             ("F5", "Toggle encyclopedia"),
-            ("F6", "Toggle tutorial"),
+            ("F6", "Toggle guided tutorial"),
             ("H", "Toggle help")
         ];
     }

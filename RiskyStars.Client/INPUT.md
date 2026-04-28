@@ -72,7 +72,7 @@ Tracks the currently selected object, which can be:
 - **F3**: Toggle AI panel
 - **F4**: Toggle UI scale panel
 - **F5**: Toggle encyclopedia
-- **F6**: Toggle tutorial
+- **F6**: Toggle guided tutorial
 - **WASD/Arrow Keys**: Pan camera (handled by Camera2D)
 - **Shift + Movement**: Fast pan (handled by Camera2D)
 - **Mouse Wheel**: Zoom in/out (handled by Camera2D)

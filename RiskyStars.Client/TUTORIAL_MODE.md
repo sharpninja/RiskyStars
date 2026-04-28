@@ -1,6 +1,7 @@
 # Tutorial Mode
 
 Tutorial Mode is a guided single-player onboarding path launched from the main menu.
+F6 toggles the same guided tutorial panel while in game.
 
 ## Launch Flow
 
@@ -33,7 +34,7 @@ The tutorial panel walks through the core loop:
 - **Back** returns to the previous tutorial step.
 - **Next** advances after a completed or manual step.
 - **Skip** advances before the current objective is detected.
-- **Full Guide** opens the existing F6 tutorial lesson browser.
 - **End** closes tutorial mode and leaves the current game running.
+- **F6** hides or reopens the guided tutorial panel.
 
 Tutorial Mode does not save step progress. Each launch starts from step 1.

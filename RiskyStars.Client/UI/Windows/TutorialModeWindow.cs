@@ -39,7 +39,6 @@ public sealed record TutorialModeSnapshot(
     bool HelpVisible,
     bool DashboardVisible,
     bool EncyclopediaVisible,
-    bool TutorialReferenceVisible,
     bool ContextMenuOpen,
     bool CombatActive);
 
@@ -171,10 +170,10 @@ public sealed class TutorialModeWindow : DockableWindow
             "reference",
             "Open the reference layer",
             "Rules and context help stay available after tutorial mode ends.",
-            "Open the encyclopedia with F5 or the full tutorial with F6.",
+            "Open the encyclopedia with F5.",
             [
-                "The Full Guide button below opens the existing lesson browser.",
-                "Use these panels any time during normal play."
+                "Use F5 any time during normal play for rule and command reference.",
+                "F6 now toggles this guided tutorial panel."
             ],
             TutorialStepCompletion.ReferenceOpen),
         new TutorialModeStep(
@@ -184,7 +183,7 @@ public sealed class TutorialModeWindow : DockableWindow
             "End tutorial mode when you are ready to keep playing normally.",
             [
                 "The current game continues after the tutorial panel closes.",
-                "F5 and F6 remain available for reference."
+                "F5 remains available for reference and F6 reopens this guided tutorial."
             ],
             TutorialStepCompletion.Manual)
     ];
@@ -206,7 +205,6 @@ public sealed class TutorialModeWindow : DockableWindow
     private int _baselineMovedArmyCount = -1;
 
     public event Action? EndRequested;
-    public event Action? ReferenceRequested;
 
     public TutorialModeWindow(WindowPreferences preferences, int screenWidth, int screenHeight)
         : base("tutorial_mode", "Tutorial Mode", preferences, screenWidth, screenHeight, 520, 640)
@@ -278,10 +276,6 @@ public sealed class TutorialModeWindow : DockableWindow
 
         _nextButton.Click += (_, _) => MoveNext();
         buttonRow.Widgets.Add(_nextButton);
-
-        var referenceButton = ThemedUIFactory.CreateButton("Full Guide", ThemeManager.ScalePixels(130), ThemeManager.Sizes.ButtonSmallHeight, ThemeManager.ButtonTheme.Default);
-        referenceButton.Click += (_, _) => ReferenceRequested?.Invoke();
-        buttonRow.Widgets.Add(referenceButton);
 
         var endButton = ThemedUIFactory.CreateButton("End", ThemeManager.ScalePixels(100), ThemeManager.Sizes.ButtonSmallHeight, ThemeManager.ButtonTheme.Danger);
         endButton.Click += (_, _) => EndRequested?.Invoke();
@@ -436,7 +430,7 @@ public sealed class TutorialModeWindow : DockableWindow
             TutorialStepCompletion.MovementPhase => cache?.GetCurrentPhase() == TurnPhase.Movement,
             TutorialStepCompletion.OwnArmySelected => !string.IsNullOrWhiteSpace(playerId) && snapshot.Selection?.SelectedArmy?.OwnerId == playerId,
             TutorialStepCompletion.ArmyMoved => HasMovedArmy(snapshot) || snapshot.ContextMenuOpen,
-            TutorialStepCompletion.ReferenceOpen => snapshot.EncyclopediaVisible || snapshot.TutorialReferenceVisible,
+            TutorialStepCompletion.ReferenceOpen => snapshot.EncyclopediaVisible,
             _ => false
         };
     }

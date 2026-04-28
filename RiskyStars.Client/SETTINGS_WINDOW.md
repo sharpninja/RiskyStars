@@ -259,7 +259,7 @@ The Controls tab displays all keyboard shortcuts:
 | F2 | Toggle Player Dashboard |
 | F3 | Toggle AI Visualization |
 | F5 | Toggle Encyclopedia |
-| F6 | Toggle Tutorial |
+| F6 | Toggle Guided Tutorial |
 | WASD / Arrows | Pan Camera |
 | Mouse Wheel | Zoom Camera |
 | Right Mouse Drag | Pan Camera |
