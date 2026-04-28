@@ -152,7 +152,7 @@ public static class ThemeManager
         ConfigureLabelStyle(sheet.LabelStyle, Colors.TextPrimary, UiFonts.Body);
         ConfigureLabelStyle(sheet.TooltipStyle, Colors.TextPrimary, UiFonts.Small);
         sheet.TooltipStyle.Background = CreateSolidBrush(Colors.Gunmetal);
-        sheet.TooltipStyle.Border = CreateSolidBrush(Colors.SteelEdge);
+        sheet.TooltipStyle.Border = CreateSolidBrush(Colors.GunmetalRaised);
         sheet.TooltipStyle.BorderThickness = new Thickness(BorderThickness.Normal);
         sheet.TooltipStyle.Padding = Padding.Small;
 
@@ -184,20 +184,20 @@ public static class ThemeManager
     {
         var visuals = GetButtonVisuals(theme);
         style.Background = visuals.Background;
-        style.OverBackground = visuals.OverBackground;
-        style.PressedBackground = visuals.PressedBackground;
+        style.OverBackground = visuals.Background;
+        style.PressedBackground = visuals.Background;
         style.DisabledBackground = visuals.DisabledBackground;
-        style.Border = CreateSolidBrush(Colors.SteelEdge);
-        style.OverBorder = CreateSolidBrush(Colors.BorderFocus);
-        style.FocusedBorder = CreateSolidBrush(Colors.BorderFocus);
+        style.Border = CreateSolidBrush(Colors.GunmetalRaised);
+        style.OverBorder = CreateSolidBrush(Colors.GunmetalRaised);
+        style.FocusedBorder = CreateSolidBrush(Colors.GunmetalRaised);
         style.DisabledBorder = CreateSolidBrush(Colors.DisabledColor);
-        style.BorderThickness = new Thickness(BorderThickness.Thin);
+        style.BorderThickness = new Thickness(1);
         style.Padding = Padding.Button;
 
         style.LabelStyle ??= new LabelStyle();
         ConfigureLabelStyle(style.LabelStyle, visuals.TextColor, UiFonts.Button);
-        style.LabelStyle.OverTextColor = visuals.OverTextColor;
-        style.LabelStyle.PressedTextColor = visuals.PressedTextColor;
+        style.LabelStyle.OverTextColor = visuals.TextColor;
+        style.LabelStyle.PressedTextColor = visuals.TextColor;
         style.LabelStyle.DisabledTextColor = visuals.DisabledTextColor;
     }
 
@@ -208,7 +208,7 @@ public static class ThemeManager
         style.OverBackground = visuals.OverBackground;
         style.PressedBackground = visuals.PressedBackground;
         style.DisabledBackground = visuals.DisabledBackground;
-        style.Border = CreateSolidBrush(Colors.SteelEdge);
+        style.Border = CreateSolidBrush(Colors.GunmetalRaised);
         style.OverBorder = CreateSolidBrush(Colors.BorderFocus);
         style.FocusedBorder = CreateSolidBrush(Colors.BorderFocus);
         style.DisabledBorder = CreateSolidBrush(Colors.DisabledColor);
@@ -277,7 +277,7 @@ public static class ThemeManager
         style.ListItemStyle.Background = CreateRaisedPanelFillBrush();
         style.ListItemStyle.OverBackground = CreateAccentPanelFillBrush(Colors.BorderFocus, 56);
         style.ListItemStyle.PressedBackground = CreateAccentPanelFillBrush(Colors.BorderFocus, 76);
-        style.ListItemStyle.Border = CreateSolidBrush(Colors.SteelEdge);
+        style.ListItemStyle.Border = CreateSolidBrush(Colors.GunmetalRaised);
         style.ListItemStyle.OverBorder = CreateSolidBrush(Colors.BorderFocus);
         style.ListItemStyle.FocusedBorder = CreateSolidBrush(Colors.BorderFocus);
         style.ListItemStyle.DisabledBorder = CreateSolidBrush(Colors.DisabledColor);
@@ -413,13 +413,13 @@ public static class ThemeManager
         var visuals = GetButtonVisuals(theme);
         var isCompact = IsCompactButton(button);
         button.Background = visuals.Background;
-        button.OverBackground = visuals.OverBackground;
-        button.PressedBackground = visuals.PressedBackground;
+        button.OverBackground = visuals.Background;
+        button.PressedBackground = visuals.Background;
         button.DisabledBackground = visuals.DisabledBackground;
-        button.Border = CreateSolidBrush(Colors.SteelEdge);
-        button.OverBorder = CreateSolidBrush(Colors.BorderFocus);
-        button.FocusedBorder = CreateSolidBrush(Colors.BorderFocus);
-        button.BorderThickness = new Thickness(BorderThickness.Thin);
+        button.Border = CreateSolidBrush(Colors.GunmetalRaised);
+        button.OverBorder = CreateSolidBrush(Colors.GunmetalRaised);
+        button.FocusedBorder = CreateSolidBrush(Colors.GunmetalRaised);
+        button.BorderThickness = new Thickness(1);
         button.Padding = isCompact ? CreateCompactButtonPadding() : Padding.Button;
         ApplyButtonContentTheme(button.Content, visuals, isCompact);
     }
@@ -601,7 +601,7 @@ public static class ThemeManager
         button.OverBackground = visuals.OverBackground;
         button.PressedBackground = visuals.PressedBackground;
         button.DisabledBackground = visuals.DisabledBackground;
-        button.Border = CreateSolidBrush(Colors.SteelEdge);
+        button.Border = CreateSolidBrush(Colors.GunmetalRaised);
         button.OverBorder = CreateSolidBrush(Colors.BorderFocus);
         button.FocusedBorder = CreateSolidBrush(Colors.BorderFocus);
         button.BorderThickness = new Thickness(BorderThickness.Thin);
@@ -653,51 +653,52 @@ public static class ThemeManager
 
     private static ButtonVisuals GetButtonVisuals(ButtonTheme theme)
     {
+        // Solid flat colors - no textures
         return theme switch
         {
             ButtonTheme.Primary => new ButtonVisuals(
-                AssetBrushes.ButtonPrimaryNormal,
-                AssetBrushes.ButtonPrimaryHover,
-                AssetBrushes.ButtonPrimaryPressed,
-                AssetBrushes.ButtonPrimaryDisabled,
+                CreateSolidBrush(Colors.PrimaryMedium),
+                CreateSolidBrush(Colors.PrimaryMedium),
+                CreateSolidBrush(Colors.PrimaryDark),
+                CreateSolidBrush(Colors.DisabledColor),
                 Colors.TextPrimary,
-                Colors.TextAccent,
+                Colors.TextPrimary,
                 Colors.TextPrimary,
                 Colors.TextDisabled),
             ButtonTheme.Danger => new ButtonVisuals(
-                AssetBrushes.ButtonDangerNormal,
-                AssetBrushes.ButtonDangerHover,
-                AssetBrushes.ButtonDangerPressed,
-                AssetBrushes.ButtonDangerDisabled,
+                CreateSolidBrush(Colors.RedAlert),
+                CreateSolidBrush(Colors.RedAlert),
+                CreateSolidBrush(Colors.PrimaryDark),
+                CreateSolidBrush(Colors.DisabledColor),
                 Colors.TextPrimary,
-                Colors.TextWarning,
+                Colors.TextPrimary,
                 Colors.TextPrimary,
                 Colors.TextDisabled),
             ButtonTheme.Success => new ButtonVisuals(
-                AssetBrushes.ButtonPrimaryNormal,
-                AssetBrushes.ButtonPrimaryHover,
-                AssetBrushes.ButtonPrimaryPressed,
-                AssetBrushes.ButtonPrimaryDisabled,
+                CreateSolidBrush(Colors.TextSuccess),
+                CreateSolidBrush(Colors.TextSuccess),
+                CreateSolidBrush(Colors.PrimaryDark),
+                CreateSolidBrush(Colors.DisabledColor),
                 Colors.TextPrimary,
-                Colors.TextAccent,
+                Colors.TextPrimary,
                 Colors.TextPrimary,
                 Colors.TextDisabled),
             ButtonTheme.Hero => new ButtonVisuals(
-                AssetBrushes.ButtonSecondaryNormal,
-                AssetBrushes.ButtonSecondaryHover,
-                AssetBrushes.ButtonSecondaryPressed,
-                AssetBrushes.ButtonSecondaryDisabled,
-                Colors.TextWarning,
-                Colors.TextAccent,
-                Colors.TextWarning,
+                CreateSolidBrush(Colors.HeroColor),
+                CreateSolidBrush(Colors.HeroColor),
+                CreateSolidBrush(Colors.PrimaryDark),
+                CreateSolidBrush(Colors.DisabledColor),
+                Colors.TextPrimary,
+                Colors.TextPrimary,
+                Colors.TextPrimary,
                 Colors.TextDisabled),
             _ => new ButtonVisuals(
-                AssetBrushes.ButtonSecondaryNormal,
-                AssetBrushes.ButtonSecondaryHover,
-                AssetBrushes.ButtonSecondaryPressed,
-                AssetBrushes.ButtonSecondaryDisabled,
+                CreateSolidBrush(Colors.PrimaryMedium),
+                CreateSolidBrush(Colors.PrimaryMedium),
+                CreateSolidBrush(Colors.PrimaryDark),
+                CreateSolidBrush(Colors.DisabledColor),
                 Colors.TextPrimary,
-                Colors.TextAccent,
+                Colors.TextPrimary,
                 Colors.TextPrimary,
                 Colors.TextDisabled)
         };

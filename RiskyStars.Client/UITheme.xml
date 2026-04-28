@@ -98,15 +98,15 @@
   
   <!-- Button Styles -->
   <TextButtonStyle Id="default">
-    <Background>#3C64B4</Background>
-    <OverBackground>#5082D2</OverBackground>
-    <PressedBackground>#2850A0</PressedBackground>
-    <DisabledBackground>DisabledColor</DisabledBackground>
-    <Border>BorderNormal</Border>
-    <BorderThickness>2</BorderThickness>
+    <Background>#3C3C3C</Background>
+    <OverBackground>#505050</OverBackground>
+    <PressedBackground>#282828</PressedBackground>
+    <DisabledBackground>#282828</DisabledBackground>
+    <Border>#646464</Border>
+    <BorderThickness>1</BorderThickness>
     <TextColor>TextPrimary</TextColor>
     <DisabledTextColor>TextDisabled</DisabledTextColor>
-    <Padding>12, 10</Padding>
+    <Padding>12, 8</Padding>
     <ContentHorizontalAlignment>Center</ContentHorizontalAlignment>
     <ContentVerticalAlignment>Center</ContentVerticalAlignment>
   </TextButtonStyle>

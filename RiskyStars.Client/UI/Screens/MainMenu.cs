@@ -26,6 +26,7 @@ public class MainMenu
     private MyraButton? _connectButton;
     private MyraButton? _settingsButton;
     private MyraButton? _exitButton;
+    private MyraButton? _tutorialButton;
 
     private Panel? _settingsPanel;
     private ValidatedTextBox? _serverAddressTextBox;
@@ -66,6 +67,7 @@ public class MainMenu
 
     public bool ShouldConnect { get; private set; }
     public bool ShouldStartSinglePlayer { get; private set; }
+    public bool ShouldStartTutorial { get; private set; }
     public bool ShouldExit { get; private set; }
     public Settings Settings => _settings;
     public MainMenuState State => _state;
@@ -164,6 +166,10 @@ public class MainMenu
         var singlePlayerButton = ThemedUIFactory.CreateButton("Single Player", 236, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Primary);
         singlePlayerButton.Click += (_, _) => OnSinglePlayerClicked();
         commandStack.Widgets.Add(singlePlayerButton);
+
+        _tutorialButton = ThemedUIFactory.CreateButton("Tutorial Mode", 236, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Hero);
+        _tutorialButton.Click += (_, _) => OnTutorialClicked();
+        commandStack.Widgets.Add(_tutorialButton);
 
         _settingsButton = ThemedUIFactory.CreateButton("Settings", 236, ThemeManager.Sizes.ButtonMediumHeight, ThemeManager.ButtonTheme.Default);
         _settingsButton.Click += (_, _) => OnSettingsClicked();
@@ -519,7 +525,7 @@ public class MainMenu
             _resolutionComboBox.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
         }
 
-        SetComboSelection(_windowModeComboBox, Settings.WindowModeOptions, _settings.Fullscreen ? "Fullscreen" : "Windowed");
+        SetComboSelection(_windowModeComboBox, Settings.WindowModeOptions, Settings.GetWindowModeOption(_settings.WindowMode));
 
         if (_uiScaleSlider != null)
         {
@@ -578,7 +584,7 @@ public class MainMenu
             }
         }
 
-        _settings.Fullscreen = string.Equals(_windowModeComboBox?.SelectedItem?.Text, "Fullscreen", StringComparison.OrdinalIgnoreCase);
+        _settings.WindowMode = Settings.ParseWindowModeOption(_windowModeComboBox?.SelectedItem?.Text);
         _settings.UiScalePercent = (int)Math.Round(_uiScaleSlider?.Value ?? _settings.UiScalePercent);
         _settings.Normalize();
     }
@@ -733,6 +739,13 @@ public class MainMenu
         UpdateUI();
     }
 
+    private void OnTutorialClicked()
+    {
+        ShouldStartTutorial = true;
+        _state = MainMenuState.Connecting;
+        UpdateUI();
+    }
+
     private void OnSettingsClicked()
     {
         _state = MainMenuState.Settings;
@@ -742,6 +755,13 @@ public class MainMenu
     private void OnExitClicked()
     {
         ShouldExit = true;
+    }
+
+    public void ResetNavigationRequests()
+    {
+        ShouldConnect = false;
+        ShouldStartSinglePlayer = false;
+        ShouldStartTutorial = false;
     }
 
     private void OnSaveSettingsClicked()

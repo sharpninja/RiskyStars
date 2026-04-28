@@ -24,6 +24,8 @@ public class InputController
     
     public SelectionState Selection => _selectionState;
     public bool ShowHelp { get; private set; }
+    public bool IsPointerInputBlocked { get; set; }
+    public event EventHandler<StellarBodyData>? ContinentZoomRequested;
     
     public InputController(GrpcGameClient gameClient, GameStateCache gameStateCache, MapData mapData, Camera2D camera)
     {
@@ -50,12 +52,26 @@ public class InputController
     {
         var mouseState = Mouse.GetState();
         var keyState = Keyboard.GetState();
-        
-        HandleMouseInput(mouseState);
+
+        if (IsPointerInputBlocked)
+        {
+            ResetPointerGesture();
+        }
+        else
+        {
+            HandleMouseInput(mouseState);
+        }
+
         HandleKeyboardInput(keyState);
         
         _previousMouseState = mouseState;
         _previousKeyState = keyState;
+    }
+
+    private void ResetPointerGesture()
+    {
+        _rightMouseDownScreenPosition = null;
+        _isRightMouseDragging = false;
     }
     
     private void HandleMouseInput(MouseState mouseState)
@@ -144,6 +160,14 @@ public class InputController
             return;
         }
         
+        var clickedBody = ContinentZoomLayout.FindZoomableBodyAtPosition(_mapData, worldPosition);
+        if (clickedBody != null)
+        {
+            _selectionState.SelectStellarBody(clickedBody);
+            ContinentZoomRequested?.Invoke(this, clickedBody);
+            return;
+        }
+
         var clickedRegion = FindRegionAtPosition(worldPosition);
         if (clickedRegion != null)
         {
@@ -158,10 +182,10 @@ public class InputController
             return;
         }
         
-        var clickedBody = FindStellarBodyAtPosition(worldPosition);
-        if (clickedBody != null)
+        var clickedSingleBody = FindStellarBodyAtPosition(worldPosition);
+        if (clickedSingleBody != null)
         {
-            _selectionState.SelectStellarBody(clickedBody);
+            _selectionState.SelectStellarBody(clickedSingleBody);
             return;
         }
         

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using RiskyStars.Server.Entities;
+using RiskyStars.Shared;
 
 namespace RiskyStars.Server.Services;
 
@@ -20,6 +21,7 @@ public class MapLoader
         }
 
         ValidateMapData(mapData);
+        ApplyAstronomicalNames(mapData);
         ReconstructHyperspaceLaneReferences(mapData);
         
         return mapData;
@@ -153,6 +155,39 @@ public class MapLoader
                 {
                     systemB.HyperspaceLanes.Add(lane);
                 }
+            }
+        }
+    }
+
+    private static void ApplyAstronomicalNames(MapData mapData)
+    {
+        for (int systemIndex = 0; systemIndex < mapData.StarSystems.Count; systemIndex++)
+        {
+            var system = mapData.StarSystems[systemIndex];
+            system.Name = MapNameCatalog.GetStarName(systemIndex);
+
+            for (int bodyIndex = 0; bodyIndex < system.StellarBodies.Count; bodyIndex++)
+            {
+                var body = system.StellarBodies[bodyIndex];
+                body.Name = MapNameCatalog.GetStellarBodyName(system.Name, bodyIndex);
+
+                if (body.Type == StellarBodyType.RockyPlanet && body.SurfaceType == RockyPlanetSurfaceType.Gaia)
+                {
+                    for (int regionIndex = 0; regionIndex < body.Regions.Count; regionIndex++)
+                    {
+                        body.Regions[regionIndex].Name = MapNameCatalog.GetContinentName(body.Name, regionIndex);
+                    }
+                }
+            }
+        }
+
+        var systemsById = mapData.StarSystems.ToDictionary(system => system.Id);
+        foreach (var lane in mapData.HyperspaceLanes)
+        {
+            if (systemsById.TryGetValue(lane.StarSystemAId, out var systemA)
+                && systemsById.TryGetValue(lane.StarSystemBId, out var systemB))
+            {
+                lane.Name = $"{systemA.Name} - {systemB.Name}";
             }
         }
     }

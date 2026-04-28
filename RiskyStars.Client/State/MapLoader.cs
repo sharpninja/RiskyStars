@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using RiskyStars.Shared;
 
 namespace RiskyStars.Client;
 
@@ -237,6 +238,8 @@ public class MapLoader
         };
         mapData.HyperspaceLanes.Add(lane2);
 
+        ApplyAstronomicalNames(mapData);
+
         return mapData;
     }
 
@@ -281,5 +284,38 @@ public class MapLoader
             StellarBodyType.Comet => 6f,
             _ => 10f
         };
+    }
+
+    private static void ApplyAstronomicalNames(MapData mapData)
+    {
+        for (int systemIndex = 0; systemIndex < mapData.StarSystems.Count; systemIndex++)
+        {
+            var system = mapData.StarSystems[systemIndex];
+            system.Name = MapNameCatalog.GetStarName(systemIndex);
+
+            for (int bodyIndex = 0; bodyIndex < system.StellarBodies.Count; bodyIndex++)
+            {
+                var body = system.StellarBodies[bodyIndex];
+                body.Name = MapNameCatalog.GetStellarBodyName(system.Name, bodyIndex);
+
+                if (body.Type == StellarBodyType.RockyPlanet && body.Regions.Count > 1)
+                {
+                    for (int regionIndex = 0; regionIndex < body.Regions.Count; regionIndex++)
+                    {
+                        body.Regions[regionIndex].Name = MapNameCatalog.GetContinentName(body.Name, regionIndex);
+                    }
+                }
+            }
+        }
+
+        foreach (var lane in mapData.HyperspaceLanes)
+        {
+            var systemA = mapData.StarSystems.FirstOrDefault(system => system.Id == lane.StarSystemAId);
+            var systemB = mapData.StarSystems.FirstOrDefault(system => system.Id == lane.StarSystemBId);
+            if (systemA != null && systemB != null)
+            {
+                lane.Name = $"{systemA.Name} - {systemB.Name}";
+            }
+        }
     }
 }

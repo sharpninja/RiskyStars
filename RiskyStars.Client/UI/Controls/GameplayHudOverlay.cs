@@ -33,6 +33,45 @@ public sealed class GameplayHudOverlay
     public Widget SelectionPanel => _selectionPanel;
     public Widget HelpPanel => _helpPanel;
 
+    public Panel BuildAiActivityContent()
+    {
+        PreparePanelForSideBar(_aiActivityPanel);
+        return _aiActivityPanel;
+    }
+
+    public Panel BuildSelectionContent()
+    {
+        PreparePanelForSideBar(_selectionPanel);
+        return _selectionPanel;
+    }
+
+    public Panel BuildLegendContent()
+    {
+        var panel = ThemedUIFactory.CreateGameplayPanel();
+        panel.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+        var stack = ThemedUIFactory.CreateCompactVerticalStack();
+        stack.Spacing = ThemeManager.Spacing.Small;
+
+        var heading = ThemedUIFactory.CreateHeadingLabel("Map Key");
+        heading.TextColor = ThemeManager.Colors.TextWarning;
+        stack.Widgets.Add(heading);
+        stack.Widgets.Add(CreateLegendRow(CreateOrbitIcon(), "System orbit"));
+        stack.Widgets.Add(CreateLegendRow(CreateBodyIcon(), "Stellar body"));
+        stack.Widgets.Add(CreateLegendRow(CreateRegionIcon(), "Region marker"));
+        stack.Widgets.Add(CreateLegendRow(CreateLaneMouthIcon(), "Lane mouth"));
+
+        panel.Widgets.Add(stack);
+        return panel;
+    }
+
+    private static void PreparePanelForSideBar(Panel panel)
+    {
+        panel.HorizontalAlignment = HorizontalAlignment.Stretch;
+        panel.VerticalAlignment = VerticalAlignment.Top;
+        panel.Margin = new Thickness(0);
+    }
+
     public GameplayHudOverlay(int screenWidth, int screenHeight)
     {
         _screenWidth = screenWidth;
@@ -67,16 +106,14 @@ public sealed class GameplayHudOverlay
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
 
-        int edgeMargin = ThemeManager.ScalePixels(12);
-        int topWidth = Math.Max(320, screenWidth - (edgeMargin * 2));
-        _topBar.Width = topWidth;
-        _topBar.Margin = new Thickness(edgeMargin, ThemeManager.ScalePixels(8), edgeMargin, 0);
+        _topBar.Width = screenWidth;
+        _topBar.Margin = new Thickness(0);
 
         _legendPanel.Width = Math.Min(ThemeManager.ScalePixels(240), Math.Max(180, screenWidth / 4));
-        _legendPanel.Margin = new Thickness(0, ThemeManager.ScalePixels(84), edgeMargin, 0);
+        _legendPanel.Margin = new Thickness(0, 0, ThemeManager.ScalePixels(12), 0);
 
         _aiActivityPanel.Width = Math.Min(ThemeManager.ScalePixels(360), Math.Max(260, screenWidth / 4));
-        _aiActivityPanel.Margin = new Thickness(edgeMargin, ThemeManager.ScalePixels(84), 0, 0);
+        _aiActivityPanel.Margin = new Thickness(ThemeManager.ScalePixels(12), 0, 0, 0);
 
         _selectionPanel.Width = Math.Min(ThemeManager.ScalePixels(380), Math.Max(260, screenWidth / 3));
         _selectionPanel.Margin = new Thickness(0, 0, 0, ThemeManager.ScalePixels(16));
@@ -85,8 +122,14 @@ public sealed class GameplayHudOverlay
         _helpPanel.Height = Math.Min(ThemeManager.ScalePixels(430), Math.Max(260, screenHeight - ThemeManager.ScalePixels(120)));
     }
 
+    public int GetTopBarHeight()
+    {
+        return _topBar.Height ?? ThemeManager.ScalePixels(80);
+    }
+
     public void Update(
         GameStateCache? gameStateCache,
+        MapData? mapData,
         string? currentPlayerId,
         string? statusTitle,
         string? statusDetail,
@@ -105,7 +148,7 @@ public sealed class GameplayHudOverlay
     {
         UpdateTopBar(gameStateCache, currentPlayerId, statusTitle, statusDetail, statusAccent);
         UpdateAiActivity(isAiThinking, activeAiPlayerName, recentAiLogEntries);
-        UpdateSelection(selection, gameStateCache);
+        UpdateSelection(selection, gameStateCache, mapData);
         UpdatePanelHints(statusAccent, dashboardVisible, aiVisible, debugVisible, uiScaleVisible, encyclopediaVisible, tutorialVisible);
         _helpPanel.Visible = showHelp;
     }
@@ -347,7 +390,7 @@ public sealed class GameplayHudOverlay
         _hintLabel.TextColor = statusAccent == default ? ThemeManager.Colors.TextSecondary : statusAccent;
     }
 
-    private void UpdateSelection(SelectionState? selection, GameStateCache? gameStateCache)
+    private void UpdateSelection(SelectionState? selection, GameStateCache? gameStateCache, MapData? mapData)
     {
         if (selection == null || selection.Type == SelectionType.None)
         {
@@ -373,6 +416,13 @@ public sealed class GameplayHudOverlay
                 var region = selection.SelectedRegion;
                 _selectionTitleLabel.Text = "Selected Region";
                 lines.Add($"Name: {region.Name}");
+                var regionLocation = ResolveRegionLocation(mapData, region);
+                if (regionLocation != null)
+                {
+                    lines.Add($"Body: {regionLocation.Value.BodyName}");
+                    lines.Add($"Star: {regionLocation.Value.StarName}");
+                }
+
                 lines.Add(GetOwnershipText(gameStateCache?.GetRegionOwnership(region.Id)?.OwnerId));
                 break;
 
@@ -547,6 +597,35 @@ public sealed class GameplayHudOverlay
     {
         return string.IsNullOrWhiteSpace(ownerId) ? "Owner: Unowned" : $"Owner: {ownerId}";
     }
+
+    private static RegionLocationNames? ResolveRegionLocation(MapData? mapData, RegionData region)
+    {
+        if (mapData == null)
+        {
+            return null;
+        }
+
+        foreach (var system in mapData.StarSystems)
+        {
+            foreach (var body in system.StellarBodies)
+            {
+                bool regionBelongsToBody = string.Equals(body.Id, region.StellarBodyId, StringComparison.OrdinalIgnoreCase) ||
+                                           body.Regions.Any(candidate => string.Equals(candidate.Id, region.Id, StringComparison.OrdinalIgnoreCase));
+                if (!regionBelongsToBody ||
+                    string.IsNullOrWhiteSpace(body.Name) ||
+                    string.IsNullOrWhiteSpace(system.Name))
+                {
+                    continue;
+                }
+
+                return new RegionLocationNames(body.Name, system.Name);
+            }
+        }
+
+        return null;
+    }
+
+    private readonly record struct RegionLocationNames(string BodyName, string StarName);
 
     private static string OnOff(bool value) => value ? "On" : "Off";
 

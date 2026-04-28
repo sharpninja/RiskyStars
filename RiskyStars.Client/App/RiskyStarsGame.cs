@@ -50,8 +50,13 @@ public class RiskyStarsGame : Game
     private UiScaleWindow? _uiScaleWindow;
     private EncyclopediaWindow? _encyclopediaWindow;
     private TutorialWindow? _tutorialWindow;
+    private TutorialModeWindow? _tutorialModeWindow;
+    private ContinentZoomWindow? _continentZoomWindow;
     private SettingsWindow? _settingsWindow;
     private ServerStatusIndicator? _serverStatusIndicator;
+
+    private SidePanelContainer? _leftSidePanel;
+    private SidePanelContainer? _rightSidePanel;
     
     private MapData? _mapData;
     private SpriteFont? _defaultFont;
@@ -62,9 +67,11 @@ public class RiskyStarsGame : Game
     private GameState _gameState = GameState.MainMenu;
     private bool _pendingResolutionChange = false;
     private bool _handlingClientResize = false;
+    private GameWindowMode _appliedWindowMode = GameWindowMode.Normal;
     private string _transitionMessage = "";
     private DateTime _transitionStartTime;
     private bool _pendingGameEntry = false;
+    private bool _tutorialModeActive = false;
     private DateTime _pendingGameEntryStartedAt = DateTime.MinValue;
     private GameFeedbackMessage? _latestFeedback;
     private DateTime _latestFeedbackExpiresAt = DateTime.MinValue;
@@ -93,14 +100,20 @@ public class RiskyStarsGame : Game
 
     private void ApplySettings()
     {
+        _settings.Normalize();
+        var windowModePlan = GameWindowModeController.CreatePlan(_settings.WindowMode);
+
         _graphics.PreferredBackBufferWidth = _settings.ResolutionWidth;
         _graphics.PreferredBackBufferHeight = _settings.ResolutionHeight;
-        _graphics.IsFullScreen = _settings.Fullscreen;
+        _graphics.IsFullScreen = windowModePlan.IsFullscreen;
         
         if (_graphics.GraphicsDevice != null)
         {
             _graphics.ApplyChanges();
         }
+
+        ApplyDesktopWindowMode(windowModePlan, _settings.WindowMode);
+        _appliedWindowMode = _settings.WindowMode;
     }
 
     private void OnClientSizeChanged(object? sender, EventArgs e)
@@ -126,12 +139,20 @@ public class RiskyStarsGame : Game
         _handlingClientResize = true;
         try
         {
+            var currentWindowMode = GetCurrentWindowMode();
             _graphics.PreferredBackBufferWidth = width;
             _graphics.PreferredBackBufferHeight = height;
             _graphics.ApplyChanges();
 
-            _settings.ResolutionWidth = width;
-            _settings.ResolutionHeight = height;
+            _settings.WindowMode = currentWindowMode;
+            _settings.Fullscreen = currentWindowMode == GameWindowMode.Full;
+            _appliedWindowMode = currentWindowMode;
+
+            if (currentWindowMode == GameWindowMode.Normal)
+            {
+                _settings.ResolutionWidth = width;
+                _settings.ResolutionHeight = height;
+            }
 
             ResizeUiForViewport(width, height);
         }
@@ -172,6 +193,7 @@ public class RiskyStarsGame : Game
         }
         
         base.Initialize();
+        ApplyDesktopWindowMode(GameWindowModeController.CreatePlan(_settings.WindowMode), _settings.WindowMode);
     }
 
     protected override void LoadContent()
@@ -271,6 +293,7 @@ public class RiskyStarsGame : Game
             _lobbyManager.SetMultiplayerMode();
             _gameState = GameState.Lobby;
             _mainMenu.SetState(MainMenuState.Main);
+            _mainMenu.ResetNavigationRequests();
         }
 
         if (_mainMenu.ShouldStartSinglePlayer)
@@ -291,11 +314,31 @@ public class RiskyStarsGame : Game
             _lobbyManager.SetSinglePlayerMode();
             _gameState = GameState.Lobby;
             _mainMenu.SetState(MainMenuState.Main);
+            _mainMenu.ResetNavigationRequests();
         }
 
-        if (_mainMenu.Settings.ResolutionWidth != _graphics.PreferredBackBufferWidth ||
-            _mainMenu.Settings.ResolutionHeight != _graphics.PreferredBackBufferHeight ||
-            _mainMenu.Settings.Fullscreen != _graphics.IsFullScreen)
+        if (_mainMenu.ShouldStartTutorial)
+        {
+            if (_pendingResolutionChange)
+            {
+                ApplySettings();
+                ResizeUiForViewport(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+                _pendingResolutionChange = false;
+            }
+
+            _lobbyManager = new LobbyManager(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            if (_defaultFont != null)
+            {
+                _lobbyManager.LoadContent(_defaultFont);
+            }
+
+            _lobbyManager.SetTutorialMode();
+            _gameState = GameState.Lobby;
+            _mainMenu.SetState(MainMenuState.Main);
+            _mainMenu.ResetNavigationRequests();
+        }
+
+        if (HasDisplaySettingsChanged(_mainMenu.Settings))
         {
             _pendingResolutionChange = true;
         }
@@ -328,7 +371,7 @@ public class RiskyStarsGame : Game
 
                 if (_lobbyManager.SelectedGameMode == GameMode.SinglePlayer)
                 {
-                    InitializeSinglePlayerGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player", _lobbyManager.PlayerId);
+                    InitializeSinglePlayerGame(_lobbyManager.SessionId, _lobbyManager.PlayerName ?? "Player", _lobbyManager.PlayerId, _lobbyManager.IsTutorialMode);
                 }
                 else
                 {
@@ -435,9 +478,23 @@ public class RiskyStarsGame : Game
         }
         else if (!(_combatEventDialog?.IsOpen ?? false) && !(_settingsWindow?.IsOpen ?? false))
         {
-            _camera?.Update(gameTime);
-            _inputController?.Update(gameTime);
-            _selectionRenderer?.Update(gameTime);
+            bool isContinentZoomOpen = _continentZoomWindow?.IsVisible == true;
+
+            if (!isContinentZoomOpen)
+            {
+                _camera?.Update(gameTime);
+            }
+
+            if (_inputController != null)
+            {
+                _inputController.IsPointerInputBlocked = isContinentZoomOpen;
+                _inputController.Update(gameTime);
+            }
+
+            if (!isContinentZoomOpen)
+            {
+                _selectionRenderer?.Update(gameTime);
+            }
             
             if (_gameStateCache != null && _mapData != null)
             {
@@ -521,12 +578,11 @@ public class RiskyStarsGame : Game
 
     private void ApplyRuntimeSettings(Settings settings, bool preserveUiScaleWindow, bool recreateSettingsWindow)
     {
+        settings.Normalize();
         bool uiScaleChanged = settings.UiScalePercent != ThemeManager.CurrentUiScalePercent;
         ThemeManager.ApplyThemeSettings(settings);
 
-        bool resolutionChanged = settings.ResolutionWidth != _graphics.PreferredBackBufferWidth ||
-                                settings.ResolutionHeight != _graphics.PreferredBackBufferHeight ||
-                                settings.Fullscreen != _graphics.IsFullScreen;
+        bool resolutionChanged = HasDisplaySettingsChanged(settings);
         
         if (resolutionChanged)
         {
@@ -614,6 +670,14 @@ public class RiskyStarsGame : Game
         _uiScaleWindow?.ResizeViewport(width, height);
         _encyclopediaWindow?.ResizeViewport(width, height);
         _tutorialWindow?.ResizeViewport(width, height);
+        _tutorialModeWindow?.ResizeViewport(width, height);
+        _continentZoomWindow?.ResizeViewport(width, height);
+
+        int topBarHeight = _gameplayHudOverlay?.GetTopBarHeight() ?? ThemeManager.ScalePixels(80);
+        int panelTopOffset = topBarHeight + ThemeManager.ScalePixels(12);
+        System.Diagnostics.Debug.WriteLine($"[UI] Resizing panels: size={width}x{height}, topBar={topBarHeight}");
+        _leftSidePanel?.ResizeViewport(width, height, panelTopOffset);
+        _rightSidePanel?.ResizeViewport(width, height, panelTopOffset);
 
         if (_serverStatusIndicator != null)
         {
@@ -626,6 +690,8 @@ public class RiskyStarsGame : Game
 
     private void InitializeGame(string sessionId, string playerName, string playerId)
     {
+        _tutorialModeActive = false;
+
         if (_lobbyManager == null || _gameStateCache == null || _mapData == null || _camera == null)
         {
             GameFeedbackBus.PublishError("Game initialization failed", "Client world services are not ready.");
@@ -646,6 +712,7 @@ public class RiskyStarsGame : Game
         _playerDashboard = new PlayerDashboard(GraphicsDevice, gameClient, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _playerDashboard.IsVisible = false;
         _inputController = new InputController(gameClient, gameStateCache, mapData, camera);
+        _inputController.ContinentZoomRequested += OnContinentZoomRequested;
         CreateInGameWindows(gameClient);
         
         if (_inGameDesktop != null)
@@ -688,8 +755,10 @@ public class RiskyStarsGame : Game
         });
     }
 
-    private void InitializeSinglePlayerGame(string sessionId, string playerName, string playerId)
+    private void InitializeSinglePlayerGame(string sessionId, string playerName, string playerId, bool tutorialMode = false)
     {
+        _tutorialModeActive = tutorialMode;
+
         if (_lobbyManager?.EmbeddedServer == null || _gameStateCache == null || _mapData == null || _camera == null)
         {
             GameFeedbackBus.PublishError("Game initialization failed", "Single-player world services are not ready.");
@@ -701,7 +770,9 @@ public class RiskyStarsGame : Game
         var camera = _camera;
 
         _gameStateCache.Clear();
-        GameFeedbackBus.PublishBusy("Launching single-player command deck", "Connecting to the embedded game stream.");
+        GameFeedbackBus.PublishBusy(
+            tutorialMode ? "Launching tutorial command deck" : "Launching single-player command deck",
+            "Connecting to the embedded game stream.");
 
         var gameClient = GrpcGameClient.CreateForSinglePlayer(_lobbyManager.EmbeddedServer);
         _connectionManager = new ConnectionManager(gameClient);
@@ -709,6 +780,7 @@ public class RiskyStarsGame : Game
         _playerDashboard = new PlayerDashboard(GraphicsDevice, gameClient, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _playerDashboard.IsVisible = false;
         _inputController = new InputController(gameClient, gameStateCache, mapData, camera);
+        _inputController.ContinentZoomRequested += OnContinentZoomRequested;
         CreateInGameWindows(gameClient);
 
         _serverStatusIndicator = new ServerStatusIndicator(500);
@@ -800,8 +872,11 @@ public class RiskyStarsGame : Game
         _uiScaleWindow = null;
         _encyclopediaWindow = null;
         _tutorialWindow = null;
+        _tutorialModeWindow = null;
+        _continentZoomWindow = null;
         _serverStatusIndicator = null;
         _contextMenuManager = null;
+        _tutorialModeActive = false;
         _gameStateCache = new GameStateCache();
         
         if (_inGameDesktop != null)
@@ -1127,6 +1202,72 @@ public class RiskyStarsGame : Game
         _settingsWindow?.Render();
     }
 
+    private void ApplyDesktopWindowMode(WindowModePlan plan, GameWindowMode mode)
+    {
+        if (plan.MaximizeWindow)
+        {
+            GameWindowModeController.ApplyDesktopMode(Window.Handle, GameWindowMode.Maximized);
+        }
+        else if (plan.RestoreWindow)
+        {
+            GameWindowModeController.ApplyDesktopMode(Window.Handle, GameWindowMode.Normal);
+        }
+    }
+
+    private bool HasDisplaySettingsChanged(Settings settings)
+    {
+        return WindowDisplaySettings.HasDisplaySettingsChanged(
+            settings,
+            new AppliedWindowDisplayState(
+                _graphics.PreferredBackBufferWidth,
+                _graphics.PreferredBackBufferHeight,
+                _graphics.IsFullScreen,
+                _appliedWindowMode));
+    }
+
+    private GameWindowMode GetCurrentWindowMode()
+    {
+        if (_graphics.IsFullScreen)
+        {
+            return GameWindowMode.Full;
+        }
+
+        if (GameWindowModeController.TryDetectMaximized(Window.Handle, out var isMaximized))
+        {
+            return GameWindowModeController.DetectMode(false, isMaximized);
+        }
+
+        return _appliedWindowMode == GameWindowMode.Maximized ? GameWindowMode.Maximized : GameWindowMode.Normal;
+    }
+
+    private void PersistWindowDisplaySettings()
+    {
+        try
+        {
+            var currentMode = GetCurrentWindowMode();
+            var width = currentMode == GameWindowMode.Full
+                ? _graphics.PreferredBackBufferWidth
+                : Window.ClientBounds.Width;
+            var height = currentMode == GameWindowMode.Full
+                ? _graphics.PreferredBackBufferHeight
+                : Window.ClientBounds.Height;
+
+            WindowDisplaySettings.CaptureCurrentDisplay(
+                _settings,
+                new AppliedWindowDisplayState(
+                    width,
+                    height,
+                    currentMode == GameWindowMode.Full,
+                    currentMode));
+
+            _settings.Save();
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"Failed to persist window display settings: {ex.Message}");
+        }
+    }
+
     private void ProcessGameUpdate(GameUpdate update)
     {
         if (_gameStateCache == null)
@@ -1228,8 +1369,31 @@ public class RiskyStarsGame : Game
     {
         DetachInGameWindows();
 
+        int leftWidth = Math.Max(200, Math.Min(500, _windowPreferences.LeftPanelWidth));
+        int rightWidth = Math.Max(200, Math.Min(500, _windowPreferences.RightPanelWidth));
+        bool leftCollapsed = _windowPreferences.LeftPanelCollapsed;
+        bool rightCollapsed = _windowPreferences.RightPanelCollapsed;
+
         _gameplayHudOverlay = new GameplayHudOverlay(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _combatHudOverlay = new CombatHudOverlay(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+
+        int topBarHeight = _gameplayHudOverlay.GetTopBarHeight();
+        int screenWidth = Window.ClientBounds.Width;
+        int screenHeight = Window.ClientBounds.Height;
+
+        System.Diagnostics.Debug.WriteLine($"[UI] Creating panels: screen={screenWidth}x{screenHeight}, topBar={topBarHeight}, gfx={_graphics.PreferredBackBufferWidth}x{_graphics.PreferredBackBufferHeight}");
+
+        int panelTopOffset = topBarHeight + ThemeManager.ScalePixels(12);
+        _leftSidePanel = new SidePanelContainer("left", leftWidth, screenWidth, screenHeight, panelTopOffset);
+        _rightSidePanel = new SidePanelContainer("right", rightWidth, screenWidth, screenHeight, panelTopOffset);
+        _leftSidePanel.SetCollapsed(leftCollapsed, false);
+        _rightSidePanel.SetCollapsed(rightCollapsed, false);
+
+        _leftSidePanel.WidthChanged += OnSidePanelWidthChanged;
+        _leftSidePanel.CollapseChanged += OnSidePanelCollapseChanged;
+        _rightSidePanel.WidthChanged += OnSidePanelWidthChanged;
+        _rightSidePanel.CollapseChanged += OnSidePanelCollapseChanged;
+
         _playerDashboardWindow = new PlayerDashboardWindow(gameClient, _windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _aiVisualizationWindow = new AIVisualizationWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _debugInfoWindow = new DebugInfoWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
@@ -1243,6 +1407,19 @@ public class RiskyStarsGame : Game
         }
         _encyclopediaWindow = new EncyclopediaWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         _tutorialWindow = new TutorialWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        _tutorialModeWindow = _tutorialModeActive
+            ? new TutorialModeWindow(_windowPreferences, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight)
+            : null;
+        _continentZoomWindow = new ContinentZoomWindow(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        _continentZoomWindow.RegionSelected += OnContinentZoomRegionSelected;
+
+        if (_tutorialModeWindow != null)
+        {
+            _tutorialModeWindow.ReferenceRequested += OpenTutorialReference;
+            _tutorialModeWindow.EndRequested += EndTutorialMode;
+        }
+
+        PopulateSidePanels();
 
         if (!string.IsNullOrWhiteSpace(_currentPlayerId))
         {
@@ -1252,11 +1429,68 @@ public class RiskyStarsGame : Game
         _aiActionTracker?.SetAIVisualizationWindow(_aiVisualizationWindow);
     }
 
+    private void OnSidePanelWidthChanged(object? sender, int width)
+    {
+        if (sender == _leftSidePanel)
+        {
+            _windowPreferences.LeftPanelWidth = width;
+        }
+        else if (sender == _rightSidePanel)
+        {
+            _windowPreferences.RightPanelWidth = width;
+        }
+        //_windowPreferences.Save(); // disabled for testing
+    }
+
+    private void OnSidePanelCollapseChanged(object? sender, bool isCollapsed)
+    {
+        if (sender == _leftSidePanel)
+        {
+            _windowPreferences.LeftPanelCollapsed = isCollapsed;
+        }
+        else if (sender == _rightSidePanel)
+        {
+            _windowPreferences.RightPanelCollapsed = isCollapsed;
+        }
+        //_windowPreferences.Save(); // disabled for testing
+    }
+
+    private void PopulateSidePanels()
+    {
+        if (_leftSidePanel == null || _rightSidePanel == null || _gameplayHudOverlay == null)
+        {
+            return;
+        }
+
+        _leftSidePanel.Clear();
+        _rightSidePanel.Clear();
+
+        _leftSidePanel.AddWidget(_gameplayHudOverlay.BuildAiActivityContent());
+        _rightSidePanel.AddWidget(_gameplayHudOverlay.BuildSelectionContent());
+        _rightSidePanel.AddWidget(_gameplayHudOverlay.BuildLegendContent());
+
+        _gameplayHudOverlay.AiActivityPanel.Visible = false;
+        _gameplayHudOverlay.SelectionPanel.Visible = false;
+        _gameplayHudOverlay.LegendPanel.Visible = false;
+
+        System.Diagnostics.Debug.WriteLine($"[UI] Left panel: {_leftSidePanel.Width}px, Right panel: {_rightSidePanel.Width}px");
+    }
+
     private void DetachInGameWindows()
     {
         if (_inGameDesktop == null)
         {
             return;
+        }
+
+        if (_leftSidePanel != null)
+        {
+            _inGameDesktop.Widgets.Remove(_leftSidePanel.Container);
+        }
+
+        if (_rightSidePanel != null)
+        {
+            _inGameDesktop.Widgets.Remove(_rightSidePanel.Container);
         }
 
         if (_gameplayHudOverlay != null)
@@ -1303,6 +1537,16 @@ public class RiskyStarsGame : Game
         {
             _inGameDesktop.Widgets.Remove(_tutorialWindow.Window);
         }
+
+        if (_tutorialModeWindow != null)
+        {
+            _inGameDesktop.Widgets.Remove(_tutorialModeWindow.Window);
+        }
+
+        if (_continentZoomWindow != null)
+        {
+            _inGameDesktop.Widgets.Remove(_continentZoomWindow.Window);
+        }
     }
 
     private void AttachInGameWindows()
@@ -1314,18 +1558,129 @@ public class RiskyStarsGame : Game
 
         _inGameDesktop.Root = null;
 
+        int topBarHeight = _gameplayHudOverlay?.GetTopBarHeight() ?? 80;
+        int panelTopOffset = topBarHeight + ThemeManager.ScalePixels(12);
+
+        if (_leftSidePanel != null || _rightSidePanel != null)
+        {
+            AttachDesktopWidget(_leftSidePanel?.Container);
+            AttachDesktopWidget(_rightSidePanel?.Container);
+
+            if (_leftSidePanel != null)
+            {
+                _leftSidePanel.Container.Visible = true;
+                _leftSidePanel.UpdatePosition(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight, panelTopOffset);
+                System.Diagnostics.Debug.WriteLine($"[UI] Left panel attached, top={_leftSidePanel.Container.Top}, visible: {_leftSidePanel.Container.Visible}");
+            }
+            if (_rightSidePanel != null)
+            {
+                _rightSidePanel.Container.Visible = true;
+                _rightSidePanel.UpdatePosition(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight, panelTopOffset);
+                System.Diagnostics.Debug.WriteLine($"[UI] Right panel attached at Left={_rightSidePanel.Container.Left}, Top={_rightSidePanel.Container.Top}, visible: {_rightSidePanel.Container.Visible}");
+            }
+
+            AttachDesktopWidget(_gameplayHudOverlay?.TopBar);
+            AttachDesktopWidget(_gameplayHudOverlay?.HelpPanel);
+            HideStandardWorkspaceWindows();
+            AttachDockableWorkspaceWindows();
+            AttachStatusAndCombatOverlays();
+            return;
+        }
+
         AttachDesktopWidget(_gameplayHudOverlay?.TopBar);
-        AttachDesktopWidget(_gameplayHudOverlay?.LegendPanel);
+        AttachDesktopWidget(_gameplayHudOverlay?.HelpPanel);
+
+        if (_gameplayHudOverlay?.AiActivityPanel != null)
+        {
+            _gameplayHudOverlay.AiActivityPanel.Top = topBarHeight + ThemeManager.ScalePixels(12);
+            _gameplayHudOverlay.AiActivityPanel.Left = ThemeManager.ScalePixels(12);
+            _gameplayHudOverlay.AiActivityPanel.Visible = true;
+        }
+        if (_gameplayHudOverlay?.SelectionPanel != null)
+        {
+            _gameplayHudOverlay.SelectionPanel.Top = topBarHeight + ThemeManager.ScalePixels(12);
+            _gameplayHudOverlay.SelectionPanel.Visible = true;
+        }
+        if (_gameplayHudOverlay?.LegendPanel != null)
+        {
+            _gameplayHudOverlay.LegendPanel.Top = topBarHeight + ThemeManager.ScalePixels(12);
+            _gameplayHudOverlay.LegendPanel.Visible = true;
+        }
         AttachDesktopWidget(_gameplayHudOverlay?.AiActivityPanel);
         AttachDesktopWidget(_gameplayHudOverlay?.SelectionPanel);
-        AttachDesktopWidget(_gameplayHudOverlay?.HelpPanel);
+        AttachDesktopWidget(_gameplayHudOverlay?.LegendPanel);
+
+        if (_playerDashboardWindow != null)
+        {
+            _playerDashboardWindow.Window.Visible = false;
+        }
+        if (_aiVisualizationWindow != null)
+        {
+            _aiVisualizationWindow.Window.Visible = false;
+        }
+        if (_debugInfoWindow != null)
+        {
+            _debugInfoWindow.Window.Visible = false;
+        }
+        if (_uiScaleWindow != null)
+        {
+            _uiScaleWindow.Window.Visible = false;
+        }
+        if (_encyclopediaWindow != null)
+        {
+            _encyclopediaWindow.Window.Visible = false;
+        }
+        if (_tutorialWindow != null)
+        {
+            _tutorialWindow.Window.Visible = false;
+        }
+        AttachDockableWorkspaceWindows();
+
+        AttachStatusAndCombatOverlays();
+    }
+
+    private void AttachDockableWorkspaceWindows()
+    {
         AttachDesktopWidget(_playerDashboardWindow?.Window);
         AttachDesktopWidget(_aiVisualizationWindow?.Window);
         AttachDesktopWidget(_debugInfoWindow?.Window);
         AttachDesktopWidget(_uiScaleWindow?.Window);
         AttachDesktopWidget(_encyclopediaWindow?.Window);
         AttachDesktopWidget(_tutorialWindow?.Window);
+        AttachDesktopWidget(_tutorialModeWindow?.Window);
+        AttachDesktopWidget(_continentZoomWindow?.Window);
+    }
 
+    private void HideStandardWorkspaceWindows()
+    {
+        if (_playerDashboardWindow != null)
+        {
+            _playerDashboardWindow.Window.Visible = false;
+        }
+        if (_aiVisualizationWindow != null)
+        {
+            _aiVisualizationWindow.Window.Visible = false;
+        }
+        if (_debugInfoWindow != null)
+        {
+            _debugInfoWindow.Window.Visible = false;
+        }
+        if (_uiScaleWindow != null)
+        {
+            _uiScaleWindow.Window.Visible = false;
+        }
+        if (_encyclopediaWindow != null)
+        {
+            _encyclopediaWindow.Window.Visible = false;
+        }
+        if (_tutorialWindow != null)
+        {
+            _tutorialWindow.Window.Visible = false;
+        }
+    }
+
+    private void AttachStatusAndCombatOverlays()
+    {
         if (_serverStatusIndicator != null)
         {
             _serverStatusIndicator.Container.HorizontalAlignment = HorizontalAlignment.Center;
@@ -1371,6 +1726,58 @@ public class RiskyStarsGame : Game
     private void UpdateTutorialWindow()
     {
         _tutorialWindow?.UpdateContent(_gameStateCache, _currentPlayerId, _inputController?.Selection, _combatScreen?.IsActive == true);
+
+        if (!_tutorialModeActive || _tutorialModeWindow == null)
+        {
+            return;
+        }
+
+        _tutorialModeWindow.UpdateContent(new TutorialModeSnapshot(
+            _gameStateCache,
+            _currentPlayerId,
+            _inputController?.Selection,
+            _inputController?.ShowHelp == true,
+            _playerDashboardWindow?.IsVisible == true,
+            _encyclopediaWindow?.IsVisible == true,
+            _tutorialWindow?.IsVisible == true,
+            _contextMenuManager?.IsMenuOpen == true,
+            _combatScreen?.IsActive == true));
+    }
+
+    private void OpenTutorialReference()
+    {
+        _tutorialWindow?.Show();
+    }
+
+    private void EndTutorialMode()
+    {
+        if (!_tutorialModeActive)
+        {
+            return;
+        }
+
+        _tutorialModeActive = false;
+        _tutorialModeWindow?.Hide();
+        GameFeedbackBus.PublishSuccess("Tutorial mode ended", "Free play continues in the current single-player session.");
+    }
+
+    private void OnContinentZoomRequested(object? sender, StellarBodyData body)
+    {
+        var starSystem = FindStarSystemForBody(body);
+        _continentZoomWindow?.Show(body, starSystem);
+        GameFeedbackBus.PublishInfo("Planet zoom opened", $"Select a continent on {body.Name}.");
+    }
+
+    private void OnContinentZoomRegionSelected(RegionData region)
+    {
+        _inputController?.Selection.SelectRegion(region);
+        GameFeedbackBus.PublishInfo("Continent selected", region.Name);
+    }
+
+    private StarSystemData? FindStarSystemForBody(StellarBodyData body)
+    {
+        return _mapData?.StarSystems.FirstOrDefault(system =>
+            system.StellarBodies.Any(candidate => string.Equals(candidate.Id, body.Id, StringComparison.OrdinalIgnoreCase)));
     }
 
     private void UpdateGameplayHud()
@@ -1383,6 +1790,7 @@ public class RiskyStarsGame : Game
         var status = BuildVisibleStatus();
         _gameplayHudOverlay.Update(
             _gameStateCache,
+            _mapData,
             _currentPlayerId,
             status?.Title,
             status?.Detail,
@@ -1437,6 +1845,8 @@ public class RiskyStarsGame : Game
     {
         if (disposing)
         {
+            PersistWindowDisplaySettings();
+
             try
             {
                 if (_connectionManager != null)

@@ -187,7 +187,7 @@ public class SettingsWindow
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        _windowModeComboBox.SelectedIndex = _tempSettings.Fullscreen ? 1 : 0;
+        _windowModeComboBox.SelectedIndex = Settings.GetWindowModeOptionIndex(_tempSettings.WindowMode);
         windowModeGrid.Widgets.Add(_windowModeComboBox);
         contentStack.Widgets.Add(windowModeGrid);
 
@@ -588,7 +588,7 @@ public class SettingsWindow
             }
         }
         
-        _tempSettings.Fullscreen = string.Equals(_windowModeComboBox?.SelectedItem?.Text, "Fullscreen", StringComparison.OrdinalIgnoreCase);
+        _tempSettings.WindowMode = Settings.ParseWindowModeOption(_windowModeComboBox?.SelectedItem?.Text);
         _tempSettings.UiScalePercent = (int)Math.Round(_uiScaleSlider?.Value ?? _tempSettings.UiScalePercent);
         _tempSettings.VSync = _vsyncCheckButton?.IsPressed ?? false;
         _tempSettings.Normalize();
@@ -645,6 +645,7 @@ public class SettingsWindow
         _settings.ResolutionWidth = _tempSettings.ResolutionWidth;
         _settings.ResolutionHeight = _tempSettings.ResolutionHeight;
         _settings.UiScalePercent = _tempSettings.UiScalePercent;
+        _settings.WindowMode = _tempSettings.WindowMode;
         _settings.Fullscreen = _tempSettings.Fullscreen;
         _settings.VSync = _tempSettings.VSync;
         _settings.TargetFrameRate = _tempSettings.TargetFrameRate;
@@ -720,7 +721,7 @@ public class SettingsWindow
         
         if (_windowModeComboBox != null)
         {
-            _windowModeComboBox.SelectedIndex = _tempSettings.Fullscreen ? 1 : 0;
+            _windowModeComboBox.SelectedIndex = Settings.GetWindowModeOptionIndex(_tempSettings.WindowMode);
         }
 
         if (_uiScaleSlider != null)

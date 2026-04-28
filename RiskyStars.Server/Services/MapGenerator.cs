@@ -1,4 +1,5 @@
 using RiskyStars.Server.Entities;
+using RiskyStars.Shared;
 
 namespace RiskyStars.Server.Services;
 
@@ -43,7 +44,7 @@ public class MapGenerator
             var system = new StarSystem
             {
                 Id = $"home_{i + 1}",
-                Name = $"Home System {i + 1}",
+                Name = MapNameCatalog.GetStarName(i),
                 Type = StarSystemType.Home,
                 StellarBodies = new List<StellarBody>(),
                 HyperspaceLanes = new List<HyperspaceLane>()
@@ -61,7 +62,7 @@ public class MapGenerator
         var system = new StarSystem
         {
             Id = "featured",
-            Name = "Featured System",
+            Name = MapNameCatalog.GetStarName(config.PlayerCount),
             Type = StarSystemType.Featured,
             StellarBodies = new List<StellarBody>(),
             HyperspaceLanes = new List<HyperspaceLane>()
@@ -84,7 +85,7 @@ public class MapGenerator
             var system = new StarSystem
             {
                 Id = $"minor_{i + 1}",
-                Name = $"Minor System {i + 1}",
+                Name = MapNameCatalog.GetStarName(config.PlayerCount + 1 + i),
                 Type = StarSystemType.Minor,
                 StellarBodies = new List<StellarBody>(),
                 HyperspaceLanes = new List<HyperspaceLane>()
@@ -105,7 +106,7 @@ public class MapGenerator
         while (currentRegionCount < targetRegionCount)
         {
             var bodyType = bodyTypes[_random.Next(bodyTypes.Length)];
-            var body = GenerateStellarBody(system.Id, bodyType);
+            var body = GenerateStellarBody(system, bodyType);
 
             int bodyRegionCount = body.GetRegionCount();
             if (currentRegionCount + bodyRegionCount <= targetRegionCount)
@@ -116,7 +117,7 @@ public class MapGenerator
             else if (bodyType == StellarBodyType.RockyPlanet)
             {
                 int remainingRegions = targetRegionCount - currentRegionCount;
-                var adjustedBody = GenerateRockyPlanetWithExactRegions(system.Id, remainingRegions);
+                var adjustedBody = GenerateRockyPlanetWithExactRegions(system, remainingRegions);
                 if (adjustedBody != null)
                 {
                     system.StellarBodies.Add(adjustedBody);
@@ -126,14 +127,14 @@ public class MapGenerator
         }
     }
 
-    private StellarBody GenerateStellarBody(string starSystemId, StellarBodyType type)
+    private StellarBody GenerateStellarBody(StarSystem system, StellarBodyType type)
     {
         var body = new StellarBody
         {
             Id = $"body_{_idCounter++}",
-            Name = GenerateBodyName(type),
+            Name = MapNameCatalog.GetStellarBodyName(system.Name, system.StellarBodies.Count),
             Type = type,
-            StarSystemId = starSystemId,
+            StarSystemId = system.Id,
             UpgradeLevel = 0,
             Regions = new List<Region>(),
             Heroes = new List<Hero>()
@@ -154,14 +155,14 @@ public class MapGenerator
         return body;
     }
 
-    private StellarBody? GenerateRockyPlanetWithExactRegions(string starSystemId, int regionCount)
+    private StellarBody? GenerateRockyPlanetWithExactRegions(StarSystem system, int regionCount)
     {
         var body = new StellarBody
         {
             Id = $"body_{_idCounter++}",
-            Name = GenerateBodyName(StellarBodyType.RockyPlanet),
+            Name = MapNameCatalog.GetStellarBodyName(system.Name, system.StellarBodies.Count),
             Type = StellarBodyType.RockyPlanet,
-            StarSystemId = starSystemId,
+            StarSystemId = system.Id,
             UpgradeLevel = 0,
             Regions = new List<Region>(),
             Heroes = new List<Hero>()
@@ -198,7 +199,7 @@ public class MapGenerator
             var region = new Region
             {
                 Id = $"{body.Id}_region_{i + 1}",
-                Name = GenerateRegionName(body.Type, body.SurfaceType, i, regionCount),
+                Name = GenerateRegionName(body, i),
                 StellarBodyId = body.Id,
                 OwnerId = null,
                 Army = null
@@ -262,32 +263,20 @@ public class MapGenerator
         return lane;
     }
 
-    private string GenerateBodyName(StellarBodyType type)
+    private string GenerateRegionName(StellarBody body, int index)
     {
-        return type switch
-        {
-            StellarBodyType.GasGiant => $"Gas Giant {_random.Next(1000, 9999)}",
-            StellarBodyType.RockyPlanet => $"Planet {_random.Next(1000, 9999)}",
-            StellarBodyType.Planetoid => $"Planetoid {_random.Next(1000, 9999)}",
-            StellarBodyType.Comet => $"Comet {_random.Next(1000, 9999)}",
-            _ => $"Body {_random.Next(1000, 9999)}"
-        };
-    }
-
-    private string GenerateRegionName(StellarBodyType type, RockyPlanetSurfaceType? surfaceType, int index, int totalRegions)
-    {
-        if (type == StellarBodyType.GasGiant || type == StellarBodyType.Planetoid || type == StellarBodyType.Comet)
+        if (body.Type == StellarBodyType.GasGiant || body.Type == StellarBodyType.Planetoid || body.Type == StellarBodyType.Comet)
         {
             return "Surface";
         }
 
-        if (type == StellarBodyType.RockyPlanet && surfaceType.HasValue)
+        if (body.Type == StellarBodyType.RockyPlanet && body.SurfaceType.HasValue)
         {
-            return surfaceType.Value switch
+            return body.SurfaceType.Value switch
             {
                 RockyPlanetSurfaceType.Barren => index == 0 ? "Northern Hemisphere" : "Southern Hemisphere",
                 RockyPlanetSurfaceType.Ocean => "Ocean Surface",
-                RockyPlanetSurfaceType.Gaia => $"Continent {index + 1}",
+                RockyPlanetSurfaceType.Gaia => MapNameCatalog.GetContinentName(body.Name, index),
                 _ => $"Region {index + 1}"
             };
         }

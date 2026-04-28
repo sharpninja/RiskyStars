@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RiskyStars.Client\RiskyStars.Client.csproj" />
+    <ProjectReference Include="..\RiskyStars.Server\RiskyStars.Server.csproj" />
     <ProjectReference Include="..\RiskyStars.Shared\RiskyStars.Shared.csproj" />
   </ItemGroup>
 

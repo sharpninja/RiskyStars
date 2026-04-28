@@ -6,6 +6,10 @@ namespace RiskyStars.Client;
 public class WindowPreferences
 {
     public Dictionary<string, WindowState> Windows { get; set; } = new();
+    public int LeftPanelWidth { get; set; } = 0;
+    public int RightPanelWidth { get; set; } = 0;
+    public bool LeftPanelCollapsed { get; set; }
+    public bool RightPanelCollapsed { get; set; }
 
     private static readonly string PreferencesPath = "window_preferences.json";
 

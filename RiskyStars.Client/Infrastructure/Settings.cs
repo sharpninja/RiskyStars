@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using RiskyStars.Client;
 
 namespace RiskyStars.Client;
@@ -17,8 +18,9 @@ public class Settings
 
     public static readonly string[] WindowModeOptions =
     [
-        "Windowed",
-        "Fullscreen"
+        "Normal",
+        "Maximized",
+        "Full"
     ];
 
     public static List<string> GetResolutionOptions(string? currentResolution = null)
@@ -38,6 +40,8 @@ public class Settings
     public int ResolutionWidth { get; set; } = 1280;
     public int ResolutionHeight { get; set; } = 720;
     public int UiScalePercent { get; set; } = 100;
+    [JsonConverter(typeof(JsonStringEnumConverter<GameWindowMode>))]
+    public GameWindowMode WindowMode { get; set; } = GameWindowMode.Normal;
     public bool Fullscreen { get; set; } = false;
     public bool VSync { get; set; } = true;
     public int TargetFrameRate { get; set; } = 60;
@@ -97,6 +101,7 @@ public class Settings
             ResolutionWidth = ResolutionWidth,
             ResolutionHeight = ResolutionHeight,
             UiScalePercent = UiScalePercent,
+            WindowMode = WindowMode,
             Fullscreen = Fullscreen,
             VSync = VSync,
             TargetFrameRate = TargetFrameRate,
@@ -121,10 +126,56 @@ public class Settings
             ServerAddress = "http://localhost:5000";
         }
 
+        if (!Enum.IsDefined(WindowMode))
+        {
+            WindowMode = Fullscreen ? GameWindowMode.Full : GameWindowMode.Normal;
+        }
+
+        if (Fullscreen && WindowMode == GameWindowMode.Normal)
+        {
+            WindowMode = GameWindowMode.Full;
+        }
+
+        Fullscreen = WindowMode == GameWindowMode.Full;
         UiScalePercent = Math.Clamp(UiScalePercent <= 0 ? 100 : UiScalePercent, 80, 160);
         ResolutionWidth = Math.Max(800, ResolutionWidth);
         ResolutionHeight = Math.Max(600, ResolutionHeight);
     }
+
+    public static GameWindowMode ParseWindowModeOption(string? option)
+    {
+        return option?.Trim() switch
+        {
+            "Normal" or "Windowed" => GameWindowMode.Normal,
+            "Maximized" => GameWindowMode.Maximized,
+            "Full" or "Fullscreen" => GameWindowMode.Full,
+            _ => GameWindowMode.Normal
+        };
+    }
+
+    public static string GetWindowModeOption(GameWindowMode mode)
+    {
+        return mode switch
+        {
+            GameWindowMode.Maximized => "Maximized",
+            GameWindowMode.Full => "Full",
+            _ => "Normal"
+        };
+    }
+
+    public static int GetWindowModeOptionIndex(GameWindowMode mode)
+    {
+        var option = GetWindowModeOption(mode);
+        var index = Array.IndexOf(WindowModeOptions, option);
+        return index >= 0 ? index : 0;
+    }
+}
+
+public enum GameWindowMode
+{
+    Normal,
+    Maximized,
+    Full
 }
 
 public class UiThemeSettings
