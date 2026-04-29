@@ -206,6 +206,9 @@ public sealed class TutorialModeWindow : DockableWindow
 
     public event Action? EndRequested;
 
+    internal IReadOnlyList<TutorialHighlightTarget> CurrentHighlightTargets =>
+        TutorialHighlightTargets.ForCompletion(Steps[_currentStepIndex].Completion);
+
     public TutorialModeWindow(WindowPreferences preferences, int screenWidth, int screenHeight)
         : base("tutorial_mode", "Tutorial Mode", preferences, screenWidth, screenHeight, 520, 640)
     {

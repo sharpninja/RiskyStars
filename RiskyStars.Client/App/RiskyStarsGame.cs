@@ -1274,7 +1274,206 @@ public class RiskyStarsGame : Game
     private void DrawInGameUi()
     {
         _inGameDesktop?.Render();
+        DrawTutorialHighlights(spriteBatch: _spriteBatch);
         _settingsWindow?.Render();
+    }
+
+    private void DrawTutorialHighlights(SpriteBatch? spriteBatch)
+    {
+        if (spriteBatch == null ||
+            _pixelTexture == null ||
+            _tutorialModeWindow?.IsVisible != true)
+        {
+            return;
+        }
+
+        IReadOnlyList<TutorialHighlightBounds> highlights = BuildTutorialHighlightBounds();
+        if (highlights.Count == 0)
+        {
+            return;
+        }
+
+        PrepareBackBufferDrawState();
+        TutorialHighlightRenderer.Draw(
+            spriteBatch,
+            _pixelTexture,
+            highlights,
+            _graphics.PreferredBackBufferWidth,
+            _graphics.PreferredBackBufferHeight);
+    }
+
+    private IReadOnlyList<TutorialHighlightBounds> BuildTutorialHighlightBounds()
+    {
+        if (_tutorialModeWindow?.IsVisible != true)
+        {
+            return [];
+        }
+
+        var visibleBounds = new Dictionary<TutorialHighlightTarget, Rectangle>();
+        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.TopBar, _gameplayHudOverlay?.TopBar);
+        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.ResourceChips, _gameplayHudOverlay?.TopBar);
+        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.HelpPanel, _gameplayHudOverlay?.HelpPanel);
+        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.SelectionPanel, _gameplayHudOverlay?.SelectionPanel);
+        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.PlayerDashboard, _playerDashboardWindow?.Window);
+        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.EncyclopediaWindow, _encyclopediaWindow?.Window);
+
+        Rectangle mapTargetBounds = BuildMapSelectionTargetBounds();
+        if (mapTargetBounds.Width > 0 && mapTargetBounds.Height > 0)
+        {
+            visibleBounds[TutorialHighlightTarget.MapViewport] = mapTargetBounds;
+        }
+
+        return TutorialHighlightBoundsResolver.Resolve(_tutorialModeWindow.CurrentHighlightTargets, visibleBounds);
+    }
+
+    private static void AddWidgetBounds(
+        Dictionary<TutorialHighlightTarget, Rectangle> visibleBounds,
+        TutorialHighlightTarget target,
+        Widget? widget)
+    {
+        if (TryGetWidgetBounds(widget, out Rectangle bounds))
+        {
+            visibleBounds[target] = bounds;
+        }
+    }
+
+    private static bool TryGetWidgetBounds(Widget? widget, out Rectangle bounds)
+    {
+        bounds = Rectangle.Empty;
+        if (widget?.Visible != true)
+        {
+            return false;
+        }
+
+        bounds = widget.ActualBounds;
+        if (bounds.Width > 0 && bounds.Height > 0)
+        {
+            return true;
+        }
+
+        int width = widget.Width ?? widget.Bounds.Width;
+        int height = widget.Height ?? widget.Bounds.Height;
+        if (width <= 0 || height <= 0)
+        {
+            return false;
+        }
+
+        bounds = new Rectangle(widget.Left, widget.Top, width, height);
+        return true;
+    }
+
+    private Rectangle BuildMapSelectionTargetBounds()
+    {
+        if (_mapData == null || _camera == null)
+        {
+            return Rectangle.Empty;
+        }
+
+        Rectangle viewportBounds = GetMapViewportBounds();
+        if (viewportBounds.Width <= 0 || viewportBounds.Height <= 0)
+        {
+            return Rectangle.Empty;
+        }
+
+        Matrix worldToScreen = _camera.GetTransformMatrix();
+        int minimumRadius = ThemeManager.ScalePixels(18);
+        int maximumRadius = ThemeManager.ScalePixels(110);
+        var candidates = new List<Rectangle>();
+
+        foreach (var system in _mapData.StarSystems)
+        {
+            AddMapTargetCandidate(candidates, system.Position, 80f, worldToScreen, minimumRadius, maximumRadius);
+
+            foreach (var body in system.StellarBodies)
+            {
+                AddMapTargetCandidate(candidates, body.Position, GetBodyHitRadius(body), worldToScreen, minimumRadius, maximumRadius);
+
+                foreach (var region in body.Regions)
+                {
+                    AddMapTargetCandidate(candidates, region.Position, 10f, worldToScreen, minimumRadius, maximumRadius);
+                }
+            }
+        }
+
+        foreach (var lane in _mapData.HyperspaceLanes)
+        {
+            AddMapTargetCandidate(candidates, lane.MouthAPosition, 12f, worldToScreen, minimumRadius, maximumRadius);
+            AddMapTargetCandidate(candidates, lane.MouthBPosition, 12f, worldToScreen, minimumRadius, maximumRadius);
+        }
+
+        return TutorialMapHighlightResolver.SelectBestTarget(
+            candidates,
+            viewportBounds,
+            GetTutorialWindowBounds());
+    }
+
+    private static void AddMapTargetCandidate(
+        List<Rectangle> candidates,
+        Vector2 worldPosition,
+        float worldRadius,
+        Matrix worldToScreen,
+        int minimumRadius,
+        int maximumRadius)
+    {
+        candidates.Add(TutorialMapHighlightResolver.ToScreenBounds(
+            worldPosition,
+            worldRadius,
+            worldToScreen,
+            minimumRadius,
+            maximumRadius));
+    }
+
+    private static float GetBodyHitRadius(StellarBodyData body)
+    {
+        return body.Type switch
+        {
+            StellarBodyType.GasGiant => 20f,
+            StellarBodyType.RockyPlanet => 15f,
+            StellarBodyType.Planetoid => 8f,
+            StellarBodyType.Comet => 6f,
+            _ => 10f
+        };
+    }
+
+    private Rectangle GetTutorialWindowBounds()
+    {
+        if (_tutorialModeWindow?.Window.Visible != true)
+        {
+            return Rectangle.Empty;
+        }
+
+        return TutorialHighlightBoundsResolver.PreferExplicitBounds(
+            _tutorialModeWindow.Window.ActualBounds,
+            _tutorialModeWindow.Window.Left,
+            _tutorialModeWindow.Window.Top,
+            _tutorialModeWindow.Window.Width,
+            _tutorialModeWindow.Window.Height);
+    }
+
+    private Rectangle GetMapViewportBounds()
+    {
+        int screenWidth = _graphics.PreferredBackBufferWidth;
+        int screenHeight = _graphics.PreferredBackBufferHeight;
+        int top = _gameplayHudOverlay?.GetTopBarHeight() ?? ThemeManager.ScalePixels(80);
+        int left = 0;
+        int right = screenWidth;
+
+        if (_leftSidePanel != null)
+        {
+            left = Math.Max(left, _leftSidePanel.Container.Left + (_leftSidePanel.Container.Width ?? _leftSidePanel.Width));
+        }
+
+        if (_rightSidePanel != null)
+        {
+            right = Math.Min(right, _rightSidePanel.Container.Left);
+        }
+
+        if (right <= left || screenHeight <= top)
+        {
+            return Rectangle.Empty;
+        }
+
+        return new Rectangle(left, top, right - left, screenHeight - top);
     }
 
     private void PrepareBackBufferDrawState()
