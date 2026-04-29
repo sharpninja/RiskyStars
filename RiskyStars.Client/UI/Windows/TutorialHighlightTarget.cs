@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Myra.Graphics2D.UI;
 
 namespace RiskyStars.Client;
 
@@ -38,6 +39,39 @@ internal static class TutorialHighlightTargets
             TutorialStepCompletion.ArmyMoved => [TutorialHighlightTarget.MapViewport],
             TutorialStepCompletion.ReferenceOpen => [TutorialHighlightTarget.TopBar, TutorialHighlightTarget.EncyclopediaWindow],
             _ => []
+        };
+    }
+
+    public static IReadOnlyDictionary<TutorialHighlightTarget, Rectangle> ResolveVisualBounds(
+        IReadOnlyList<TutorialHighlightTarget> requestedTargets,
+        GameUiVisualTree visualTree)
+    {
+        var visibleBounds = new Dictionary<TutorialHighlightTarget, Rectangle>();
+        foreach (TutorialHighlightTarget target in requestedTargets)
+        {
+            string visualElementId = GetVisualElementId(target);
+            if (visualElementId.Length > 0 &&
+                visualTree.TryResolveBounds(visualElementId, out Rectangle bounds))
+            {
+                visibleBounds[target] = bounds;
+            }
+        }
+
+        return visibleBounds;
+    }
+
+    private static string GetVisualElementId(TutorialHighlightTarget target)
+    {
+        return target switch
+        {
+            TutorialHighlightTarget.TopBar => GameUiVisualElementIds.TopBar,
+            TutorialHighlightTarget.ResourceChips => GameUiVisualElementIds.ResourceChips,
+            TutorialHighlightTarget.MapViewport => GameUiVisualElementIds.MapSelectionTarget,
+            TutorialHighlightTarget.HelpPanel => GameUiVisualElementIds.HelpPanel,
+            TutorialHighlightTarget.PlayerDashboard => GameUiVisualElementIds.PlayerDashboard,
+            TutorialHighlightTarget.SelectionPanel => GameUiVisualElementIds.SelectionPanel,
+            TutorialHighlightTarget.EncyclopediaWindow => GameUiVisualElementIds.EncyclopediaWindow,
+            _ => string.Empty
         };
     }
 }
@@ -104,6 +138,13 @@ internal static class TutorialHighlightBoundsResolver
         return target != TutorialHighlightTarget.MapViewport;
     }
 
+    public static int GetHighlightPadding(TutorialHighlightTarget target, int defaultPadding, int mapPadding)
+    {
+        return target == TutorialHighlightTarget.MapViewport
+            ? Math.Max(defaultPadding, mapPadding)
+            : defaultPadding;
+    }
+
     private static string GetLabel(TutorialHighlightTarget target)
     {
         return target switch
@@ -122,6 +163,9 @@ internal static class TutorialHighlightBoundsResolver
 
 internal static class TutorialMapHighlightResolver
 {
+    public const int MinimumReadableScreenRadius = 48;
+    public const int MaximumReadableScreenRadius = 150;
+
     public static Rectangle SelectBestTarget(
         IReadOnlyList<Rectangle> candidateBounds,
         Rectangle viewportBounds,
@@ -171,5 +215,13 @@ internal static class TutorialMapHighlightResolver
         float x = centerX - viewportCenter.X;
         float y = centerY - viewportCenter.Y;
         return x * x + y * y;
+    }
+}
+
+internal static class TutorialWidgetBoundsResolver
+{
+    public static bool TryGetScreenBounds(Widget? widget, out Rectangle bounds)
+    {
+        return GameUiWidgetBoundsResolver.TryGetScreenBounds(widget, out bounds);
     }
 }

@@ -22,9 +22,13 @@ internal static class TutorialHighlightRenderer
         spriteBatch.Begin(sortMode: SpriteSortMode.Deferred, blendState: BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
         foreach (var highlight in highlights)
         {
+            int padding = TutorialHighlightBoundsResolver.GetHighlightPadding(
+                highlight.Target,
+                ThemeManager.ScalePixels(8),
+                ThemeManager.ScalePixels(14));
             Rectangle bounds = TutorialHighlightBoundsResolver.ExpandAndClamp(
                 highlight.Bounds,
-                ThemeManager.ScalePixels(8),
+                padding,
                 screenWidth,
                 screenHeight);
 
@@ -52,6 +56,12 @@ internal static class TutorialHighlightRenderer
         var edge = ThemeManager.Colors.TextAccent;
         var hotEdge = ThemeManager.Colors.TextWarning;
 
+        if (target == TutorialHighlightTarget.MapViewport)
+        {
+            DrawMapTargetHighlight(spriteBatch, pixelTexture, bounds, hotEdge);
+            return;
+        }
+
         if (TutorialHighlightBoundsResolver.ShouldFillHighlight(target))
         {
             spriteBatch.Draw(pixelTexture, bounds, glow);
@@ -63,6 +73,38 @@ internal static class TutorialHighlightRenderer
         DrawCorner(spriteBatch, pixelTexture, bounds.Right, bounds.Top, cornerLength, thickness, hotEdge, horizontalRight: false, verticalDown: true);
         DrawCorner(spriteBatch, pixelTexture, bounds.Left, bounds.Bottom, cornerLength, thickness, hotEdge, horizontalRight: true, verticalDown: false);
         DrawCorner(spriteBatch, pixelTexture, bounds.Right, bounds.Bottom, cornerLength, thickness, hotEdge, horizontalRight: false, verticalDown: false);
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static void DrawMapTargetHighlight(SpriteBatch spriteBatch, Texture2D pixelTexture, Rectangle bounds, Color color)
+    {
+        int primaryThickness = Math.Max(3, ThemeManager.ScalePixels(3));
+        int secondaryThickness = Math.Max(2, ThemeManager.ScalePixels(2));
+        var halo = color * 0.12f;
+        var edge = color;
+
+        spriteBatch.Draw(pixelTexture, bounds, halo);
+        DrawBorder(spriteBatch, pixelTexture, bounds, edge, primaryThickness);
+
+        int inset = Math.Max(primaryThickness * 3, ThemeManager.ScalePixels(8));
+        if (bounds.Width > inset * 2 && bounds.Height > inset * 2)
+        {
+            DrawBorder(
+                spriteBatch,
+                pixelTexture,
+                new Rectangle(bounds.Left + inset, bounds.Top + inset, bounds.Width - inset * 2, bounds.Height - inset * 2),
+                edge * 0.75f,
+                secondaryThickness);
+        }
+
+        int centerX = bounds.Left + bounds.Width / 2;
+        int centerY = bounds.Top + bounds.Height / 2;
+        int tickLength = Math.Max(12, Math.Min(bounds.Width, bounds.Height) / 5);
+
+        spriteBatch.Draw(pixelTexture, new Rectangle(centerX - tickLength / 2, bounds.Top, tickLength, primaryThickness), edge);
+        spriteBatch.Draw(pixelTexture, new Rectangle(centerX - tickLength / 2, bounds.Bottom - primaryThickness, tickLength, primaryThickness), edge);
+        spriteBatch.Draw(pixelTexture, new Rectangle(bounds.Left, centerY - tickLength / 2, primaryThickness, tickLength), edge);
+        spriteBatch.Draw(pixelTexture, new Rectangle(bounds.Right - primaryThickness, centerY - tickLength / 2, primaryThickness, tickLength), edge);
     }
 
     [ExcludeFromCodeCoverage]

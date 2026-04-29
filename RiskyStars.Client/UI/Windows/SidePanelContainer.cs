@@ -30,6 +30,7 @@ public class SidePanelContainer
     public VerticalStackPanel Content => _contentPanel;
     public bool IsCollapsed => _isCollapsed;
     public int CurrentWidth => _targetWidth;
+    public int CurrentTopOffset => _currentTopOffset;
 
     public event EventHandler<int>? WidthChanged;
     public event EventHandler<bool>? CollapseChanged;

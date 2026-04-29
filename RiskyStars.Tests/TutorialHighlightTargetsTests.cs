@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Myra.Graphics2D.UI;
 using RiskyStars.Client;
 
 namespace RiskyStars.Tests;
@@ -312,6 +313,29 @@ public class TutorialHighlightTargetsTests
     }
 
     [Fact]
+    public void GetHighlightPadding_UsesLargerPaddingForMapTargets()
+    {
+        int padding = TutorialHighlightBoundsResolver.GetHighlightPadding(
+            TutorialHighlightTarget.MapViewport,
+            defaultPadding: 8,
+            mapPadding: 14);
+
+        Assert.Equal(14, padding);
+        Assert.NotEqual(8, padding);
+    }
+
+    [Fact]
+    public void GetHighlightPadding_KeepsDefaultPaddingForPanelTargets()
+    {
+        int padding = TutorialHighlightBoundsResolver.GetHighlightPadding(
+            TutorialHighlightTarget.SelectionPanel,
+            defaultPadding: 8,
+            mapPadding: 14);
+
+        Assert.Equal(8, padding);
+    }
+
+    [Fact]
     public void SelectBestTarget_ReturnsClickableObjectInsteadOfWholeViewport()
     {
         var viewport = new Rectangle(260, 92, 1540, 988);
@@ -416,6 +440,20 @@ public class TutorialHighlightTargetsTests
     }
 
     [Fact]
+    public void ToScreenBounds_UsesReadableMinimumMapTargetRadius()
+    {
+        var bounds = TutorialMapHighlightResolver.ToScreenBounds(
+            Vector2.Zero,
+            worldRadius: 1f,
+            Matrix.Identity,
+            TutorialMapHighlightResolver.MinimumReadableScreenRadius,
+            TutorialMapHighlightResolver.MaximumReadableScreenRadius);
+
+        Assert.Equal(new Rectangle(-48, -48, 96, 96), bounds);
+        Assert.True(bounds.Width > 36);
+    }
+
+    [Fact]
     public void ToScreenBounds_ClampsLargeWorldRadiusToMaximumScreenRadius()
     {
         var bounds = TutorialMapHighlightResolver.ToScreenBounds(
@@ -426,6 +464,415 @@ public class TutorialHighlightTargetsTests
             maximumScreenRadius: 110);
 
         Assert.Equal(new Rectangle(-110, -110, 220, 220), bounds);
+    }
+
+    [Fact]
+    public void TutorialFooterHeight_PreservesButtonHeight()
+    {
+        int footerHeight = TutorialModeLayoutMetrics.GetFooterRowHeight(buttonHeight: 40, verticalPadding: 4);
+
+        Assert.True(TutorialModeLayoutMetrics.HasFullButtonHeight(footerHeight, buttonHeight: 40));
+        Assert.Equal(48, footerHeight);
+    }
+
+    [Fact]
+    public void TutorialFooterHeight_RejectsCollapsedButtonRow()
+    {
+        Assert.False(TutorialModeLayoutMetrics.HasFullButtonHeight(footerRowHeight: 8, buttonHeight: 40));
+    }
+
+    [Fact]
+    public void TryGetScreenBounds_UsesGlobalCoordinatesForNestedMyraWidgets()
+    {
+        var sidePanel = new Panel
+        {
+            Left = 1780,
+            Top = 156,
+            Width = 268,
+            Height = 948
+        };
+        var selectionPanel = new Panel
+        {
+            Left = 12,
+            Top = 84,
+            Width = 244,
+            Height = 250
+        };
+        sidePanel.Widgets.Add(selectionPanel);
+
+        bool resolved = TutorialWidgetBoundsResolver.TryGetScreenBounds(selectionPanel, out Rectangle bounds);
+
+        Assert.True(resolved);
+        Assert.Equal(new Rectangle(1792, 240, 244, 250), bounds);
+        Assert.NotEqual(new Rectangle(12, 84, 244, 250), bounds);
+    }
+
+    [Fact]
+    public void TryGetScreenBounds_RejectsHiddenParentWidget()
+    {
+        var sidePanel = new Panel
+        {
+            Left = 1780,
+            Top = 156,
+            Width = 268,
+            Height = 948,
+            Visible = false
+        };
+        var selectionPanel = new Panel
+        {
+            Left = 12,
+            Top = 84,
+            Width = 244,
+            Height = 250
+        };
+        sidePanel.Widgets.Add(selectionPanel);
+
+        bool resolved = TutorialWidgetBoundsResolver.TryGetScreenBounds(selectionPanel, out _);
+
+        Assert.False(resolved);
+    }
+
+    [Fact]
+    public void GameUiVisualTree_ResolvesMyraAndXnaElementsInSharedScreenSpace()
+    {
+        var sidePanel = new Panel
+        {
+            Left = 1780,
+            Top = 156,
+            Width = 268,
+            Height = 948
+        };
+        var selectionPanel = new Panel
+        {
+            Left = 12,
+            Top = 84,
+            Width = 244,
+            Height = 250
+        };
+        sidePanel.Widgets.Add(selectionPanel);
+        var tree = new GameUiVisualTree();
+
+        tree.AddMyraElement(GameUiVisualElementIds.SelectionPanel, selectionPanel);
+        tree.AddXnaElement(GameUiVisualElementIds.MapSelectionTarget, new Rectangle(1000, 520, 160, 160));
+        IReadOnlyDictionary<string, Rectangle> resolved = tree.ResolveBounds();
+
+        Assert.Equal(new Rectangle(1792, 240, 244, 250), resolved[GameUiVisualElementIds.SelectionPanel]);
+        Assert.Equal(new Rectangle(1000, 520, 160, 160), resolved[GameUiVisualElementIds.MapSelectionTarget]);
+        Assert.NotEqual(new Rectangle(12, 84, 244, 250), resolved[GameUiVisualElementIds.SelectionPanel]);
+    }
+
+    [Fact]
+    public void ResolveVisualBounds_MapsTutorialTargetsThroughGameUiVisualTree()
+    {
+        var sidePanel = new Panel
+        {
+            Left = 1780,
+            Top = 156,
+            Width = 268,
+            Height = 948
+        };
+        var selectionPanel = new Panel
+        {
+            Left = 12,
+            Top = 84,
+            Width = 244,
+            Height = 250
+        };
+        sidePanel.Widgets.Add(selectionPanel);
+        var tree = new GameUiVisualTree();
+        tree.AddMyraElement(GameUiVisualElementIds.SelectionPanel, selectionPanel);
+        tree.AddXnaElement(GameUiVisualElementIds.MapSelectionTarget, new Rectangle(1000, 520, 160, 160));
+
+        var targets = new[]
+        {
+            TutorialHighlightTarget.MapViewport,
+            TutorialHighlightTarget.SelectionPanel
+        };
+        IReadOnlyDictionary<TutorialHighlightTarget, Rectangle> resolved = TutorialHighlightTargets.ResolveVisualBounds(targets, tree);
+
+        Assert.Equal(new Rectangle(1000, 520, 160, 160), resolved[TutorialHighlightTarget.MapViewport]);
+        Assert.Equal(new Rectangle(1792, 240, 244, 250), resolved[TutorialHighlightTarget.SelectionPanel]);
+        Assert.NotEqual(new Rectangle(12, 84, 244, 250), resolved[TutorialHighlightTarget.SelectionPanel]);
+    }
+
+    [Fact]
+    public void ResolveVisualBounds_MapsEveryKnownTutorialTarget()
+    {
+        var tree = new GameUiVisualTree();
+        tree.AddXnaElement(GameUiVisualElementIds.TopBar, new Rectangle(10, 20, 100, 30));
+        tree.AddXnaElement(GameUiVisualElementIds.ResourceChips, new Rectangle(20, 60, 120, 40));
+        tree.AddXnaElement(GameUiVisualElementIds.MapSelectionTarget, new Rectangle(300, 400, 160, 160));
+        tree.AddXnaElement(GameUiVisualElementIds.HelpPanel, new Rectangle(700, 120, 300, 240));
+        tree.AddXnaElement(GameUiVisualElementIds.PlayerDashboard, new Rectangle(500, 220, 260, 300));
+        tree.AddXnaElement(GameUiVisualElementIds.SelectionPanel, new Rectangle(1700, 240, 280, 250));
+        tree.AddXnaElement(GameUiVisualElementIds.EncyclopediaWindow, new Rectangle(80, 100, 520, 420));
+        TutorialHighlightTarget[] targets = Enum.GetValues<TutorialHighlightTarget>();
+
+        IReadOnlyDictionary<TutorialHighlightTarget, Rectangle> resolved = TutorialHighlightTargets.ResolveVisualBounds(targets, tree);
+
+        Assert.Equal(targets.Length, resolved.Count);
+        Assert.Equal(new Rectangle(10, 20, 100, 30), resolved[TutorialHighlightTarget.TopBar]);
+        Assert.Equal(new Rectangle(20, 60, 120, 40), resolved[TutorialHighlightTarget.ResourceChips]);
+        Assert.Equal(new Rectangle(300, 400, 160, 160), resolved[TutorialHighlightTarget.MapViewport]);
+        Assert.Equal(new Rectangle(700, 120, 300, 240), resolved[TutorialHighlightTarget.HelpPanel]);
+        Assert.Equal(new Rectangle(500, 220, 260, 300), resolved[TutorialHighlightTarget.PlayerDashboard]);
+        Assert.Equal(new Rectangle(1700, 240, 280, 250), resolved[TutorialHighlightTarget.SelectionPanel]);
+        Assert.Equal(new Rectangle(80, 100, 520, 420), resolved[TutorialHighlightTarget.EncyclopediaWindow]);
+    }
+
+    [Fact]
+    public void ResolveVisualBounds_IgnoresUnknownTutorialTargets()
+    {
+        var tree = new GameUiVisualTree();
+        tree.AddXnaElement(GameUiVisualElementIds.TopBar, new Rectangle(10, 20, 100, 30));
+        var targets = new[] { (TutorialHighlightTarget)999 };
+
+        IReadOnlyDictionary<TutorialHighlightTarget, Rectangle> resolved = TutorialHighlightTargets.ResolveVisualBounds(targets, tree);
+
+        Assert.Empty(resolved);
+    }
+
+    [Fact]
+    public void GameUiVisualTree_AuditsScaleAndDpiForMyraAndXnaElements()
+    {
+        var panel = new Panel
+        {
+            Left = 40,
+            Top = 50,
+            Width = 240,
+            Height = 120
+        };
+        var tree = new GameUiVisualTree();
+        tree.AddMyraElement("myra.panel", panel);
+        tree.AddXnaElement("xna.panel", new Rectangle(400, 300, 160, 90), "XnaPanel");
+        var scale = GameUiScaleContext.Create(
+            backBufferWidth: 3840,
+            backBufferHeight: 2160,
+            clientWidth: 1920,
+            clientHeight: 1080,
+            uiScalePercent: 150,
+            uiScaleFactor: 1.5f);
+
+        GameUiAuditReport report = tree.CreateAuditReport(scale);
+
+        Assert.Equal(2, report.Entries.Count);
+        Assert.Equal(1, report.MyraCount);
+        Assert.Equal(1, report.XnaCount);
+        Assert.Equal(0, report.WarningCount);
+        Assert.Equal(2f, report.Scale.DpiScaleX);
+        Assert.Equal(2f, report.Scale.DpiScaleY);
+        Assert.Contains("UI scale 150%", report.Summary);
+        GameUiAuditEntry myraEntry = Assert.Single(report.Entries, entry => entry.Id == "myra.panel");
+        Assert.Equal(GameUiVisualElementSource.Myra, myraEntry.Source);
+        Assert.Equal(nameof(Panel), myraEntry.TypeName);
+        Assert.True(myraEntry.Visible);
+        Assert.True(myraEntry.TreeVisible);
+        Assert.Equal(new Rectangle(40, 50, 240, 120), myraEntry.DeclaredBounds);
+        Assert.Equal(new Rectangle(40, 50, 240, 120), myraEntry.ScreenBounds);
+        Assert.Empty(myraEntry.Warnings);
+        GameUiAuditEntry xnaEntry = Assert.Single(report.Entries, entry => entry.Id == "xna.panel");
+        Assert.Equal(GameUiVisualElementSource.Xna, xnaEntry.Source);
+        Assert.Equal("XnaPanel", xnaEntry.TypeName);
+        Assert.True(xnaEntry.Visible);
+        Assert.True(xnaEntry.TreeVisible);
+        Assert.Equal(new Rectangle(400, 300, 160, 90), xnaEntry.DeclaredBounds);
+        Assert.Equal(new Rectangle(400, 300, 160, 90), xnaEntry.LocalBounds);
+        Assert.Equal(new Rectangle(400, 300, 160, 90), xnaEntry.ScreenBounds);
+        Assert.All(report.Entries, entry =>
+        {
+            Assert.Equal(150, entry.UiScalePercent);
+            Assert.Equal(1.5f, entry.UiScaleFactor);
+            Assert.Equal(2f, entry.DpiScaleX);
+            Assert.Equal(2f, entry.DpiScaleY);
+            Assert.True(entry.HasValidScreenBounds);
+        });
+    }
+
+    [Fact]
+    public void GameUiVisualTree_AuditsHiddenAndInvalidElementsAsWarnings()
+    {
+        var hiddenParent = new Panel
+        {
+            Left = 40,
+            Top = 50,
+            Width = 240,
+            Height = 120,
+            Visible = false
+        };
+        var child = new Panel
+        {
+            Left = 12,
+            Top = 16,
+            Width = 80,
+            Height = 40
+        };
+        hiddenParent.Widgets.Add(child);
+        var tree = new GameUiVisualTree();
+        tree.AddMyraElement("myra.hidden.child", child);
+        tree.AddXnaElement("xna.invalid", Rectangle.Empty);
+        var scale = GameUiScaleContext.Create(1920, 1080, 1920, 1080, 100, 1f);
+
+        GameUiAuditReport report = tree.CreateAuditReport(scale);
+
+        Assert.False(tree.TryResolveBounds("xna.invalid", out _));
+        Assert.Equal(2, report.Entries.Count);
+        Assert.Equal(2, report.WarningCount);
+        Assert.Equal(1, report.HiddenCount);
+        Assert.Equal(1, report.InvalidCount);
+        GameUiAuditEntry hiddenEntry = Assert.Single(report.Entries, entry => entry.Id == "myra.hidden.child");
+        GameUiAuditEntry invalidEntry = Assert.Single(report.Entries, entry => entry.Id == "xna.invalid");
+        Assert.Contains("hidden", hiddenEntry.Warnings);
+        Assert.True(hiddenEntry.HasValidScreenBounds);
+        Assert.Contains("no resolved screen size", invalidEntry.Warnings);
+        Assert.False(invalidEntry.HasValidScreenBounds);
+    }
+
+    [Fact]
+    public void GameUiVisualTree_AuditsNestedMyraTreeWithoutDuplicatingNamedRoots()
+    {
+        var root = new Panel
+        {
+            Left = 100,
+            Top = 200,
+            Width = 300,
+            Height = 220
+        };
+        var child = new Panel
+        {
+            Left = 20,
+            Top = 30,
+            Width = 80,
+            Height = 40
+        };
+        root.Widgets.Add(child);
+        var tree = new GameUiVisualTree();
+        tree.AddMyraElement("named.root", root);
+
+        tree.AddMyraTree("myra.desktop", new[] { root });
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(1920, 1080, 1920, 1080, 100, 1f));
+
+        Assert.Equal(2, report.Entries.Count);
+        Assert.Contains(report.Entries, entry => entry.Id == "named.root");
+        Assert.Contains(report.Entries, entry => entry.Id.EndsWith(".Panel.0.Panel", StringComparison.Ordinal));
+        Assert.DoesNotContain(report.Entries, entry => entry.Id == "myra.desktop.0.Panel");
+    }
+
+    [Fact]
+    public void GameUiLayoutMetrics_UsesMeasuredTopBarBottomInsteadOfFallbackHeight()
+    {
+        var measuredTopBar = new Rectangle(0, 0, 2048, 128);
+
+        int contentTop = GameUiLayoutMetrics.ResolveContentTop(
+            measuredTopBar,
+            fallbackHeight: 80,
+            gap: 12);
+
+        Assert.Equal(140, contentTop);
+        Assert.NotEqual(92, contentTop);
+    }
+
+    [Fact]
+    public void GameUiLayoutMetrics_FallsBackWhenTopBarHasNoResolvedSize()
+    {
+        int contentTop = GameUiLayoutMetrics.ResolveContentTop(
+            Rectangle.Empty,
+            fallbackHeight: 80,
+            gap: 12);
+
+        Assert.Equal(92, contentTop);
+    }
+
+    [Fact]
+    public void GameUiVisualTreeInspector_BuildsSelectableRowsWithBoundsAndWarnings()
+    {
+        var tree = new GameUiVisualTree();
+        tree.AddXnaElement(GameUiVisualElementIds.TopBar, new Rectangle(0, 0, 2048, 128), "TopBar");
+        tree.AddXnaElement(GameUiVisualElementIds.MapViewport, new Rectangle(268, 128, 1512, 976), "MapViewport");
+        tree.AddXnaElement("xna.invalid", Rectangle.Empty, "Invalid");
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(2048, 1152, 2048, 1152, 100, 1f));
+
+        IReadOnlyList<GameUiVisualTreeRow> rows = GameUiVisualTreeInspector.BuildRows(report, GameUiVisualElementIds.TopBar);
+
+        GameUiVisualTreeRow selected = Assert.Single(rows, row => row.Id == GameUiVisualElementIds.TopBar);
+        Assert.True(selected.IsSelected);
+        Assert.Contains(GameUiVisualElementIds.TopBar, selected.DisplayText);
+        Assert.Equal("2048x128 @ 0,0", selected.BoundsText);
+        Assert.Equal(1, selected.Depth);
+        GameUiVisualTreeRow invalid = Assert.Single(rows, row => row.Id == "xna.invalid");
+        Assert.True(invalid.HasWarnings);
+        Assert.False(invalid.HasValidScreenBounds);
+    }
+
+    [Fact]
+    public void GameUiVisualTreeInspector_ResolvesSelectedBoundsAndRejectsBadSelections()
+    {
+        var tree = new GameUiVisualTree();
+        tree.AddXnaElement(GameUiVisualElementIds.TopBar, new Rectangle(0, 0, 2048, 128), "TopBar");
+        tree.AddXnaElement("xna.invalid", Rectangle.Empty, "Invalid");
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(2048, 1152, 2048, 1152, 100, 1f));
+
+        bool resolved = GameUiVisualTreeInspector.TryResolveSelectedBounds(report, GameUiVisualElementIds.TopBar, out Rectangle bounds);
+        bool invalidResolved = GameUiVisualTreeInspector.TryResolveSelectedBounds(report, "xna.invalid", out _);
+        bool missingResolved = GameUiVisualTreeInspector.TryResolveSelectedBounds(report, "xna.missing", out _);
+
+        Assert.True(resolved);
+        Assert.Equal(new Rectangle(0, 0, 2048, 128), bounds);
+        Assert.False(invalidResolved);
+        Assert.False(missingResolved);
+    }
+
+    [Fact]
+    public void GameUiVisualTreeInspector_FormatsSelectedElementInspectionDetails()
+    {
+        var tree = new GameUiVisualTree();
+        tree.AddXnaElement(GameUiVisualElementIds.TopBar, new Rectangle(0, 0, 2048, 128), "TopBar");
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(2048, 1152, 2048, 1152, 100, 1f));
+
+        string selectedDetails = GameUiVisualTreeInspector.FormatSelectionDetails(report, GameUiVisualElementIds.TopBar);
+        string missingDetails = GameUiVisualTreeInspector.FormatSelectionDetails(report, "xna.missing");
+        string noneDetails = GameUiVisualTreeInspector.FormatSelectionDetails(report, null);
+
+        Assert.Contains($"Selected: {GameUiVisualElementIds.TopBar}", selectedDetails);
+        Assert.Contains("Source: Xna TopBar", selectedDetails);
+        Assert.Contains("Screen: 2048x128 @ 0,0", selectedDetails);
+        Assert.Contains("not in current visual tree", missingDetails);
+        Assert.Equal("Selected: none", noneDetails);
+    }
+
+    [Fact]
+    public void DebugUiAuditText_FormatsActualSizesAndDpiScaleForVisibleAudit()
+    {
+        var tree = new GameUiVisualTree();
+        tree.AddXnaElement(GameUiVisualElementIds.BackBuffer, new Rectangle(0, 0, 3840, 2160), "BackBuffer");
+        tree.AddXnaElement(GameUiVisualElementIds.MapViewport, new Rectangle(260, 92, 1540, 988), "MapViewport");
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(3840, 2160, 1920, 1080, 150, 1.5f));
+
+        string summary = DebugUiAuditText.FormatSummary(report);
+        string scale = DebugUiAuditText.FormatScale(report.Scale);
+        string warnings = DebugUiAuditText.FormatWarnings(report);
+        string details = DebugUiAuditText.FormatDetails(report);
+
+        Assert.Equal("Elements: 2 (0 Myra, 2 XNA)", summary);
+        Assert.Contains("DPI 2.00x2.00", scale);
+        Assert.Contains("BB 3840x2160", scale);
+        Assert.Equal("Warnings: 0, hidden: 0, invalid bounds: 0", warnings);
+        Assert.Contains("xna.mapViewport: Xna 1540x988 @ 260,92", details);
+    }
+
+    [Fact]
+    public void DebugUiAuditText_PrioritizesBadBoundsOverHealthyElements()
+    {
+        var tree = new GameUiVisualTree();
+        tree.AddXnaElement("z.healthy", new Rectangle(10, 20, 30, 40), "Healthy");
+        tree.AddXnaElement("a.bad", Rectangle.Empty, "Bad");
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(1920, 1080, 1920, 1080, 100, 1f));
+
+        string details = DebugUiAuditText.FormatDetails(report, maxEntries: 1);
+
+        Assert.Contains("a.bad", details);
+        Assert.Contains("0x0", details);
+        Assert.Contains("no resolved screen size", details);
+        Assert.DoesNotContain("z.healthy", details);
     }
 
 }

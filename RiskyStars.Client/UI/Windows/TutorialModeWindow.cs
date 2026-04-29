@@ -42,6 +42,19 @@ public sealed record TutorialModeSnapshot(
     bool ContextMenuOpen,
     bool CombatActive);
 
+internal static class TutorialModeLayoutMetrics
+{
+    public static int GetFooterRowHeight(int buttonHeight, int verticalPadding)
+    {
+        return Math.Max(1, buttonHeight) + Math.Max(0, verticalPadding) * 2;
+    }
+
+    public static bool HasFullButtonHeight(int footerRowHeight, int buttonHeight)
+    {
+        return footerRowHeight >= Math.Max(1, buttonHeight);
+    }
+}
+
 public sealed class TutorialModeWindow : DockableWindow
 {
     private static readonly IReadOnlyList<TutorialModeStep> Steps =
@@ -230,9 +243,19 @@ public sealed class TutorialModeWindow : DockableWindow
 
     private void BuildContent()
     {
-        var root = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
+        var root = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Medium, 0);
+        root.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        root.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        root.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        root.RowsProportions.Add(new Proportion(ProportionType.Fill));
+
+        int footerHeight = TutorialModeLayoutMetrics.GetFooterRowHeight(
+            ThemeManager.Sizes.ButtonSmallHeight,
+            ThemeManager.Spacing.XSmall);
+        root.RowsProportions.Add(new Proportion(ProportionType.Pixels, footerHeight));
 
         var headerPanel = ThemedUIFactory.CreateGameplayPanel(ThemeManager.Colors.TextAccent);
+        headerPanel.GridRow = 0;
         var headerStack = ThemedUIFactory.CreateCompactVerticalStack();
         headerStack.Spacing = ThemeManager.Spacing.Small;
 
@@ -258,6 +281,7 @@ public sealed class TutorialModeWindow : DockableWindow
         root.Widgets.Add(headerPanel);
 
         var actionsPanel = ThemedUIFactory.CreateGameplayPanel();
+        actionsPanel.GridRow = 1;
         var actionHeading = ThemedUIFactory.CreateSmallLabel("Step actions");
         actionHeading.TextColor = ThemeManager.Colors.TextWarning;
         _actionsStack.Widgets.Add(actionHeading);
@@ -265,14 +289,26 @@ public sealed class TutorialModeWindow : DockableWindow
         root.Widgets.Add(actionsPanel);
 
         var progressPanel = ThemedUIFactory.CreateGameplayPanel();
+        progressPanel.GridRow = 2;
+        progressPanel.VerticalAlignment = VerticalAlignment.Stretch;
         var progressHeading = ThemedUIFactory.CreateSmallLabel("Tutorial path");
         progressHeading.TextColor = ThemeManager.Colors.TextWarning;
         _progressStack.Widgets.Add(progressHeading);
-        progressPanel.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(_progressStack, ThemeManager.ScalePixels(170)));
+        progressPanel.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(_progressStack));
         root.Widgets.Add(progressPanel);
 
+        var footerPanel = new Panel
+        {
+            GridRow = 3,
+            Height = footerHeight,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch
+        };
+
         var buttonRow = ThemedUIFactory.CreateHorizontalStack(ThemeManager.Spacing.Small);
+        buttonRow.Height = ThemeManager.Sizes.ButtonSmallHeight;
         buttonRow.HorizontalAlignment = HorizontalAlignment.Center;
+        buttonRow.VerticalAlignment = VerticalAlignment.Center;
 
         _backButton.Click += (_, _) => MovePrevious();
         buttonRow.Widgets.Add(_backButton);
@@ -284,7 +320,8 @@ public sealed class TutorialModeWindow : DockableWindow
         endButton.Click += (_, _) => EndRequested?.Invoke();
         buttonRow.Widgets.Add(endButton);
 
-        root.Widgets.Add(buttonRow);
+        footerPanel.Widgets.Add(buttonRow);
+        root.Widgets.Add(footerPanel);
         _window.Content = root;
     }
 

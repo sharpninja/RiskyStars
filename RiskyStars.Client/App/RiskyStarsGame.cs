@@ -708,9 +708,8 @@ public class RiskyStarsGame : Game
         _tutorialModeWindow?.ResizeViewport(width, height);
         _continentZoomWindow?.ResizeViewport(width, height);
 
-        int topBarHeight = _gameplayHudOverlay?.GetTopBarHeight() ?? ThemeManager.ScalePixels(80);
-        int panelTopOffset = topBarHeight + ThemeManager.ScalePixels(12);
-        System.Diagnostics.Debug.WriteLine($"[UI] Resizing panels: size={width}x{height}, topBar={topBarHeight}");
+        int panelTopOffset = GetContentTopAfterTopBar(ThemeManager.ScalePixels(12));
+        System.Diagnostics.Debug.WriteLine($"[UI] Resizing panels: size={width}x{height}, panelTop={panelTopOffset}");
         _leftSidePanel?.ResizeViewport(width, height, panelTopOffset);
         _rightSidePanel?.ResizeViewport(width, height, panelTopOffset);
         AnchorTutorialWindowToMapLeft();
@@ -1275,6 +1274,7 @@ public class RiskyStarsGame : Game
     {
         _inGameDesktop?.Render();
         DrawTutorialHighlights(spriteBatch: _spriteBatch);
+        DrawDebugVisualTreeHighlight(spriteBatch: _spriteBatch);
         _settingsWindow?.Render();
     }
 
@@ -1302,6 +1302,31 @@ public class RiskyStarsGame : Game
             _graphics.PreferredBackBufferHeight);
     }
 
+    private void DrawDebugVisualTreeHighlight(SpriteBatch? spriteBatch)
+    {
+        if (spriteBatch == null ||
+            _pixelTexture == null ||
+            _debugInfoWindow?.IsVisible != true ||
+            string.IsNullOrWhiteSpace(_debugInfoWindow.SelectedVisualElementId))
+        {
+            return;
+        }
+
+        var visualTree = BuildGameUiVisualTree();
+        if (!visualTree.TryResolveBounds(_debugInfoWindow.SelectedVisualElementId, out Rectangle bounds))
+        {
+            return;
+        }
+
+        PrepareBackBufferDrawState();
+        GameUiDebugHighlightRenderer.Draw(
+            spriteBatch,
+            _pixelTexture,
+            bounds,
+            _graphics.PreferredBackBufferWidth,
+            _graphics.PreferredBackBufferHeight);
+    }
+
     private IReadOnlyList<TutorialHighlightBounds> BuildTutorialHighlightBounds()
     {
         if (_tutorialModeWindow?.IsVisible != true)
@@ -1309,57 +1334,77 @@ public class RiskyStarsGame : Game
             return [];
         }
 
-        var visibleBounds = new Dictionary<TutorialHighlightTarget, Rectangle>();
-        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.TopBar, _gameplayHudOverlay?.TopBar);
-        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.ResourceChips, _gameplayHudOverlay?.TopBar);
-        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.HelpPanel, _gameplayHudOverlay?.HelpPanel);
-        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.SelectionPanel, _gameplayHudOverlay?.SelectionPanel);
-        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.PlayerDashboard, _playerDashboardWindow?.Window);
-        AddWidgetBounds(visibleBounds, TutorialHighlightTarget.EncyclopediaWindow, _encyclopediaWindow?.Window);
+        var visualTree = BuildGameUiVisualTree();
 
+        return TutorialHighlightBoundsResolver.Resolve(
+            _tutorialModeWindow.CurrentHighlightTargets,
+            TutorialHighlightTargets.ResolveVisualBounds(_tutorialModeWindow.CurrentHighlightTargets, visualTree));
+    }
+
+    private GameUiVisualTree BuildGameUiVisualTree()
+    {
+        var visualTree = new GameUiVisualTree();
+        visualTree.AddXnaElement(
+            GameUiVisualElementIds.BackBuffer,
+            new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight),
+            "BackBuffer");
+        visualTree.AddXnaElement(GameUiVisualElementIds.MapViewport, GetMapViewportBounds(), "MapViewport");
+        visualTree.AddMyraElement(GameUiVisualElementIds.TopBar, _gameplayHudOverlay?.TopBar);
+        visualTree.AddMyraElement(GameUiVisualElementIds.ResourceChips, _gameplayHudOverlay?.TopBar);
+        visualTree.AddMyraElement(GameUiVisualElementIds.HelpPanel, _gameplayHudOverlay?.HelpPanel);
+        visualTree.AddMyraElement(GameUiVisualElementIds.SelectionPanel, _gameplayHudOverlay?.SelectionPanel);
+        visualTree.AddMyraElement(GameUiVisualElementIds.PlayerDashboard, _playerDashboardWindow?.Window);
+        visualTree.AddMyraElement(GameUiVisualElementIds.EncyclopediaWindow, _encyclopediaWindow?.Window);
+        visualTree.AddMyraElement(GameUiVisualElementIds.ContinentZoomWindow, _continentZoomWindow?.Window);
         Rectangle mapTargetBounds = BuildMapSelectionTargetBounds();
-        if (mapTargetBounds.Width > 0 && mapTargetBounds.Height > 0)
+        visualTree.AddXnaElement(GameUiVisualElementIds.MapSelectionTarget, mapTargetBounds, "MapSelectionTarget");
+        if (_continentZoomWindow?.IsVisible == true)
         {
-            visibleBounds[TutorialHighlightTarget.MapViewport] = mapTargetBounds;
+            visualTree.AddXnaElement(GameUiVisualElementIds.ContinentZoomSurface, _continentZoomWindow.CanvasBounds, "ContinentZoomSurface");
         }
 
-        return TutorialHighlightBoundsResolver.Resolve(_tutorialModeWindow.CurrentHighlightTargets, visibleBounds);
+        if (_combatScreen?.IsActive == true)
+        {
+            visualTree.AddXnaElement(
+                GameUiVisualElementIds.CombatOverlay,
+                new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight),
+                "CombatOverlay");
+        }
+
+        if (_inGameDesktop != null)
+        {
+            visualTree.AddMyraTree("myra.desktop", _inGameDesktop.Widgets);
+        }
+
+        return visualTree;
     }
 
-    private static void AddWidgetBounds(
-        Dictionary<TutorialHighlightTarget, Rectangle> visibleBounds,
-        TutorialHighlightTarget target,
-        Widget? widget)
+    private GameUiScaleContext BuildGameUiScaleContext()
     {
-        if (TryGetWidgetBounds(widget, out Rectangle bounds))
-        {
-            visibleBounds[target] = bounds;
-        }
+        Rectangle clientBounds = Window.ClientBounds;
+        return GameUiScaleContext.Create(
+            _graphics.PreferredBackBufferWidth,
+            _graphics.PreferredBackBufferHeight,
+            clientBounds.Width,
+            clientBounds.Height,
+            ThemeManager.CurrentUiScalePercent,
+            ThemeManager.CurrentUiScaleFactor);
     }
 
-    private static bool TryGetWidgetBounds(Widget? widget, out Rectangle bounds)
+    private int GetFallbackTopBarHeight()
     {
-        bounds = Rectangle.Empty;
-        if (widget?.Visible != true)
+        return _gameplayHudOverlay?.GetTopBarHeight() ?? ThemeManager.ScalePixels(80);
+    }
+
+    private int GetContentTopAfterTopBar(int gap = 0)
+    {
+        Rectangle measuredTopBarBounds = Rectangle.Empty;
+        if (_gameplayHudOverlay?.TopBar != null)
         {
-            return false;
+            GameUiWidgetBoundsResolver.TryGetScreenBounds(_gameplayHudOverlay.TopBar, out measuredTopBarBounds);
         }
 
-        bounds = widget.ActualBounds;
-        if (bounds.Width > 0 && bounds.Height > 0)
-        {
-            return true;
-        }
-
-        int width = widget.Width ?? widget.Bounds.Width;
-        int height = widget.Height ?? widget.Bounds.Height;
-        if (width <= 0 || height <= 0)
-        {
-            return false;
-        }
-
-        bounds = new Rectangle(widget.Left, widget.Top, width, height);
-        return true;
+        return GameUiLayoutMetrics.ResolveContentTop(measuredTopBarBounds, GetFallbackTopBarHeight(), gap);
     }
 
     private Rectangle BuildMapSelectionTargetBounds()
@@ -1376,8 +1421,8 @@ public class RiskyStarsGame : Game
         }
 
         Matrix worldToScreen = _camera.GetTransformMatrix();
-        int minimumRadius = ThemeManager.ScalePixels(18);
-        int maximumRadius = ThemeManager.ScalePixels(110);
+        int minimumRadius = ThemeManager.ScalePixels(TutorialMapHighlightResolver.MinimumReadableScreenRadius);
+        int maximumRadius = ThemeManager.ScalePixels(TutorialMapHighlightResolver.MaximumReadableScreenRadius);
         var candidates = new List<Rectangle>();
 
         foreach (var system in _mapData.StarSystems)
@@ -1454,7 +1499,7 @@ public class RiskyStarsGame : Game
     {
         int screenWidth = _graphics.PreferredBackBufferWidth;
         int screenHeight = _graphics.PreferredBackBufferHeight;
-        int top = _gameplayHudOverlay?.GetTopBarHeight() ?? ThemeManager.ScalePixels(80);
+        int top = GetContentTopAfterTopBar();
         int left = 0;
         int right = screenWidth;
 
@@ -1649,6 +1694,12 @@ public class RiskyStarsGame : Game
         {
             _debugInfoWindow.UpdateSelectionInfo(_inputController.Selection);
         }
+
+        if (_debugInfoWindow.IsVisible)
+        {
+            GameUiAuditReport auditReport = BuildGameUiVisualTree().CreateAuditReport(BuildGameUiScaleContext());
+            _debugInfoWindow.UpdateUiAuditInfo(auditReport);
+        }
         
         if (_aiVisualizationWindow != null && _gameStateCache != null)
         {
@@ -1686,7 +1737,7 @@ public class RiskyStarsGame : Game
 
         System.Diagnostics.Debug.WriteLine($"[UI] Creating panels: screen={screenWidth}x{screenHeight}, topBar={topBarHeight}, gfx={_graphics.PreferredBackBufferWidth}x{_graphics.PreferredBackBufferHeight}");
 
-        int panelTopOffset = topBarHeight + ThemeManager.ScalePixels(12);
+        int panelTopOffset = GameUiLayoutMetrics.ResolveContentTop(Rectangle.Empty, topBarHeight, ThemeManager.ScalePixels(12));
         _leftSidePanel = new SidePanelContainer("left", leftWidth, screenWidth, screenHeight, panelTopOffset);
         _rightSidePanel = new SidePanelContainer("right", rightWidth, screenWidth, screenHeight, panelTopOffset);
         _leftSidePanel.SetCollapsed(leftCollapsed, false);
@@ -1859,8 +1910,7 @@ public class RiskyStarsGame : Game
 
         _inGameDesktop.Root = null;
 
-        int topBarHeight = _gameplayHudOverlay?.GetTopBarHeight() ?? 80;
-        int panelTopOffset = topBarHeight + ThemeManager.ScalePixels(12);
+        int panelTopOffset = GetContentTopAfterTopBar(ThemeManager.ScalePixels(12));
 
         if (_leftSidePanel != null || _rightSidePanel != null)
         {
@@ -1894,18 +1944,18 @@ public class RiskyStarsGame : Game
 
         if (_gameplayHudOverlay?.AiActivityPanel != null)
         {
-            _gameplayHudOverlay.AiActivityPanel.Top = topBarHeight + ThemeManager.ScalePixels(12);
+            _gameplayHudOverlay.AiActivityPanel.Top = panelTopOffset;
             _gameplayHudOverlay.AiActivityPanel.Left = ThemeManager.ScalePixels(12);
             _gameplayHudOverlay.AiActivityPanel.Visible = true;
         }
         if (_gameplayHudOverlay?.SelectionPanel != null)
         {
-            _gameplayHudOverlay.SelectionPanel.Top = topBarHeight + ThemeManager.ScalePixels(12);
+            _gameplayHudOverlay.SelectionPanel.Top = panelTopOffset;
             _gameplayHudOverlay.SelectionPanel.Visible = true;
         }
         if (_gameplayHudOverlay?.LegendPanel != null)
         {
-            _gameplayHudOverlay.LegendPanel.Top = topBarHeight + ThemeManager.ScalePixels(12);
+            _gameplayHudOverlay.LegendPanel.Top = panelTopOffset;
             _gameplayHudOverlay.LegendPanel.Visible = true;
         }
         AttachDesktopWidget(_gameplayHudOverlay?.AiActivityPanel);
@@ -1947,8 +1997,7 @@ public class RiskyStarsGame : Game
 
         int screenWidth = _graphics.PreferredBackBufferWidth;
         int screenHeight = _graphics.PreferredBackBufferHeight;
-        int topBarHeight = _gameplayHudOverlay?.GetTopBarHeight() ?? ThemeManager.ScalePixels(80);
-        int mapTop = topBarHeight + ThemeManager.ScalePixels(12);
+        int mapTop = GetContentTopAfterTopBar(ThemeManager.ScalePixels(12));
         int leftDockRight = 0;
         int rightDockLeft = screenWidth;
 
@@ -2047,6 +2096,43 @@ public class RiskyStarsGame : Game
         _inGameDesktop.Widgets.Add(widget);
     }
 
+    private void UpdateTopBarDependentLayout()
+    {
+        int panelTopOffset = GetContentTopAfterTopBar(ThemeManager.ScalePixels(12));
+        int screenWidth = _graphics.PreferredBackBufferWidth;
+        int screenHeight = _graphics.PreferredBackBufferHeight;
+
+        if (_leftSidePanel != null && _leftSidePanel.CurrentTopOffset != panelTopOffset)
+        {
+            _leftSidePanel.UpdatePosition(screenWidth, screenHeight, panelTopOffset);
+        }
+
+        if (_rightSidePanel != null && _rightSidePanel.CurrentTopOffset != panelTopOffset)
+        {
+            _rightSidePanel.UpdatePosition(screenWidth, screenHeight, panelTopOffset);
+        }
+
+        if (_leftSidePanel == null && _rightSidePanel == null)
+        {
+            if (_gameplayHudOverlay?.AiActivityPanel != null)
+            {
+                _gameplayHudOverlay.AiActivityPanel.Top = panelTopOffset;
+            }
+
+            if (_gameplayHudOverlay?.SelectionPanel != null)
+            {
+                _gameplayHudOverlay.SelectionPanel.Top = panelTopOffset;
+            }
+
+            if (_gameplayHudOverlay?.LegendPanel != null)
+            {
+                _gameplayHudOverlay.LegendPanel.Top = panelTopOffset;
+            }
+        }
+
+        AnchorTutorialWindowToMapLeft();
+    }
+
     private void UpdateCombatHud()
     {
         _combatHudOverlay?.Update(_combatScreen?.GetPresentation());
@@ -2127,6 +2213,8 @@ public class RiskyStarsGame : Game
             _uiScaleWindow?.IsVisible == true,
             _encyclopediaWindow?.IsVisible == true,
             _tutorialModeWindow?.IsVisible == true);
+
+        UpdateTopBarDependentLayout();
     }
     
     private void ShowCombatEventNotification(CombatEvent combatEvent)
