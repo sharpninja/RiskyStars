@@ -1,0 +1,110 @@
+{
+  "screenId": "encyclopedia-window",
+  "summary": "The actual screenshot depicts a full encyclopedia window with a left navigation list and right scrollable article body over a gameplay map background, aligning with the screen description. However, the wireframe shows a minimal placeholder window without the split layout, leading to significant mismatches in structure, content, and positioning. The wireframe is unsuitable for validating the requirements due to its incomplete representation.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+      "evidence": "Both actual and wireframe feature a dark starfield background with map elements like stellar bodies and lines.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Panel Borders",
+      "requirement": "Global wireframe style requirements: thin green panel borders",
+      "evidence": "Panels in both images have thin green borders.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Resource Indicators",
+      "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Visually satisfy documented screen description and UI behavior",
+      "evidence": "Top resource bars (POP, MET, FUEL) are present in similar positions and styles in both.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Map Key Panel",
+      "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Gameplay map with Encyclopedia dockable window",
+      "evidence": "A \u0027Map Key\u0027 panel is visible in both, though positioned differently.",
+      "confidence": 0.8
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Encyclopedia Window Layout",
+      "requirement": "Screen description: Window is a split layout with navigation list at left and scrollable article body at right",
+      "expected": "Split layout with left navigation list and right content area",
+      "actual": "Wireframe shows a small central window with placeholder text and buttons, no split layout; actual has full split layout",
+      "whyIncorrect": "Wireframe does not depict the required split layout, making it mismatched for comparison",
+      "severity": "critical",
+      "confidence": 0.95
+    },
+    {
+      "element": "Navigation List",
+      "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Visually satisfy documented screen description",
+      "expected": "Left-side list with categories like \u0027Articles\u0027, \u0027Core Rules\u0027, \u0027Turn Flow\u0027",
+      "actual": "Missing in wireframe; present in actual",
+      "whyIncorrect": "Wireframe lacks the navigation component entirely",
+      "severity": "high",
+      "confidence": 0.9
+    },
+    {
+      "element": "Content Area",
+      "requirement": "Screen description: scrollable article body at right",
+      "expected": "Scrollable body with article text, headings like \u0027Turn Flow\u0027, \u0027Key Points\u0027",
+      "actual": "Wireframe has minimal placeholder \u0027bounded scroll content\u0027; actual has detailed content",
+      "whyIncorrect": "Wireframe uses generic placeholder instead of representative content",
+      "severity": "high",
+      "confidence": 0.85
+    },
+    {
+      "element": "Window Positioning and Size",
+      "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+      "expected": "Large dockable window covering much of the screen with split layout",
+      "actual": "Wireframe shows small centered window; actual spans most of the screen",
+      "whyIncorrect": "Mismatch in bounds and positioning affects layout validation",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Top Bar Text",
+      "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Expected user-facing UI behavior",
+      "expected": "Turn and phase indicators consistent with game state",
+      "actual": "Wireframe has \u0027Production Phase | Active: Cadet\u0027; actual has \u0027Purchase Phase | Active:\u0027 with encyclopedia title",
+      "whyIncorrect": "Inconsistent phase and active player text, potentially confusing state representation",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Buttons",
+      "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Visually satisfy UI behavior",
+      "expected": "No prominent BACK/NEXT buttons in encyclopedia view",
+      "actual": "Wireframe includes BACK and NEXT/APPLY buttons; actual does not",
+      "whyIncorrect": "Extra controls in wireframe not present in actual or description, indicating wireframe mismatch",
+      "severity": "medium",
+      "confidence": 0.85
+    },
+    {
+      "element": "Map Elements Visibility",
+      "requirement": "Screen description: Gameplay map with Encyclopedia dockable window",
+      "expected": "Map elements partially visible behind window",
+      "actual": "Wireframe shows more prominent map with named stars (Sirius, Arcturus, Canopus); actual has subtle map elements",
+      "whyIncorrect": "Difference in map detail and visibility could affect occlusion and z-order validation",
+      "severity": "low",
+      "confidence": 0.75
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "unsuitable",
+    "why": "The wireframe does not accurately represent the described split layout for the encyclopedia window, using placeholders instead of specific elements, which prevents effective validation of the functional requirements. It appears to depict a different or incomplete screen state, missing key components like the navigation list and detailed content.",
+    "missingRequirements": [
+      "Representation of left navigation list",
+      "Scrollable article body with sample content",
+      "Accurate window sizing and positioning relative to the map"
+    ],
+    "recommendedWireframeChanges": [
+      "Update to include split layout with left list and right content",
+      "Add representative text and headings to match screen description",
+      "Remove extraneous buttons like BACK/NEXT if not part of encyclopedia view",
+      "Ensure consistent top bar and resource indicators"
+    ]
+  }
+}

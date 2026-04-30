@@ -1,0 +1,76 @@
+{
+  "interactionId": "main-menu-settings-back-click",
+  "summary": "The interaction successfully transitions from the Command Settings view to the main menu Command Actions view upon clicking Back, but the actual before state shows incomplete rendering of settings sections compared to the expected wireframe.",
+  "correctStateChanges": [
+    {
+      "element": "Command Settings Panel",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-BACK-001",
+      "expectedBefore": "Visible with server, display, session, theme controls, Save Settings, Back buttons, and scrollbar",
+      "expectedAfter": "Not visible, replaced by Command Actions view",
+      "actualBefore": "Partially visible with server endpoint and visual palette, but missing display profile and UI scale",
+      "actualAfter": "Not visible, replaced by Command Actions view",
+      "evidence": "Actual after screenshot shows main menu with title, sector brief, and command actions buttons, matching expected after wireframe",
+      "confidence": 0.95
+    },
+    {
+      "element": "Command Actions View",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-BACK-001",
+      "expectedBefore": "Not visible",
+      "expectedAfter": "Visible with RiskyStars title, sector brief, command actions buttons (Multiplayer, Single Player, Tutorial Mode, Settings, Exit)",
+      "actualBefore": "Not visible",
+      "actualAfter": "Visible with matching elements",
+      "evidence": "Transition from settings to main menu observed in actual screenshots",
+      "confidence": 1
+    },
+    {
+      "element": "Outer Command Deck Frame",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-BACK-001",
+      "expectedBefore": "Visible",
+      "expectedAfter": "Remains visible",
+      "actualBefore": "Visible",
+      "actualAfter": "Remains visible",
+      "evidence": "Frame persists in both actual before and after screenshots",
+      "confidence": 1
+    }
+  ],
+  "incorrectStateChanges": [
+    {
+      "element": "Display Profile Section",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-BACK-001",
+      "expected": "Visible in before state with resolution, window mode, UI scale controls",
+      "actual": "Missing in actual before screenshot; large black space instead",
+      "whyIncorrect": "Actual before does not show the full settings content as per wireframe, indicating potential rendering or layout issue",
+      "severity": "high",
+      "confidence": 0.9
+    },
+    {
+      "element": "Visual Palette Details",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-BACK-001",
+      "expected": "Visible in before state with palette, accent color, classic green, warning tone, amber",
+      "actual": "Partially visible but incomplete; only label shown without controls",
+      "whyIncorrect": "Actual before screenshot shows truncated or missing details in visual palette section",
+      "severity": "medium",
+      "confidence": 0.85
+    },
+    {
+      "element": "Scrollbar Functionality",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-BACK-001",
+      "expected": "Scrollbar available and content scrollable to show all sections",
+      "actual": "Scrollbar visible, but content appears incomplete or not fully rendered",
+      "whyIncorrect": "Despite scrollbar, missing sections suggest content not properly loaded or screenshot not capturing scrolled state",
+      "severity": "medium",
+      "confidence": 0.8
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframes accurately depict the expected before and after states for the transition, but lack annotations for dynamic elements like scrolling, which could help validate incomplete renderings in actual screenshots.",
+    "missingRequirements": [
+      "No explicit validation for screenshot dimensions (TR-UI-INTERACTION-HWND-001) in wireframes"
+    ],
+    "recommendedWireframeChanges": [
+      "Add annotations indicating scrollable areas and full content extent",
+      "Include dimension labels to match technical requirements for screenshot size"
+    ]
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "screenId": "gameplay-hud-legend",
+  "summary": "The actual screenshot shows a close but not perfect match to the wireframe, with differences in text content, panel layout, resource display, and minor visual elements. The wireframe is partially suitable for validation but lacks detail on dynamic behaviors.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+      "evidence": "Both actual and wireframe feature a dark background with starfield and map elements.",
+      "confidence": 1
+    },
+    {
+      "element": "Map Systems",
+      "requirement": "Screen description: In-game map with system orbit, stellar body, region marker, and lane mouth",
+      "evidence": "Systems like Sirius, Arcturus, Canopus are present with orbits and connections in both.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Map Key Panel",
+      "requirement": "Screen description: right-side Map Key panel docked under the selection panel area. Legend rows show system orbit, stellar body, region marker, and lane mouth",
+      "evidence": "Map Key panel is on the right with legend items matching the description.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Top Bar",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-LEGEND: The Gameplay HUD legend screen must visually satisfy the documented screen description",
+      "evidence": "Top bar with turn, phase, and active player info is present in both.",
+      "confidence": 1
+    },
+    {
+      "element": "Resource Indicators",
+      "requirement": "Global wireframe style requirements: terminal-style labels",
+      "evidence": "POP, MET, FUEL labels are present in a terminal-style format.",
+      "confidence": 0.95
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Phase Text",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-LEGEND: Visually satisfy the documented screen description and expected user-facing UI behavior",
+      "expected": "Production Phase",
+      "actual": "Purchase Phase",
+      "whyIncorrect": "The phase displayed differs, which may indicate a mismatch in game state or incorrect wireframe representation.",
+      "severity": "medium",
+      "confidence": 1
+    },
+    {
+      "element": "Resource Display",
+      "requirement": "Global wireframe style requirements: simple rectangles for controls, terminal-style labels",
+      "expected": "POP 100, MET 50, FUEL 50 without increments",
+      "actual": "POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)",
+      "whyIncorrect": "Actual includes increment values not present in wireframe, affecting visual match and potentially indicating dynamic elements not captured.",
+      "severity": "low",
+      "confidence": 0.95
+    },
+    {
+      "element": "Selection Panel",
+      "requirement": "Screen description: right-side Map Key panel docked under the selection panel area",
+      "expected": "Separate \u0027Selected\u0027 panel above Map Key",
+      "actual": "No visible separate selection panel; Map Key appears standalone",
+      "whyIncorrect": "Missing selection panel in actual screenshot, which is present in wireframe, suggesting docking or visibility issue.",
+      "severity": "high",
+      "confidence": 0.9
+    },
+    {
+      "element": "Debug Text",
+      "requirement": "TR-UI-AUDIT-HWND-001: The actual screenshot must be captured from the RiskyStars client HWND",
+      "expected": "Panels F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5 Ref:Off F6 Tut:Off H Help",
+      "actual": "Planets F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5 Ref:Off F6 Tut:Off H Help (partial match)",
+      "whyIncorrect": "Slight text difference (\u0027Planets\u0027 vs \u0027Panels\u0027), possibly indicating version or state mismatch.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Bottom Labels",
+      "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+      "expected": "Prompt baseline label at bottom",
+      "actual": "top=107 labels at bottom left and right",
+      "whyIncorrect": "Extra debug labels in actual not in wireframe, and wireframe has its own baseline label not expected in actual.",
+      "severity": "low",
+      "confidence": 0.95
+    },
+    {
+      "element": "Map Details",
+      "requirement": "Screen description: Legend rows show system orbit, stellar body, region marker, and lane mouth",
+      "expected": "Detailed icons in systems like multiple planets in Sirius",
+      "actual": "Simpler icons and fewer details in system representations",
+      "whyIncorrect": "Visual details in map elements do not fully match, potentially due to rendering differences or incomplete wireframe.",
+      "severity": "medium",
+      "confidence": 0.8
+    },
+    {
+      "element": "Validation Limitation",
+      "requirement": "FR-UI-AUDIT-001: Every documented UI screen must have a direct prompt-rendered wireframe for screenshot comparison",
+      "expected": "Exact pixel-perfect match for audit",
+      "actual": "Close visual match but with noted differences",
+      "whyIncorrect": "Residual risk from potential DPI/scaling or anti-aliasing differences not detectable in image comparison.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the overall layout and key elements but lacks representation of dynamic content like resource increments and selection states, and does not fully align with repository process requirements for verification as per AGENTS-README-FIRST.yaml.",
+    "missingRequirements": [
+      "Dynamic UI behavior validation (e.g., selection panel visibility)",
+      "Exact color and icon matching for legend symbols",
+      "Integration with repository tools for automated verification as suggested in agentsReadmeFirstContent"
+    ],
+    "recommendedWireframeChanges": [
+      "Include variations for different game phases and states",
+      "Add annotations for dynamic elements",
+      "Ensure wireframe includes all possible debug overlays or make them optional"
+    ]
+  }
+}

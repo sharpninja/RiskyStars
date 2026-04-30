@@ -142,6 +142,45 @@ public class LobbyManager
         _lobbyScreen.LoadContent(font);
     }
 
+    internal void DebugShowState(LobbyState state)
+    {
+        _pendingTask = null;
+        _state = state;
+        _selectedGameMode = state == LobbyState.SinglePlayerLobby
+            ? GameMode.SinglePlayer
+            : GameMode.Multiplayer;
+        _isTutorialMode = false;
+        _playerId = "debug-player";
+        _playerName = "Cadet";
+        _sessionId = "debug-session";
+        _currentLobbyId = "debug-lobby";
+
+        if (state == LobbyState.Browser)
+        {
+            _browserScreen.SetLobbies(new List<LobbyInfo> { CreateDebugLobbyInfo() });
+        }
+
+        if (state == LobbyState.InLobby || state == LobbyState.StartingGame)
+        {
+            _lobbyScreen.SetLobbyInfo(CreateDebugLobbyInfo(), _playerId);
+            _lobbyScreen.SetReady(true);
+        }
+    }
+
+    private static LobbyInfo CreateDebugLobbyInfo()
+    {
+        return new LobbyInfo
+        {
+            LobbyId = "debug-lobby",
+            HostPlayerName = "Host Commander",
+            CurrentPlayers = 2,
+            MaxPlayers = 4,
+            GameMode = "Conquest",
+            MapName = "Rigel March",
+            PlayerNames = { "Host Commander", "Cadet" }
+        };
+    }
+
     public void Update(GameTime gameTime)
     {
         var mouseState = Mouse.GetState();

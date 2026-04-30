@@ -1,0 +1,114 @@
+{
+  "screenId": "dialog-manager",
+  "summary": "The actual screenshot shows a gameplay map with a centered modal dialog, but there are significant mismatches in dialog styling, button labels, colors, and additional UI elements compared to the wireframe. The wireframe provides a basic layout but uses placeholders, making it partially suitable for validation.",
+  "correctElements": [
+    {
+      "element": "Gameplay map background",
+      "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+      "evidence": "Both images feature a dark background with star systems like Sirius, Arcturus, and Canopus.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Centered modal dialog",
+      "requirement": "Screen description: Gameplay map with centered modal dialog",
+      "evidence": "Dialog is centered in both the actual screenshot and wireframe.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Dialog title",
+      "requirement": "Dialog contains title",
+      "evidence": "Actual has \u0027Confirm Title\u0027, wireframe has \u0027Dialog\u0027; presence matches.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Dialog message/content",
+      "requirement": "Dialog contains wrapped message",
+      "evidence": "Actual has \u0027Confirm Message\u0027, wireframe has \u0027bounded scroll content\u0027; content area present.",
+      "confidence": 0.8
+    },
+    {
+      "element": "Two action buttons",
+      "requirement": "Dialog contains two action buttons",
+      "evidence": "Both have two buttons at the bottom of the dialog.",
+      "confidence": 0.9
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Dialog background and border",
+      "requirement": "Global wireframe style requirements: thin green panel borders, semi-transparent black panels",
+      "expected": "Semi-transparent black panel with thin green border",
+      "actual": "Solid light green background without visible border",
+      "whyIncorrect": "Actual dialog uses a bright solid color instead of semi-transparent black with green border, violating style guidelines.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Button labels and colors",
+      "requirement": "Screen description: two action buttons",
+      "expected": "BACK (black) and NEXT / APPLY (green)",
+      "actual": "OK (black) and Cancel (red)",
+      "whyIncorrect": "Button texts and colors do not match; wireframe shows different actions and color scheme.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Top bar phase text",
+      "requirement": "FR-UI-SCREEN-DIALOG-MANAGER: visually satisfy screen description",
+      "expected": "Production Phase",
+      "actual": "Purchase Phase",
+      "whyIncorrect": "Mismatch in game phase text, which may indicate incorrect screen state or dynamic content not captured in wireframe.",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Resource indicators",
+      "requirement": "Global wireframe style requirements: terminal-style labels",
+      "expected": "POP 100, MET 50, FUEL 50 without increments",
+      "actual": "POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)",
+      "whyIncorrect": "Actual includes increment values not present in wireframe, adding extra text.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Dimmed backdrop",
+      "requirement": "Screen description: dimmed backdrop",
+      "expected": "Dimmed overlay on background map",
+      "actual": "No visible dimming; map fully visible behind dialog",
+      "whyIncorrect": "Actual lacks a dimmed backdrop, making the modal less distinct from the background.",
+      "severity": "high",
+      "confidence": 0.9
+    },
+    {
+      "element": "Map Key panel",
+      "requirement": "FR-UI-SCREEN-DIALOG-MANAGER: expected user-facing UI behavior",
+      "expected": "Empty Map Key panel",
+      "actual": "Map Key with legend items (System orbit, Stellar body, etc.)",
+      "whyIncorrect": "Actual has populated legend, while wireframe shows empty; extra content not in wireframe.",
+      "severity": "medium",
+      "confidence": 0.85
+    },
+    {
+      "element": "Validation limitation",
+      "requirement": "TR-UI-AUDIT-HWND-001: screenshot at 1536x832",
+      "expected": "Exact pixel match for layout",
+      "actual": "Slight variations in positioning and scaling due to rendering differences",
+      "whyIncorrect": "Even with close match, image comparison may miss sub-pixel or DPI differences; residual risk in audit method.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the overall layout and key elements like the centered dialog and map background, but uses generic placeholders for text and does not specify exact colors, dynamic content, or interaction states, limiting its ability to fully validate visual and behavioral requirements.",
+    "missingRequirements": [
+      "Dynamic UI behavior such as button interactions or scrolling",
+      "Specific color palettes and transparency levels for panels"
+    ],
+    "recommendedWireframeChanges": [
+      "Incorporate example specific texts for titles, messages, and buttons to better match expected content",
+      "Add annotations for dimming effects and border styles",
+      "Include variations for different dialog types or states"
+    ]
+  }
+}

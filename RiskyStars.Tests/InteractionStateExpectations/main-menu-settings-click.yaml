@@ -1,0 +1,35 @@
+interactionId: main-menu-settings-click
+description: Main menu Settings click should replace Command Actions with Command Settings.
+startScreenId: main-menu
+actionText: Settings
+beforeContainsText:
+- Command Actions
+- Settings
+beforeRejectsText:
+- Command Settings
+afterContainsText:
+- Command Settings
+- Server Endpoint
+- Back
+afterRejectsText:
+- Command Actions
+stateChanges:
+- description: Command Settings appears after the Settings click.
+  beforeText: Command Settings
+  beforePresent: false
+  afterText: Command Settings
+  afterPresent: true
+- description: Command Actions disappears after the Settings click.
+  beforeText: Command Actions
+  beforePresent: true
+  afterText: Command Actions
+  afterPresent: false
+badBehaviorValidations:
+- text: Command Actions
+  phase: after
+  rejectedPresent: true
+  reason: The click must not leave the main menu action panel active.
+- text: Command Settings
+  phase: after
+  rejectedPresent: false
+  reason: The click must show Command Settings.

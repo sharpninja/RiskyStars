@@ -47,6 +47,11 @@ public class InputController
     {
         _currentPlayerId = playerId;
     }
+
+    internal void DebugSetHelpVisible(bool visible)
+    {
+        ShowHelp = visible;
+    }
     
     public void Update(GameTime gameTime)
     {

@@ -1,0 +1,97 @@
+{
+  "screenId": "main-menu",
+  "summary": "The actual screenshot closely matches the wireframe in overall layout, including title, sector brief, and command actions panel with buttons. However, there are mismatches in text completeness, footer presence, extra wireframe annotations, and subtle styling differences. The wireframe is partially suitable for validation but has limitations in representing full requirements.",
+  "correctElements": [
+    {
+      "element": "Title \u0027RiskyStars\u0027",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU",
+      "evidence": "Centered at top in green terminal-style text in both actual and wireframe.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Subtitle \u0027Fleet command interface\u0027",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU",
+      "evidence": "Present below title in both images.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Command Actions panel",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU",
+      "evidence": "Right-side panel with Multiplayer, Single Player, Tutorial Mode, Settings, and Exit buttons matches layout and labels.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Dark starfield background",
+      "requirement": "Global wireframe style requirements",
+      "evidence": "Present in both, with similar dark space theme.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Sector Brief header",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU",
+      "evidence": "\u0027SECTOR BRIEF\u0027 label on left in both.",
+      "confidence": 0.95
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Sector Brief text content",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU",
+      "expected": "Full text as per prompt: \u0027Chart a system. Build a faction. Risk the stars.\u0027 and complete descriptions.",
+      "actual": "Truncated in wireframe (\u0027Risk the...\u0027) but full in actual; actual has additional \u0027SYS\u0027 prefixes not in wireframe.",
+      "whyIncorrect": "Text is incomplete in wireframe, leading to mismatch; actual adds extra prefixes not expected from wireframe.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Footer",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU",
+      "expected": "Footer showing default uplink and build version.",
+      "actual": "Present in actual with \u0027Default uplink http://localhost:5000\u0027 and \u0027Build 1.0.0\u0027, missing entirely in wireframe.",
+      "whyIncorrect": "Wireframe lacks the footer element specified in the prompt description.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Extra annotation in wireframe",
+      "requirement": "Global wireframe style requirements",
+      "expected": "Clean wireframe without generation artifacts.",
+      "actual": "Wireframe has \u0027Prompt baseline: Main menu\u0027 at bottom, not present in actual.",
+      "whyIncorrect": "Extra text in wireframe not part of the UI design, affecting suitability for direct comparison.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Panel borders",
+      "requirement": "Global wireframe style requirements",
+      "expected": "Thin green panel borders, including around Command Actions.",
+      "actual": "Actual has subtle borders, but wireframe shows explicit green border only around Command Actions panel.",
+      "whyIncorrect": "Inconsistent border visibility and application between actual and wireframe.",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Background details",
+      "requirement": "Global wireframe style requirements",
+      "expected": "Consistent dark starfield with fixed geometry.",
+      "actual": "Actual has more detailed stars, gradient at bottom, and small star points not exactly matching wireframe\u0027s plainer background.",
+      "whyIncorrect": "Residual risk of background rendering differences due to dynamic generation or DPI variations, even if layout matches.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the core layout and elements but has truncated text, missing footer, and extra annotation, making it incomplete for fully validating the screen description and style requirements. It is suitable for basic structure but not for detailed content or footer validation.",
+    "missingRequirements": [
+      "Full representation of sector brief text content (FR-UI-SCREEN-MAIN-MENU)",
+      "Footer with uplink and build info (FR-UI-SCREEN-MAIN-MENU)"
+    ],
+    "recommendedWireframeChanges": [
+      "Fix text truncation in sector brief to show complete content.",
+      "Add footer with default uplink and build version.",
+      "Remove extra \u0027Prompt baseline\u0027 annotation.",
+      "Ensure consistent background rendering without generation artifacts."
+    ]
+  }
+}

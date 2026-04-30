@@ -1,0 +1,150 @@
+stepId: reference
+stepIndex: 12
+title: Open the reference layer
+objective: Open the encyclopedia with F5.
+action: open-encyclopedia
+expectedHighlightTargets:
+- TopBar
+- EncyclopediaWindow
+expectedGameStateDelta:
+- Encyclopedia window is visible.
+expectedVisibleText:
+- Tutorial Mode
+- Open the reference layer
+- Open the encyclopedia with F5.
+prompt: |-
+  Compare the guided tutorial step 'reference' expected before/after wireframes against the actual before/after HWND screenshots.
+  Validate the full game viewport, tutorial panel, top bar, map, side panels, highlighted UI targets, objective status text, and gameplay state change.
+  The required action is 'open-encyclopedia'.
+  Required highlight targets: TopBar, EncyclopediaWindow.
+  The after state must show the objective complete for every step except 'complete', which must close the tutorial window while gameplay remains active.
+  Report any missing, stale, wrongly bounded, hidden, or occluded highlight as incorrect behavior.
+  Treat decorative map names, exact resource values not listed in expectedGameStateDelta, and extra tutorial explanatory prose as acceptable unless they block the required user flow or contradict the visual-tree tutorialState.
+  Also judge whether the wireframes are suitable for validating this step's stated functional and technical requirements.
+functionalRequirements:
+- id: FR-GUIDED-TUTORIAL-001
+  text: The guided tutorial must lead the player through the full 14-step strategic loop.
+- id: FR-GUIDED-TUTORIAL-13
+  text: Step 'reference' must perform action 'open-encyclopedia' and satisfy objective 'Open the encyclopedia with F5.'.
+- id: FR-UI-HIGHLIGHT-001
+  text: Tutorial steps must visually highlight the UI elements the user is expected to inspect or use.
+technicalRequirements:
+- id: TR-GUIDED-TUTORIAL-DEBUG-PROTOCOL-001
+  text: The tutorial journey must be driven through deterministic debug protocol actions instead of raw flaky input.
+- id: TR-GUIDED-TUTORIAL-HWND-001
+  text: Actual before and after screenshots must be captured from the RiskyStars client HWND at 1536x832.
+- id: TR-GUIDED-TUTORIAL-AI-SCHEMA-001
+  text: The AI comparison result must conform exactly to the strict resultSchema JSON schema.
+- id: TR-UI-AUDIT-AGENTS-001
+  text: The model must consider AGENTS-README-FIRST.yaml content when validating process and correctness requirements.
+agentsReadmeFirstPath: AGENTS-README-FIRST.yaml
+beforeWireframePath: RiskyStars.Client/Wireframes/TutorialJourney/13-reference-before.png
+afterWireframePath: RiskyStars.Client/Wireframes/TutorialJourney/13-reference-after.png
+beforeScreenshotPath: RiskyStars.Client/Screenshots/TutorialJourney/13-reference-before.png
+afterScreenshotPath: RiskyStars.Client/Screenshots/TutorialJourney/13-reference-after.png
+beforeVisualTreePath: RiskyStars.Client/Screenshots/TutorialJourney/13-reference-before.visual-tree.json
+afterVisualTreePath: RiskyStars.Client/Screenshots/TutorialJourney/13-reference-after.visual-tree.json
+resultSchema: |-
+  {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["stepId", "summary", "correctElements", "incorrectElements", "correctBehavior", "incorrectBehavior", "highlightValidation", "wireframeSuitability"],
+    "properties": {
+      "stepId": { "type": "string", "minLength": 1 },
+      "summary": { "type": "string", "minLength": 1 },
+      "correctElements": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["element", "requirement", "evidence", "confidence"],
+          "properties": {
+            "element": { "type": "string", "minLength": 1 },
+            "requirement": { "type": "string", "minLength": 1 },
+            "evidence": { "type": "string", "minLength": 1 },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      },
+      "incorrectElements": {
+        "type": "array",
+        "items": { "$ref": "#/$defs/incorrectItem" }
+      },
+      "correctBehavior": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["behavior", "requirement", "evidence", "confidence"],
+          "properties": {
+            "behavior": { "type": "string", "minLength": 1 },
+            "requirement": { "type": "string", "minLength": 1 },
+            "evidence": { "type": "string", "minLength": 1 },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      },
+      "incorrectBehavior": {
+        "type": "array",
+        "items": { "$ref": "#/$defs/incorrectBehaviorItem" }
+      },
+      "highlightValidation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["expectedTargets", "visibleTargets", "allExpectedTargetsVisible", "boundsCorrect", "notHiddenBehindTutorialPanel", "noStaleHighlights", "why"],
+        "properties": {
+          "expectedTargets": { "type": "array", "items": { "type": "string" } },
+          "visibleTargets": { "type": "array", "items": { "type": "string" } },
+          "allExpectedTargetsVisible": { "type": "boolean" },
+          "boundsCorrect": { "type": "boolean" },
+          "notHiddenBehindTutorialPanel": { "type": "boolean" },
+          "noStaleHighlights": { "type": "boolean" },
+          "why": { "type": "string", "minLength": 1 }
+        }
+      },
+      "wireframeSuitability": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rating", "why", "missingRequirements", "recommendedWireframeChanges"],
+        "properties": {
+          "rating": { "type": "string", "enum": ["suitable", "partially_suitable", "unsuitable"] },
+          "why": { "type": "string", "minLength": 1 },
+          "missingRequirements": { "type": "array", "items": { "type": "string" } },
+          "recommendedWireframeChanges": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "$defs": {
+      "incorrectItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["element", "requirement", "expected", "actual", "whyIncorrect", "severity", "confidence"],
+        "properties": {
+          "element": { "type": "string", "minLength": 1 },
+          "requirement": { "type": "string", "minLength": 1 },
+          "expected": { "type": "string", "minLength": 1 },
+          "actual": { "type": "string", "minLength": 1 },
+          "whyIncorrect": { "type": "string", "minLength": 1 },
+          "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "incorrectBehaviorItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["behavior", "requirement", "expected", "actual", "whyIncorrect", "severity", "confidence"],
+        "properties": {
+          "behavior": { "type": "string", "minLength": 1 },
+          "requirement": { "type": "string", "minLength": 1 },
+          "expected": { "type": "string", "minLength": 1 },
+          "actual": { "type": "string", "minLength": 1 },
+          "whyIncorrect": { "type": "string", "minLength": 1 },
+          "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }

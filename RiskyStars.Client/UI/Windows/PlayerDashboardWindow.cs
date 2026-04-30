@@ -59,7 +59,7 @@ public class PlayerDashboardWindow : DockableWindow
         mainLayout.Widgets.Add(BuildPurchasePanel());
         mainLayout.Widgets.Add(BuildHeroPanel());
         
-        _window.Content = mainLayout;
+        SetScrollableContent(mainLayout);
     }
     
     private Widget BuildResourcePanel()

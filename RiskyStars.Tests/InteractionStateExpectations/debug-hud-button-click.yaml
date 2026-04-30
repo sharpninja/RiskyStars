@@ -1,0 +1,35 @@
+interactionId: debug-hud-button-click
+description: Debug protocol click should mutate the visual tree from the pre-click state to the post-click state.
+action:
+  elementId: hud.button
+  invoke: click
+before:
+- elementId: hud.label
+  text: Before
+  treeVisible: true
+- elementId: hud.hidden
+  treeVisible: false
+after:
+- elementId: hud.label
+  text: After Click
+  treeVisible: true
+- elementId: hud.hidden
+  treeVisible: true
+stateChanges:
+- elementId: hud.label
+  property: text
+  before: Before
+  after: After Click
+- elementId: hud.hidden
+  property: treeVisible
+  before: "false"
+  after: "true"
+badBehaviorValidations:
+- elementId: hud.label
+  property: text
+  rejectedValue: Before
+  reason: The click must not leave the label in the original pre-click state.
+- elementId: hud.hidden
+  property: treeVisible
+  rejectedValue: "false"
+  reason: The click must not leave the revealed panel hidden after the interaction.

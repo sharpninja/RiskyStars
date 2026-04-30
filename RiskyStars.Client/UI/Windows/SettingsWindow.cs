@@ -335,7 +335,7 @@ public class SettingsWindow
         _musicVolumeSlider.ValueChanged += (s, e) => UpdateVolumeLabel(_musicVolumeLabel, _musicVolumeSlider.Value);
         _sfxVolumeSlider.ValueChanged += (s, e) => UpdateVolumeLabel(_sfxVolumeLabel, _sfxVolumeSlider.Value);
         
-        tabItem.Content = contentStack;
+        tabItem.Content = ThemedUIFactory.CreateAutoScrollViewer(contentStack);
         _tabControl?.Items.Add(tabItem);
     }
     
@@ -529,7 +529,7 @@ public class SettingsWindow
         infoLabel.Wrap = true;
         contentStack.Widgets.Add(infoLabel);
         
-        tabItem.Content = contentStack;
+        tabItem.Content = ThemedUIFactory.CreateAutoScrollViewer(contentStack);
         _tabControl?.Items.Add(tabItem);
     }
     

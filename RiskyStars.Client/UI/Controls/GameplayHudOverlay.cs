@@ -61,7 +61,7 @@ public sealed class GameplayHudOverlay
         stack.Widgets.Add(CreateLegendRow(CreateRegionIcon(), "Region marker"));
         stack.Widgets.Add(CreateLegendRow(CreateLaneMouthIcon(), "Lane mouth"));
 
-        panel.Widgets.Add(stack);
+        panel.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(stack));
         return panel;
     }
 
@@ -206,7 +206,7 @@ public sealed class GameplayHudOverlay
         stack.Widgets.Add(CreateLegendRow(CreateRegionIcon(), "Region marker"));
         stack.Widgets.Add(CreateLegendRow(CreateLaneMouthIcon(), "Lane mouth"));
 
-        panel.Widgets.Add(stack);
+        panel.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(stack));
         return panel;
     }
 
@@ -300,7 +300,7 @@ public sealed class GameplayHudOverlay
             stack.Widgets.Add(row);
         }
 
-        panel.Widgets.Add(stack);
+        panel.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(stack));
         return panel;
     }
 

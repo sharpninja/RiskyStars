@@ -1,0 +1,7 @@
+{
+  "stepId": "purchase",
+  "stepIndex": 6,
+  "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/07-purchase.yaml",
+  "errorType": "System.ClientModel.ClientResultException",
+  "message": "Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+}

@@ -1,0 +1,91 @@
+{
+  "screenId": "combat-hud-overlay",
+  "summary": "The actual screenshot partially matches the wireframe for the Combat HUD overlay, with correct overall structure and key elements like the title and sections present, but significant layout differences, color inconsistencies, and missing details reduce fidelity. The wireframe is partially suitable as a baseline but lacks specificity for dynamic content and precise styling.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+      "evidence": "Both actual and wireframe show a dark background with starfield and map elements like circles and labels (e.g., Canopus, Arcturus).",
+      "confidence": 0.95
+    },
+    {
+      "element": "Combat Panel Title",
+      "requirement": "Screen description: Large dark red combat panel centered-left with title",
+      "evidence": "Title \u0027Combat initiated\u0027 is present in both, centered at the top of the panel.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Map Key",
+      "requirement": "Screen description: Implied map elements in gameplay background",
+      "evidence": "Map Key panel is present in the right side in both, with similar positioning.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Progress Prompt",
+      "requirement": "FR-UI-SCREEN-COMBAT-HUD-OVERLAY: Expected user-facing UI behavior",
+      "evidence": "Actual has \u0027Press ENTER or SPACE to advance. ESC skips.\u0027 which aligns with interactive overlay behavior, though wireframe omits it but implies interactivity.",
+      "confidence": 0.8
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Panel Layout",
+      "requirement": "Screen description: Large dark red combat panel centered-left with attacking/defending sides, rolls, pairings, casualties, and survivors",
+      "expected": "Horizontal side-by-side layout for Attackers and Defenders, with a subpanel below for Rolls | Pairings | Casualties | Survivors",
+      "actual": "Vertical stacked sections starting with Attackers, then Attacker rolls, Pairings, Casualties, Survivors, with defenders listed under Survivors",
+      "whyIncorrect": "The actual implements a vertical flow instead of the wireframe\u0027s horizontal split, potentially affecting usability and not matching the baseline geometry",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Border Color",
+      "requirement": "Global wireframe style requirements: thin green panel borders",
+      "expected": "Thin green borders for panels",
+      "actual": "Red/orange borders for the combat panel",
+      "whyIncorrect": "Actual borders are red, mismatching the specified green in requirements, though wireframe PNG also shows red, indicating inconsistency between prompt and rendered wireframe",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Section Details",
+      "requirement": "FR-UI-SCREEN-COMBAT-HUD-OVERLAY: Visually satisfy the documented screen description",
+      "expected": "Abstract labels like \u0027Rolls | Pairings | Casualties | Survivors\u0027 in a single line",
+      "actual": "Separate colored headings (e.g., red for Attackers, green for Survivors) with detailed content like unit counts and \u0027No activity yet.\u0027",
+      "whyIncorrect": "Actual adds dynamic details and separates sections vertically, while wireframe is more compact and abstract, leading to mismatch in nesting and text content",
+      "severity": "medium",
+      "confidence": 0.85
+    },
+    {
+      "element": "Missing Elements",
+      "requirement": "Screen description: Dim gameplay background",
+      "expected": "Dimmed background with visible map elements integrated",
+      "actual": "Background is present but additional elements like top status bar (POP, MET, FUEL) and turn info are visible, not dimmed or overlaid as implied",
+      "whyIncorrect": "Extra top bar and panels not present in wireframe, potentially indicating z-order or overlay issues where HUD does not fully dim or cover underlying UI",
+      "severity": "high",
+      "confidence": 0.9
+    },
+    {
+      "element": "Validation Limitation",
+      "requirement": "TR-UI-AUDIT-HWND-001: Actual screenshot from HWND at 1536x832",
+      "expected": "Pixel-perfect match at 1536x832 resolution",
+      "actual": "Images appear scaled or cropped in audit view, potential DPI differences",
+      "whyIncorrect": "Residual risk of resolution or scaling mismatches not fully verifiable from provided images, even though core layout is assessable",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe provides a basic layout baseline matching the screen description, including panel positioning and key sections, but it is too abstract for validating dynamic content, precise text, or interactive behaviors. It mismatches its own prompt on border colors and lacks detail on elements like progress prompts, making it incomplete for full requirement validation.",
+    "missingRequirements": [
+      "Detailed representation of dynamic data (e.g., unit counts, rolls)",
+      "Validation of overlay dimming and z-order against underlying gameplay UI",
+      "Explicit inclusion of interactive prompts like advance/skip instructions"
+    ],
+    "recommendedWireframeChanges": [
+      "Update border colors to match prompt (thin green)",
+      "Add examples of dynamic content in sections to better represent runtime state",
+      "Include top status bar and demonstrate dimming effect for overlay suitability"
+    ]
+  }
+}

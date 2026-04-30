@@ -216,8 +216,23 @@ public sealed class TutorialModeWindow : DockableWindow
     private int _currentStepIndex;
     private int _baselineOwnArmyCount = -1;
     private int _baselineMovedArmyCount = -1;
+    private bool _debugRequireExplicitActions;
 
     public event Action? EndRequested;
+
+    public static IReadOnlyList<TutorialModeStep> AllSteps => Steps;
+
+    internal int CurrentStepIndex => _currentStepIndex;
+
+    internal TutorialModeStep CurrentStep => Steps[_currentStepIndex];
+
+    internal string CurrentStatusText => _statusLabel.Text;
+
+    internal string NextButtonText => GetButtonText(_nextButton);
+
+    internal bool IsCurrentStepComplete => IsCurrentComplete();
+
+    internal bool IsCurrentStepObjectiveSatisfied => IsCurrentObjectiveSatisfied();
 
     internal IReadOnlyList<TutorialHighlightTarget> CurrentHighlightTargets =>
         TutorialHighlightTargets.ForCompletion(Steps[_currentStepIndex].Completion);
@@ -245,8 +260,6 @@ public sealed class TutorialModeWindow : DockableWindow
     {
         var root = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Medium, 0);
         root.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
-        root.RowsProportions.Add(new Proportion(ProportionType.Auto));
-        root.RowsProportions.Add(new Proportion(ProportionType.Auto));
         root.RowsProportions.Add(new Proportion(ProportionType.Fill));
 
         int footerHeight = TutorialModeLayoutMetrics.GetFooterRowHeight(
@@ -254,8 +267,10 @@ public sealed class TutorialModeWindow : DockableWindow
             ThemeManager.Spacing.XSmall);
         root.RowsProportions.Add(new Proportion(ProportionType.Pixels, footerHeight));
 
+        var bodyStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Medium);
+        bodyStack.HorizontalAlignment = HorizontalAlignment.Stretch;
+
         var headerPanel = ThemedUIFactory.CreateGameplayPanel(ThemeManager.Colors.TextAccent);
-        headerPanel.GridRow = 0;
         var headerStack = ThemedUIFactory.CreateCompactVerticalStack();
         headerStack.Spacing = ThemeManager.Spacing.Small;
 
@@ -278,28 +293,29 @@ public sealed class TutorialModeWindow : DockableWindow
         headerStack.Widgets.Add(_statusLabel);
 
         headerPanel.Widgets.Add(headerStack);
-        root.Widgets.Add(headerPanel);
+        bodyStack.Widgets.Add(headerPanel);
 
         var actionsPanel = ThemedUIFactory.CreateGameplayPanel();
-        actionsPanel.GridRow = 1;
         var actionHeading = ThemedUIFactory.CreateSmallLabel("Step actions");
         actionHeading.TextColor = ThemeManager.Colors.TextWarning;
         _actionsStack.Widgets.Add(actionHeading);
         actionsPanel.Widgets.Add(_actionsStack);
-        root.Widgets.Add(actionsPanel);
+        bodyStack.Widgets.Add(actionsPanel);
 
         var progressPanel = ThemedUIFactory.CreateGameplayPanel();
-        progressPanel.GridRow = 2;
-        progressPanel.VerticalAlignment = VerticalAlignment.Stretch;
         var progressHeading = ThemedUIFactory.CreateSmallLabel("Tutorial path");
         progressHeading.TextColor = ThemeManager.Colors.TextWarning;
         _progressStack.Widgets.Add(progressHeading);
-        progressPanel.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(_progressStack));
-        root.Widgets.Add(progressPanel);
+        progressPanel.Widgets.Add(_progressStack);
+        bodyStack.Widgets.Add(progressPanel);
+
+        var bodyScroller = ThemedUIFactory.CreateAutoScrollViewer(bodyStack);
+        bodyScroller.GridRow = 0;
+        root.Widgets.Add(bodyScroller);
 
         var footerPanel = new Panel
         {
-            GridRow = 3,
+            GridRow = 1,
             Height = footerHeight,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Stretch
@@ -331,12 +347,33 @@ public sealed class TutorialModeWindow : DockableWindow
         EnsureBaseline(snapshot);
 
         var current = Steps[_currentStepIndex];
-        if (IsStepComplete(current, snapshot))
-        {
-            _completedStepIds.Add(current.Id);
-        }
+            if (!_debugRequireExplicitActions && IsStepComplete(current, snapshot))
+            {
+                _completedStepIds.Add(current.Id);
+            }
 
         RefreshView();
+    }
+
+    internal void DebugReset(bool requireExplicitActions = false)
+    {
+        _currentStepIndex = 0;
+        _completedStepIds.Clear();
+        _baselineOwnArmyCount = -1;
+        _baselineMovedArmyCount = -1;
+        _debugRequireExplicitActions = requireExplicitActions;
+        RefreshView();
+    }
+
+    internal void DebugCompleteCurrentStep()
+    {
+        _completedStepIds.Add(Steps[_currentStepIndex].Id);
+        RefreshView();
+    }
+
+    internal void DebugMoveNext()
+    {
+        MoveNext();
     }
 
     private void MovePrevious()
@@ -382,7 +419,7 @@ public sealed class TutorialModeWindow : DockableWindow
     private void RefreshView()
     {
         var current = Steps[_currentStepIndex];
-        bool currentComplete = _lastSnapshot != null && IsStepComplete(current, _lastSnapshot);
+        bool currentComplete = IsCurrentComplete();
 
         _progressLabel.Text = $"Step {_currentStepIndex + 1} of {Steps.Count}";
         _titleLabel.Text = current.Title;
@@ -535,5 +572,29 @@ public sealed class TutorialModeWindow : DockableWindow
         {
             label.Text = text;
         }
+    }
+
+    private bool IsCurrentComplete()
+    {
+        var current = Steps[_currentStepIndex];
+        if (_debugRequireExplicitActions && current.Completion != TutorialStepCompletion.Manual)
+        {
+            return _completedStepIds.Contains(current.Id);
+        }
+
+        return _completedStepIds.Contains(current.Id) ||
+            (_lastSnapshot != null && IsStepComplete(current, _lastSnapshot));
+    }
+
+    private bool IsCurrentObjectiveSatisfied()
+    {
+        var current = Steps[_currentStepIndex];
+        return current.Completion == TutorialStepCompletion.Manual ||
+            (_lastSnapshot != null && IsStepComplete(current, _lastSnapshot));
+    }
+
+    private static string GetButtonText(MyraButton button)
+    {
+        return button.Content is Label label ? label.Text : string.Empty;
     }
 }

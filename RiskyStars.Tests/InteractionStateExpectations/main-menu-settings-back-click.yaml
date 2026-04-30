@@ -1,0 +1,36 @@
+interactionId: main-menu-settings-back-click
+description: Command Settings Back click should return to the main menu Command Actions view.
+startScreenId: main-menu-settings
+actionText: Back
+beforeContainsText:
+- Command Settings
+- Server Endpoint
+- Back
+beforeRejectsText:
+- Command Actions
+afterContainsText:
+- Command Actions
+- Settings
+- Tutorial Mode
+afterRejectsText:
+- Command Settings
+stateChanges:
+- description: Command Settings disappears after Back.
+  beforeText: Command Settings
+  beforePresent: true
+  afterText: Command Settings
+  afterPresent: false
+- description: Command Actions returns after Back.
+  beforeText: Command Actions
+  beforePresent: false
+  afterText: Command Actions
+  afterPresent: true
+badBehaviorValidations:
+- text: Command Settings
+  phase: after
+  rejectedPresent: true
+  reason: The Back click must not leave the settings panel active.
+- text: Command Actions
+  phase: after
+  rejectedPresent: false
+  reason: The Back click must restore the main menu command actions.

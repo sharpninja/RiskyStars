@@ -1,0 +1,116 @@
+{
+  "screenId": "tutorial-mode-window",
+  "summary": "The actual screenshot closely matches the wireframe in overall layout and style, including the docked tutorial window, map, and key. However, there are mismatches in content details, button labels, phase naming, and map elements, indicating some deviations from the expected wireframe and requirements.",
+  "correctElements": [
+    {
+      "element": "Tutorial Mode Window Position",
+      "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+      "evidence": "The tutorial window is docked to the left edge of the map content, right of any left rail, matching the wireframe\u0027s left-side panel placement.",
+      "confidence": 1
+    },
+    {
+      "element": "Fixed Title",
+      "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+      "evidence": "The window has a fixed title \u0027Tutorial Mode\u0027 at the top, consistent with the wireframe.",
+      "confidence": 1
+    },
+    {
+      "element": "Map Background and Style",
+      "requirement": "Global wireframe style requirements",
+      "evidence": "Dark starfield background with green borders and semi-transparent panels, matching the specified style in both actual and wireframe.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Footer Buttons Presence",
+      "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+      "evidence": "Stable footer buttons (Back, Next, End) are present at the bottom of the tutorial window, aligning with the wireframe\u0027s button placement.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Map Key Panel",
+      "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+      "evidence": "Map Key is positioned on the right side, matching the wireframe\u0027s right panel.",
+      "confidence": 1
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Phase Name in Top Bar",
+      "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+      "expected": "Production Phase (as in wireframe)",
+      "actual": "Purchase Phase",
+      "whyIncorrect": "The phase name differs, which may indicate a mismatch in the game state or tutorial context, affecting visual satisfaction of the screen description.",
+      "severity": "medium",
+      "confidence": 1
+    },
+    {
+      "element": "Footer Buttons Labels",
+      "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+      "expected": "BACK, NEXT / APPLY (as in wireframe)",
+      "actual": "Back, Next, End",
+      "whyIncorrect": "Button labels and count do not match; wireframe shows \u0027NEXT / APPLY\u0027 combined, while actual has separate \u0027Next\u0027 and \u0027End\u0027, potentially altering user-facing behavior.",
+      "severity": "high",
+      "confidence": 1
+    },
+    {
+      "element": "Tutorial Content",
+      "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+      "expected": "Bounded scroll content placeholder",
+      "actual": "Detailed text sections including \u0027Step 1 of 14\u0027, \u0027Boot the command deck\u0027, actions, and path list",
+      "whyIncorrect": "Wireframe uses a generic placeholder, but actual has specific content; while layout matches, the wireframe lacks detail to validate exact text and sections.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Map Elements",
+      "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+      "expected": "Sirius, Arcturus, Canopus with connections",
+      "actual": "Arcturus, Canopus with connection, no Sirius",
+      "whyIncorrect": "Map in actual screenshot misses \u0027Sirius\u0027 present in wireframe, indicating a content mismatch in the gameplay map visualization.",
+      "severity": "medium",
+      "confidence": 0.95
+    },
+    {
+      "element": "Close Button",
+      "requirement": "Global wireframe style requirements",
+      "expected": "No close button shown in wireframe",
+      "actual": "X close button present in title bar",
+      "whyIncorrect": "Actual includes an extra control not represented in the wireframe, which could affect z-order or user interaction not accounted for in the baseline.",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Resource Indicators",
+      "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+      "expected": "POP 100, MET 50, FUEL 50 (static in wireframe)",
+      "actual": "POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)",
+      "whyIncorrect": "Actual includes increment indicators not present in wireframe, adding extra text that may imply dynamic behavior not validated by the static wireframe.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Validation Limitation",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "Exact pixel match at 1536x832",
+      "actual": "Visual similarity but potential DPI/scaling differences or minor rendering artifacts",
+      "whyIncorrect": "As a residual risk, image comparison may not detect subtle DPI or scaling issues without pixel-level analysis, even though visuals appear close.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the overall layout, docking, and style effectively for basic validation, but uses placeholders instead of specific content, has incorrect button labels, and mismatched map details, limiting its ability to fully validate detailed user-facing behavior and exact text requirements.",
+    "missingRequirements": [
+      "Detailed tutorial text and section boundaries for content validation",
+      "Accurate representation of dynamic elements like resource increments",
+      "Exact footer button configuration including \u0027End\u0027 vs \u0027APPLY\u0027"
+    ],
+    "recommendedWireframeChanges": [
+      "Replace placeholders with sample tutorial content to match expected sections",
+      "Update buttons to Back/Next/End for consistency with requirements",
+      "Correct phase name to \u0027Purchase Phase\u0027 if that\u0027s the intended tutorial state",
+      "Include close button in title bar if it\u0027s a required element"
+    ]
+  }
+}

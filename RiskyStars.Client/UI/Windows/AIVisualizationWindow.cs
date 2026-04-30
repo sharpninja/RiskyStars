@@ -43,7 +43,7 @@ public class AIVisualizationWindow : DockableWindow
         mainLayout.Widgets.Add(BuildOptionsPanel());
         mainLayout.Widgets.Add(BuildActivityLogPanel());
         
-        _window.Content = mainLayout;
+        SetScrollableContent(mainLayout);
     }
     
     private Widget BuildStatusPanel()

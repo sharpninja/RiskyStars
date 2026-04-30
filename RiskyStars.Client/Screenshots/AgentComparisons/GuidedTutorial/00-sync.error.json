@@ -1,0 +1,7 @@
+{
+  "stepId": "sync",
+  "stepIndex": 0,
+  "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/01-sync.yaml",
+  "errorType": "System.InvalidOperationException",
+  "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+}

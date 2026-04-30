@@ -1,0 +1,104 @@
+{
+  "generatedAtUtc": "2026-04-30T00:43:42.784767+00:00",
+  "results": [],
+  "errors": [
+    {
+      "stepId": "army",
+      "stepIndex": 10,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/11-army.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "complete",
+      "stepIndex": 13,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/14-complete.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "dashboard",
+      "stepIndex": 5,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/06-dashboard.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "help",
+      "stepIndex": 3,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/04-help.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "movement",
+      "stepIndex": 11,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/12-movement.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "movement-phase",
+      "stepIndex": 9,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/10-movement-phase.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "production",
+      "stepIndex": 4,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/05-production.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "purchase",
+      "stepIndex": 6,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/07-purchase.yaml",
+      "errorType": "System.ClientModel.ClientResultException",
+      "message": "Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "reference",
+      "stepIndex": 12,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/13-reference.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "reinforcement-phase",
+      "stepIndex": 7,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/08-reinforcement-phase.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "reinforcement-target",
+      "stepIndex": 8,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/09-reinforcement-target.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "select",
+      "stepIndex": 2,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/03-select.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "sync",
+      "stepIndex": 0,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/01-sync.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    },
+    {
+      "stepId": "turn",
+      "stepIndex": 1,
+      "scenarioPath": "RiskyStars.Tests/AgentGuidedTutorialComparisons/02-turn.yaml",
+      "errorType": "System.InvalidOperationException",
+      "message": "Guided tutorial AI comparison stopped because a prior scenario exhausted rate-limit retries: Service request failed.\r\nStatus: 429 (Too Many Requests)\r\n"
+    }
+  ]
+}

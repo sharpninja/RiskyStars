@@ -1,0 +1,95 @@
+interactionId: main-menu-settings-save-click
+title: Main menu Command Settings Save Settings click
+prompt: |-
+  Compare the expected before/after wireframe transition against the actual before/after HWND screenshots for interaction 'main-menu-settings-save-click'.
+  Expected before state: the Command Settings view is visible inside the main menu command deck frame, with server, display, session, theme, Save Settings, Back, and the settings scrollbar available.
+  Expected action: invoking the Save Settings button through the exported visual tree should trigger the same UI transition as a user click.
+  Expected after state: the outer command deck frame remains visible, while the main menu Command Actions view replaces the settings content inside that frame. The RiskyStars title, sector brief, and Command Actions button column are visible again; Command Settings, Server Endpoint, Save Settings, and the settings scrollbar are no longer visible.
+  Validate whether the actual screenshots show the intended transition, whether the visual state changed instead of remaining on settings, and whether the before/after wireframes are suitable for verifying the interaction.
+functionalRequirements:
+- id: FR-UI-INTERACTION-AUDIT-001
+  text: User interactions must have documented before and after wireframes plus captured actual before and after screenshots.
+- id: FR-UI-INTERACTION-MAIN-MENU-SAVE-001
+  text: Clicking Save Settings from Command Settings must save the settings draft and transition back to the main menu Command Actions view inside the same outer command deck frame.
+- id: FR-UI-WIREFRAME-SUITABILITY-001
+  text: The audit must evaluate whether the before and after wireframes are suitable for validating the interaction requirements.
+technicalRequirements:
+- id: TR-UI-INTERACTION-YAML-001
+  text: Each AI interaction comparison must be driven by a YAML scenario containing prompt, image paths, schema, FRs, TRs, and AGENTS path.
+- id: TR-UI-INTERACTION-HWND-001
+  text: Actual before and after screenshots must be captured from the RiskyStars client HWND at 1536x832.
+- id: TR-UI-INTERACTION-SCHEMA-001
+  text: The model result must conform exactly to the resultSchema JSON schema and invalid JSON is test-fail behavior.
+- id: TR-UI-INTERACTION-VISUAL-TREE-001
+  text: The interaction must be invokable by exported visual-tree element identity through the debug protocol.
+- id: TR-UI-AUDIT-AGENTS-001
+  text: The model must consider AGENTS-README-FIRST.yaml content when validating process and correctness requirements.
+agentsReadmeFirstPath: AGENTS-README-FIRST.yaml
+expectedBeforeWireframePath: RiskyStars.Client/Wireframes/InteractionStates/main-menu-settings-save-click-before.png
+expectedAfterWireframePath: RiskyStars.Client/Wireframes/InteractionStates/main-menu-settings-save-click-after.png
+actualBeforeScreenshotPath: RiskyStars.Client/Screenshots/Interactions/main-menu-settings-save-click-before.png
+actualAfterScreenshotPath: RiskyStars.Client/Screenshots/Interactions/main-menu-settings-save-click-after.png
+resultSchema: |-
+  {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["interactionId", "summary", "correctStateChanges", "incorrectStateChanges", "wireframeSuitability"],
+    "properties": {
+      "interactionId": { "type": "string", "minLength": 1 },
+      "summary": { "type": "string", "minLength": 1 },
+      "correctStateChanges": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["element", "requirement", "expectedBefore", "expectedAfter", "actualBefore", "actualAfter", "evidence", "confidence"],
+          "properties": {
+            "element": { "type": "string", "minLength": 1 },
+            "requirement": { "type": "string", "minLength": 1 },
+            "expectedBefore": { "type": "string", "minLength": 1 },
+            "expectedAfter": { "type": "string", "minLength": 1 },
+            "actualBefore": { "type": "string", "minLength": 1 },
+            "actualAfter": { "type": "string", "minLength": 1 },
+            "evidence": { "type": "string", "minLength": 1 },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      },
+      "incorrectStateChanges": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["element", "requirement", "expected", "actual", "whyIncorrect", "severity", "confidence"],
+          "properties": {
+            "element": { "type": "string", "minLength": 1 },
+            "requirement": { "type": "string", "minLength": 1 },
+            "expected": { "type": "string", "minLength": 1 },
+            "actual": { "type": "string", "minLength": 1 },
+            "whyIncorrect": { "type": "string", "minLength": 1 },
+            "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      },
+      "wireframeSuitability": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rating", "why", "missingRequirements", "recommendedWireframeChanges"],
+        "properties": {
+          "rating": { "type": "string", "enum": ["suitable", "partially_suitable", "unsuitable"] },
+          "why": { "type": "string", "minLength": 1 },
+          "missingRequirements": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "recommendedWireframeChanges": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  }

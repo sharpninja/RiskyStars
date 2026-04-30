@@ -1,368 +1,141 @@
-# AGENTS.md - RiskyStars Repository Guide
-
-## Setup
-```bash
-# Clone the repository
-git clone <repository-url>
-cd RiskyStars
-
-# Restore packages
-dotnet restore RiskyStars.sln
-```
-
-## Tech Stack
-- **.NET 8.0+** - Core framework
-- **ASP.NET Core** - gRPC server
-- **gRPC** - Client-server communication
-- **MonoGame 3.8.4.1** - Game engine (DesktopGL)
-- **Protocol Buffers** - Message serialization
-- **Jekyll** - Static site generator for documentation (GitHub Pages theme: jekyll-theme-hacker)
-- **Markdown** - Documentation format
-
-## Repository Structure
-- `RiskyStars.sln` - Visual Studio solution file
-- `RiskyStars.Shared/` - Shared library with proto definitions and generated code
-  - `Protos/game.proto` - gRPC service definitions
-- `RiskyStars.Server/` - ASP.NET Core gRPC service
-  - `Services/GameServiceImpl.cs` - Service implementation
-  - `Program.cs` - Server configuration
-- `RiskyStars.Client/` - MonoGame game client
-  - `App/` - Entrypoints and main MonoGame host (`Program.cs`, `RiskyStarsGame.cs`)
-  - `Infrastructure/` - Shared settings, window prefs, feedback bus, logging helpers
-  - `Networking/` - gRPC clients, connection manager, embedded server host, health monitor
-  - `Lobby/` - Lobby orchestration, player slots, single-player setup models
-  - `State/` - Map data, loaders, and client-side state cache
-  - `Rendering/` - Camera and world renderers (`Camera2D.cs`, `MapRenderer.cs`, `RegionRenderer.cs`, `SpriteManager.cs`)
-  - `Gameplay/` - Combat, dashboard, and AI action presentation
-  - `UI/` - Myra screens, windows, dialogs, controls, gameplay HUD, validation, and theme helpers
-  - `Content/` - Game assets directory
-    - `Sprites/` - PNG sprite assets (placeholders)
-  - `Tools/` - Development utilities
-    - `CreatePlaceholders.csproj` - Sprite placeholder generator
-  - `RENDERING.md` - Rendering system documentation
-  - `SPRITES.md` - Sprite asset documentation
-- `0.0_Concept/` - Game concept documentation
-- `1.0_Rules/` - Gameplay and combat rules
-- `2.0_Design/` - Design documentation
-- `_config.yml` - Jekyll configuration for GitHub Pages
-
-## Build Commands
-```bash
-# Build entire solution
-dotnet build RiskyStars.sln
-
-# Build specific projects
-dotnet build RiskyStars.Shared/RiskyStars.Shared.csproj
-dotnet build RiskyStars.Server/RiskyStars.Server.csproj
-dotnet build RiskyStars.Client/RiskyStars.Client.csproj
-
-# Generate sprite placeholders (first-time setup)
-cd RiskyStars.Client/Tools
-dotnet run --project CreatePlaceholders.csproj
-```
-
-## Run Commands
-```bash
-# Run the server (default port 5000)
-dotnet run --project RiskyStars.Server
-
-# Run the client (in a separate terminal)
-dotnet run --project RiskyStars.Client
-```
-
-## Test Commands
-No tests currently configured.
-
-## Lint Commands
-No linter currently configured.
-
-## Rendering System
-
-The MonoGame client uses world renderers plus a Myra gameplay HUD:
-- **MapRenderer**: Displays static map elements (star systems, stellar bodies, hyperspace lanes)
-- **RegionRenderer**: Displays dynamic game state (ownership, armies)
-- **GameplayHudOverlay**: Displays HUD elements (resources, turn info, legend, selection, AI activity)
-
-### Camera Controls
-- **WASD/Arrow Keys**: Pan camera
-- **Shift + Movement**: Fast pan
-- **Mouse Wheel**: Zoom
-- **Right Mouse Drag**: Pan camera
-- **Right Mouse Click**: Open context menu
-
-### Window Management
-- **ESC**: Open/Close In-Game Settings Window
-- **F1**: Toggle Debug Info Window
-- **F2**: Toggle Player Dashboard Window
-- **F3**: Toggle AI Visualization Window
-- **F4**: Toggle UI Scale Window
-- **F5**: Toggle In-Game Encyclopedia
-- **F6**: Toggle In-Game Tutorial
-- All windows are resizable and dockable
-- Window positions and sizes are saved automatically
-
-See `RiskyStars.Client/RENDERING.md` for detailed documentation.
-See `RiskyStars.Client/DOCKABLE_WINDOWS.md` for window system documentation.
-See `RiskyStars.Client/SETTINGS_WINDOW.md` for settings window documentation.
-
-## Sprite Assets
-
-The client uses sprite-based graphics managed through MonoGame's Content Pipeline:
-
-- **Stellar Bodies**: Gas giants (3 variants), rocky planets (3 variants), planetoids, comets
-- **Armies**: Generic army units and hero units
-- **UI Elements**: Buttons (3 states), panels, resource icons
-- **Hyperspace Lanes**: Lane textures and lane mouth portals
-- **Combat**: Hit effects, miss indicators, explosions, dice rolls
-
-### First-Time Setup
-
-Generate placeholder sprites before building:
-```bash
-cd RiskyStars.Client/Content/Sprites
-# Windows: Initialize-Sprites.bat
-# Linux/macOS: pwsh Initialize-Sprites.ps1
-# Or manually:
-cd ../../Tools
-dotnet run --project CreatePlaceholders.csproj
-```
-
-See `RiskyStars.Client/SPRITES.md` for detailed sprite specifications.
-
-## UI Theme System
-
-The client uses a Myra-based theme system for consistent UI styling:
-
-- **UITheme.xml** - XML stylesheet defining colors, fonts, borders, and spacing for all widgets
-- **UI/Theme/ThemeManager.cs** - Centralized theme constants and helper methods
-- **UI/Theme/ThemedUIFactory.cs** - Factory for creating pre-styled UI widgets
-- **UI_THEME.md** - Complete documentation of the theme system
-
-### Usage Examples
-```csharp
-// Use ThemeManager constants
-ThemeManager.Colors.AccentCyan
-ThemeManager.Spacing.Medium
-ThemeManager.FontScale.Title
-
-// Create themed widgets
-var button = ThemedUIFactory.CreateButton("OK", ButtonTheme.Primary);
-var panel = ThemedUIFactory.CreateResourcePanel();
-var label = ThemedUIFactory.CreateTitleLabel("Game Title");
-
-// Apply themes to existing widgets
-ThemeManager.ApplyButtonTheme(button, ButtonTheme.Success);
-```
-
-See `RiskyStars.Client/UI_THEME.md` for complete documentation.
-
-## Dockable Window System
-
-The client uses resizable and dockable UI panels for game information:
-
-- **Infrastructure/WindowPreferences.cs** - User preference persistence for window states
-- **UI/Windows/DockableWindow.cs** - Base class for all dockable windows
-- **UI/Windows/PlayerDashboardWindow.cs** - Resource management and army purchasing
-- **UI/Windows/AIVisualizationWindow.cs** - AI action tracking and visualization controls
-- **UI/Windows/DebugInfoWindow.cs** - Performance metrics and debug information
-- **DOCKABLE_WINDOWS.md** - Complete documentation of the window system
-
-### Features
-- Resizable windows with drag handles
-- Dockable to screen edges and corners
-- Automatic state persistence (position, size, visibility)
-- Keyboard shortcuts (F1-F6) for quick access
-- Themed styling using ThemeManager
-- Integration with AI action tracking
-
-## Dialog System
-
-The client uses Myra's Dialog system for modal notifications and user prompts:
-
-- **UI/Dialogs/DialogManager.cs** - Centralized dialog system for errors, warnings, confirmations, and questions
-- **UI/Dialogs/CombatEventDialog.cs** - Specialized dialog for combat event notifications
-- **DIALOG_SYSTEM.md** - Complete documentation of the dialog system
-
-### Features
-- Error, warning, info, and success dialogs with themed styling
-- Confirmation and question dialogs with callbacks
-- Combat event notifications with formatted battle information
-- Replaces custom modal overlays with consistent Myra dialogs
-
-### Usage Examples
-```csharp
-// Initialize
-_desktop = new Desktop();
-_dialogManager = new DialogManager(_desktop);
-
-// Show error dialog
-_dialogManager.ShowError("Error", "Something went wrong");
-
-// Show confirmation with callback
-_dialogManager.ShowConfirmation("Delete?", "Are you sure?", (result) =>
-{
-    if (result == DialogResult.OK)
-    {
-        // User confirmed
-    }
-});
-
-// Show combat event
-_combatEventDialog.ShowCombatInitiated(combatEvent, () =>
-{
-    _combatScreen.StartCombat(combatEvent);
-});
-```
-
-See `RiskyStars.Client/DIALOG_SYSTEM.md` for complete documentation.
-
-## In-Game Settings Window
-
-The client features a comprehensive settings overlay accessible via the Escape key:
-
-- **UI/Windows/SettingsWindow.cs** - Tabbed settings interface for in-game configuration
-- **Infrastructure/Settings.cs** - Extended settings class with graphics, audio, controls, and server options
-- **SETTINGS_WINDOW.md** - Complete documentation of the settings system
-
-### Features
-- **Graphics Settings**: Resolution, fullscreen, VSync, frame rate, debug options
-- **Audio Settings**: Master, music, and SFX volume controls (placeholder for future)
-- **Controls Settings**: Camera pan/zoom speed, invert zoom, keyboard shortcuts reference
-- **Server Settings**: Server address configuration with validation
-- **Runtime Changes**: Apply settings without returning to main menu
-
-### Usage
-```csharp
-// Press ESC in-game to open settings
-// Make changes in any tab
-// Click Apply to save and apply
-// Click Cancel to discard changes
-```
-
-See `RiskyStars.Client/SETTINGS_WINDOW.md` for complete documentation.
-
-## Input Validation System
-
-The client implements comprehensive input validation with visual error feedback:
-
-- **UI/Validation/InputValidator.cs** - Static validation methods for all input types
-- **UI/Validation/ValidatedTextBox.cs** - Myra TextBox wrapper with validation and error display
-- **UI/Validation/ValidatedTextInputField.cs** - Custom TextInputField wrapper with validation
-- **INPUT_VALIDATION.md** - Complete documentation of the validation system
-
-### Features
-- Real-time validation on text input
-- Visual error indicators (red borders, error messages)
-- Myra tooltip error feedback on hover
-- Optional inline error labels
-- Pre-configured validators for common fields (player name, server address, map name)
-
-### Usage Examples
-```csharp
-// Create validated text box for player name
-var playerNameBox = ThemedUIFactory.CreateValidatedPlayerNameBox();
-playerNameBox.Text = "Player";
-grid.Widgets.Add(playerNameBox.Container);
-
-// Validate before submitting
-if (!playerNameBox.IsValid)
-{
-    _dialogManager.ShowError("Validation Error", playerNameBox.ErrorMessage);
-    return;
-}
-
-// Custom validation
-var customBox = new ValidatedTextBox(400, "Enter value", showErrorLabel: true);
-customBox.SetValidator(text => 
-{
-    if (text.Length < 5)
-        return new ValidationResult(false, "Must be at least 5 characters");
-    return new ValidationResult(true, "Valid");
-});
-```
-
-See `RiskyStars.Client/INPUT_VALIDATION.md` for complete documentation.
-
-## Embedded Server Health Monitoring
-
-The client implements comprehensive health monitoring for the embedded single-player server:
-
-- **Networking/ServerHealthMonitor.cs** - Periodic health checks with exponential backoff reconnection
-- **UI/Controls/ServerStatusIndicator.cs** - Visual UI component showing server state
-- **Networking/EmbeddedServerHost.cs** - Enhanced with ServerStatus enum and health monitoring integration
-- **EMBEDDED_SERVER_MONITORING.md** - Complete documentation of the monitoring system
-
-### Features
-- Periodic connectivity checks every 5 seconds
-- Automatic reconnection with exponential backoff (1s → 2s → 4s → 8s → 16s → 30s max)
-- Visual status indicators showing: Starting, Running, Reconnecting, Error states
-- Displayed in single-player lobby and in-game UI
-- Real-time health metrics (time since last check, reconnect attempts)
-
-See `RiskyStars.Client/EMBEDDED_SERVER_MONITORING.md` for complete documentation.
-
-## Context Menu System
-
-The client implements a comprehensive context menu system using Myra.Menu for right-click interactions:
-
-- **UI/Controls/ContextMenuManager.cs** - Central manager for all context menu operations
-- **CONTEXT_MENU.md** - Complete documentation of the context menu system
-
-### Features
-- Right-click context menus for armies, regions, stellar bodies, and hyperspace lane mouths
-- Context-aware actions based on ownership and game state
-- Army actions: split, merge, move, assign hero
-- Region actions: view info, reinforce, merge all armies, diplomacy
-- Stellar body actions: view info, upgrade
-- Hyperspace lane mouth actions: view info, reinforce portal
-- Diplomacy actions: form alliance, break alliance, view player info
-- Information dialogs for game objects
-- Themed styling using ThemeManager
-
-### Usage Examples
-```csharp
-// Initialize context menu manager
-_contextMenuManager = new ContextMenuManager(gameClient, _gameStateCache, _mapData, _camera, _inGameDesktop);
-_inputController.SetContextMenuManager(_contextMenuManager);
-
-// Set current player for ownership checks
-_contextMenuManager?.SetCurrentPlayer(_currentPlayerId);
-
-// Right-click opens context menu automatically
-// Left-click or ESC closes menu
-```
-
-### Implemented Actions
-- ✓ Reinforce Location (full server integration)
-- ✓ Split Army (UI complete, server pending)
-- ✓ Merge Armies (UI complete, server pending)
-- ✓ Merge All Armies (UI complete, server pending)
-- ✓ Assign Hero (UI complete, server pending)
-- ✓ Upgrade Stellar Body (UI complete, server pending)
-- ✓ Form Alliance (UI complete, server pending)
-- ✓ Break Alliance (UI complete, server pending)
-- ✓ View Info Dialogs (fully implemented)
-
-See `RiskyStars.Client/CONTEXT_MENU.md` for complete documentation.
-
-## Conventions
-### Code
-- C# projects follow standard .NET conventions
-- Proto files use proto3 syntax
-- gRPC services defined in `RiskyStars.Shared/Protos/`
-- Service implementations in `RiskyStars.Server/Services/`
-- MonoGame content in `RiskyStars.Client/Content/`
-- Sprite assets in `RiskyStars.Client/Content/Sprites/`
-- **UI styling uses ThemeManager constants and ThemedUIFactory - no hardcoded colors/spacing**
-- **Input validation uses InputValidator and ValidatedTextBox/ValidatedTextInputField - validate all user inputs**
-- **Dockable windows extend DockableWindow base class and use WindowPreferences for persistence**
-- **Context menus use ContextMenuManager for right-click interactions - integrate with InputController**
-
-### Documentation
-- Documentation files use Markdown format with `.md` extension
-- Numbering system for organization (e.g., `0.0.0_Game_Concept.md`, `1.0.00_Gameplay.md`)
-- Each directory contains a `.gitkeep` file to preserve empty directories
-- Best viewed with [NotesHub](https://www.noteshub.app)
-
-## Viewing Documentation
-Access via GitHub Pages or view locally with any Markdown reader.
+# Agent Instructions
+
+This file is standardized from F:\GitHub\McpServer\AGENTS.md and adjusted for this workspace.
+
+Workspace: RiskyStars
+Workspace root: F:\GitHub\RiskyStars
+
+## Session Start
+
+1. Check whether `AGENTS-README-FIRST.yaml` exists in this workspace root before doing anything else.
+2. If the marker exists, read it and follow it exactly.
+3. If the marker is absent, use the active workspace documentation, session log, TODO source, and current repository state. Do not fabricate marker availability.
+4. On every user message, complete the user's request using the strongest available local continuity source.
+
+## Rules
+
+1. Read the marker first when it exists.
+2. Complete the user's request.
+3. Do not replace an explicit request with a narrower proxy unless the user approves the narrower scope.
+4. Do not claim completion for work that was not done.
+5. Do not claim live validation when only static inspection or partial validation was performed.
+6. Keep durable work products in the workspace unless the user explicitly asks otherwise.
+7. Keep handoff, TODO, session-log, and requirements artifacts current when the workspace provides them.
+8. Prefer supported workspace tooling over direct file edits for TODO/session state when such tooling exists and is working.
+9. Do not fabricate information. If you made a mistake, acknowledge it. Distinguish facts from speculation.
+10. Prioritize correctness over speed. Do not ship code you have not verified compiles and is logically sound.
+11. If instructions conflict, follow the most specific user instruction unless it would require deception, data loss, or unsafe behavior.
+
+## Where Things Live
+
+All relative paths are relative to F:\GitHub\RiskyStars unless explicitly stated otherwise.
+
+- `AGENTS-README-FIRST.yaml` - required startup marker when present. This workspace currently has no local marker.- AGENTS.md - durable instructions that must stay aligned with the marker contract.
+- .github/copilot-instructions.md - contributor/assistant instructions when present.
+- docs/ - project documentation when present.
+- docs/context/ - planning and context artifacts when present.
+- docs/Project/ - requirements, design decisions, and project tracking when present.
+- TODO.md, HANDOFF.md, session logs, or workspace MCP TODO/session-log tools - continuity artifacts when present.
+- Source, test, and build layout are workspace-specific. Inspect the current repository before editing.
+
+## MCP and Tooling
+
+- Use workspace-provided MCP helpers, REPL tools, marker bootstrap, TODO tools, and session-log tools when present.
+- Do not bypass a working supported MCP/TODO/session mechanism by directly editing backing files.
+- If supported tooling fails, diagnose the tooling failure and state the fallback before using a lower-level path.
+- Do not use raw HTTP/API calls where a workspace-supported helper exists unless the user explicitly asks for raw calls.
+
+## Context Loading By Task Type
+
+Load only the context needed for the active task, but do not omit required scope.
+
+- Requirements or product behavior: read marker, requirements docs, design docs, TODO/session artifacts, and relevant source.
+- Code changes: inspect current git status, relevant source, tests, project files, and existing patterns before editing.
+- UI changes: inspect layout code, visual-tree/debug tooling if present, screenshots or reproduction evidence, and tests.
+- Test work: inspect existing test conventions, failure output, coverage requirements, and any validation protocol.
+- Build/release/sync work: inspect branch, remotes, status, CI docs, and current dirty tree before staging or pushing.
+- Handoff or continuity work: query the current repo state and existing handoff/session artifacts before writing.
+
+## Agent Conduct
+
+- Be direct and factual.
+- Make the actual requested change when feasible instead of only describing how to do it.
+- Ask only when the answer cannot be discovered and a reasonable assumption would be risky.
+- Preserve unrelated user changes.
+- Stage and commit only intentional files when the user asks for git operations.
+- Never revert or discard user work unless explicitly requested.
+- Use concise progress updates for substantial work.
+
+## Requirements Tracking
+
+When a requirement is discovered, changed, or clarified:
+
+1. Record it in the workspace's authoritative requirements or TODO system when one exists.
+2. If no authoritative system exists, record it in the appropriate local planning or handoff artifact.
+3. Update tests or validation sequences for behavior changes when the codebase supports tests.
+4. Do not postpone requirement tracking when it is part of the current user request.
+
+## Design Decision Logging
+
+When making an architectural or durable design decision:
+
+1. Record the decision in the workspace's design-decision artifact when one exists.
+2. Include the reason, tradeoffs, and rejected alternatives when those details matter.
+3. Keep the log factual; do not invent approvals or validation that did not happen.
+
+## Session Continuity
+
+Before starting significant work:
+
+1. Inspect current git status.
+2. Read active handoff/session/TODO artifacts when present.
+3. Identify whether prior work is unfinished, committed, or intentionally dirty.
+
+Before ending significant work:
+
+1. Summarize concrete changes and verification.
+2. State unverified or blocked items explicitly.
+3. Update continuity artifacts when requested or required by workspace policy.
+
+## Response Formatting
+
+- Do not use table-style output.
+- Prefer concise bullets or short paragraphs.
+- Include exact paths, commands, commit IDs, build IDs, and test counts when relevant.
+- If validation was not run, say so plainly.
+
+## Workspace-Specific Notes
+
+### Tech Stack
+
+- .NET 8.0+
+- ASP.NET Core gRPC server
+- MonoGame DesktopGL client
+- Myra UI
+- Protocol Buffers/gRPC shared contracts
+- Jekyll/Markdown documentation
+
+### Repository Layout
+
+- `RiskyStars.sln` - solution file.
+- `RiskyStars.Shared/` - shared proto definitions and generated contracts.
+- `RiskyStars.Server/` - ASP.NET Core gRPC service.
+- `RiskyStars.Client/` - MonoGame client, rendering, UI, networking, gameplay, state, and content.
+- `RiskyStars.Tests/` - unit and integration-style tests when present.
+- `0.0_Concept/`, `1.0_Rules/`, `2.0_Design/` - game design documentation.
+
+### Commands
+
+- Restore: `dotnet restore RiskyStars.sln`
+- Build: `dotnet build RiskyStars.sln`
+- Test: `dotnet test RiskyStars.sln`
+- Run server: `dotnet run --project RiskyStars.Server`
+- Run client: `dotnet run --project RiskyStars.Client`
+
+### RiskyStars Validation Policy
+
+- Every bug fix must include a unit test for the correct behavior and a validation against the bad behavior.
+- New code must maintain at least 90 percent unit test coverage where coverage tooling is available.
+- UI work must not be claimed complete when only a proxy was tested. If the user requests live screen validation, run the game or state why it could not be run.
+- Visual tree, DPI, layout, z-order, and screen documentation work must cover the requested screens explicitly; do not substitute a narrower screen set.
+

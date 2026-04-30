@@ -1,0 +1,127 @@
+{
+  "interactionId": "main-menu-settings-save-click",
+  "summary": "The interaction transitions from the Command Settings view to the Command Actions view upon clicking Save Settings, but the actual before state is incomplete compared to the expected wireframe, missing several sections and details.",
+  "correctStateChanges": [
+    {
+      "element": "Command Settings Title",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expectedBefore": "Visible at the top of the settings view",
+      "expectedAfter": "Not visible, replaced by main menu title",
+      "actualBefore": "Visible at the top",
+      "actualAfter": "Not visible",
+      "evidence": "Title present in actual before screenshot, absent in after; matches transition to Command Actions view",
+      "confidence": 1
+    },
+    {
+      "element": "Save Settings Button",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expectedBefore": "Visible at the bottom",
+      "expectedAfter": "Not visible",
+      "actualBefore": "Visible at the bottom",
+      "actualAfter": "Not visible",
+      "evidence": "Button present in actual before, absent in after, indicating successful transition",
+      "confidence": 1
+    },
+    {
+      "element": "Back Button",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expectedBefore": "Visible at the bottom",
+      "expectedAfter": "Not visible",
+      "actualBefore": "Visible at the bottom",
+      "actualAfter": "Not visible",
+      "evidence": "Button present in actual before, absent in after",
+      "confidence": 1
+    },
+    {
+      "element": "RiskyStars Title",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expectedBefore": "Not visible in settings view",
+      "expectedAfter": "Visible at the top of the main menu",
+      "actualBefore": "Not visible",
+      "actualAfter": "Visible at the top",
+      "evidence": "Title absent in actual before, present in after, matching expected transition",
+      "confidence": 1
+    },
+    {
+      "element": "Command Actions Buttons",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expectedBefore": "Not visible",
+      "expectedAfter": "Visible on the right side (MULTIPLAYER, SINGLE PLAYER, etc.)",
+      "actualBefore": "Not visible",
+      "actualAfter": "Visible on the right side",
+      "evidence": "Buttons absent in before, present in after, confirming view switch",
+      "confidence": 1
+    },
+    {
+      "element": "Sector Brief Text",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expectedBefore": "Not visible",
+      "expectedAfter": "Visible with descriptive text",
+      "actualBefore": "Not visible",
+      "actualAfter": "Visible with matching text",
+      "evidence": "Text absent in before, present in after",
+      "confidence": 0.95
+    },
+    {
+      "element": "Scrollbar",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expectedBefore": "Visible in settings view",
+      "expectedAfter": "Not visible in main menu",
+      "actualBefore": "Visible on the right",
+      "actualAfter": "Not visible",
+      "evidence": "Scrollbar present in before, absent in after",
+      "confidence": 1
+    }
+  ],
+  "incorrectStateChanges": [
+    {
+      "element": "Display Profile Section",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expected": "Visible in before state with Resolution, Window Mode, UI Scale",
+      "actual": "Missing entirely in actual before screenshot",
+      "whyIncorrect": "The actual before state does not include the Display Profile section, which is present in the expected wireframe, indicating incomplete implementation or rendering issue",
+      "severity": "high",
+      "confidence": 1
+    },
+    {
+      "element": "Visual Palette Details",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expected": "Includes Palette, Accent Color, Classic Green, Warning Tone, Amber",
+      "actual": "Only shows \u0027Palette\u0027 without additional color options",
+      "whyIncorrect": "Incomplete content in Visual Palette section in actual before compared to expected",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Background",
+      "requirement": "TR-UI-INTERACTION-HWND-001",
+      "expected": "Plain black with bubble effects in wireframes",
+      "actual": "Starry space background in both before and after screenshots",
+      "whyIncorrect": "Background differs from wireframe, potentially due to actual rendering, but may affect visual validation",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Session and Theme Controls",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SAVE-001",
+      "expected": "Session and theme controls should be visible in before state as per prompt",
+      "actual": "Not visible or incomplete in actual before",
+      "whyIncorrect": "Prompt mentions session and theme, but actual before lacks distinct sections for them",
+      "severity": "medium",
+      "confidence": 0.85
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframes accurately depict the intended transition from settings to main menu, but the before wireframe includes elements (e.g., full Display Profile, detailed Visual Palette) not present in the actual implementation, making it partially suitable for validation. The after wireframe matches well. Background differences reduce fidelity.",
+    "missingRequirements": [
+      "Distinct session settings section not depicted in before wireframe despite prompt mention",
+      "Theme controls are implied in Visual Palette but not explicitly separated"
+    ],
+    "recommendedWireframeChanges": [
+      "Update before wireframe to reflect current implementation state or add variants for partial implementations",
+      "Incorporate actual starry background for better visual matching",
+      "Add explicit session settings section to before wireframe to match prompt description"
+    ]
+  }
+}

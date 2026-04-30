@@ -76,6 +76,13 @@ public class DockableWindow
     {
         ThemeManager.ApplyGameplayWindowTheme(_window, isHovered);
     }
+
+    protected ScrollViewer SetScrollableContent(Widget content, int? height = null)
+    {
+        var scrollViewer = ThemedUIFactory.CreateAutoScrollViewer(content, height);
+        _window.Content = scrollViewer;
+        return scrollViewer;
+    }
     
     public void Toggle()
     {

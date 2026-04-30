@@ -1,0 +1,116 @@
+{
+  "runId": "agent-wireframe-comparison-20260429T164836Z",
+  "requestedTask": "Run the AI based wireframe screenshot integration tests and keep all results in a report.",
+  "configuration": {
+    "provider": "Grok",
+    "endpoint": "https://api.x.ai/v1",
+    "model": "grok-4.20-0309-reasoning",
+    "enabled": true,
+    "apiKeySource": "Machine environment variable ApiKey mapped to RISKYSTARS_AgentWireframeComparison__ApiKey and XAI_API_KEY for the test process",
+    "apiKeyValueRecorded": false,
+    "outputDirectory": "RiskyStars.Client/Screenshots/AgentComparisons"
+  },
+  "commands": [
+    {
+      "order": 1,
+      "command": "dotnet test RiskyStars.Tests\\RiskyStars.Tests.csproj --filter \"FullyQualifiedName~AgentComparisonIntegration\" --logger \"trx;LogFileName=agent-wireframe-comparison.trx\"",
+      "outcome": "failed_before_model_call",
+      "failure": {
+        "type": "build_failure",
+        "primaryError": "CS0009: Metadata file 'RiskyStars.Client\\obj\\Debug\\net9.0\\ref\\RiskyStars.Client.dll' could not be opened -- PE image doesn't contain managed metadata.",
+        "effect": "RiskyStars.Client types could not be resolved by the test project."
+      },
+      "artifacts": [
+        "RiskyStars.Tests/TestResults/agent-wireframe-comparison.stdout.log",
+        "RiskyStars.Tests/TestResults/agent-wireframe-comparison.stderr.log",
+        "RiskyStars.Tests/TestResults/agent-wireframe-comparison.exit.txt"
+      ]
+    },
+    {
+      "order": 2,
+      "command": "dotnet test RiskyStars.Tests\\RiskyStars.Tests.csproj --filter \"FullyQualifiedName~AgentComparisonIntegration\" -p:ProduceReferenceAssembly=false --logger \"trx;LogFileName=agent-wireframe-comparison.trx\"",
+      "outcome": "failed_during_model_call",
+      "workaroundApplied": "Disabled reference assembly generation for the test invocation so the tests referenced the real RiskyStars.Client assembly.",
+      "testSummary": {
+        "total": 1,
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "durationMilliseconds": 996
+      },
+      "failure": {
+        "type": "provider_rate_limit",
+        "exception": "System.ClientModel.ClientResultException",
+        "statusCode": 429,
+        "statusText": "Too Many Requests",
+        "failedTest": "RiskyStars.Tests.AgentWireframeComparisonTests.AgentComparisonIntegration_RunsWhenEnabledOtherwiseRecordsIntentionalPass",
+        "firstApplicationFrame": "RiskyStars.Tests.AgentWireframeComparisonRunner.CompareAsync in RiskyStars.Tests/AgentWireframeComparisonTests.cs:665",
+        "effect": "The model request failed before the first screen comparison result could be returned."
+      },
+      "artifacts": [
+        "RiskyStars.Tests/TestResults/agent-wireframe-comparison.trx"
+      ]
+    },
+    {
+      "order": 3,
+      "command": "dotnet test RiskyStars.Tests\\RiskyStars.Tests.csproj --filter \"FullyQualifiedName~AgentComparisonIntegration\" -p:ProduceReferenceAssembly=false --logger \"trx;LogFileName=agent-wireframe-comparison-retry-20260429T165253Z.trx\"",
+      "outcome": "failed_schema_validation",
+      "workaroundApplied": "Disabled reference assembly generation for the test invocation so the tests referenced the real RiskyStars.Client assembly.",
+      "testSummary": {
+        "total": 1,
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "durationMilliseconds": 73000
+      },
+      "failure": {
+        "type": "model_contract_violation",
+        "exception": "System.IO.InvalidDataException",
+        "message": "wireframeSuitability.rating must be suitable, partially_suitable, or unsuitable.",
+        "failedTest": "RiskyStars.Tests.AgentWireframeComparisonTests.AgentComparisonIntegration_RunsWhenEnabledOtherwiseRecordsIntentionalPass",
+        "firstApplicationFrame": "RiskyStars.Tests.AgentWireframeComparisonRunner.CompareAsync in RiskyStars.Tests/AgentWireframeComparisonTests.cs:674",
+        "effect": "The model responded, but the strict structured-output validation rejected the response before a screen result could be written."
+      },
+      "artifacts": [
+        "RiskyStars.Tests/TestResults/agent-wireframe-comparison-retry-20260429T165253Z.trx"
+      ]
+    },
+    {
+      "order": 4,
+      "command": "dotnet test RiskyStars.Tests\\RiskyStars.Tests.csproj --filter \"FullyQualifiedName~AgentComparisonIntegration\" -p:ProduceReferenceAssembly=false --logger \"trx;LogFileName=agent-wireframe-comparison-grok4-20260429T165520Z.trx\"",
+      "environmentOverrides": {
+        "RISKYSTARS_AgentWireframeComparison__Model": "grok-4"
+      },
+      "outcome": "failed_schema_validation",
+      "workaroundApplied": "Disabled reference assembly generation for the test invocation so the tests referenced the real RiskyStars.Client assembly.",
+      "testSummary": {
+        "total": 1,
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "durationMilliseconds": 52000
+      },
+      "failure": {
+        "type": "model_contract_violation",
+        "exception": "System.IO.InvalidDataException",
+        "message": "wireframeSuitability.rating must be suitable, partially_suitable, or unsuitable.",
+        "failedTest": "RiskyStars.Tests.AgentWireframeComparisonTests.AgentComparisonIntegration_RunsWhenEnabledOtherwiseRecordsIntentionalPass",
+        "firstApplicationFrame": "RiskyStars.Tests.AgentWireframeComparisonRunner.CompareAsync in RiskyStars.Tests/AgentWireframeComparisonTests.cs:674",
+        "effect": "The plan-default grok-4 model also returned a schema-invalid suitability rating before a screen result could be written."
+      },
+      "artifacts": [
+        "RiskyStars.Tests/TestResults/agent-wireframe-comparison-grok4-20260429T165520Z.trx"
+      ]
+    }
+  ],
+  "comparisonResults": {
+    "perScreenJsonFilesWritten": 0,
+    "aggregateJsonWrittenByIntegrationTest": false,
+    "completedScreenComparisons": 0,
+    "reasonNoComparisonResultsWereWritten": "The latest provider response violated the strict JSON contract: wireframeSuitability.rating was not suitable, partially_suitable, or unsuitable."
+  },
+  "nextAction": "Tighten provider schema enforcement or capture rejected model payloads for diagnostics, then rerun the same focused integration command. Keep -p:ProduceReferenceAssembly=false unless the client reference assembly issue is fixed in the project configuration."
+}

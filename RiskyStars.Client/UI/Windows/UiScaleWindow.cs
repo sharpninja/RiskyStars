@@ -52,7 +52,7 @@ public sealed class UiScaleWindow : DockableWindow
         layout.Widgets.Add(BuildPresetPanel());
         layout.Widgets.Add(BuildButtonRow());
 
-        _window.Content = layout;
+        SetScrollableContent(layout);
     }
 
     private Widget BuildScalePanel()

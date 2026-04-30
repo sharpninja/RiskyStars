@@ -1,0 +1,202 @@
+{
+  "resolution": { "width": 1536, "height": 832 },
+  "stylePrompt": "RiskyStars spatial UI wireframe at 1536x832. Dark starfield/game-map background, thin green panel borders, semi-transparent black panels, terminal-style labels, simple rectangles for controls, and fixed screen-relative geometry. The output is a precise layout baseline, not a Mermaid flowchart.",
+  "screens": [
+    {
+      "id": "main-menu",
+      "title": "Main menu",
+      "mode": "commandDeck",
+      "prompt": "Main menu command deck. Large framed starfield viewport. RiskyStars title centered at top. Sector brief text block on the left. Command Actions panel on the right with Multiplayer, Single Player, Tutorial Mode, Settings, and Exit buttons. Footer shows default uplink and build.",
+      "focus": { "type": "actions", "label": "Command Actions" }
+    },
+    {
+      "id": "main-menu-settings",
+      "title": "Main menu settings",
+      "mode": "commandDeck",
+      "prompt": "Main menu settings screen. Same framed command deck. Centered settings panel with server endpoint, display profile, and visual palette sections in a bounded scroller. Fixed Save Settings and Back buttons at the bottom.",
+      "focus": { "type": "centerPanel", "label": "Command Settings" }
+    },
+    {
+      "id": "main-menu-connecting",
+      "title": "Main menu connecting",
+      "mode": "commandDeck",
+      "prompt": "Connecting state. Same framed command deck with a centered uplink panel. The panel contains Establishing Uplink and a progress/status line.",
+      "focus": { "type": "centerPanel", "label": "Establishing Uplink" }
+    },
+    {
+      "id": "game-mode-selector",
+      "title": "Game mode selector",
+      "mode": "commandDeck",
+      "prompt": "Game mode selection. Wide framed command deck. Header at top, two large mode cards in the main panel, Continue and Back buttons under the cards.",
+      "focus": { "type": "centerPanel", "label": "Select Game Mode" }
+    },
+    {
+      "id": "connection-screen",
+      "title": "Connection screen",
+      "mode": "commandDeck",
+      "prompt": "Multiplayer uplink connection screen. Wide framed panel with player identity field, server endpoint field, connection status, and Connect/Back action buttons on the right.",
+      "focus": { "type": "centerPanel", "label": "Multiplayer Uplink" }
+    },
+    {
+      "id": "lobby-browser",
+      "title": "Lobby browser",
+      "mode": "commandDeck",
+      "prompt": "Game lobby browser. Wide framed panel with title, lobby list table occupying most of the center, and Create Lobby, Join Lobby, Refresh actions.",
+      "focus": { "type": "widePanel", "label": "Game Lobbies" }
+    },
+    {
+      "id": "create-lobby",
+      "title": "Create lobby",
+      "mode": "commandDeck",
+      "prompt": "Create lobby form. Wide framed panel with map selection, maximum commanders, lobby options, and Create/Cancel action buttons.",
+      "focus": { "type": "widePanel", "label": "Create Lobby" }
+    },
+    {
+      "id": "multiplayer-lobby",
+      "title": "Multiplayer lobby",
+      "mode": "commandDeck",
+      "prompt": "Multiplayer lobby. Wide framed panel with lobby metadata at top, commander slot table in the middle, ready buttons at the right, and bottom lobby actions.",
+      "focus": { "type": "widePanel", "label": "Multiplayer Lobby" }
+    },
+    {
+      "id": "single-player-lobby",
+      "title": "Single-player lobby",
+      "mode": "commandDeck",
+      "prompt": "Single-player game setup. Wide framed panel with map/name cards at top, server status card, scrollable opponent lineup table, and Start Game/Back actions.",
+      "focus": { "type": "widePanel", "label": "Single Player Game Setup" }
+    },
+    {
+      "id": "gameplay-hud-top-bar",
+      "title": "Gameplay HUD top bar",
+      "mode": "gameplay",
+      "prompt": "In-game HUD. Full-width top bar with turn/status text on left, resource chips below, and shortcut hints on the right. Map viewport below with left and right docking rails.",
+      "focus": { "type": "topBar", "label": "Turn/status and resources" }
+    },
+    {
+      "id": "gameplay-hud-legend",
+      "title": "Gameplay HUD legend",
+      "mode": "gameplay",
+      "prompt": "In-game map with right-side Map Key panel docked under the selection panel area. Legend rows show system orbit, stellar body, region marker, and lane mouth.",
+      "focus": { "type": "rightPanel", "label": "Map Key" }
+    },
+    {
+      "id": "side-panel-container",
+      "title": "Side panel container",
+      "mode": "gameplay",
+      "prompt": "Gameplay screen emphasizing left and right side panel containers. Side rails are fixed-height dock areas with scrollable content and small top tool buttons.",
+      "focus": { "type": "sideRails", "label": "Docked side panels" }
+    },
+    {
+      "id": "settings-window",
+      "title": "Settings window",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with Settings dockable window in the center-left. Window has title bar, tabs, bounded scroll body, and fixed Apply/Cancel footer.",
+      "focus": { "type": "window", "label": "Settings", "x": 490, "y": 170, "w": 470, "h": 390 }
+    },
+    {
+      "id": "debug-info-window",
+      "title": "Debug information window",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with Debug Information dockable window. Window contains camera, performance, game state, and visual tree inspection sections inside a scroller.",
+      "focus": { "type": "window", "label": "Debug Information", "x": 500, "y": 210, "w": 510, "h": 410 }
+    },
+    {
+      "id": "player-dashboard-window",
+      "title": "Player dashboard window",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with Player Dashboard dockable window. Window has resources, purchase controls, and hero controls in a scrollable body.",
+      "focus": { "type": "window", "label": "Player Dashboard", "x": 410, "y": 145, "w": 300, "h": 610 }
+    },
+    {
+      "id": "ai-visualization-window",
+      "title": "AI visualization window",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with AI Visualization dockable window. Window has AI status, toggles, selected player, and activity log sections.",
+      "focus": { "type": "window", "label": "AI Visualization", "x": 430, "y": 165, "w": 360, "h": 360 }
+    },
+    {
+      "id": "encyclopedia-window",
+      "title": "Encyclopedia window",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with Encyclopedia dockable window. Window is a split layout with navigation list at left and scrollable article body at right.",
+      "focus": { "type": "window", "label": "Encyclopedia", "x": 360, "y": 145, "w": 520, "h": 540 }
+    },
+    {
+      "id": "ui-scale-window",
+      "title": "UI scale window",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with UI Scale dockable window. Compact window with scale slider, preset controls, Apply, and Reset.",
+      "focus": { "type": "window", "label": "UI Scale", "x": 470, "y": 245, "w": 330, "h": 230 }
+    },
+    {
+      "id": "tutorial-mode-window",
+      "title": "Tutorial mode window",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with Tutorial Mode docked to the left edge of the map content, right of the left rail. Window has fixed title, bounded body sections, and stable Back/Next/End footer buttons.",
+      "focus": { "type": "window", "label": "Tutorial Mode", "x": 285, "y": 155, "w": 700, "h": 700 }
+    },
+    {
+      "id": "continent-zoom-window",
+      "title": "Continent zoom window",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with Planet Zoom window over the map. Window contains header text and a large XNA-hosted circular planet surface with continent boundaries and labels.",
+      "focus": { "type": "planetWindow", "label": "Planet Zoom", "x": 610, "y": 155, "w": 700, "h": 620 }
+    },
+    {
+      "id": "combat-hud-overlay",
+      "title": "Combat HUD overlay",
+      "mode": "combat",
+      "prompt": "Combat HUD overlay. Dim gameplay background. Large dark red combat panel centered-left with title, attacking/defending sides, rolls, pairings, casualties, and survivors.",
+      "focus": { "type": "combatPanel", "label": "Combat initiated", "x": 340, "y": 165, "w": 520, "h": 410 }
+    },
+    {
+      "id": "server-status-indicator",
+      "title": "Server status indicator",
+      "mode": "gameplay",
+      "prompt": "Gameplay HUD emphasizing server status indicator in the left rail/top controls area. Indicator shows state dot, status text, and detail line.",
+      "focus": { "type": "leftRail", "label": "Server Status" }
+    },
+    {
+      "id": "dialog-manager",
+      "title": "Dialog manager",
+      "mode": "modal",
+      "prompt": "Gameplay map with centered modal dialog. Dialog contains title, wrapped message, two action buttons, and a dimmed backdrop.",
+      "focus": { "type": "dialog", "label": "Dialog", "x": 610, "y": 305, "w": 330, "h": 190 }
+    },
+    {
+      "id": "combat-event-dialog",
+      "title": "Combat event dialog",
+      "mode": "modal",
+      "prompt": "Gameplay map with centered combat event modal. Larger dialog with combat summary, region/body context, and OK/Start action.",
+      "focus": { "type": "dialog", "label": "Combat Event", "x": 565, "y": 260, "w": 410, "h": 270 }
+    },
+    {
+      "id": "context-menu-manager",
+      "title": "Context menu manager",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with a context menu opened near a selected region. Menu is anchored to map click position and lists contextual actions.",
+      "focus": { "type": "contextMenu", "label": "Context Menu", "x": 410, "y": 290, "w": 300, "h": 260 }
+    },
+    {
+      "id": "combat-screen",
+      "title": "Combat screen",
+      "mode": "combat",
+      "prompt": "XNA combat screen. Large red-bordered combat presentation panel with title/status at top, attackers left, defenders right, and resolution details below.",
+      "focus": { "type": "combatPanel", "label": "Combat initiated", "x": 320, "y": 145, "w": 570, "h": 450 }
+    },
+    {
+      "id": "legacy-player-dashboard",
+      "title": "Legacy player dashboard",
+      "mode": "gameplayWindow",
+      "prompt": "Gameplay map with legacy XNA player dashboard panel visible. Narrow command panel with player resources and actions.",
+      "focus": { "type": "window", "label": "Legacy Player Dashboard", "x": 420, "y": 160, "w": 300, "h": 520 }
+    },
+    {
+      "id": "ai-action-indicator",
+      "title": "AI action indicator",
+      "mode": "gameplay",
+      "prompt": "Gameplay map with AI action indicator overlay and activity log. Indicator highlights an active AI action while map systems remain visible.",
+      "focus": { "type": "mapObject", "label": "AI Action" }
+    }
+  ]
+}

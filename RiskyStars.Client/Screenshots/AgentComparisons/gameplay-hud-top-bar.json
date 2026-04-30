@@ -1,0 +1,124 @@
+{
+  "screenId": "gameplay-hud-top-bar",
+  "summary": "The actual screenshot shows a close visual match to the wireframe in overall layout, including the top bar, resource indicators, map viewport, and right-side panels. However, there are discrepancies in text content, such as phase naming and resource display formats, as well as minor positioning and additional elements in the actual UI. The wireframe is partially suitable but lacks detail on dynamic content and exact styling.",
+  "correctElements": [
+    {
+      "element": "Top bar layout",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+      "evidence": "Full-width top bar present with turn/status text on left and hints on right, matching screen description and wireframe.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Resource indicators",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+      "evidence": "POP, MET, FUEL chips displayed below top bar text, consistent with wireframe placement and style.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Map viewport",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+      "evidence": "Central map area with star systems (Sirius, Arcturus, Canopus) connected by lines, matching wireframe\u0027s dark starfield background and layout.",
+      "confidence": 0.92
+    },
+    {
+      "element": "Right docking rail with Map Key",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+      "evidence": "Map Key panel on right with legends for system orbit, stellar body, etc., present in both actual and wireframe with thin green borders.",
+      "confidence": 0.88
+    },
+    {
+      "element": "Overall style",
+      "requirement": "Global wireframe style requirements",
+      "evidence": "Dark starfield background, semi-transparent panels, terminal-style labels, and thin green borders observed in actual screenshot matching wireframe.",
+      "confidence": 0.85
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Phase text in top bar",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+      "expected": "Production Phase",
+      "actual": "Purchase Phase",
+      "whyIncorrect": "Text mismatch in game phase label, which may indicate a discrepancy in game state representation or wireframe accuracy for dynamic content.",
+      "severity": "medium",
+      "confidence": 0.98
+    },
+    {
+      "element": "Resource display format",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+      "expected": "Simple values like POP 100, MET 50, FUEL 50",
+      "actual": "Values with deltas like POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)",
+      "whyIncorrect": "Actual includes production deltas not present in wireframe, affecting visual comparison for resource UI behavior.",
+      "severity": "low",
+      "confidence": 0.95
+    },
+    {
+      "element": "Shortcut hints text",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+      "expected": "Panels F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5",
+      "actual": "Planets F1 Dbg:Off F2 Cmd:Off F3 AI:Off F4 UI:Off F5 Ref:Off F6 Tut:Off H Help",
+      "whyIncorrect": "Different shortcut keys and states, with actual having more items and \u0027Off\u0027 states vs wireframe\u0027s mix, indicating dynamic or version differences.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Map system positions and labels",
+      "requirement": "Global wireframe style requirements",
+      "expected": "Fixed positions with labels directly below orbits like in wireframe",
+      "actual": "Slightly different diagonal alignments and additional labels like \u0027Black\u0027 in actual",
+      "whyIncorrect": "Minor bounds and nesting differences in map elements, potentially due to rendering or scaling variations.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Left docking rail",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+      "expected": "Visible left rail with placeholder elements",
+      "actual": "Appears as dark empty space without clear controls or borders",
+      "whyIncorrect": "Missing or indistinct left docking rail in actual compared to wireframe\u0027s implied structure.",
+      "severity": "high",
+      "confidence": 0.8
+    },
+    {
+      "element": "Additional top bar hint",
+      "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+      "expected": "No separate hint line above resources",
+      "actual": "Extra \u0027Your turn: Buy armies or advance to reinforcement.\u0027 text",
+      "whyIncorrect": "Extra control/text not present in wireframe, representing unaccounted dynamic UI element.",
+      "severity": "medium",
+      "confidence": 0.92
+    },
+    {
+      "element": "Bottom debug text",
+      "requirement": "Global wireframe style requirements",
+      "expected": "Clean baseline without debug artifacts",
+      "actual": "Presence of \u0027top=107\u0027 labels at bottom",
+      "whyIncorrect": "Extra debug or positioning text in actual, likely a development artifact not intended for final UI.",
+      "severity": "low",
+      "confidence": 0.7
+    },
+    {
+      "element": "Validation limitation",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "Pixel-perfect match at 1536x832",
+      "actual": "Visual inspection shows close but not exact match due to anti-aliasing and rendering differences",
+      "whyIncorrect": "Residual risk from manual visual audit vs automated pixel diff; actual may have DPI/scaling variances not captured.",
+      "severity": "low",
+      "confidence": 0.6
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe provides a good static baseline for layout and major elements, aligning with FR-UI-AUDIT-001 and global style requirements. However, it lacks representation of dynamic content like variable text, production deltas, and interactive states, making it insufficient for fully validating FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR\u0027s user-facing behavior. It does not incorporate repository process requirements from AGENTS-README-FIRST.yaml, such as session logging for audits, but this is not directly relevant to wireframe design.",
+    "missingRequirements": [
+      "Dynamic state variations (e.g., different game phases, resource deltas)",
+      "Interactive elements and hover/selection states",
+      "Exact font and color specifications beyond high-level style"
+    ],
+    "recommendedWireframeChanges": [
+      "Include multiple variants for dynamic text and states",
+      "Add annotations for expected behaviors and tolerances",
+      "Incorporate pixel-exact bounds and z-order specifications"
+    ]
+  }
+}

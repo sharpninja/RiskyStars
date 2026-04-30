@@ -1,0 +1,1474 @@
+{
+  "tutorialState": {
+    "stepIndex": 1,
+    "stepId": "turn",
+    "title": "Read the turn banner",
+    "objective": "Confirm that it is your turn.",
+    "status": "Status: Waiting for the objective.",
+    "nextButtonText": "Skip",
+    "isComplete": false,
+    "tutorialVisible": true,
+    "highlightTargets": [
+      "TopBar"
+    ],
+    "highlightBounds": [
+      {
+        "target": "TopBar",
+        "x": 0,
+        "y": 0,
+        "width": 1536,
+        "height": 95,
+        "visible": true
+      }
+    ],
+    "phase": "Production",
+    "currentPlayerId": "debug-player",
+    "selectionType": "None",
+    "selectedOwnerId": "",
+    "helpVisible": false,
+    "dashboardVisible": false,
+    "encyclopediaVisible": false,
+    "contextMenuOpen": false,
+    "ownArmyCount": 1,
+    "movedArmyCount": 0,
+    "population": 100,
+    "metal": 50,
+    "fuel": 50
+  },
+  "visualTree": {
+    "generatedAtUtc": "2026-04-30T00:07:06.254028\u002B00:00",
+    "requestedIncludeHidden": true,
+    "scale": {
+      "backBufferWidth": 1536,
+      "backBufferHeight": 832,
+      "clientWidth": 1536,
+      "clientHeight": 832,
+      "uiScalePercent": 100,
+      "uiScaleFactor": 1,
+      "dpiScaleX": 1,
+      "dpiScaleY": 1
+    },
+    "hierarchy": {
+      "roots": [
+        {
+          "id": "myra.desktop",
+          "depth": 0,
+          "source": "Myra",
+          "typeName": "Desktop",
+          "visible": true,
+          "treeVisible": true,
+          "screenBounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1536,
+            "height": 832
+          },
+          "warnings": [],
+          "children": [
+            {
+              "id": "hud.helpPanel",
+              "parentId": "myra.desktop",
+              "depth": 1,
+              "source": "Myra",
+              "typeName": "Panel",
+              "visible": false,
+              "treeVisible": false,
+              "screenBounds": {
+                "x": 0,
+                "y": 0,
+                "width": 520,
+                "height": 430
+              },
+              "warnings": [
+                "hidden"
+              ],
+              "children": []
+            },
+            {
+              "id": "hud.selectionPanel",
+              "parentId": "myra.desktop",
+              "depth": 1,
+              "source": "Myra",
+              "typeName": "Panel",
+              "visible": false,
+              "treeVisible": false,
+              "screenBounds": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0
+              },
+              "warnings": [
+                "hidden",
+                "no resolved screen size"
+              ],
+              "children": []
+            },
+            {
+              "id": "hud.topBar",
+              "parentId": "myra.desktop",
+              "depth": 1,
+              "source": "Myra",
+              "typeName": "Panel",
+              "visible": true,
+              "treeVisible": true,
+              "screenBounds": {
+                "x": 0,
+                "y": 0,
+                "width": 1536,
+                "height": 95
+              },
+              "warnings": [],
+              "children": []
+            },
+            {
+              "id": "myra.desktop.0.Panel",
+              "parentId": "myra.desktop",
+              "depth": 1,
+              "source": "Myra",
+              "typeName": "Panel",
+              "visible": true,
+              "treeVisible": true,
+              "screenBounds": {
+                "x": 0,
+                "y": 107,
+                "width": 200,
+                "height": 725
+              },
+              "warnings": [],
+              "children": [
+                {
+                  "id": "myra.desktop.0.Panel.0.Grid",
+                  "parentId": "myra.desktop.0.Panel",
+                  "depth": 2,
+                  "source": "Myra",
+                  "typeName": "Grid",
+                  "visible": true,
+                  "treeVisible": true,
+                  "screenBounds": {
+                    "x": 0,
+                    "y": 107,
+                    "width": 200,
+                    "height": 725
+                  },
+                  "warnings": [],
+                  "children": [
+                    {
+                      "id": "myra.desktop.0.Panel.0.Grid.0.Panel",
+                      "parentId": "myra.desktop.0.Panel.0.Grid",
+                      "depth": 3,
+                      "source": "Myra",
+                      "typeName": "Panel",
+                      "visible": true,
+                      "treeVisible": true,
+                      "screenBounds": {
+                        "x": 0,
+                        "y": 107,
+                        "width": 200,
+                        "height": 40
+                      },
+                      "warnings": [],
+                      "children": [
+                        {
+                          "id": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel",
+                          "parentId": "myra.desktop.0.Panel.0.Grid.0.Panel",
+                          "depth": 4,
+                          "source": "Myra",
+                          "typeName": "HorizontalStackPanel",
+                          "visible": true,
+                          "treeVisible": true,
+                          "screenBounds": {
+                            "x": 4,
+                            "y": 115,
+                            "width": 192,
+                            "height": 28
+                          },
+                          "warnings": [],
+                          "children": [
+                            {
+                              "id": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.0.TextButton",
+                              "parentId": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel",
+                              "depth": 5,
+                              "source": "Myra",
+                              "typeName": "TextButton",
+                              "visible": true,
+                              "treeVisible": true,
+                              "screenBounds": {
+                                "x": 4,
+                                "y": 115,
+                                "width": 32,
+                                "height": 32
+                              },
+                              "warnings": [],
+                              "text": "\u003C",
+                              "children": []
+                            },
+                            {
+                              "id": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.1.TextButton",
+                              "parentId": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel",
+                              "depth": 5,
+                              "source": "Myra",
+                              "typeName": "TextButton",
+                              "visible": true,
+                              "treeVisible": true,
+                              "screenBounds": {
+                                "x": 46,
+                                "y": 115,
+                                "width": 32,
+                                "height": 32
+                              },
+                              "warnings": [],
+                              "text": "\u003C",
+                              "children": []
+                            },
+                            {
+                              "id": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.2.TextButton",
+                              "parentId": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel",
+                              "depth": 5,
+                              "source": "Myra",
+                              "typeName": "TextButton",
+                              "visible": true,
+                              "treeVisible": true,
+                              "screenBounds": {
+                                "x": 88,
+                                "y": 115,
+                                "width": 32,
+                                "height": 32
+                              },
+                              "warnings": [],
+                              "text": "\u003C",
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "myra.desktop.0.Panel.0.Grid.1.Panel",
+                      "parentId": "myra.desktop.0.Panel.0.Grid",
+                      "depth": 3,
+                      "source": "Myra",
+                      "typeName": "Panel",
+                      "visible": true,
+                      "treeVisible": true,
+                      "screenBounds": {
+                        "x": 0,
+                        "y": 147,
+                        "width": 200,
+                        "height": 685
+                      },
+                      "warnings": [],
+                      "children": [
+                        {
+                          "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer",
+                          "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel",
+                          "depth": 4,
+                          "source": "Myra",
+                          "typeName": "ScrollViewer",
+                          "visible": true,
+                          "treeVisible": true,
+                          "screenBounds": {
+                            "x": 8,
+                            "y": 155,
+                            "width": 184,
+                            "height": 669
+                          },
+                          "warnings": [],
+                          "children": [
+                            {
+                              "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel",
+                              "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer",
+                              "depth": 5,
+                              "source": "Myra",
+                              "typeName": "VerticalStackPanel",
+                              "visible": true,
+                              "treeVisible": true,
+                              "screenBounds": {
+                                "x": 0,
+                                "y": 0,
+                                "width": 0,
+                                "height": 0
+                              },
+                              "warnings": [
+                                "no resolved screen size"
+                              ],
+                              "children": [
+                                {
+                                  "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel",
+                                  "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel",
+                                  "depth": 6,
+                                  "source": "Myra",
+                                  "typeName": "Panel",
+                                  "visible": false,
+                                  "treeVisible": false,
+                                  "screenBounds": {
+                                    "x": 0,
+                                    "y": 0,
+                                    "width": 0,
+                                    "height": 0
+                                  },
+                                  "warnings": [
+                                    "hidden",
+                                    "no resolved screen size"
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+                                      "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel",
+                                      "depth": 7,
+                                      "source": "Myra",
+                                      "typeName": "VerticalStackPanel",
+                                      "visible": true,
+                                      "treeVisible": false,
+                                      "screenBounds": {
+                                        "x": 0,
+                                        "y": 0,
+                                        "width": 0,
+                                        "height": 0
+                                      },
+                                      "warnings": [
+                                        "hidden",
+                                        "no resolved screen size"
+                                      ],
+                                      "children": [
+                                        {
+                                          "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.0.Label",
+                                          "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+                                          "depth": 8,
+                                          "source": "Myra",
+                                          "typeName": "Label",
+                                          "visible": true,
+                                          "treeVisible": false,
+                                          "screenBounds": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "width": 0,
+                                            "height": 0
+                                          },
+                                          "warnings": [
+                                            "hidden",
+                                            "no resolved screen size"
+                                          ],
+                                          "text": "AI Activity",
+                                          "children": []
+                                        },
+                                        {
+                                          "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.1.Label",
+                                          "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+                                          "depth": 8,
+                                          "source": "Myra",
+                                          "typeName": "Label",
+                                          "visible": false,
+                                          "treeVisible": false,
+                                          "screenBounds": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "width": 0,
+                                            "height": 0
+                                          },
+                                          "warnings": [
+                                            "hidden",
+                                            "no resolved screen size"
+                                          ],
+                                          "text": "",
+                                          "children": []
+                                        },
+                                        {
+                                          "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.2.Label",
+                                          "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+                                          "depth": 8,
+                                          "source": "Myra",
+                                          "typeName": "Label",
+                                          "visible": false,
+                                          "treeVisible": false,
+                                          "screenBounds": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "width": 0,
+                                            "height": 0
+                                          },
+                                          "warnings": [
+                                            "hidden",
+                                            "no resolved screen size"
+                                          ],
+                                          "text": "",
+                                          "children": []
+                                        },
+                                        {
+                                          "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.3.Label",
+                                          "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+                                          "depth": 8,
+                                          "source": "Myra",
+                                          "typeName": "Label",
+                                          "visible": false,
+                                          "treeVisible": false,
+                                          "screenBounds": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "width": 0,
+                                            "height": 0
+                                          },
+                                          "warnings": [
+                                            "hidden",
+                                            "no resolved screen size"
+                                          ],
+                                          "text": "",
+                                          "children": []
+                                        },
+                                        {
+                                          "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.4.Label",
+                                          "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+                                          "depth": 8,
+                                          "source": "Myra",
+                                          "typeName": "Label",
+                                          "visible": false,
+                                          "treeVisible": false,
+                                          "screenBounds": {
+                                            "x": 0,
+                                            "y": 0,
+                                            "width": 0,
+                                            "height": 0
+                                          },
+                                          "warnings": [
+                                            "hidden",
+                                            "no resolved screen size"
+                                          ],
+                                          "text": "",
+                                          "children": []
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "window.continentZoom",
+              "parentId": "myra.desktop",
+              "depth": 1,
+              "source": "Myra",
+              "typeName": "Window",
+              "visible": false,
+              "treeVisible": false,
+              "screenBounds": {
+                "x": 458,
+                "y": 156,
+                "width": 620,
+                "height": 520
+              },
+              "warnings": [
+                "hidden"
+              ],
+              "children": []
+            },
+            {
+              "id": "window.encyclopedia",
+              "parentId": "myra.desktop",
+              "depth": 1,
+              "source": "Myra",
+              "typeName": "Window",
+              "visible": false,
+              "treeVisible": false,
+              "screenBounds": {
+                "x": 10,
+                "y": 40,
+                "width": 920,
+                "height": 782
+              },
+              "warnings": [
+                "hidden"
+              ],
+              "children": []
+            },
+            {
+              "id": "window.playerDashboard",
+              "parentId": "myra.desktop",
+              "depth": 1,
+              "source": "Myra",
+              "typeName": "Window",
+              "visible": false,
+              "treeVisible": false,
+              "screenBounds": {
+                "x": 1186,
+                "y": 40,
+                "width": 340,
+                "height": 782
+              },
+              "warnings": [
+                "hidden"
+              ],
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "xna.backBuffer",
+          "depth": 0,
+          "source": "Xna",
+          "typeName": "BackBuffer",
+          "visible": true,
+          "treeVisible": true,
+          "screenBounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1536,
+            "height": 832
+          },
+          "warnings": [],
+          "children": [
+            {
+              "id": "xna.mapViewport",
+              "parentId": "xna.backBuffer",
+              "depth": 1,
+              "source": "Xna",
+              "typeName": "MapViewport",
+              "visible": true,
+              "treeVisible": true,
+              "screenBounds": {
+                "x": 200,
+                "y": 95,
+                "width": 1136,
+                "height": 737
+              },
+              "warnings": [],
+              "children": [
+                {
+                  "id": "xna.mapSelectionTarget",
+                  "parentId": "xna.mapViewport",
+                  "depth": 2,
+                  "source": "Xna",
+                  "typeName": "MapSelectionTarget",
+                  "visible": true,
+                  "treeVisible": true,
+                  "screenBounds": {
+                    "x": 760,
+                    "y": 388,
+                    "width": 96,
+                    "height": 96
+                  },
+                  "warnings": [],
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "validation": {
+        "isValid": true,
+        "errors": [],
+        "warnings": [
+          {
+            "elementId": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.0.TextButton",
+            "message": "Child bounds extend outside parent bounds."
+          },
+          {
+            "elementId": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.1.TextButton",
+            "message": "Child bounds extend outside parent bounds."
+          },
+          {
+            "elementId": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.2.TextButton",
+            "message": "Child bounds extend outside parent bounds."
+          }
+        ]
+      }
+    },
+    "elements": [
+      {
+        "id": "hud.helpPanel",
+        "parentId": "myra.desktop",
+        "depth": 1,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Panel",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 520,
+          "height": 430
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 520,
+          "height": 430
+        },
+        "warnings": [
+          "hidden"
+        ]
+      },
+      {
+        "id": "hud.selectionPanel",
+        "parentId": "myra.desktop",
+        "depth": 1,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Panel",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": false,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 380,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "warnings": [
+          "hidden",
+          "no resolved screen size"
+        ]
+      },
+      {
+        "id": "hud.topBar",
+        "parentId": "myra.desktop",
+        "depth": 1,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Panel",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1536,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 15,
+          "y": 15,
+          "width": 1506,
+          "height": 65
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1536,
+          "height": 95
+        },
+        "warnings": []
+      },
+      {
+        "id": "myra.desktop",
+        "depth": 0,
+        "childIds": [
+          "hud.helpPanel",
+          "hud.selectionPanel",
+          "hud.topBar",
+          "myra.desktop.0.Panel",
+          "window.continentZoom",
+          "window.encyclopedia",
+          "window.playerDashboard"
+        ],
+        "source": "Myra",
+        "typeName": "Desktop",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1536,
+          "height": 832
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1536,
+          "height": 832
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1536,
+          "height": 832
+        },
+        "warnings": []
+      },
+      {
+        "id": "myra.desktop.0.Panel",
+        "parentId": "myra.desktop",
+        "depth": 1,
+        "childIds": [
+          "myra.desktop.0.Panel.0.Grid"
+        ],
+        "source": "Myra",
+        "typeName": "Panel",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 107,
+          "width": 200,
+          "height": 725
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 200,
+          "height": 725
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 107,
+          "width": 200,
+          "height": 725
+        },
+        "warnings": []
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid",
+        "parentId": "myra.desktop.0.Panel",
+        "depth": 2,
+        "childIds": [
+          "myra.desktop.0.Panel.0.Grid.0.Panel",
+          "myra.desktop.0.Panel.0.Grid.1.Panel"
+        ],
+        "source": "Myra",
+        "typeName": "Grid",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 200,
+          "height": 725
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 107,
+          "width": 200,
+          "height": 725
+        },
+        "warnings": []
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.0.Panel",
+        "parentId": "myra.desktop.0.Panel.0.Grid",
+        "depth": 3,
+        "childIds": [
+          "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel"
+        ],
+        "source": "Myra",
+        "typeName": "Panel",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 40
+        },
+        "localBounds": {
+          "x": 4,
+          "y": 8,
+          "width": 192,
+          "height": 28
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 107,
+          "width": 200,
+          "height": 40
+        },
+        "warnings": []
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel",
+        "parentId": "myra.desktop.0.Panel.0.Grid.0.Panel",
+        "depth": 4,
+        "childIds": [
+          "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.0.TextButton",
+          "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.1.TextButton",
+          "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.2.TextButton"
+        ],
+        "source": "Myra",
+        "typeName": "HorizontalStackPanel",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 192,
+          "height": 28
+        },
+        "screenBounds": {
+          "x": 4,
+          "y": 115,
+          "width": 192,
+          "height": 28
+        },
+        "warnings": []
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.0.TextButton",
+        "parentId": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel",
+        "depth": 5,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "TextButton",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 32,
+          "height": 32
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 32,
+          "height": 28
+        },
+        "screenBounds": {
+          "x": 4,
+          "y": 115,
+          "width": 32,
+          "height": 32
+        },
+        "warnings": [],
+        "text": "\u003C"
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.1.TextButton",
+        "parentId": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel",
+        "depth": 5,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "TextButton",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 32,
+          "height": 32
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 32,
+          "height": 28
+        },
+        "screenBounds": {
+          "x": 46,
+          "y": 115,
+          "width": 32,
+          "height": 32
+        },
+        "warnings": [],
+        "text": "\u003C"
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel.2.TextButton",
+        "parentId": "myra.desktop.0.Panel.0.Grid.0.Panel.0.HorizontalStackPanel",
+        "depth": 5,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "TextButton",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 32,
+          "height": 32
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 32,
+          "height": 28
+        },
+        "screenBounds": {
+          "x": 88,
+          "y": 115,
+          "width": 32,
+          "height": 32
+        },
+        "warnings": [],
+        "text": "\u003C"
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel",
+        "parentId": "myra.desktop.0.Panel.0.Grid",
+        "depth": 3,
+        "childIds": [
+          "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer"
+        ],
+        "source": "Myra",
+        "typeName": "Panel",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 8,
+          "y": 8,
+          "width": 184,
+          "height": 669
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 147,
+          "width": 200,
+          "height": 685
+        },
+        "warnings": []
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer",
+        "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel",
+        "depth": 4,
+        "childIds": [
+          "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel"
+        ],
+        "source": "Myra",
+        "typeName": "ScrollViewer",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 184,
+          "height": 669
+        },
+        "screenBounds": {
+          "x": 8,
+          "y": 155,
+          "width": 184,
+          "height": 669
+        },
+        "warnings": []
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel",
+        "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer",
+        "depth": 5,
+        "childIds": [
+          "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel"
+        ],
+        "source": "Myra",
+        "typeName": "VerticalStackPanel",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": false,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 184,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "warnings": [
+          "no resolved screen size"
+        ]
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel",
+        "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel",
+        "depth": 6,
+        "childIds": [
+          "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel"
+        ],
+        "source": "Myra",
+        "typeName": "Panel",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": false,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 360,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "warnings": [
+          "hidden",
+          "no resolved screen size"
+        ]
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+        "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel",
+        "depth": 7,
+        "childIds": [
+          "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.0.Label",
+          "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.1.Label",
+          "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.2.Label",
+          "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.3.Label",
+          "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.4.Label"
+        ],
+        "source": "Myra",
+        "typeName": "VerticalStackPanel",
+        "visible": true,
+        "treeVisible": false,
+        "hasValidScreenBounds": false,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "warnings": [
+          "hidden",
+          "no resolved screen size"
+        ]
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.0.Label",
+        "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+        "depth": 8,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Label",
+        "visible": true,
+        "treeVisible": false,
+        "hasValidScreenBounds": false,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "warnings": [
+          "hidden",
+          "no resolved screen size"
+        ],
+        "text": "AI Activity"
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.1.Label",
+        "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+        "depth": 8,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Label",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": false,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "warnings": [
+          "hidden",
+          "no resolved screen size"
+        ],
+        "text": ""
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.2.Label",
+        "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+        "depth": 8,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Label",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": false,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "warnings": [
+          "hidden",
+          "no resolved screen size"
+        ],
+        "text": ""
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.3.Label",
+        "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+        "depth": 8,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Label",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": false,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "warnings": [
+          "hidden",
+          "no resolved screen size"
+        ],
+        "text": ""
+      },
+      {
+        "id": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel.4.Label",
+        "parentId": "myra.desktop.0.Panel.0.Grid.1.Panel.0.ScrollViewer.0.VerticalStackPanel.0.Panel.0.VerticalStackPanel",
+        "depth": 8,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Label",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": false,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "warnings": [
+          "hidden",
+          "no resolved screen size"
+        ],
+        "text": ""
+      },
+      {
+        "id": "window.continentZoom",
+        "parentId": "myra.desktop",
+        "depth": 1,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Window",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 458,
+          "y": 156,
+          "width": 620,
+          "height": 520
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 458,
+          "y": 156,
+          "width": 620,
+          "height": 520
+        },
+        "warnings": [
+          "hidden"
+        ]
+      },
+      {
+        "id": "window.encyclopedia",
+        "parentId": "myra.desktop",
+        "depth": 1,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Window",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 10,
+          "y": 40,
+          "width": 920,
+          "height": 782
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 10,
+          "y": 40,
+          "width": 920,
+          "height": 782
+        },
+        "warnings": [
+          "hidden"
+        ]
+      },
+      {
+        "id": "window.playerDashboard",
+        "parentId": "myra.desktop",
+        "depth": 1,
+        "childIds": [],
+        "source": "Myra",
+        "typeName": "Window",
+        "visible": false,
+        "treeVisible": false,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 1186,
+          "y": 40,
+          "width": 340,
+          "height": 782
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "screenBounds": {
+          "x": 1186,
+          "y": 40,
+          "width": 340,
+          "height": 782
+        },
+        "warnings": [
+          "hidden"
+        ]
+      },
+      {
+        "id": "xna.backBuffer",
+        "depth": 0,
+        "childIds": [
+          "xna.mapViewport"
+        ],
+        "source": "Xna",
+        "typeName": "BackBuffer",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1536,
+          "height": 832
+        },
+        "localBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1536,
+          "height": 832
+        },
+        "screenBounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1536,
+          "height": 832
+        },
+        "warnings": []
+      },
+      {
+        "id": "xna.mapSelectionTarget",
+        "parentId": "xna.mapViewport",
+        "depth": 2,
+        "childIds": [],
+        "source": "Xna",
+        "typeName": "MapSelectionTarget",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 760,
+          "y": 388,
+          "width": 96,
+          "height": 96
+        },
+        "localBounds": {
+          "x": 760,
+          "y": 388,
+          "width": 96,
+          "height": 96
+        },
+        "screenBounds": {
+          "x": 760,
+          "y": 388,
+          "width": 96,
+          "height": 96
+        },
+        "warnings": []
+      },
+      {
+        "id": "xna.mapViewport",
+        "parentId": "xna.backBuffer",
+        "depth": 1,
+        "childIds": [
+          "xna.mapSelectionTarget"
+        ],
+        "source": "Xna",
+        "typeName": "MapViewport",
+        "visible": true,
+        "treeVisible": true,
+        "hasValidScreenBounds": true,
+        "declaredBounds": {
+          "x": 200,
+          "y": 95,
+          "width": 1136,
+          "height": 737
+        },
+        "localBounds": {
+          "x": 200,
+          "y": 95,
+          "width": 1136,
+          "height": 737
+        },
+        "screenBounds": {
+          "x": 200,
+          "y": 95,
+          "width": 1136,
+          "height": 737
+        },
+        "warnings": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "screenId": "ui-scale-window",
+  "summary": "The actual screenshot shows a gameplay map with a UI Scale window, but it deviates from the wireframe in window position, content, and missing controls. The wireframe is a rough sketch that partially aligns with requirements but lacks detail for full validation.",
+  "correctElements": [
+    {
+      "element": "Background starfield and map",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "evidence": "Both images feature a dark starfield background with stellar systems and connecting lines, matching the global wireframe style.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Top status bar",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "evidence": "Turn information and phase displayed at the top in both, with similar styling.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Resource panels",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "evidence": "POP, MET, FUEL indicators present in top-left, consistent with wireframe.",
+      "confidence": 0.9
+    },
+    {
+      "element": "UI Scale window presence",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "evidence": "A compact window titled \u0027UI Scale\u0027 is visible in both, overlaid on the map.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Map Key panel",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "evidence": "Map Key on the right side matches in position and purpose.",
+      "confidence": 0.85
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "UI Scale window position",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "expected": "Positioned near Sirius system on the left side of the map",
+      "actual": "Centered between Sirius and Canopus",
+      "whyIncorrect": "Window bounds do not match the fixed screen-relative geometry specified in the global style.",
+      "severity": "medium",
+      "confidence": 0.95
+    },
+    {
+      "element": "UI Scale window controls",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "expected": "Scale slider, preset controls, Apply, and Reset buttons",
+      "actual": "Only slider visible; no presets, Apply, or Reset",
+      "whyIncorrect": "Missing required controls from the screen description, affecting user-facing behavior.",
+      "severity": "high",
+      "confidence": 0.9
+    },
+    {
+      "element": "Window content text",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "expected": "Placeholder text like \u0027bounded scroll content\u0027 and buttons \u0027BACK\u0027, \u0027NEXT / APPLY\u0027",
+      "actual": "Specific text \u0027Command Deck Scale\u0027, description, and \u0027100%\u0027 label",
+      "whyIncorrect": "Text mismatch; actual has implemented content but wireframe uses placeholders, not validating exact labels.",
+      "severity": "medium",
+      "confidence": 0.85
+    },
+    {
+      "element": "Map layout",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "expected": "Three systems: Sirius, Arcturus, Canopus with zigzag connection",
+      "actual": "Two systems: Sirius, Canopus with straight connection",
+      "whyIncorrect": "Map elements differ, potentially due to dynamic game state, but wireframe assumes fixed geometry for validation.",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Debug text",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "Clean screenshot without debug overlays",
+      "actual": "Debug text present in top bar (e.g., \u0027Panels F1 Dbg:On F2 Cmd:Off ...\u0027)",
+      "whyIncorrect": "Extra elements not in wireframe, indicating incomplete HWND capture or development artifacts.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Window borders and style",
+      "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+      "expected": "Thin green panel borders, semi-transparent black panels",
+      "actual": "Subtle borders without green outline, semi-transparent but not matching wireframe\u0027s diagram style",
+      "whyIncorrect": "Style differences due to wireframe being a mockup; residual risk that actual rendering varies by DPI or scaling.",
+      "severity": "low",
+      "confidence": 0.85
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe provides a basic layout and position baseline but uses placeholders instead of detailed controls, making it insufficient for validating interactive elements and exact text as per the screen description.",
+    "missingRequirements": [
+      "Detailed representation of scale slider, preset controls, Apply, and Reset",
+      "Validation of dynamic behavior or user interactions",
+      "Matching to actual map state for precise overlap checks"
+    ],
+    "recommendedWireframeChanges": [
+      "Incorporate exact control elements and labels from the screen description",
+      "Use a more representative map layout matching typical gameplay",
+      "Add annotations for z-order and transparency levels"
+    ]
+  }
+}

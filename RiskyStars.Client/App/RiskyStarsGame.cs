@@ -5,6 +5,7 @@ using RiskyStars.Shared;
 using Myra;
 using Myra.Graphics2D;
 using Myra.Graphics2D.UI;
+using System.Diagnostics.CodeAnalysis;
 
 namespace RiskyStars.Client;
 
@@ -18,6 +19,9 @@ public enum GameState
 
 public class RiskyStarsGame : Game
 {
+    private const string ClientDebugLiveProcessCoverageJustification =
+        "Exercised by ClientDebugGameScreenshotIntegrationTests through a launched MonoGame process; coverlet does not attach to that child process.";
+
     private GraphicsDeviceManager _graphics;
     private SpriteBatch? _spriteBatch;
     private Texture2D? _pixelTexture;
@@ -44,6 +48,8 @@ public class RiskyStarsGame : Game
     private Desktop? _inGameDesktop;
     private DialogManager? _inGameDialogManager;
     private CombatEventDialog? _combatEventDialog;
+    private ClientDebugCommandQueue? _clientDebugCommandQueue;
+    private ClientDebugGrpcHost? _clientDebugGrpcHost;
     
     private PlayerDashboardWindow? _playerDashboardWindow;
     private AIVisualizationWindow? _aiVisualizationWindow;
@@ -182,6 +188,7 @@ public class RiskyStarsGame : Game
         {
             Background = ThemeManager.CreateSolidBrush(Color.Transparent)
         };
+        StartClientDebugProtocol();
         _inGameDialogManager = new DialogManager(_inGameDesktop);
         _combatEventDialog = new CombatEventDialog(_inGameDesktop);
         _mapData = MapLoader.CreateSampleMap();
@@ -231,6 +238,7 @@ public class RiskyStarsGame : Game
     {
         var keyState = Keyboard.GetState();
         UpdateFeedbackState();
+        DrainClientDebugCommands();
         
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
         {
@@ -1348,19 +1356,34 @@ public class RiskyStarsGame : Game
             GameUiVisualElementIds.BackBuffer,
             new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight),
             "BackBuffer");
-        visualTree.AddXnaElement(GameUiVisualElementIds.MapViewport, GetMapViewportBounds(), "MapViewport");
-        visualTree.AddMyraElement(GameUiVisualElementIds.TopBar, _gameplayHudOverlay?.TopBar);
-        visualTree.AddMyraElement(GameUiVisualElementIds.ResourceChips, _gameplayHudOverlay?.TopBar);
-        visualTree.AddMyraElement(GameUiVisualElementIds.HelpPanel, _gameplayHudOverlay?.HelpPanel);
-        visualTree.AddMyraElement(GameUiVisualElementIds.SelectionPanel, _gameplayHudOverlay?.SelectionPanel);
-        visualTree.AddMyraElement(GameUiVisualElementIds.PlayerDashboard, _playerDashboardWindow?.Window);
-        visualTree.AddMyraElement(GameUiVisualElementIds.EncyclopediaWindow, _encyclopediaWindow?.Window);
-        visualTree.AddMyraElement(GameUiVisualElementIds.ContinentZoomWindow, _continentZoomWindow?.Window);
+        visualTree.AddXnaElement(GameUiVisualElementIds.MapViewport, GetMapViewportBounds(), "MapViewport", GameUiVisualElementIds.BackBuffer);
+        Desktop? activeDesktop = _gameState == GameState.MainMenu
+            ? _mainMenu?.DebugDesktop
+            : _inGameDesktop;
+        string? myraDesktopParentId = null;
+        if (activeDesktop != null)
+        {
+            visualTree.AddMyraRoot(
+                GameUiVisualElementIds.MyraDesktop,
+                new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight));
+            myraDesktopParentId = GameUiVisualElementIds.MyraDesktop;
+        }
+
+        visualTree.AddMyraElement(GameUiVisualElementIds.TopBar, _gameplayHudOverlay?.TopBar, myraDesktopParentId);
+        visualTree.AddMyraElement(GameUiVisualElementIds.HelpPanel, _gameplayHudOverlay?.HelpPanel, myraDesktopParentId);
+        visualTree.AddMyraElement(GameUiVisualElementIds.SelectionPanel, _gameplayHudOverlay?.SelectionPanel, myraDesktopParentId);
+        visualTree.AddMyraElement(GameUiVisualElementIds.PlayerDashboard, _playerDashboardWindow?.Window, myraDesktopParentId);
+        visualTree.AddMyraElement(GameUiVisualElementIds.EncyclopediaWindow, _encyclopediaWindow?.Window, myraDesktopParentId);
+        visualTree.AddMyraElement(GameUiVisualElementIds.ContinentZoomWindow, _continentZoomWindow?.Window, myraDesktopParentId);
         Rectangle mapTargetBounds = BuildMapSelectionTargetBounds();
-        visualTree.AddXnaElement(GameUiVisualElementIds.MapSelectionTarget, mapTargetBounds, "MapSelectionTarget");
+        visualTree.AddXnaElement(GameUiVisualElementIds.MapSelectionTarget, mapTargetBounds, "MapSelectionTarget", GameUiVisualElementIds.MapViewport);
         if (_continentZoomWindow?.IsVisible == true)
         {
-            visualTree.AddXnaElement(GameUiVisualElementIds.ContinentZoomSurface, _continentZoomWindow.CanvasBounds, "ContinentZoomSurface");
+            visualTree.AddXnaElement(
+                GameUiVisualElementIds.ContinentZoomSurface,
+                _continentZoomWindow.CanvasBounds,
+                "ContinentZoomSurface",
+                GameUiVisualElementIds.ContinentZoomWindow);
         }
 
         if (_combatScreen?.IsActive == true)
@@ -1368,12 +1391,16 @@ public class RiskyStarsGame : Game
             visualTree.AddXnaElement(
                 GameUiVisualElementIds.CombatOverlay,
                 new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight),
-                "CombatOverlay");
+                "CombatOverlay",
+                GameUiVisualElementIds.BackBuffer);
         }
 
-        if (_inGameDesktop != null)
+        if (activeDesktop != null)
         {
-            visualTree.AddMyraTree("myra.desktop", _inGameDesktop.Widgets);
+            IEnumerable<Widget> activeRoots = activeDesktop.Root != null
+                ? [activeDesktop.Root]
+                : activeDesktop.Widgets;
+            visualTree.AddMyraTree(GameUiVisualElementIds.MyraDesktop, activeRoots);
         }
 
         return visualTree;
@@ -1389,6 +1416,832 @@ public class RiskyStarsGame : Game
             clientBounds.Height,
             ThemeManager.CurrentUiScalePercent,
             ThemeManager.CurrentUiScaleFactor);
+    }
+
+    private void StartClientDebugProtocol()
+    {
+        _clientDebugCommandQueue = new ClientDebugCommandQueue();
+        _clientDebugGrpcHost = new ClientDebugGrpcHost(_clientDebugCommandQueue);
+
+        try
+        {
+            _clientDebugGrpcHost.StartAsync().GetAwaiter().GetResult();
+            System.Console.WriteLine($"Client debug gRPC listening on {_clientDebugGrpcHost.ServerUrl}");
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"Client debug gRPC disabled: {ex.Message}");
+            _clientDebugGrpcHost = null;
+        }
+    }
+
+    private void DrainClientDebugCommands()
+    {
+        _clientDebugCommandQueue?.Drain(CreateClientDebugController());
+    }
+
+    private ClientDebugController CreateClientDebugController()
+    {
+        return new ClientDebugController(
+            BuildGameUiVisualTree,
+            BuildGameUiScaleContext,
+            FocusClientDebugElement,
+            NavigateClientDebugScreen,
+            GetDebugTutorialState,
+            SeedDebugTutorialScenario,
+            InvokeDebugTutorialAction);
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private ClientDebugActionResult NavigateClientDebugScreen(string screenId)
+    {
+        string normalizedScreenId = screenId.Trim().ToLowerInvariant();
+
+        try
+        {
+            switch (normalizedScreenId)
+            {
+                case "main-menu":
+                    ShowDebugMainMenu(MainMenuState.Main);
+                    break;
+                case "main-menu-settings":
+                    ShowDebugMainMenu(MainMenuState.Settings);
+                    break;
+                case "main-menu-connecting":
+                    ShowDebugMainMenu(MainMenuState.Connecting);
+                    break;
+                case "game-mode-selector":
+                    ShowDebugLobby(LobbyState.ModeSelection);
+                    break;
+                case "connection-screen":
+                    ShowDebugLobby(LobbyState.Connection);
+                    break;
+                case "lobby-browser":
+                    ShowDebugLobby(LobbyState.Browser);
+                    break;
+                case "create-lobby":
+                    ShowDebugLobby(LobbyState.CreateLobby);
+                    break;
+                case "multiplayer-lobby":
+                    ShowDebugLobby(LobbyState.InLobby);
+                    break;
+                case "single-player-lobby":
+                    ShowDebugLobby(LobbyState.SinglePlayerLobby);
+                    break;
+                case "gameplay-hud-top-bar":
+                case "gameplay-hud-legend":
+                case "side-panel-container":
+                    ShowDebugInGame();
+                    break;
+                case "settings-window":
+                    ShowDebugInGame();
+                    _settingsWindow?.Open();
+                    break;
+                case "debug-info-window":
+                    ShowDebugInGame();
+                    _debugInfoWindow?.Show();
+                    break;
+                case "player-dashboard-window":
+                case "legacy-player-dashboard":
+                    ShowDebugInGame();
+                    _playerDashboardWindow?.Show();
+                    break;
+                case "ai-visualization-window":
+                    ShowDebugInGame();
+                    _aiVisualizationWindow?.Show();
+                    _aiVisualizationWindow?.UpdateAIStatus("Drill Marshal Vega", true);
+                    break;
+                case "encyclopedia-window":
+                    ShowDebugInGame();
+                    _encyclopediaWindow?.Show();
+                    break;
+                case "ui-scale-window":
+                    ShowDebugInGame();
+                    _uiScaleWindow?.Show();
+                    break;
+                case "tutorial-mode-window":
+                    ShowDebugInGame(tutorialMode: true);
+                    _tutorialModeWindow?.Show();
+                    AnchorTutorialWindowToMapLeft();
+                    UpdateTutorialWindow();
+                    break;
+                case "continent-zoom-window":
+                    ShowDebugInGame();
+                    ShowDebugContinentZoom();
+                    break;
+                case "combat-hud-overlay":
+                    ShowDebugInGame();
+                    _combatScreen?.StartCombat(CreateDebugCombatEvent());
+                    UpdateCombatHud();
+                    break;
+                case "server-status-indicator":
+                    ShowDebugInGame(showServerStatus: true);
+                    break;
+                case "dialog-manager":
+                    ShowDebugInGame();
+                    _inGameDialogManager?.ShowConfirmation("Confirm Title", "Confirm Message");
+                    break;
+                case "combat-event-dialog":
+                    ShowDebugInGame();
+                    _combatEventDialog?.ShowCombatInitiated(CreateDebugCombatEvent());
+                    break;
+                case "context-menu-manager":
+                    ShowDebugInGame();
+                    ShowDebugContextMenu();
+                    break;
+                case "combat-screen":
+                    ShowDebugInGame();
+                    _combatScreen?.StartCombat(CreateDebugCombatEvent());
+                    break;
+                case "ai-action-indicator":
+                    ShowDebugInGame();
+                    _aiActionIndicator?.StartAIThinking("Drill Marshal Vega");
+                    _aiActionIndicator?.ShowArmyMovement(Vector2.Zero, Vector2.One, 2, Color.LightGreen, "debug-army");
+                    _aiActionIndicator?.AddLogEntry("AI acted", Color.White);
+                    break;
+                default:
+                    return ClientDebugActionResult.Fail($"Screen '{screenId}' is not registered for debug navigation.");
+            }
+
+            return ClientDebugActionResult.Ok($"Navigated to debug screen '{normalizedScreenId}'.");
+        }
+        catch (Exception ex)
+        {
+            return ClientDebugActionResult.Fail($"Failed to navigate to debug screen '{screenId}': {ex.Message}");
+        }
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private void ShowDebugMainMenu(MainMenuState state)
+    {
+        _gameState = GameState.MainMenu;
+        _mainMenu ??= new MainMenu(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight, _settings);
+        if (_defaultFont != null)
+        {
+            _mainMenu.LoadContent(_defaultFont);
+        }
+
+        _mainMenu.SetState(state);
+        _mainMenu.ResetNavigationRequests();
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private void ShowDebugLobby(LobbyState state)
+    {
+        _gameState = GameState.Lobby;
+        _lobbyManager ??= new LobbyManager(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+        if (_defaultFont != null)
+        {
+            _lobbyManager.LoadContent(_defaultFont);
+        }
+
+        _lobbyManager.DebugShowState(state);
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private void ShowDebugInGame(bool tutorialMode = false, bool showServerStatus = false)
+    {
+        _gameState = GameState.InGame;
+        _tutorialModeActive = tutorialMode;
+        _currentPlayerId = "debug-player";
+        _mapData ??= MapLoader.CreateSampleMap();
+        _camera ??= CreateConfiguredCamera();
+        _camera.SetView(Vector2.Zero, 1f);
+
+        SeedDebugGameState();
+        _inputController = new InputController(null!, _gameStateCache!, _mapData, _camera);
+        _inputController.ContinentZoomRequested -= OnContinentZoomRequested;
+        _inputController.ContinentZoomRequested += OnContinentZoomRequested;
+        _inputController.SetCurrentPlayer(_currentPlayerId);
+
+        CreateInGameWindows(null!);
+        _serverStatusIndicator = showServerStatus ? new ServerStatusIndicator(500) : null;
+
+        if (_inGameDesktop != null)
+        {
+            _contextMenuManager = new ContextMenuManager(null!, _gameStateCache!, _mapData, _camera, _inGameDesktop);
+            _contextMenuManager.SetCurrentPlayer(_currentPlayerId);
+            _inputController.SetContextMenuManager(_contextMenuManager);
+        }
+
+        AttachInGameWindows();
+        HideDebugInGameSurfaces();
+
+        if (tutorialMode)
+        {
+            _tutorialModeWindow?.Show();
+        }
+
+        if (showServerStatus && _serverStatusIndicator != null)
+        {
+            _serverStatusIndicator.Container.Visible = true;
+            _serverStatusIndicator.Update();
+        }
+
+        UpdateGameplayHud();
+        UpdateDebugInfo(new GameTime(TimeSpan.Zero, TimeSpan.FromSeconds(1.0 / 60.0)));
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private void HideDebugInGameSurfaces()
+    {
+        _contextMenuManager?.CloseContextMenu();
+        _inGameDialogManager?.CloseDialog();
+        _combatEventDialog?.CloseDialog();
+        _settingsWindow?.Close();
+        _combatScreen?.Close();
+        _combatHudOverlay?.Update(null);
+
+        _playerDashboardWindow?.Hide();
+        _aiVisualizationWindow?.Hide();
+        _debugInfoWindow?.Hide();
+        _uiScaleWindow?.Hide();
+        _encyclopediaWindow?.Hide();
+        _tutorialModeWindow?.Hide();
+        _continentZoomWindow?.Hide();
+
+        if (_serverStatusIndicator?.Container != null)
+        {
+            _serverStatusIndicator.Container.Visible = false;
+        }
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private void SeedDebugGameState(
+        TurnPhase phase = TurnPhase.Purchase,
+        int ownArmyCount = 1,
+        bool ownArmyMoved = false)
+    {
+        _gameStateCache ??= new GameStateCache();
+        _gameStateCache.Clear();
+        if (_mapData == null)
+        {
+            return;
+        }
+
+        RegionData? firstRegion = _mapData.StarSystems
+            .SelectMany(system => system.StellarBodies)
+            .SelectMany(body => body.Regions)
+            .FirstOrDefault();
+        RegionData? secondRegion = _mapData.StarSystems
+            .SelectMany(system => system.StellarBodies)
+            .SelectMany(body => body.Regions)
+            .Skip(1)
+            .FirstOrDefault();
+
+        var update = new GameUpdate
+        {
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            GameId = "debug-game",
+            GameState = new TurnBasedGameStateUpdate
+            {
+                GameId = "debug-game",
+                TurnNumber = 1,
+                CurrentPhase = phase,
+                CurrentPlayerId = _currentPlayerId ?? "debug-player",
+                EventMessage = "Debug protocol screen validation"
+            }
+        };
+
+        update.GameState.PlayerStates.Add(new PlayerState
+        {
+            PlayerId = "debug-player",
+            PlayerName = "Cadet",
+            PopulationStockpile = 100,
+            MetalStockpile = 50,
+            FuelStockpile = 50,
+            TurnOrder = 1
+        });
+        update.GameState.PlayerStates.Add(new PlayerState
+        {
+            PlayerId = "debug-ai",
+            PlayerName = "Drill Marshal Vega",
+            PopulationStockpile = 80,
+            MetalStockpile = 35,
+            FuelStockpile = 30,
+            TurnOrder = 2
+        });
+
+        if (firstRegion != null)
+        {
+            update.GameState.RegionOwnerships.Add(new RegionOwnership
+            {
+                RegionId = firstRegion.Id,
+                OwnerId = "debug-player"
+            });
+            int safeOwnArmyCount = Math.Max(1, ownArmyCount);
+            for (int i = 0; i < safeOwnArmyCount; i++)
+            {
+                update.GameState.ArmyStates.Add(new ArmyState
+                {
+                    ArmyId = i == 0 ? "debug-army" : $"debug-army-{i + 1}",
+                    OwnerId = "debug-player",
+                    UnitCount = 4,
+                    LocationId = firstRegion.Id,
+                    LocationType = LocationType.Region,
+                    HasMovedThisTurn = ownArmyMoved && i == 0
+                });
+            }
+        }
+
+        if (secondRegion != null)
+        {
+            update.GameState.RegionOwnerships.Add(new RegionOwnership
+            {
+                RegionId = secondRegion.Id,
+                OwnerId = "debug-ai"
+            });
+            update.GameState.ArmyStates.Add(new ArmyState
+            {
+                ArmyId = "debug-ai-army",
+                OwnerId = "debug-ai",
+                UnitCount = 3,
+                LocationId = secondRegion.Id,
+                LocationType = LocationType.Region
+            });
+        }
+
+        foreach (var lane in _mapData.HyperspaceLanes)
+        {
+            update.GameState.HyperspaceLaneMouthOwnerships.Add(new HyperspaceLaneMouthOwnership
+            {
+                HyperspaceLaneMouthId = lane.MouthAId,
+                OwnerId = "debug-player"
+            });
+            update.GameState.HyperspaceLaneMouthOwnerships.Add(new HyperspaceLaneMouthOwnership
+            {
+                HyperspaceLaneMouthId = lane.MouthBId,
+                OwnerId = "debug-ai"
+            });
+        }
+
+        _gameStateCache.ApplyUpdate(update);
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private ClientDebugActionResult SeedDebugTutorialScenario()
+    {
+        ShowDebugInGame(tutorialMode: true);
+        SeedDebugGameState(TurnPhase.Production, ownArmyCount: 1, ownArmyMoved: false);
+
+        _inputController?.Selection.ClearSelection();
+        _inputController?.DebugSetHelpVisible(false);
+        _contextMenuManager?.CloseContextMenu();
+        _playerDashboardWindow?.Hide();
+        _encyclopediaWindow?.Hide();
+        _tutorialModeWindow?.DebugReset(requireExplicitActions: true);
+        _tutorialModeWindow?.Show();
+        AnchorTutorialWindowToMapLeft();
+        UpdateGameplayHud();
+        UpdateTutorialWindow();
+
+        return ClientDebugActionResult.Ok("Seeded deterministic guided tutorial scenario.");
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private ClientDebugActionResult InvokeDebugTutorialAction(string expectedStepId, string action)
+    {
+        if (_tutorialModeWindow?.IsVisible != true)
+        {
+            return ClientDebugActionResult.Fail("Guided tutorial is not visible. Call SeedTutorialScenario first.");
+        }
+
+        string currentStepId = _tutorialModeWindow.CurrentStep.Id;
+        if (!string.Equals(currentStepId, expectedStepId, StringComparison.OrdinalIgnoreCase))
+        {
+            return ClientDebugActionResult.Fail(
+                $"Expected tutorial step '{expectedStepId}' but current step is '{currentStepId}'.");
+        }
+
+        string normalizedAction = NormalizeDebugTutorialAction(action);
+        if (normalizedAction == "click-next")
+        {
+            if (!_tutorialModeWindow.IsCurrentStepComplete &&
+                _tutorialModeWindow.CurrentStep.Completion != TutorialStepCompletion.Manual)
+            {
+                return ClientDebugActionResult.Fail(
+                    $"Cannot advance step '{currentStepId}' because its objective is not complete.");
+            }
+
+            _tutorialModeWindow.DebugMoveNext();
+            UpdateGameplayHud();
+            UpdateTutorialWindow();
+            return ClientDebugActionResult.Ok($"Advanced from tutorial step '{currentStepId}'.");
+        }
+
+        string expectedAction = GetExpectedDebugTutorialAction(currentStepId);
+        if (!string.Equals(normalizedAction, expectedAction, StringComparison.OrdinalIgnoreCase))
+        {
+            return ClientDebugActionResult.Fail(
+                $"Action '{action}' is not valid for tutorial step '{currentStepId}'. Expected '{expectedAction}'.");
+        }
+
+        ClientDebugActionResult actionResult = ApplyDebugTutorialAction(currentStepId, normalizedAction);
+        if (!actionResult.Success)
+        {
+            return actionResult;
+        }
+
+        UpdateGameplayHud();
+        UpdateTutorialWindow();
+
+        if (currentStepId != "complete" && !_tutorialModeWindow.IsCurrentStepObjectiveSatisfied)
+        {
+            return ClientDebugActionResult.Fail(
+                $"Action '{normalizedAction}' did not complete tutorial step '{currentStepId}'.");
+        }
+
+        if (currentStepId == "complete")
+        {
+            return ClientDebugActionResult.Ok("Finished guided tutorial and left gameplay active.");
+        }
+
+        _tutorialModeWindow.DebugCompleteCurrentStep();
+        return ClientDebugActionResult.Ok($"Completed tutorial step '{currentStepId}' with action '{normalizedAction}'.");
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private ClientDebugActionResult ApplyDebugTutorialAction(string currentStepId, string normalizedAction)
+    {
+        switch (currentStepId)
+        {
+            case "sync":
+                SeedDebugGameState(TurnPhase.Production, GetOwnDebugArmyCount(), HasMovedDebugArmy());
+                return ClientDebugActionResult.Ok("World snapshot is available.");
+            case "turn":
+                SeedDebugGameState(_gameStateCache?.GetCurrentPhase() ?? TurnPhase.Production, GetOwnDebugArmyCount(), HasMovedDebugArmy());
+                return ClientDebugActionResult.Ok("Active player is the tutorial player.");
+            case "select":
+                return SelectDebugMapTarget();
+            case "help":
+                _inputController?.DebugSetHelpVisible(true);
+                return ClientDebugActionResult.Ok("Shortcut sheet is visible.");
+            case "production":
+                SeedDebugGameState(TurnPhase.Purchase, GetOwnDebugArmyCount(), HasMovedDebugArmy());
+                return ClientDebugActionResult.Ok("Advanced to purchase phase.");
+            case "dashboard":
+                _playerDashboardWindow?.Show();
+                return ClientDebugActionResult.Ok("Player dashboard is visible.");
+            case "purchase":
+                _playerDashboardWindow?.Show();
+                SeedDebugGameState(TurnPhase.Purchase, Math.Max(2, GetOwnDebugArmyCount() + 1), HasMovedDebugArmy());
+                return ClientDebugActionResult.Ok("Purchased a starter army.");
+            case "reinforcement-phase":
+                SeedDebugGameState(TurnPhase.Reinforcement, GetOwnDebugArmyCount(), HasMovedDebugArmy());
+                _playerDashboardWindow?.Hide();
+                return ClientDebugActionResult.Ok("Advanced to reinforcement phase.");
+            case "reinforcement-target":
+                return SelectDebugOwnedReinforcementTarget();
+            case "movement-phase":
+                SeedDebugGameState(TurnPhase.Movement, GetOwnDebugArmyCount(), HasMovedDebugArmy());
+                return ClientDebugActionResult.Ok("Advanced to movement phase.");
+            case "army":
+                return SelectDebugOwnArmy();
+            case "movement":
+                SeedDebugGameState(TurnPhase.Movement, GetOwnDebugArmyCount(), ownArmyMoved: true);
+                return SelectDebugOwnArmy();
+            case "reference":
+                _encyclopediaWindow?.Show();
+                return ClientDebugActionResult.Ok("Encyclopedia is visible.");
+            case "complete":
+                EndTutorialMode();
+                return ClientDebugActionResult.Ok("Guided tutorial closed.");
+            default:
+                return ClientDebugActionResult.Fail($"Tutorial step '{currentStepId}' has no registered debug action.");
+        }
+    }
+
+    private static string NormalizeDebugTutorialAction(string action)
+    {
+        return action.Trim().ToLowerInvariant().Replace('_', '-').Replace(' ', '-');
+    }
+
+    internal static string GetExpectedDebugTutorialAction(string stepId)
+    {
+        return stepId switch
+        {
+            "sync" => "wait-world-sync",
+            "turn" => "confirm-turn-banner",
+            "select" => "select-map-target",
+            "help" => "toggle-help",
+            "production" => "produce-or-advance",
+            "dashboard" => "open-dashboard",
+            "purchase" => "buy-starter-army",
+            "reinforcement-phase" => "advance-reinforcement-phase",
+            "reinforcement-target" => "select-reinforcement-target",
+            "movement-phase" => "advance-movement-phase",
+            "army" => "select-own-army",
+            "movement" => "issue-or-inspect-movement",
+            "reference" => "open-encyclopedia",
+            "complete" => "finish-tutorial",
+            _ => string.Empty
+        };
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private ClientDebugActionResult SelectDebugMapTarget()
+    {
+        RegionData? region = GetFirstDebugRegion();
+        if (region == null)
+        {
+            return ClientDebugActionResult.Fail("No deterministic map region is available.");
+        }
+
+        _inputController?.Selection.SelectRegion(region);
+        return ClientDebugActionResult.Ok($"Selected map region '{region.Name}'.");
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private ClientDebugActionResult SelectDebugOwnedReinforcementTarget()
+    {
+        var ownedMouth = _mapData?.HyperspaceLanes
+            .Select(lane => (Id: lane.MouthAId, Position: lane.MouthAPosition))
+            .FirstOrDefault(mouth =>
+                _gameStateCache?.GetHyperspaceLaneMouthOwnership(mouth.Id)?.OwnerId == (_currentPlayerId ?? "debug-player"));
+        if (!string.IsNullOrWhiteSpace(ownedMouth?.Id))
+        {
+            _inputController?.Selection.SelectHyperspaceLaneMouth(ownedMouth.Value.Id, ownedMouth.Value.Position);
+            return ClientDebugActionResult.Ok($"Selected owned reinforcement lane mouth '{ownedMouth.Value.Id}'.");
+        }
+
+        RegionData? region = GetFirstDebugRegion();
+        if (region == null)
+        {
+            return ClientDebugActionResult.Fail("No deterministic owned reinforcement target is available.");
+        }
+
+        _inputController?.Selection.SelectRegion(region);
+        return ClientDebugActionResult.Ok($"Selected owned reinforcement target '{region.Name}'.");
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private ClientDebugActionResult SelectDebugOwnArmy()
+    {
+        ArmyState? army = _gameStateCache?
+            .GetArmiesOwnedByPlayer(_currentPlayerId ?? "debug-player")
+            .FirstOrDefault();
+        if (army == null)
+        {
+            return ClientDebugActionResult.Fail("No deterministic own army is available.");
+        }
+
+        _inputController?.Selection.SelectArmy(army);
+        return ClientDebugActionResult.Ok($"Selected own army '{army.ArmyId}'.");
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private RegionData? GetFirstDebugRegion()
+    {
+        return _mapData?.StarSystems
+            .SelectMany(system => system.StellarBodies)
+            .SelectMany(body => body.Regions)
+            .FirstOrDefault();
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private int GetOwnDebugArmyCount()
+    {
+        return _gameStateCache?
+            .GetArmiesOwnedByPlayer(_currentPlayerId ?? "debug-player")
+            .Count ?? 1;
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private bool HasMovedDebugArmy()
+    {
+        return _gameStateCache?
+            .GetArmiesOwnedByPlayer(_currentPlayerId ?? "debug-player")
+            .Any(army => army.HasMovedThisTurn) == true;
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private ClientDebugTutorialStateResult GetDebugTutorialState()
+    {
+        if (_tutorialModeWindow == null)
+        {
+            return CreateEmptyDebugTutorialState(false, "Guided tutorial window has not been created.");
+        }
+
+        UpdateGameplayHud();
+        UpdateTutorialWindow();
+
+        TutorialModeStep step = _tutorialModeWindow.CurrentStep;
+        IReadOnlyList<TutorialHighlightTarget> targets = _tutorialModeWindow.CurrentHighlightTargets;
+        IReadOnlyDictionary<TutorialHighlightTarget, Rectangle> resolvedBounds =
+            TutorialHighlightTargets.ResolveVisualBounds(targets, BuildGameUiVisualTree());
+
+        PlayerState? playerState = null;
+        if (_gameStateCache != null && !string.IsNullOrWhiteSpace(_currentPlayerId))
+        {
+            playerState = _gameStateCache.GetPlayerState(_currentPlayerId);
+        }
+
+        return new ClientDebugTutorialStateResult(
+            Success: true,
+            Message: "Guided tutorial state captured.",
+            StepIndex: _tutorialModeWindow.CurrentStepIndex,
+            StepCount: TutorialModeWindow.AllSteps.Count,
+            StepId: step.Id,
+            Title: step.Title,
+            Objective: step.Objective,
+            Status: _tutorialModeWindow.CurrentStatusText,
+            NextButtonText: _tutorialModeWindow.NextButtonText,
+            IsComplete: _tutorialModeWindow.IsCurrentStepComplete,
+            TutorialVisible: _tutorialModeWindow.IsVisible,
+            HighlightTargets: targets.Select(target => target.ToString()).ToArray(),
+            HighlightBounds: targets
+                .Select(target => CreateDebugTutorialHighlightBound(target, resolvedBounds))
+                .ToArray(),
+            Phase: (_gameStateCache?.GetCurrentPhase() ?? TurnPhase.Production).ToString(),
+            CurrentPlayerId: _currentPlayerId,
+            SelectionType: (_inputController?.Selection.Type ?? SelectionType.None).ToString(),
+            SelectedOwnerId: GetDebugSelectedOwnerId(),
+            HelpVisible: _inputController?.ShowHelp == true,
+            DashboardVisible: _playerDashboardWindow?.IsVisible == true,
+            EncyclopediaVisible: _encyclopediaWindow?.IsVisible == true,
+            ContextMenuOpen: _contextMenuManager?.IsMenuOpen == true,
+            OwnArmyCount: GetOwnDebugArmyCount(),
+            MovedArmyCount: _gameStateCache?
+                .GetArmiesOwnedByPlayer(_currentPlayerId ?? "debug-player")
+                .Count(army => army.HasMovedThisTurn) ?? 0,
+            Population: playerState?.PopulationStockpile ?? 0,
+            Metal: playerState?.MetalStockpile ?? 0,
+            Fuel: playerState?.FuelStockpile ?? 0);
+    }
+
+    private static ClientDebugTutorialHighlightBound CreateDebugTutorialHighlightBound(
+        TutorialHighlightTarget target,
+        IReadOnlyDictionary<TutorialHighlightTarget, Rectangle> resolvedBounds)
+    {
+        bool visible = resolvedBounds.TryGetValue(target, out Rectangle bounds) &&
+            bounds.Width > 0 &&
+            bounds.Height > 0;
+        return new ClientDebugTutorialHighlightBound(
+            target.ToString(),
+            visible ? bounds : Rectangle.Empty,
+            visible);
+    }
+
+    private static ClientDebugTutorialStateResult CreateEmptyDebugTutorialState(bool success, string message)
+    {
+        return new ClientDebugTutorialStateResult(
+            success,
+            message,
+            StepIndex: -1,
+            StepCount: TutorialModeWindow.AllSteps.Count,
+            StepId: string.Empty,
+            Title: string.Empty,
+            Objective: string.Empty,
+            Status: string.Empty,
+            NextButtonText: string.Empty,
+            IsComplete: false,
+            TutorialVisible: false,
+            HighlightTargets: [],
+            HighlightBounds: [],
+            Phase: string.Empty,
+            CurrentPlayerId: null,
+            SelectionType: SelectionType.None.ToString(),
+            SelectedOwnerId: null,
+            HelpVisible: false,
+            DashboardVisible: false,
+            EncyclopediaVisible: false,
+            ContextMenuOpen: false,
+            OwnArmyCount: 0,
+            MovedArmyCount: 0,
+            Population: 0,
+            Metal: 0,
+            Fuel: 0);
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private string? GetDebugSelectedOwnerId()
+    {
+        SelectionState? selection = _inputController?.Selection;
+        return selection?.Type switch
+        {
+            SelectionType.Army => selection.SelectedArmy?.OwnerId,
+            SelectionType.Region when selection.SelectedRegion != null =>
+                _gameStateCache?.GetRegionOwnership(selection.SelectedRegion.Id)?.OwnerId,
+            SelectionType.HyperspaceLaneMouth when !string.IsNullOrWhiteSpace(selection.SelectedHyperspaceLaneMouthId) =>
+                _gameStateCache?.GetHyperspaceLaneMouthOwnership(selection.SelectedHyperspaceLaneMouthId)?.OwnerId,
+            _ => null
+        };
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private void ShowDebugContinentZoom()
+    {
+        var body = _mapData?.StarSystems
+            .SelectMany(system => system.StellarBodies)
+            .FirstOrDefault(candidate => candidate.Regions.Count > 1);
+        if (body == null)
+        {
+            return;
+        }
+
+        _continentZoomWindow?.Show(body, FindStarSystemForBody(body));
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private void ShowDebugContextMenu()
+    {
+        RegionData? region = _mapData?.StarSystems
+            .SelectMany(system => system.StellarBodies)
+            .SelectMany(body => body.Regions)
+            .FirstOrDefault();
+        if (region == null || _contextMenuManager == null)
+        {
+            return;
+        }
+
+        var selection = new SelectionState();
+        selection.SelectRegion(region);
+        _inputController?.Selection.SelectRegion(region);
+        _contextMenuManager.OpenContextMenu(new Vector2(360, 240), region.Position, selection);
+    }
+
+    [ExcludeFromCodeCoverage(Justification = ClientDebugLiveProcessCoverageJustification)]
+    private static CombatEvent CreateDebugCombatEvent()
+    {
+        return new CombatEvent
+        {
+            EventId = "debug-combat",
+            EventType = CombatEvent.Types.CombatEventType.CombatInitiated,
+            LocationId = "debug-region",
+            ArmyStates =
+            {
+                new CombatArmyState
+                {
+                    ArmyId = "debug-army",
+                    PlayerId = "Cadet",
+                    CombatRole = "Attacker",
+                    UnitCount = 4
+                },
+                new CombatArmyState
+                {
+                    ArmyId = "debug-ai-army",
+                    PlayerId = "Drill Marshal Vega",
+                    CombatRole = "Defender",
+                    UnitCount = 3
+                }
+            },
+            RoundResults =
+            {
+                new CombatRoundResult
+                {
+                    AttackerRolls =
+                    {
+                        new DiceRoll { ArmyId = "debug-army", Roll = 6, UnitIndex = 0 }
+                    },
+                    DefenderRolls =
+                    {
+                        new DiceRoll { ArmyId = "debug-ai-army", Roll = 4, UnitIndex = 0 }
+                    },
+                    Pairings =
+                    {
+                        new RollPairing
+                        {
+                            AttackerRoll = new DiceRoll { ArmyId = "debug-army", Roll = 6, UnitIndex = 0 },
+                            DefenderRoll = new DiceRoll { ArmyId = "debug-ai-army", Roll = 4, UnitIndex = 0 },
+                            WinnerArmyId = "debug-army"
+                        }
+                    },
+                    Casualties =
+                    {
+                        new ArmyCasualty
+                        {
+                            ArmyId = "debug-ai-army",
+                            PlayerId = "debug-ai",
+                            CombatRole = "Defender",
+                            Casualties = 1,
+                            RemainingUnits = 2
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    private ClientDebugActionResult FocusClientDebugElement(string elementId, bool showDebugWindow)
+    {
+        GameUiVisualTree visualTree = BuildGameUiVisualTree();
+        if (!visualTree.TryResolveBounds(elementId, out _))
+        {
+            return ClientDebugActionResult.Fail($"Element '{elementId}' is not present in the current visual tree.");
+        }
+
+        if (_debugInfoWindow == null)
+        {
+            return ClientDebugActionResult.Fail("Debug information window is not available in the current game state.");
+        }
+
+        if (showDebugWindow)
+        {
+            _debugInfoWindow.Show();
+        }
+
+        _debugInfoWindow.SelectVisualElement(elementId);
+        return ClientDebugActionResult.Ok($"Focused visual tree element '{elementId}'.");
     }
 
     private int GetFallbackTopBarHeight()
@@ -2290,6 +3143,18 @@ public class RiskyStarsGame : Game
             }
 
             _continentZoomRenderer?.Dispose();
+
+            try
+            {
+                if (_clientDebugGrpcHost != null)
+                {
+                    Task.Run(async () => await _clientDebugGrpcHost.DisposeAsync()).Wait(TimeSpan.FromSeconds(5));
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error disposing client debug gRPC host: {ex.Message}");
+            }
         }
         base.Dispose(disposing);
     }

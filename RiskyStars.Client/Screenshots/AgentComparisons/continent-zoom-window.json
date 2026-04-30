@@ -1,0 +1,110 @@
+{
+  "screenId": "continent-zoom-window",
+  "summary": "The actual screenshot shows a detailed planet zoom window with colored continents and labels, overlaid on a gameplay map, but deviates from the wireframe in layout, text, and detail level. The wireframe provides a basic outline but is insufficient for detailed validation of the screen\u0027s functional requirements.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+      "evidence": "Both actual and wireframe feature a dark background with starfield elements.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Planet Zoom Window",
+      "requirement": "Screen description: Window contains header text and a large circular planet surface",
+      "evidence": "Central window present in both with header and circular planet representation.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Resource Bar",
+      "requirement": "FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW: Visually satisfy documented screen description",
+      "evidence": "Top resource indicators (POP, MET, FUEL) are present and similarly positioned.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Map Key",
+      "requirement": "Global wireframe style requirements: Terminal-style labels",
+      "evidence": "Map Key panel on the right with labels matches style in both.",
+      "confidence": 0.8
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Turn Phase Text",
+      "requirement": "FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW: Visually satisfy expected user-facing UI behavior",
+      "expected": "Production Phase",
+      "actual": "Purchase Phase",
+      "whyIncorrect": "Phase text differs, which may indicate a mismatch in game state or incorrect rendering for the screen.",
+      "severity": "medium",
+      "confidence": 0.95
+    },
+    {
+      "element": "Planet Zoom Window Title",
+      "requirement": "Screen description: Header text",
+      "expected": "Planet Zoom",
+      "actual": "Planet Zoom: Sirius b",
+      "whyIncorrect": "Title includes specific planet name in actual, but wireframe has generic title, affecting specificity validation.",
+      "severity": "low",
+      "confidence": 0.9
+    },
+    {
+      "element": "Planet Surface Rendering",
+      "requirement": "Screen description: Large XNA-hosted circular planet surface with continent boundaries and labels",
+      "expected": "Simple divided circle with \u0027Region\u0027 labels",
+      "actual": "Colored semicircle with specific continent names (Lankhmar, Rillanon, etc.) and boundaries",
+      "whyIncorrect": "Actual has detailed, colored, labeled continents not represented in wireframe\u0027s simplistic division, missing key visual elements for comparison.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Additional Planets and Labels",
+      "requirement": "Global wireframe style requirements: Fixed screen-relative geometry",
+      "expected": "Planets labeled \u0027Sirius\u0027, \u0027Arcturus\u0027, \u0027Canopus\u0027 in specific positions",
+      "actual": "Planets labeled \u0027Sirius\u0027, \u0027Canopus\u0027 with different positions and additional elements like \u0027Sirius b\u0027",
+      "whyIncorrect": "Extra labels and mismatched positions/representations violate fixed geometry; wireframe lacks detail on dynamic elements.",
+      "severity": "medium",
+      "confidence": 0.85
+    },
+    {
+      "element": "Close Button",
+      "requirement": "FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW: Expected user-facing UI behavior",
+      "expected": "No close button shown in wireframe",
+      "actual": "Close button present at bottom of window",
+      "whyIncorrect": "Missing in wireframe, preventing validation of interactive elements.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Debug Text",
+      "requirement": "TR-UI-AUDIT-HWND-001: Actual screenshot from RiskyStars client HWND",
+      "expected": "Short debug string",
+      "actual": "Longer debug string with more panels info",
+      "whyIncorrect": "Difference in debug output may indicate runtime variations not captured in wireframe.",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Overall Layout Bounds",
+      "requirement": "Global wireframe style requirements: Thin green panel borders, fixed geometry at 1536x832",
+      "expected": "Central window spanning most of the height with green borders",
+      "actual": "Central window is shorter, with additional space below and different border nesting",
+      "whyIncorrect": "Bounds and nesting differ slightly due to DPI or scaling, though resolution matches; residual risk of pixel-perfect mismatch in automated tests.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the basic layout and style but lacks detail on the continent boundaries, labels, and colors, making it inadequate for fully validating the XNA-hosted planet surface and dynamic elements as per the screen description and FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW.",
+    "missingRequirements": [
+      "Detailed representation of continent boundaries and player-colored regions (from screen description)",
+      "Interactive elements like Close button (implied in user-facing behavior FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW)",
+      "Validation of repository process requirements from AGENTS-README-FIRST.yaml, such as session logging integration (TR-UI-AUDIT-AGENTS-001)"
+    ],
+    "recommendedWireframeChanges": [
+      "Add detailed continent divisions with example labels and colors to match screen description",
+      "Include interactive controls like Close button",
+      "Incorporate placeholders for dynamic debug text and game state variations",
+      "Ensure wireframe includes elements for process validation, e.g., markers for MCP integration if relevant"
+    ]
+  }
+}

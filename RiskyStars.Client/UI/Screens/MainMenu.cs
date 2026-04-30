@@ -71,6 +71,7 @@ public class MainMenu
     public bool ShouldExit { get; private set; }
     public Settings Settings => _settings;
     public MainMenuState State => _state;
+    public Desktop? DebugDesktop => _desktop;
 
     public MainMenu(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight, Settings settings)
     {
@@ -201,7 +202,7 @@ public class MainMenu
         footerGrid.Widgets.Add(versionLabel);
         layout.Widgets.Add(footerGrid);
 
-        frame.Widgets.Add(layout);
+        frame.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(layout, frameHeight - 96));
 
         _mainMenuPanel = ThemedUIFactory.CreateScreenRoot(_screenWidth, _screenHeight);
         _mainMenuPanel.Widgets.Add(frame);

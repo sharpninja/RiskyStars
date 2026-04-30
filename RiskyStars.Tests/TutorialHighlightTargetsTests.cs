@@ -10,10 +10,10 @@ public class TutorialHighlightTargetsTests
         new()
         {
             { TutorialStepCompletion.WorldSynced, [TutorialHighlightTarget.TopBar] },
-            { TutorialStepCompletion.OwnTurn, [TutorialHighlightTarget.TopBar, TutorialHighlightTarget.ResourceChips] },
+            { TutorialStepCompletion.OwnTurn, [TutorialHighlightTarget.TopBar] },
             { TutorialStepCompletion.AnySelection, [TutorialHighlightTarget.MapViewport, TutorialHighlightTarget.SelectionPanel] },
             { TutorialStepCompletion.HelpOpen, [TutorialHighlightTarget.TopBar, TutorialHighlightTarget.HelpPanel] },
-            { TutorialStepCompletion.PurchasePhase, [TutorialHighlightTarget.TopBar, TutorialHighlightTarget.ResourceChips] },
+            { TutorialStepCompletion.PurchasePhase, [TutorialHighlightTarget.TopBar] },
             { TutorialStepCompletion.DashboardOpen, [TutorialHighlightTarget.TopBar, TutorialHighlightTarget.PlayerDashboard] },
             { TutorialStepCompletion.ArmyPurchased, [TutorialHighlightTarget.PlayerDashboard] },
             { TutorialStepCompletion.ReinforcementPhase, [TutorialHighlightTarget.TopBar] },
@@ -37,12 +37,12 @@ public class TutorialHighlightTargetsTests
     }
 
     [Fact]
-    public void ForCompletion_OwnTurnHighlightsTopBarAndResources()
+    public void ForCompletion_OwnTurnUsesSingleTopBarHighlight()
     {
         var targets = TutorialHighlightTargets.ForCompletion(TutorialStepCompletion.OwnTurn);
 
         Assert.Contains(TutorialHighlightTarget.TopBar, targets);
-        Assert.Contains(TutorialHighlightTarget.ResourceChips, targets);
+        Assert.DoesNotContain(TutorialHighlightTarget.ResourceChips, targets);
     }
 
     [Fact]
@@ -600,7 +600,6 @@ public class TutorialHighlightTargetsTests
     {
         var tree = new GameUiVisualTree();
         tree.AddXnaElement(GameUiVisualElementIds.TopBar, new Rectangle(10, 20, 100, 30));
-        tree.AddXnaElement(GameUiVisualElementIds.ResourceChips, new Rectangle(20, 60, 120, 40));
         tree.AddXnaElement(GameUiVisualElementIds.MapSelectionTarget, new Rectangle(300, 400, 160, 160));
         tree.AddXnaElement(GameUiVisualElementIds.HelpPanel, new Rectangle(700, 120, 300, 240));
         tree.AddXnaElement(GameUiVisualElementIds.PlayerDashboard, new Rectangle(500, 220, 260, 300));
@@ -612,7 +611,7 @@ public class TutorialHighlightTargetsTests
 
         Assert.Equal(targets.Length, resolved.Count);
         Assert.Equal(new Rectangle(10, 20, 100, 30), resolved[TutorialHighlightTarget.TopBar]);
-        Assert.Equal(new Rectangle(20, 60, 120, 40), resolved[TutorialHighlightTarget.ResourceChips]);
+        Assert.Equal(new Rectangle(10, 20, 100, 30), resolved[TutorialHighlightTarget.ResourceChips]);
         Assert.Equal(new Rectangle(300, 400, 160, 160), resolved[TutorialHighlightTarget.MapViewport]);
         Assert.Equal(new Rectangle(700, 120, 300, 240), resolved[TutorialHighlightTarget.HelpPanel]);
         Assert.Equal(new Rectangle(500, 220, 260, 300), resolved[TutorialHighlightTarget.PlayerDashboard]);
@@ -752,9 +751,148 @@ public class TutorialHighlightTargetsTests
         GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(1920, 1080, 1920, 1080, 100, 1f));
 
         Assert.Equal(2, report.Entries.Count);
-        Assert.Contains(report.Entries, entry => entry.Id == "named.root");
-        Assert.Contains(report.Entries, entry => entry.Id.EndsWith(".Panel.0.Panel", StringComparison.Ordinal));
+        GameUiAuditEntry rootEntry = Assert.Single(report.Entries, entry => entry.Id == "named.root");
+        GameUiAuditEntry childEntry = Assert.Single(
+            report.Entries,
+            entry => entry.Id.EndsWith(".Panel.0.Panel", StringComparison.Ordinal));
+        Assert.Null(rootEntry.ParentId);
+        Assert.Equal(0, rootEntry.Depth);
+        Assert.Equal("named.root", childEntry.ParentId);
+        Assert.Equal(1, childEntry.Depth);
         Assert.DoesNotContain(report.Entries, entry => entry.Id == "myra.desktop.0.Panel");
+    }
+
+    [Fact]
+    public void GameUiVisualTree_AddsMyraDesktopRootSoTopLevelContainerCanBeInspected()
+    {
+        var root = new Panel
+        {
+            Left = 12,
+            Top = 34,
+            Width = 300,
+            Height = 220
+        };
+        var tree = new GameUiVisualTree();
+
+        tree.AddMyraRoot(GameUiVisualElementIds.MyraDesktop, new Rectangle(0, 0, 1920, 1080));
+        tree.AddMyraTree(GameUiVisualElementIds.MyraDesktop, new[] { root });
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(1920, 1080, 1920, 1080, 100, 1f));
+
+        GameUiAuditEntry desktopEntry = Assert.Single(report.Entries, entry => entry.Id == GameUiVisualElementIds.MyraDesktop);
+        Assert.Equal(GameUiVisualElementSource.Myra, desktopEntry.Source);
+        Assert.Equal("Desktop", desktopEntry.TypeName);
+        Assert.Equal(new Rectangle(0, 0, 1920, 1080), desktopEntry.ScreenBounds);
+        GameUiAuditEntry rootEntry = Assert.Single(report.Entries, entry => entry.Id == "myra.desktop.0.Panel");
+        Assert.Equal(GameUiVisualElementIds.MyraDesktop, rootEntry.ParentId);
+        Assert.Equal(1, rootEntry.Depth);
+    }
+
+    [Fact]
+    public void GameUiVisualTreeHierarchyValidator_AcceptsWellNestedMyraAndXnaElements()
+    {
+        var root = new Panel
+        {
+            Width = 500,
+            Height = 400
+        };
+        var child = new Panel
+        {
+            Left = 20,
+            Top = 30,
+            Width = 100,
+            Height = 80
+        };
+        root.Widgets.Add(child);
+        var tree = new GameUiVisualTree();
+        tree.AddXnaElement(GameUiVisualElementIds.BackBuffer, new Rectangle(0, 0, 1920, 1080), "BackBuffer");
+        tree.AddXnaElement(GameUiVisualElementIds.MapViewport, new Rectangle(260, 92, 1200, 800), "MapViewport", GameUiVisualElementIds.BackBuffer);
+        tree.AddMyraRoot(GameUiVisualElementIds.MyraDesktop, new Rectangle(0, 0, 1920, 1080));
+        tree.AddMyraElement("hud.root", root, GameUiVisualElementIds.MyraDesktop);
+        tree.AddMyraTree(GameUiVisualElementIds.MyraDesktop, new[] { root });
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(1920, 1080, 1920, 1080, 100, 1f));
+
+        GameUiHierarchyValidationReport validation = GameUiVisualTreeHierarchyValidator.Validate(report);
+
+        Assert.True(validation.IsValid);
+        Assert.Empty(validation.Errors);
+    }
+
+    [Fact]
+    public void GameUiVisualTreeHierarchyValidator_RejectsMissingAndSelfParents()
+    {
+        var tree = new GameUiVisualTree();
+        tree.AddXnaElement("xna.orphan", new Rectangle(0, 0, 10, 10), "Orphan", "xna.missing");
+        tree.AddXnaElement("xna.self", new Rectangle(0, 0, 10, 10), "Self", "xna.self");
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(1920, 1080, 1920, 1080, 100, 1f));
+
+        GameUiHierarchyValidationReport validation = GameUiVisualTreeHierarchyValidator.Validate(report);
+
+        Assert.False(validation.IsValid);
+        Assert.Contains(validation.Errors, issue => issue.ElementId == "xna.orphan" && issue.Message.Contains("missing", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(validation.Errors, issue => issue.ElementId == "xna.self" && issue.Message.Contains("own parent", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void GameUiVisualTreeHierarchyValidator_RejectsDuplicateIdsAndBadDepth()
+    {
+        var report = new GameUiAuditReport(
+            GameUiScaleContext.Create(1920, 1080, 1920, 1080, 100, 1f),
+            new[]
+            {
+                CreateAuditEntry("root", null, 0, GameUiVisualElementSource.Xna, true, true, new Rectangle(0, 0, 500, 400)),
+                CreateAuditEntry("dup", "root", 1, GameUiVisualElementSource.Xna, true, true, new Rectangle(10, 10, 80, 60)),
+                CreateAuditEntry("dup", "root", 1, GameUiVisualElementSource.Xna, true, true, new Rectangle(20, 20, 80, 60)),
+                CreateAuditEntry("shallow", "root", 0, GameUiVisualElementSource.Xna, true, true, new Rectangle(30, 30, 80, 60))
+            });
+
+        GameUiHierarchyValidationReport validation = GameUiVisualTreeHierarchyValidator.Validate(report);
+
+        Assert.False(validation.IsValid);
+        Assert.Contains(validation.Errors, issue => issue.ElementId == "dup" && issue.Message.Contains("Duplicate", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(validation.Errors, issue => issue.ElementId == "shallow" && issue.Message.Contains("depth", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void GameUiVisualTreeHierarchyValidator_WarnsWhenChildVisibilityOrBoundsContradictParent()
+    {
+        var report = new GameUiAuditReport(
+            GameUiScaleContext.Create(1920, 1080, 1920, 1080, 100, 1f),
+            new[]
+            {
+                CreateAuditEntry("myra.parent", null, 0, GameUiVisualElementSource.Myra, false, false, new Rectangle(0, 0, 100, 100)),
+                CreateAuditEntry("myra.visibleChild", "myra.parent", 1, GameUiVisualElementSource.Myra, true, true, new Rectangle(10, 10, 20, 20)),
+                CreateAuditEntry("myra.boundsParent", null, 0, GameUiVisualElementSource.Myra, true, true, new Rectangle(0, 0, 100, 100)),
+                CreateAuditEntry("myra.outsideChild", "myra.boundsParent", 1, GameUiVisualElementSource.Myra, true, true, new Rectangle(90, 90, 40, 40))
+            });
+
+        GameUiHierarchyValidationReport validation = GameUiVisualTreeHierarchyValidator.Validate(report);
+
+        Assert.True(validation.IsValid);
+        Assert.Contains(validation.Warnings, issue => issue.ElementId == "myra.parent" && issue.Message.Contains("not nested", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(validation.Warnings, issue => issue.ElementId == "myra.visibleChild" && issue.Message.Contains("parent is hidden", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(validation.Warnings, issue => issue.ElementId == "myra.outsideChild" && issue.Message.Contains("outside parent", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void GameUiVisualTree_RejectsDuplicateMyraAliasesForSameWidget()
+    {
+        var topBar = new Panel
+        {
+            Left = 0,
+            Top = 0,
+            Width = 1506,
+            Height = 65
+        };
+        var tree = new GameUiVisualTree();
+
+        tree.AddMyraElement(GameUiVisualElementIds.TopBar, topBar);
+        tree.AddMyraElement(GameUiVisualElementIds.ResourceChips, topBar);
+        GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(2048, 1152, 2048, 1152, 100, 1f));
+
+        GameUiAuditEntry entry = Assert.Single(report.Entries);
+        Assert.Equal(GameUiVisualElementIds.TopBar, entry.Id);
+        Assert.Equal(new Rectangle(0, 0, 1506, 65), entry.ScreenBounds);
+        Assert.DoesNotContain(report.Entries, item => item.Id == GameUiVisualElementIds.ResourceChips);
     }
 
     [Fact]
@@ -786,8 +924,9 @@ public class TutorialHighlightTargetsTests
     public void GameUiVisualTreeInspector_BuildsSelectableRowsWithBoundsAndWarnings()
     {
         var tree = new GameUiVisualTree();
-        tree.AddXnaElement(GameUiVisualElementIds.TopBar, new Rectangle(0, 0, 2048, 128), "TopBar");
-        tree.AddXnaElement(GameUiVisualElementIds.MapViewport, new Rectangle(268, 128, 1512, 976), "MapViewport");
+        tree.AddXnaElement(GameUiVisualElementIds.BackBuffer, new Rectangle(0, 0, 2048, 1152), "BackBuffer");
+        tree.AddXnaElement(GameUiVisualElementIds.TopBar, new Rectangle(0, 0, 2048, 128), "TopBar", GameUiVisualElementIds.BackBuffer);
+        tree.AddXnaElement(GameUiVisualElementIds.MapViewport, new Rectangle(268, 128, 1512, 976), "MapViewport", GameUiVisualElementIds.BackBuffer);
         tree.AddXnaElement("xna.invalid", Rectangle.Empty, "Invalid");
         GameUiAuditReport report = tree.CreateAuditReport(GameUiScaleContext.Create(2048, 1152, 2048, 1152, 100, 1f));
 
@@ -840,6 +979,26 @@ public class TutorialHighlightTargetsTests
     }
 
     [Fact]
+    public void DebugWindowContentLayout_DetectsClippedInspectorContent()
+    {
+        bool clipped = DebugWindowContentLayout.WouldClipWithoutScroll(
+            contentHeight: 820,
+            viewportHeight: 520);
+
+        Assert.True(clipped);
+    }
+
+    [Fact]
+    public void DebugWindowContentLayout_DoesNotFlagContentThatFits()
+    {
+        bool clipped = DebugWindowContentLayout.WouldClipWithoutScroll(
+            contentHeight: 420,
+            viewportHeight: 520);
+
+        Assert.False(clipped);
+    }
+
+    [Fact]
     public void DebugUiAuditText_FormatsActualSizesAndDpiScaleForVisibleAudit()
     {
         var tree = new GameUiVisualTree();
@@ -873,6 +1032,33 @@ public class TutorialHighlightTargetsTests
         Assert.Contains("0x0", details);
         Assert.Contains("no resolved screen size", details);
         Assert.DoesNotContain("z.healthy", details);
+    }
+
+    private static GameUiAuditEntry CreateAuditEntry(
+        string id,
+        string? parentId,
+        int depth,
+        GameUiVisualElementSource source,
+        bool visible,
+        bool treeVisible,
+        Rectangle bounds)
+    {
+        return new GameUiAuditEntry(
+            id,
+            parentId,
+            depth,
+            source,
+            source.ToString(),
+            visible,
+            treeVisible,
+            bounds,
+            bounds,
+            bounds,
+            100,
+            1f,
+            1f,
+            1f,
+            []);
     }
 
 }

@@ -132,18 +132,30 @@ public sealed class ContinentZoomWindow
 
     private Widget BuildContent()
     {
-        var root = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
-        root.Widgets.Add(_titleLabel);
-        root.Widgets.Add(_subtitleLabel);
+        var root = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, 0);
+        root.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        root.RowsProportions.Add(new Proportion(ProportionType.Pixels, ThemeManager.ScalePixels(118)));
+        root.RowsProportions.Add(new Proportion(ProportionType.Fill));
+        root.RowsProportions.Add(new Proportion(ProportionType.Auto));
+
+        var headerStack = ThemedUIFactory.CreateVerticalStack(ThemeManager.Spacing.Small);
+        headerStack.Widgets.Add(_titleLabel);
+        headerStack.Widgets.Add(_subtitleLabel);
 
         var hint = ThemedUIFactory.CreateSmallLabel("The XNA zoom surface keeps the planet layout, fills owned regions by player color, and highlights the selected boundary.");
         hint.TextColor = ThemeManager.Colors.TextWarning;
         hint.Wrap = true;
-        root.Widgets.Add(hint);
+        headerStack.Widgets.Add(hint);
 
+        var headerScroller = ThemedUIFactory.CreateAutoScrollViewer(headerStack);
+        headerScroller.GridRow = 0;
+        root.Widgets.Add(headerScroller);
+
+        _mapPanel.GridRow = 1;
         root.Widgets.Add(_mapPanel);
 
         var buttons = ThemedUIFactory.CreateActionBar();
+        buttons.GridRow = 2;
         buttons.HorizontalAlignment = HorizontalAlignment.Right;
         var closeButton = ThemedUIFactory.CreateButton("Close", ThemeManager.Sizes.ButtonSmallWidth, ThemeManager.Sizes.ButtonSmallHeight);
         closeButton.Click += (_, _) => Hide();

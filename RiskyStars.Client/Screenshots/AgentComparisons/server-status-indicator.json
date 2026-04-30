@@ -1,0 +1,132 @@
+{
+  "screenId": "server-status-indicator",
+  "summary": "The actual screenshot shows a gameplay HUD with map and controls, but deviates from the wireframe in layout, text, and notably lacks the emphasized server status indicator. The wireframe itself inadequately represents the key server status feature, making it partially suitable for validation.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "evidence": "Both actual and wireframe feature a dark starfield/game-map background as per global style requirements.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Top Bar Turn Info",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "evidence": "Turn information is present in the top bar in both, with similar structure (e.g., \u0027Turn 1 | ... Phase | Active: Cadet\u0027).",
+      "confidence": 0.85
+    },
+    {
+      "element": "Resource Indicators",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "evidence": "Resource labels (POP, MET, FUEL) with values are present in the top left in both.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Star Map",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "evidence": "Central star map with systems like Sirius, Arcturus, Canopus connected by lines appears in both.",
+      "confidence": 0.92
+    },
+    {
+      "element": "Map Key Panel",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "evidence": "Right-side \u0027Map Key\u0027 panel with legend items is present in both.",
+      "confidence": 0.88
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Server Status Indicator",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "expected": "Visible server status indicator in left rail/top controls area with state dot, status text, and detail line.",
+      "actual": "No visible server status indicator; left area shows small dark squares instead of a panel with indicator.",
+      "whyIncorrect": "The key emphasized feature is missing, failing to satisfy the screen description for user-facing UI behavior.",
+      "severity": "critical",
+      "confidence": 0.98
+    },
+    {
+      "element": "Phase Text",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "expected": "Production Phase in top bar.",
+      "actual": "Purchase Phase in top bar.",
+      "whyIncorrect": "Text mismatch alters the represented game state, potentially confusing validation of behavior.",
+      "severity": "medium",
+      "confidence": 1
+    },
+    {
+      "element": "Resource Values",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "expected": "Plain values without increments (e.g., POP 100, MET 50, FUEL 50).",
+      "actual": "Values with increments (e.g., POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)).",
+      "whyIncorrect": "Extra increment text changes the visual representation, not matching wireframe.",
+      "severity": "low",
+      "confidence": 0.95
+    },
+    {
+      "element": "Debug Text",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "expected": "Panels F1 Dbg:On F2 Cmd:Off F3 Ai:Off F4 Ui:Off F5 Ref:Off F6 Tut:Off H Help",
+      "actual": "Planets F1 Dbg:Off F2 Cmd:Off F3 Ai:Off F4 Ui:Off F5 Ref:Off F6 Tut:Off H Help",
+      "whyIncorrect": "Slight text difference in debug string, indicating potential state or labeling inconsistency.",
+      "severity": "low",
+      "confidence": 0.9
+    },
+    {
+      "element": "Right Top Instruction Text",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "expected": "No instruction text in top right.",
+      "actual": "Your turn: Buy armies or advance to reinforcement.",
+      "whyIncorrect": "Extra text element not present in wireframe, adding unintended content.",
+      "severity": "medium",
+      "confidence": 0.92
+    },
+    {
+      "element": "Left Panel",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "expected": "Large semi-transparent panel with green border.",
+      "actual": "Three small dark squares, no border visible.",
+      "whyIncorrect": "Mismatch in size, shape, and bordering, affecting layout validation.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Selected Panel",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "expected": "Small \u0027Selected\u0027 panel above Map Key on right.",
+      "actual": "No \u0027Selected\u0027 panel present.",
+      "whyIncorrect": "Missing panel reduces fidelity to wireframe layout.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Bottom Text",
+      "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+      "expected": "Prompt baseline: Server status indicator",
+      "actual": "top=107 on left and right.",
+      "whyIncorrect": "Different bottom text, likely debug artifacts not matching wireframe.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Map Layout Precision",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "Exact fixed screen-relative geometry matching wireframe at 1536x832.",
+      "actual": "Slight differences in planet positions, line angles, and colors.",
+      "whyIncorrect": "Residual visual differences due to rendering or scaling, though close; highlights limitation in pixel-perfect validation without coordinate measurement.",
+      "severity": "low",
+      "confidence": 0.8
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures overall HUD layout and style but inadequately depicts the emphasized server status indicator (state dot, text, detail), which is central to the screen requirements. It satisfies basic FR-UI-WIREFRAME-SUITABILITY-001 but misses dynamic or detailed representation needed for full validation.",
+    "missingRequirements": [
+      "Detailed depiction of server status indicator components (state dot, status text, detail line) as per screen description.",
+      "Representation of potential dynamic states or behaviors for the indicator."
+    ],
+    "recommendedWireframeChanges": [
+      "Add explicit server status indicator in left rail with example state dot (e.g., green dot), status text (e.g., \u0027Connected\u0027), and detail line (e.g., \u0027Latency: 50ms\u0027).",
+      "Include variations for different status states (e.g., offline, connecting) to better validate behavior.",
+      "Remove or standardize debug text to focus on production UI."
+    ]
+  }
+}

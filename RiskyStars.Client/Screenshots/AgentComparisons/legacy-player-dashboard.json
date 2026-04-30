@@ -1,0 +1,134 @@
+{
+  "screenId": "legacy-player-dashboard",
+  "summary": "The actual screenshot shows a detailed gameplay dashboard with resources, army purchase, and hero assignment panels over a star map, while the wireframe is a simplistic placeholder with mismatched content and layout. Several visual and structural mismatches exist, and the wireframe is only partially suitable due to its lack of detail for precise validation.",
+  "correctElements": [
+    {
+      "element": "Dark starfield background",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "evidence": "Both images feature a dark background with star systems, matching the global wireframe style requirements for dark starfield/game-map background.",
+      "confidence": 1
+    },
+    {
+      "element": "Left-side narrow command panel",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "evidence": "Actual has a vertical panel on the left with resources and actions, similar to the wireframe\u0027s left panel, aligning with the screen description of a narrow command panel.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Star system representations",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "evidence": "Both include circular orbits with labels like \u0027Sirius\u0027 and \u0027Canopus\u0027, consistent with gameplay map elements.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Resource indicators",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "evidence": "Top resource bars for POP, MET, FUEL are present in both, though details differ, satisfying basic resource display in the screen description.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Map Key panel",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "evidence": "A Map Key is present on the right in both, though content varies, matching the need for gameplay map visibility.",
+      "confidence": 0.8
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Number of star systems",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "expected": "Wireframe shows three systems (Sirius, Arcturus, Canopus)",
+      "actual": "Actual shows two systems (Sirius, Canopus)",
+      "whyIncorrect": "Mismatch in map content; Arcturus is missing in actual, which may indicate incomplete implementation or different game state not captured in wireframe.",
+      "severity": "medium",
+      "confidence": 1
+    },
+    {
+      "element": "Phase text",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "expected": "Production Phase (as in wireframe)",
+      "actual": "Purchase Phase",
+      "whyIncorrect": "Text mismatch in turn phase description, potentially affecting user-facing behavior and not matching the documented screen description.",
+      "severity": "high",
+      "confidence": 1
+    },
+    {
+      "element": "Panel content and buttons",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "expected": "Placeholder \u0027Legacy Player...\u0027 with bounded scroll content, BACK and NEXT/APPLY buttons",
+      "actual": "Detailed sections: Resources with \u002B increments, Army Purchase with Buy buttons, Hero Assignment with Assign buttons",
+      "whyIncorrect": "Wireframe uses placeholders while actual has specific functional content; this indicates the wireframe is too abstract for validating detailed UI behavior.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Panel width and borders",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "Narrow panel with thin green borders, fixed geometry at 1536x832",
+      "actual": "Panel is narrow but borders are thin green in wireframe; actual appears semi-transparent black with green highlights, slight bounds differences",
+      "whyIncorrect": "Minor bounds and styling mismatches, including DPI/scaling or z-order differences, affecting precise screenshot comparison.",
+      "severity": "low",
+      "confidence": 0.9
+    },
+    {
+      "element": "Extra top-right text",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "expected": "No debug or panel toggle text",
+      "actual": "Text like \u0027Panels F1 Dbg:Off F2 Cmd:On\u0027 etc.",
+      "whyIncorrect": "Extra controls or debug info not present in wireframe, potentially violating clean user-facing UI behavior.",
+      "severity": "medium",
+      "confidence": 1
+    },
+    {
+      "element": "Map Key content",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "expected": "Empty or minimal Map Key",
+      "actual": "Detailed key with symbols for System orbit, Stellar body, etc.",
+      "whyIncorrect": "Content mismatch; wireframe lacks details present in actual, limiting validation of map elements.",
+      "severity": "medium",
+      "confidence": 0.95
+    },
+    {
+      "element": "Bottom text",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "expected": "\u0027Prompt baseline: Legacy player dashboard\u0027",
+      "actual": "\u0027top=107\u0027 and other elements",
+      "whyIncorrect": "Wireframe has baseline label, actual has different annotations, indicating residual debug artifacts.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Resource increments",
+      "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+      "expected": "Static resources without \u002B increments",
+      "actual": "Resources show \u002B2m, \u002B1m, etc.",
+      "whyIncorrect": "Actual includes dynamic increments not represented in wireframe, a material mismatch for validating player resources.",
+      "severity": "medium",
+      "confidence": 1
+    },
+    {
+      "element": "Validation limitation",
+      "requirement": "TR-UI-AUDIT-SCHEMA-001",
+      "expected": "Pixel-perfect match at 1536x832",
+      "actual": "Visual similarities but not exact due to rendering differences",
+      "whyIncorrect": "Even with close match, image-based comparison has limitations like compression artifacts or anti-aliasing, representing residual risk.",
+      "severity": "low",
+      "confidence": 0.8
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe provides a basic layout baseline with correct resolution and style elements, but it uses too many placeholders and lacks detail on functional content, making it inadequate for fully validating detailed UI behavior and requirements like specific buttons or dynamic elements.",
+    "missingRequirements": [
+      "Detailed representation of army purchase and hero assignment sections as per screen description",
+      "Dynamic elements like resource increments and territories/armies counts",
+      "Accurate map content including all expected star systems"
+    ],
+    "recommendedWireframeChanges": [
+      "Replace placeholders with specific labels, buttons, and sections matching the actual expected UI",
+      "Include dynamic placeholders for variable text like phase names and increments",
+      "Ensure all map elements (e.g., exact number of systems) match the baseline game state",
+      "Remove or standardize debug annotations for cleaner validation"
+    ]
+  }
+}

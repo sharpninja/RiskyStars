@@ -55,3 +55,12 @@ settings.json
 
 # Setup scripts
 setup-sprites.ps1
+
+AGENTS-README-FIRST.yaml
+.mcpServer/
+.mcpSession/
+mcp.db
+window_preferences.json
+worktree-*/
+RiskyStars.Tests/TestResults/
+RiskyStars.Client/Properties/launchSettings.json

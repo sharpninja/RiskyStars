@@ -1,0 +1,96 @@
+{
+  "screenId": "game-mode-selector",
+  "summary": "The actual screenshot shows a game mode selector with a single mode card and navigation buttons on a dark starfield background, but it deviates from the wireframe and requirements by having only one mode card instead of two, a narrow left-aligned panel instead of a wide framed deck, and differing text and header elements. The wireframe itself is partially suitable as it captures style but not structural details.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "Global wireframe style requirements",
+      "evidence": "Both actual and wireframe feature a dark starfield background.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Panel Borders",
+      "requirement": "Global wireframe style requirements",
+      "evidence": "Thin green panel borders are present in both.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Header Title",
+      "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+      "evidence": "\u0027Select Game Mode\u0027 header is visible in both, matching the screen description.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Navigation Buttons",
+      "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+      "evidence": "Continue/Primary Action and Back buttons are present under the main content.",
+      "confidence": 0.8
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Mode Cards",
+      "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+      "expected": "Two large mode cards in the main panel.",
+      "actual": "Only one mode card (\u0027Multiplayer\u0027) is present.",
+      "whyIncorrect": "The screen description requires two mode cards, but the actual UI shows only one, missing options like single-player.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Panel Layout",
+      "requirement": "Global wireframe style requirements",
+      "expected": "Wide framed command deck with fixed screen-relative geometry.",
+      "actual": "Narrow left-aligned panel occupying less than half the screen width.",
+      "whyIncorrect": "The panel is not wide as described, leading to poor use of space and deviation from the \u0027wide framed command deck\u0027 requirement.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Button Labels",
+      "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+      "expected": "Continue and Back buttons (per description).",
+      "actual": "CONTINUE and BACK in actual, but wireframe shows PRIMARY ACTION and BACK.",
+      "whyIncorrect": "Labels differ from wireframe placeholders, potentially confusing validation of exact UI behavior.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Additional Header",
+      "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+      "expected": "Header at top as per description, without extra title.",
+      "actual": "Wireframe has \u0027RiskyStars Fleet command interface\u0027 at top, but actual does not.",
+      "whyIncorrect": "Extra header in wireframe not present in actual, indicating inconsistency in layout validation.",
+      "severity": "medium",
+      "confidence": 0.8
+    },
+    {
+      "element": "Content Text",
+      "requirement": "Global wireframe style requirements",
+      "expected": "Terminal-style labels with specific content.",
+      "actual": "Actual has specific mode description, wireframe has placeholder description text inside panel.",
+      "whyIncorrect": "Wireframe uses descriptive text block instead of actual UI elements, limiting precise comparison.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Screenshot Dimensions",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "Captured at 1536x832.",
+      "actual": "Appears to match, but potential DPI/scaling differences not verifiable from image alone.",
+      "whyIncorrect": "As per instructions, include at least one residual risk; inability to confirm exact pixel dimensions and scaling in audit introduces validation limitation.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the overall style (background, borders, terminal-style) and provides a baseline, but it uses placeholder text and does not visually depict the two mode cards or wide deck structure, making it insufficient for precise layout validation against the screen description.",
+    "missingRequirements": [],
+    "recommendedWireframeChanges": [
+      "Add visual representations of two large mode cards with placeholders for titles and descriptions.",
+      "Specify exact positions and dimensions for panels and controls to enforce fixed geometry.",
+      "Replace placeholder button labels with expected ones like \u0027Continue\u0027."
+    ]
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "screenId": "combat-screen",
+  "summary": "The actual screenshot partially matches the wireframe for the combat screen, with correct placement of the central combat panel and key elements like attackers and defenders. However, there are discrepancies in border colors, additional debug text, and layout details. The wireframe is partially suitable but lacks specificity for dynamic content and process validations.",
+  "correctElements": [
+    {
+      "element": "Central combat panel",
+      "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+      "evidence": "Large red-bordered panel present in both with title \u0027Combat initiated\u0027 at top, attackers on left, defenders on right (implied in wireframe), and resolution details below.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Background",
+      "requirement": "Global wireframe style requirements",
+      "evidence": "Dark starfield/game-map background with stellar bodies and lines matching in both images.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Map Key panel",
+      "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+      "evidence": "Present on the right side in both, though content differs slightly.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Resource indicators",
+      "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+      "evidence": "Top-left resource bars (POP, MET, FUEL) present in both.",
+      "confidence": 0.9
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Panel borders",
+      "requirement": "Global wireframe style requirements",
+      "expected": "Thin green panel borders for all panels",
+      "actual": "Central panel has red border, top bar lacks visible green border, some panels have no borders",
+      "whyIncorrect": "Combat panel uses use red border as per description, but global style specifies green; actual uses red consistently but misses green for others, leading to style inconsistency.",
+      "severity": "medium",
+      "confidence": 0.95
+    },
+    {
+      "element": "Debug text",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "No debug or extraneous text in production screenshot",
+      "actual": "Top-right debug string like \u0027Panels F1 Dbg:On F2 Cmd:Off ...\u0027",
+      "whyIncorrect": "Actual screenshot includes debug information not present in wireframe, indicating non-production state or incomplete cleanup.",
+      "severity": "high",
+      "confidence": 0.9
+    },
+    {
+      "element": "Resolution details layout",
+      "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+      "expected": "Compact \u0027Rolls | Pairings | Casualties | Survivors\u0027 bar below attackers/defenders",
+      "actual": "Expanded vertical list with sections like Attack Rolls, Pairings, Casualties, Survivors on left side",
+      "whyIncorrect": "Layout shifted from horizontal bar to vertical stacking, altering the visual flow and not matching wireframe\u0027s compact design.",
+      "severity": "medium",
+      "confidence": 0.85
+    },
+    {
+      "element": "Advance prompt",
+      "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+      "expected": "No specific advance/skip prompt in wireframe",
+      "actual": "Bottom center text \u0027Press ENTER or SPACE to advance. ESC skips.\u0027",
+      "whyIncorrect": "Extra control instruction present in actual, not in wireframe; represents a functional element missing from baseline.",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Defenders section",
+      "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+      "expected": "Defenders label on right side",
+      "actual": "No explicit Defenders section; content implied under Survivors",
+      "whyIncorrect": "Wireframe shows balanced attackers left, defenders right; actual consolidates most info on left, leaving right sparse.",
+      "severity": "high",
+      "confidence": 0.9
+    },
+    {
+      "element": "Screenshot resolution",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "Exact 1536x832 resolution",
+      "actual": "Appears cropped or scaled slightly, with \u0027top=107\u0027 watermark suggesting offset",
+      "whyIncorrect": "Potential DPI/scaling or capture artifact; residual risk that full HWND capture at specified resolution is not exact.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the high-level layout and style but lacks detail on dynamic content, interaction prompts, and validation against repository processes like AGENTS-README-FIRST.yaml. It is suitable for static structure but not for behavioral or process requirements.",
+    "missingRequirements": [
+      "No representation of interactive states or transitions (e.g., advance/skip behavior)",
+      "Lacks validation markers for TR-UI-AUDIT-AGENTS-001 process requirements"
+    ],
+    "recommendedWireframeChanges": [
+      "Add annotations for dynamic text and state changes",
+      "Incorporate process compliance indicators, e.g., no debug text"
+    ]
+  }
+}

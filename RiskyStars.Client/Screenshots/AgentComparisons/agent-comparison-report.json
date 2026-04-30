@@ -1,0 +1,3141 @@
+{
+  "generatedAtUtc": "2026-04-29T18:16:59.8950696+00:00",
+  "results": [
+    {
+      "screenId": "ai-action-indicator",
+      "summary": "The actual screenshot partially matches the wireframe in layout and style, but shows differences in content, highlighting, and specific elements like resource increments and panel texts. The wireframe is partially suitable for validation but lacks detailed content representations.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both actual and wireframe feature a dark background with starfield elements and map systems visible.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Top Bar",
+          "requirement": "FR-UI-SCREEN-AI-ACTION-INDICATOR: Gameplay map with AI action indicator overlay",
+          "evidence": "Top bar present in both with turn, phase, and active player information.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map Systems",
+          "requirement": "Screen description: Map systems remain visible",
+          "evidence": "Systems like Sirius, Arcturus, Canopus are shown connected by lines in both.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Resource Indicators",
+          "requirement": "Global wireframe style requirements: Terminal-style labels",
+          "evidence": "Resources (POP, MET, FUEL) are displayed similarly in position and style.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Panel Borders",
+          "requirement": "Global wireframe style requirements: Thin green panel borders",
+          "evidence": "Panels in both have thin green borders.",
+          "confidence": 0.9
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Phase Text",
+          "requirement": "FR-UI-SCREEN-AI-ACTION-INDICATOR: Visually satisfy documented screen description",
+          "expected": "Production Phase",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "The phase displayed differs, which may indicate a mismatch in game state representation or wireframe specificity.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Resource Increments",
+          "requirement": "Global wireframe style requirements: Simple rectangles for controls",
+          "expected": "Plain resource values without increments (e.g., POP 100)",
+          "actual": "Resources with increments (e.g., POP 100 (\u002B2))",
+          "whyIncorrect": "Actual includes dynamic increments not represented in wireframe, affecting visual comparison for UI behavior.",
+          "severity": "low",
+          "confidence": 0.9
+        },
+        {
+          "element": "Left Panel Content",
+          "requirement": "Screen description: AI action indicator overlay and activity log",
+          "expected": "Empty or placeholder for AI order",
+          "actual": "Recent AI Order with \u0027AI acted\u0027",
+          "whyIncorrect": "Wireframe lacks content in left panel, while actual has specific text, making it hard to validate overlay details.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Right Panels",
+          "requirement": "Global wireframe style requirements: Semi-transparent black panels",
+          "expected": "Separate \u0027Selected\u0027 and \u0027Map Key\u0027 panels, with \u0027Map Key\u0027 empty",
+          "actual": "Single \u0027Map Key\u0027 panel with legend items",
+          "whyIncorrect": "Actual combines or alters right-side panels, missing \u0027Selected\u0027 and adding content to \u0027Map Key\u0027.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Debug Text",
+          "requirement": "TR-UI-AUDIT-HWND-001: Actual screenshot from client HWND",
+          "expected": "No debug overlays",
+          "actual": "Debug text in top right (e.g., Planets F1 Dbg:On ...)",
+          "whyIncorrect": "Presence of debug information in actual screenshot indicates potential development artifacts not accounted for in wireframe.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Bottom Text",
+          "requirement": "Global wireframe style requirements: Fixed screen-relative geometry",
+          "expected": "Prompt baseline text at bottom",
+          "actual": "Page number or other text at bottom",
+          "whyIncorrect": "Bottom text differs, possibly a residual from rendering or pagination not relevant to UI.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "System Highlighting",
+          "requirement": "Screen description: Indicator highlights an active AI action",
+          "expected": "Specific highlighting (e.g., square around Arcturus in wireframe)",
+          "actual": "Different highlighting patterns and additional icons",
+          "whyIncorrect": "Highlighting and icons vary, which is a material mismatch for validating AI action indication; this represents a residual risk in dynamic element rendering.",
+          "severity": "high",
+          "confidence": 0.9
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a good layout baseline and adheres to global style requirements, but lacks detailed content in panels and dynamic elements like highlights and increments, making it insufficient for fully validating user-facing behavior and AI action overlays.",
+        "missingRequirements": [
+          "Detailed representation of AI action indicator content and activity log",
+          "Dynamic elements such as resource increments and specific highlighting for AI actions"
+        ],
+        "recommendedWireframeChanges": [
+          "Add placeholder text and content to panels like \u0027Recent AI Order\u0027 and \u0027Map Key\u0027 to better match expected UI",
+          "Include examples of dynamic highlights and increments to validate behavioral aspects",
+          "Remove or standardize bottom prompt text to avoid confusion with actual UI elements"
+        ]
+      }
+    },
+    {
+      "screenId": "ai-visualization-window",
+      "summary": "The actual screenshot shows a gameplay map with an AI Visualization window containing AI Status, Visualization Options, and Activity Log sections, closely matching the wireframe\u0027s layout but with differences in content, controls, and map elements. The wireframe is partially suitable as it provides a basic structure but uses placeholders and misses detailed section representations.",
+      "correctElements": [
+        {
+          "element": "AI Visualization Window",
+          "requirement": "FR-UI-SCREEN-AI-VISUALIZATION-WINDOW",
+          "evidence": "The window is present in both actual and wireframe with title \u0027AI Visualization\u0027, positioned similarly over the map, satisfying the dockable window description.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Gameplay Map Background",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Dark starfield background with stellar bodies like Sirius and Canopus, thin green borders, and semi-transparent panels match in both images.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map Key Panel",
+          "requirement": "FR-UI-SCREEN-AI-VISUALIZATION-WINDOW",
+          "evidence": "Present in both, with legend items in actual and empty in wireframe, but position and style align.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Top Status Bar",
+          "requirement": "FR-UI-SCREEN-AI-VISUALIZATION-WINDOW",
+          "evidence": "Displays turn, phase, active player, and resources in similar positions and styles in both.",
+          "confidence": 0.8
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Visualization Options Section",
+          "requirement": "Screen description: toggles",
+          "expected": "Toggles for options like Show Movement Animations, etc., as per description.",
+          "actual": "Section present with checkboxes, but wireframe shows placeholder \u0027bounded scroll content\u0027 without specific toggles.",
+          "whyIncorrect": "Wireframe lacks detailed toggle representations, leading to mismatch in control types and content.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Selected Player Section",
+          "requirement": "Screen description: selected player",
+          "expected": "Section for selected player details.",
+          "actual": "Wireframe has empty \u0027Selected\u0027 panel, but actual lacks this section entirely.",
+          "whyIncorrect": "Missing in actual screenshot, potentially indicating incomplete implementation or wireframe inaccuracy.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Buttons in AI Window",
+          "requirement": "FR-UI-SCREEN-AI-VISUALIZATION-WINDOW",
+          "expected": "No specific buttons in description, but wireframe shows BACK and NEXT/APPLY.",
+          "actual": "Actual has no such buttons; instead has sections without navigation controls.",
+          "whyIncorrect": "Extra controls in wireframe not present in actual, suggesting design evolution or mismatch.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map Stellar Bodies",
+          "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+          "expected": "Consistent positions for stars like Sirius, Arcturus, Canopus.",
+          "actual": "Actual shows Sirius and Canopus, but Arcturus is missing or repositioned; layouts differ slightly.",
+          "whyIncorrect": "Differences in map content and positioning, possibly due to dynamic rendering not captured in static wireframe.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Phase Text",
+          "requirement": "FR-UI-SCREEN-AI-VISUALIZATION-WINDOW",
+          "expected": "Consistent phase (e.g., Production Phase in wireframe).",
+          "actual": "Actual shows \u0027Purchase Phase\u0027, wireframe shows \u0027Production Phase\u0027.",
+          "whyIncorrect": "Text mismatch indicates scenario-specific content not aligned between captures.",
+          "severity": "low",
+          "confidence": 0.9
+        },
+        {
+          "element": "Activity Log Section",
+          "requirement": "Screen description: activity log sections",
+          "expected": "Activity log with content like \u0027No recent activity\u0027.",
+          "actual": "Present in actual, but wireframe lacks this section, using generic placeholder.",
+          "whyIncorrect": "Wireframe does not represent the activity log, limiting validation accuracy.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Resolution and Scaling",
+          "requirement": "TR-UI-AUDIT-HWND-001: 1536x832",
+          "expected": "Exact match in dimensions and scaling.",
+          "actual": "Both appear at similar resolution, but potential DPI differences or cropping in images provided.",
+          "whyIncorrect": "As a residual risk, image attachments may not preserve exact pixel-perfect comparison due to compression or rendering artifacts.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a basic layout and style baseline matching global requirements, but uses placeholders instead of detailed sections like AI status, toggles, and activity log, making it insufficient for full validation of the screen description and user-facing behavior.",
+        "missingRequirements": [
+          "Detailed representations of AI status, toggles, selected player, and activity log sections as per screen description.",
+          "Dynamic elements like map content and phase-specific text not captured in static wireframe."
+        ],
+        "recommendedWireframeChanges": [
+          "Replace placeholders with specific controls and labels for each section (e.g., checkboxes for toggles, log entries).",
+          "Include representative data for sections like activity log and selected player.",
+          "Ensure consistency in map elements and top bar content to match expected scenarios."
+        ]
+      }
+    },
+    {
+      "screenId": "combat-event-dialog",
+      "summary": "The actual screenshot depicts a gameplay map with a centered, large combat event modal displaying summary details, which aligns more closely with the screen description than the wireframe. However, significant mismatches exist in modal size, content, buttons, and additional elements, indicating the actual UI has evolved beyond the wireframe baseline. The wireframe is partially suitable as a style reference but inadequate for detailed layout validation.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both actual and wireframe show a dark background with star systems and connections.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Top Bar",
+          "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: Gameplay map with centered combat event modal",
+          "evidence": "Top bar present in both with turn, phase, and active player information.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resource Panels",
+          "requirement": "TR-UI-AUDIT-HWND-001: Actual screenshot at 1536x832",
+          "evidence": "Resource indicators (POP, MET, FUEL) visible in both, positioned similarly at top-left.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map Key Panel",
+          "requirement": "Global wireframe style requirements: semi-transparent black panels, thin green borders",
+          "evidence": "Map key panel on right side with green border in both.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Centered Modal Dialog",
+          "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: Centered combat event modal",
+          "evidence": "Modal dialog is centered in both actual and wireframe.",
+          "confidence": 0.95
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Modal Size and Layout",
+          "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: Larger dialog with combat summary, region/body context",
+          "expected": "Small modal with bounded scroll content",
+          "actual": "Large modal spanning much of the screen with detailed combat summary and graphics",
+          "whyIncorrect": "Actual modal is significantly larger and includes integrated graphics and text not present in wireframe, deviating from wireframe baseline.",
+          "severity": "high",
+          "confidence": 0.98
+        },
+        {
+          "element": "Modal Title",
+          "requirement": "Global wireframe style requirements: terminal-style labels",
+          "expected": "Combat Event",
+          "actual": "Combat Initiated",
+          "whyIncorrect": "Title text differs, which may indicate a change in UI flow or event triggering.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Modal Content",
+          "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: combat summary, region/body context",
+          "expected": "bounded scroll content (placeholder)",
+          "actual": "Specific combat details including attackers, defenders, and region",
+          "whyIncorrect": "Wireframe uses generic placeholder, while actual has dynamic content; this mismatch limits validation of content structure.",
+          "severity": "high",
+          "confidence": 0.97
+        },
+        {
+          "element": "Modal Buttons",
+          "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: OK/Start action",
+          "expected": "BACK and NEXT / APPLY buttons",
+          "actual": "VIEW, Ok, and Cancel buttons",
+          "whyIncorrect": "Button labels and actions differ, suggesting a different interaction model not captured in wireframe.",
+          "severity": "critical",
+          "confidence": 0.98
+        },
+        {
+          "element": "Map Systems",
+          "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+          "expected": "Systems including Sirius, Arcturus, Canopus",
+          "actual": "Systems including Sirius and Canopus, no Arcturus; additional graphics",
+          "whyIncorrect": "Missing system in actual and extra elements like pointers, affecting geometric comparison.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resource Values",
+          "requirement": "TR-UI-AUDIT-001: Validate against wireframe",
+          "expected": "Static values (POP 100, MET 50, FUEL 50)",
+          "actual": "Values with increments (POP 100 (\u002B2), etc.)",
+          "whyIncorrect": "Actual includes dynamic increments not in wireframe, potentially indicating unvalidated data binding.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Debug Text",
+          "requirement": "Global wireframe style requirements: simple rectangles for controls",
+          "expected": "No debug text",
+          "actual": "Debug text at top (e.g., Planets F1 Dbg:Off ...)",
+          "whyIncorrect": "Extra debug elements in actual not present in wireframe, which could be a development artifact but affects cleanliness.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Selected Panel",
+          "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: Expected user-facing UI behavior",
+          "expected": "Selected panel on right with content",
+          "actual": "No selected panel; map key instead",
+          "whyIncorrect": "Wireframe includes a selected panel not in actual, indicating missing or changed UI component.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Phase Label",
+          "requirement": "Global wireframe style requirements: terminal-style labels",
+          "expected": "Production Phase",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "Phase name differs, which might be contextual but highlights wireframe not representing current game state.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Validation Limitation",
+          "requirement": "TR-UI-AUDIT-AGENTS-001: Consider AGENTS-README-FIRST for process requirements",
+          "expected": "Wireframe as precise layout baseline",
+          "actual": "Actual includes dynamic elements like debug text and increments",
+          "whyIncorrect": "Residual risk: Wireframe lacks dynamic state representation, limiting validation of runtime behaviors as per repository process in AGENTS-README-FIRST.",
+          "severity": "medium",
+          "confidence": 0.9
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a basic style and layout baseline at the correct resolution, satisfying FR-UI-AUDIT-001, but it uses placeholders and incorrect buttons/size, making it inadequate for validating the detailed combat summary and actions in FR-UI-SCREEN-COMBAT-EVENT-DIALOG. It does not fully represent the screen description, reducing its effectiveness for precise comparison.",
+        "missingRequirements": [
+          "Detailed representation of combat summary and region/body context",
+          "Correct button actions (OK/Start instead of BACK/NEXT)",
+          "Dynamic elements like resource increments and debug visibility"
+        ],
+        "recommendedWireframeChanges": [
+          "Increase modal size to match \u0027larger dialog\u0027 description",
+          "Update content to include example combat summary and graphics",
+          "Change buttons to VIEW/Ok/Cancel or equivalent per requirements",
+          "Remove placeholders and add representative dynamic content",
+          "Ensure map systems and panels match expected game state"
+        ]
+      }
+    },
+    {
+      "screenId": "combat-hud-overlay",
+      "summary": "The actual screenshot partially matches the wireframe for the Combat HUD overlay, with correct overall structure and key elements like the title and sections present, but significant layout differences, color inconsistencies, and missing details reduce fidelity. The wireframe is partially suitable as a baseline but lacks specificity for dynamic content and precise styling.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both actual and wireframe show a dark background with starfield and map elements like circles and labels (e.g., Canopus, Arcturus).",
+          "confidence": 0.95
+        },
+        {
+          "element": "Combat Panel Title",
+          "requirement": "Screen description: Large dark red combat panel centered-left with title",
+          "evidence": "Title \u0027Combat initiated\u0027 is present in both, centered at the top of the panel.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map Key",
+          "requirement": "Screen description: Implied map elements in gameplay background",
+          "evidence": "Map Key panel is present in the right side in both, with similar positioning.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Progress Prompt",
+          "requirement": "FR-UI-SCREEN-COMBAT-HUD-OVERLAY: Expected user-facing UI behavior",
+          "evidence": "Actual has \u0027Press ENTER or SPACE to advance. ESC skips.\u0027 which aligns with interactive overlay behavior, though wireframe omits it but implies interactivity.",
+          "confidence": 0.8
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Panel Layout",
+          "requirement": "Screen description: Large dark red combat panel centered-left with attacking/defending sides, rolls, pairings, casualties, and survivors",
+          "expected": "Horizontal side-by-side layout for Attackers and Defenders, with a subpanel below for Rolls | Pairings | Casualties | Survivors",
+          "actual": "Vertical stacked sections starting with Attackers, then Attacker rolls, Pairings, Casualties, Survivors, with defenders listed under Survivors",
+          "whyIncorrect": "The actual implements a vertical flow instead of the wireframe\u0027s horizontal split, potentially affecting usability and not matching the baseline geometry",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Border Color",
+          "requirement": "Global wireframe style requirements: thin green panel borders",
+          "expected": "Thin green borders for panels",
+          "actual": "Red/orange borders for the combat panel",
+          "whyIncorrect": "Actual borders are red, mismatching the specified green in requirements, though wireframe PNG also shows red, indicating inconsistency between prompt and rendered wireframe",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Section Details",
+          "requirement": "FR-UI-SCREEN-COMBAT-HUD-OVERLAY: Visually satisfy the documented screen description",
+          "expected": "Abstract labels like \u0027Rolls | Pairings | Casualties | Survivors\u0027 in a single line",
+          "actual": "Separate colored headings (e.g., red for Attackers, green for Survivors) with detailed content like unit counts and \u0027No activity yet.\u0027",
+          "whyIncorrect": "Actual adds dynamic details and separates sections vertically, while wireframe is more compact and abstract, leading to mismatch in nesting and text content",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Missing Elements",
+          "requirement": "Screen description: Dim gameplay background",
+          "expected": "Dimmed background with visible map elements integrated",
+          "actual": "Background is present but additional elements like top status bar (POP, MET, FUEL) and turn info are visible, not dimmed or overlaid as implied",
+          "whyIncorrect": "Extra top bar and panels not present in wireframe, potentially indicating z-order or overlay issues where HUD does not fully dim or cover underlying UI",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Validation Limitation",
+          "requirement": "TR-UI-AUDIT-HWND-001: Actual screenshot from HWND at 1536x832",
+          "expected": "Pixel-perfect match at 1536x832 resolution",
+          "actual": "Images appear scaled or cropped in audit view, potential DPI differences",
+          "whyIncorrect": "Residual risk of resolution or scaling mismatches not fully verifiable from provided images, even though core layout is assessable",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a basic layout baseline matching the screen description, including panel positioning and key sections, but it is too abstract for validating dynamic content, precise text, or interactive behaviors. It mismatches its own prompt on border colors and lacks detail on elements like progress prompts, making it incomplete for full requirement validation.",
+        "missingRequirements": [
+          "Detailed representation of dynamic data (e.g., unit counts, rolls)",
+          "Validation of overlay dimming and z-order against underlying gameplay UI",
+          "Explicit inclusion of interactive prompts like advance/skip instructions"
+        ],
+        "recommendedWireframeChanges": [
+          "Update border colors to match prompt (thin green)",
+          "Add examples of dynamic content in sections to better represent runtime state",
+          "Include top status bar and demonstrate dimming effect for overlay suitability"
+        ]
+      }
+    },
+    {
+      "screenId": "combat-screen",
+      "summary": "The actual screenshot partially matches the wireframe for the combat screen, with correct placement of the central combat panel and key elements like attackers and defenders. However, there are discrepancies in border colors, additional debug text, and layout details. The wireframe is partially suitable but lacks specificity for dynamic content and process validations.",
+      "correctElements": [
+        {
+          "element": "Central combat panel",
+          "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+          "evidence": "Large red-bordered panel present in both with title \u0027Combat initiated\u0027 at top, attackers on left, defenders on right (implied in wireframe), and resolution details below.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Dark starfield/game-map background with stellar bodies and lines matching in both images.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map Key panel",
+          "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+          "evidence": "Present on the right side in both, though content differs slightly.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Resource indicators",
+          "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+          "evidence": "Top-left resource bars (POP, MET, FUEL) present in both.",
+          "confidence": 0.9
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Panel borders",
+          "requirement": "Global wireframe style requirements",
+          "expected": "Thin green panel borders for all panels",
+          "actual": "Central panel has red border, top bar lacks visible green border, some panels have no borders",
+          "whyIncorrect": "Combat panel uses use red border as per description, but global style specifies green; actual uses red consistently but misses green for others, leading to style inconsistency.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Debug text",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "No debug or extraneous text in production screenshot",
+          "actual": "Top-right debug string like \u0027Panels F1 Dbg:On F2 Cmd:Off ...\u0027",
+          "whyIncorrect": "Actual screenshot includes debug information not present in wireframe, indicating non-production state or incomplete cleanup.",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resolution details layout",
+          "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+          "expected": "Compact \u0027Rolls | Pairings | Casualties | Survivors\u0027 bar below attackers/defenders",
+          "actual": "Expanded vertical list with sections like Attack Rolls, Pairings, Casualties, Survivors on left side",
+          "whyIncorrect": "Layout shifted from horizontal bar to vertical stacking, altering the visual flow and not matching wireframe\u0027s compact design.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Advance prompt",
+          "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+          "expected": "No specific advance/skip prompt in wireframe",
+          "actual": "Bottom center text \u0027Press ENTER or SPACE to advance. ESC skips.\u0027",
+          "whyIncorrect": "Extra control instruction present in actual, not in wireframe; represents a functional element missing from baseline.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Defenders section",
+          "requirement": "FR-UI-SCREEN-COMBAT-SCREEN",
+          "expected": "Defenders label on right side",
+          "actual": "No explicit Defenders section; content implied under Survivors",
+          "whyIncorrect": "Wireframe shows balanced attackers left, defenders right; actual consolidates most info on left, leaving right sparse.",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Screenshot resolution",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Exact 1536x832 resolution",
+          "actual": "Appears cropped or scaled slightly, with \u0027top=107\u0027 watermark suggesting offset",
+          "whyIncorrect": "Potential DPI/scaling or capture artifact; residual risk that full HWND capture at specified resolution is not exact.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the high-level layout and style but lacks detail on dynamic content, interaction prompts, and validation against repository processes like AGENTS-README-FIRST.yaml. It is suitable for static structure but not for behavioral or process requirements.",
+        "missingRequirements": [
+          "No representation of interactive states or transitions (e.g., advance/skip behavior)",
+          "Lacks validation markers for TR-UI-AUDIT-AGENTS-001 process requirements"
+        ],
+        "recommendedWireframeChanges": [
+          "Add annotations for dynamic text and state changes",
+          "Incorporate process compliance indicators, e.g., no debug text"
+        ]
+      }
+    },
+    {
+      "screenId": "connection-screen",
+      "summary": "The actual screenshot shows a detailed multiplayer connection screen with specific fields, buttons, and status messages on a dark starfield background. It aligns with the screen description but has several mismatches with the simplistic wireframe, including layout, text content, and additional elements. The wireframe is partially suitable as a high-level baseline but lacks precision for detailed validation.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "evidence": "Both actual and wireframe feature a dark starfield background consistent with global style requirements.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Main Title",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "evidence": "Actual has \u0027Multiplayer Uplink\u0027 title matching the screen description; wireframe also has it.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Panel Borders",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "evidence": "Thin green borders are present in both, aligning with global wireframe style.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Back Button",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "evidence": "BACK button is present on the right in both actual and wireframe.",
+          "confidence": 0.9
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Primary Action Button",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "expected": "Connect button on the right",
+          "actual": "CONNECT button on the right",
+          "whyIncorrect": "Wireframe uses placeholder \u0027PRIMARY ACTION\u0027 instead of specific \u0027Connect\u0027 label from screen description.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Player Identity Field",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "expected": "Simple rectangle for player identity field",
+          "actual": "Detailed text field with underline, placeholder text, and error message \u0027Player name cannot be empty\u0027",
+          "whyIncorrect": "Actual includes additional validation error and specific placeholder not present in wireframe.",
+          "severity": "low",
+          "confidence": 0.9
+        },
+        {
+          "element": "Server Endpoint Field",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "expected": "Simple rectangle for server endpoint field",
+          "actual": "Text field with default value \u0027http://localhost:5000\u0027 and descriptive text",
+          "whyIncorrect": "Wireframe lacks specific default value and description present in actual.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Connection Status",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "expected": "Connection status area",
+          "actual": "\u0027Link State\u0027 panel with specific instructions and bottom status \u0027Awaiting uplink command.\u0027",
+          "whyIncorrect": "Wireframe does not depict a distinct status panel or specific text; actual has extra details.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Overall Layout",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "expected": "Wide framed panel with fields and buttons on right",
+          "actual": "Wide panel but with additional subtitle, error messages, and different nesting",
+          "whyIncorrect": "Wireframe is too abstract, lacking precise bounds and nesting; actual has more complex structure.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Extra Title",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "expected": "No extra top title",
+          "actual": "No \u0027RiskyStars Fleet command interface\u0027 title",
+          "whyIncorrect": "Wireframe includes an extra title not present in actual or screen description, indicating mismatch.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Description Block",
+          "requirement": "FR-UI-SCREEN-CONNECTION-SCREEN",
+          "expected": "No large description block",
+          "actual": "Subtitle and field descriptions",
+          "whyIncorrect": "Wireframe has a large text block repeating the prompt, which is not a UI element and absent in actual; this is a validation limitation as it pollutes the wireframe.",
+          "severity": "high",
+          "confidence": 0.95
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a high-level layout with placeholders and matches basic style elements like background and borders, but it is too abstract, uses placeholders instead of specific labels, includes extraneous text, and lacks details for precise validation of fields, status, and behaviors as per FR-UI-SCREEN-CONNECTION-SCREEN and global requirements.",
+        "missingRequirements": [
+          "Detailed representation of input fields with placeholders and validation errors (FR-UI-SCREEN-CONNECTION-SCREEN)",
+          "Specific button labels like \u0027Connect\u0027 instead of \u0027PRIMARY ACTION\u0027 (FR-UI-SCREEN-CONNECTION-SCREEN)",
+          "Precise geometry and nesting for controls (global wireframe style)"
+        ],
+        "recommendedWireframeChanges": [
+          "Replace placeholders with actual expected labels and texts from screen description.",
+          "Remove extraneous prompt repetition and add detailed field representations including defaults and errors.",
+          "Ensure fixed screen-relative geometry with accurate bounds for all elements.",
+          "Eliminate extra titles not in screen description."
+        ]
+      }
+    },
+    {
+      "screenId": "context-menu-manager",
+      "summary": "The actual screenshot partially matches the wireframe for the context menu manager screen, with correct overall layout and style but notable differences in menu positioning, content, map details, and text labels. The wireframe is partially suitable but lacks specificity in dynamic elements and anchoring behavior.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "evidence": "Both images feature a dark starfield/game-map background consistent with the global wireframe style requirements.",
+          "confidence": 1
+        },
+        {
+          "element": "Top Status Bar",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "evidence": "Present in both with turn information, phase, active player, and resource indicators, matching the expected gameplay map layout.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Context Menu Panel",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "evidence": "A semi-transparent black panel with thin green borders and terminal-style labels is visible near a selected region in both, listing contextual actions.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map Elements",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "evidence": "Circular region representations with labels and icons are present in both, anchored to map positions.",
+          "confidence": 0.85
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Context Menu Position",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "expected": "Menu anchored to the side of the selected region (e.g., right or left of the circle).",
+          "actual": "Menu anchored below the selected region.",
+          "whyIncorrect": "Mismatch in anchoring position relative to the click point, potentially affecting usability and not matching the wireframe\u0027s fixed geometry.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Context Menu Content",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "expected": "Title \u0027Context Menu\u0027 with items \u0027View Info\u0027, \u0027Reinforce\u0027, \u0027Diplomacy\u0027.",
+          "actual": "Title \u0027Lankhmar\u0027 with items \u0027View Info\u0027, \u0027Reinforce Location\u0027.",
+          "whyIncorrect": "Different title and menu items; missing \u0027Diplomacy\u0027, altered \u0027Reinforce\u0027 text, which may not fully represent contextual actions.",
+          "severity": "high",
+          "confidence": 1
+        },
+        {
+          "element": "Map Details",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "expected": "Multiple connected regions like \u0027Arcturus\u0027 and \u0027Canopus\u0027 with lines.",
+          "actual": "Single region \u0027Lankhmar\u0027 without connections visible.",
+          "whyIncorrect": "Wireframe shows a more populated map, while actual has minimal elements, possibly due to game state, but this limits validation of full map interactions.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Right Side Panels",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "expected": "\u0027Selected . .\u0027 and \u0027Map Key\u0027 panels.",
+          "actual": "\u0027Selected Region Name: Lankhmar\u0027 panel.",
+          "whyIncorrect": "Mismatch in panel content and presence; missing \u0027Map Key\u0027, different selected info format.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Debug/Extra Text",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Clean screenshot without debug overlays.",
+          "actual": "Additional text like \u0027Planets F1 Dbg:On F2 Cmd:Off\u0027 and \u0027top=107\u0027 visible.",
+          "whyIncorrect": "Extra elements not in wireframe, likely debug artifacts, affecting clean comparison at 1536x832 resolution.",
+          "severity": "low",
+          "confidence": 0.95
+        },
+        {
+          "element": "Phase Text",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "expected": "\u0027Production Phase\u0027",
+          "actual": "\u0027Purchase Phase\u0027",
+          "whyIncorrect": "Textual mismatch in phase name, which could indicate inconsistency in game state representation between wireframe and actual.",
+          "severity": "low",
+          "confidence": 1
+        },
+        {
+          "element": "Resource Indicators",
+          "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+          "expected": "Simple values like \u0027POP 100\u0027, \u0027MET 50\u0027, \u0027FUEL 50\u0027.",
+          "actual": "Values with increments like \u0027POP 100 (\u002B2)\u0027, \u0027MET 50 (\u002B1)\u0027, \u0027FUEL 50 (\u002B1)\u0027.",
+          "whyIncorrect": "Additional increment details not present in wireframe, representing dynamic data not accounted for in static wireframe.",
+          "severity": "low",
+          "confidence": 0.9
+        },
+        {
+          "element": "Validation Limitation",
+          "requirement": "FR-UI-WIREFRAME-SUITABILITY-001",
+          "expected": "Pixel-perfect match for all visible elements.",
+          "actual": "Visual inspection shows close but not exact match due to rendering differences.",
+          "whyIncorrect": "Residual risk from image-based comparison without pixel-level analysis; minor DPI or scaling variances possible.",
+          "severity": "low",
+          "confidence": 0.8
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the overall layout, style, and key elements like the context menu and map, but uses placeholder text, a specific game state with multiple regions, and lacks details on dynamic anchoring or variable content, making it incomplete for fully validating behavioral requirements.",
+        "missingRequirements": [
+          "Dynamic anchoring behavior based on click position is not explicitly demonstrated or annotated.",
+          "Variations in menu items or game states (e.g., different phases or resource displays) are not represented.",
+          "Absence of annotations for semi-transparency levels, exact font styles, or z-order priorities."
+        ],
+        "recommendedWireframeChanges": [
+          "Add annotations for dynamic positioning and possible menu item variations.",
+          "Include multiple variants showing different game states or menu configurations.",
+          "Specify exact bounds and geometry for all elements to ensure fixed screen-relative validation."
+        ]
+      }
+    },
+    {
+      "screenId": "continent-zoom-window",
+      "summary": "The actual screenshot shows a detailed planet zoom window with colored continents and labels, overlaid on a gameplay map, but deviates from the wireframe in layout, text, and detail level. The wireframe provides a basic outline but is insufficient for detailed validation of the screen\u0027s functional requirements.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both actual and wireframe feature a dark background with starfield elements.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Planet Zoom Window",
+          "requirement": "Screen description: Window contains header text and a large circular planet surface",
+          "evidence": "Central window present in both with header and circular planet representation.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resource Bar",
+          "requirement": "FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW: Visually satisfy documented screen description",
+          "evidence": "Top resource indicators (POP, MET, FUEL) are present and similarly positioned.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map Key",
+          "requirement": "Global wireframe style requirements: Terminal-style labels",
+          "evidence": "Map Key panel on the right with labels matches style in both.",
+          "confidence": 0.8
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Turn Phase Text",
+          "requirement": "FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW: Visually satisfy expected user-facing UI behavior",
+          "expected": "Production Phase",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "Phase text differs, which may indicate a mismatch in game state or incorrect rendering for the screen.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Planet Zoom Window Title",
+          "requirement": "Screen description: Header text",
+          "expected": "Planet Zoom",
+          "actual": "Planet Zoom: Sirius b",
+          "whyIncorrect": "Title includes specific planet name in actual, but wireframe has generic title, affecting specificity validation.",
+          "severity": "low",
+          "confidence": 0.9
+        },
+        {
+          "element": "Planet Surface Rendering",
+          "requirement": "Screen description: Large XNA-hosted circular planet surface with continent boundaries and labels",
+          "expected": "Simple divided circle with \u0027Region\u0027 labels",
+          "actual": "Colored semicircle with specific continent names (Lankhmar, Rillanon, etc.) and boundaries",
+          "whyIncorrect": "Actual has detailed, colored, labeled continents not represented in wireframe\u0027s simplistic division, missing key visual elements for comparison.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Additional Planets and Labels",
+          "requirement": "Global wireframe style requirements: Fixed screen-relative geometry",
+          "expected": "Planets labeled \u0027Sirius\u0027, \u0027Arcturus\u0027, \u0027Canopus\u0027 in specific positions",
+          "actual": "Planets labeled \u0027Sirius\u0027, \u0027Canopus\u0027 with different positions and additional elements like \u0027Sirius b\u0027",
+          "whyIncorrect": "Extra labels and mismatched positions/representations violate fixed geometry; wireframe lacks detail on dynamic elements.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Close Button",
+          "requirement": "FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW: Expected user-facing UI behavior",
+          "expected": "No close button shown in wireframe",
+          "actual": "Close button present at bottom of window",
+          "whyIncorrect": "Missing in wireframe, preventing validation of interactive elements.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Debug Text",
+          "requirement": "TR-UI-AUDIT-HWND-001: Actual screenshot from RiskyStars client HWND",
+          "expected": "Short debug string",
+          "actual": "Longer debug string with more panels info",
+          "whyIncorrect": "Difference in debug output may indicate runtime variations not captured in wireframe.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Overall Layout Bounds",
+          "requirement": "Global wireframe style requirements: Thin green panel borders, fixed geometry at 1536x832",
+          "expected": "Central window spanning most of the height with green borders",
+          "actual": "Central window is shorter, with additional space below and different border nesting",
+          "whyIncorrect": "Bounds and nesting differ slightly due to DPI or scaling, though resolution matches; residual risk of pixel-perfect mismatch in automated tests.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the basic layout and style but lacks detail on the continent boundaries, labels, and colors, making it inadequate for fully validating the XNA-hosted planet surface and dynamic elements as per the screen description and FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW.",
+        "missingRequirements": [
+          "Detailed representation of continent boundaries and player-colored regions (from screen description)",
+          "Interactive elements like Close button (implied in user-facing behavior FR-UI-SCREEN-CONTINENT-ZOOM-WINDOW)",
+          "Validation of repository process requirements from AGENTS-README-FIRST.yaml, such as session logging integration (TR-UI-AUDIT-AGENTS-001)"
+        ],
+        "recommendedWireframeChanges": [
+          "Add detailed continent divisions with example labels and colors to match screen description",
+          "Include interactive controls like Close button",
+          "Incorporate placeholders for dynamic debug text and game state variations",
+          "Ensure wireframe includes elements for process validation, e.g., markers for MCP integration if relevant"
+        ]
+      }
+    },
+    {
+      "screenId": "create-lobby",
+      "summary": "The actual screenshot partially matches the wireframe in terms of overall style and basic elements like title and buttons, but shows significant deviations including missing required sections for maximum commanders and lobby options. The wireframe itself is poorly suited for validation as it primarily displays textual descriptions rather than visual UI controls.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "FR-UI-SCREEN-CREATE-LOBBY",
+          "evidence": "Both actual and wireframe feature a dark starfield background consistent with the global style requirements.",
+          "confidence": 1
+        },
+        {
+          "element": "Panel Borders",
+          "requirement": "FR-UI-SCREEN-CREATE-LOBBY",
+          "evidence": "Thin green panel borders are present in both, matching the semi-transparent black panels and terminal-style aesthetic.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Create Lobby Title",
+          "requirement": "FR-UI-SCREEN-CREATE-LOBBY",
+          "evidence": "The title \u0027Create Lobby\u0027 appears in both, centered at the top of the main panel.",
+          "confidence": 1
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Map Selection Section",
+          "requirement": "FR-UI-SCREEN-CREATE-LOBBY",
+          "expected": "A dedicated section with label, description, and input control for map selection.",
+          "actual": "Present in actual with label, description, and \u0027Default\u0027 input, but wireframe only shows textual description without visual control representation.",
+          "whyIncorrect": "Wireframe does not depict the map selection as a simple rectangle control, hindering precise layout comparison.",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Maximum Commanders Section",
+          "requirement": "FR-UI-SCREEN-CREATE-LOBBY",
+          "expected": "Section for selecting maximum commanders as per screen description.",
+          "actual": "Missing entirely in both actual screenshot and wireframe.",
+          "whyIncorrect": "Required element from screen description is absent, preventing validation of this functional aspect.",
+          "severity": "critical",
+          "confidence": 1
+        },
+        {
+          "element": "Lobby Options Section",
+          "requirement": "FR-UI-SCREEN-CREATE-LOBBY",
+          "expected": "Section for lobby options as per screen description.",
+          "actual": "Missing entirely in both actual screenshot and wireframe.",
+          "whyIncorrect": "Required element from screen description is absent, indicating incomplete implementation and wireframe.",
+          "severity": "critical",
+          "confidence": 1
+        },
+        {
+          "element": "Action Buttons",
+          "requirement": "FR-UI-SCREEN-CREATE-LOBBY",
+          "expected": "Create and Cancel buttons with labels matching description.",
+          "actual": "Actual has \u0027CREATE LOBBY\u0027 and \u0027CANCEL\u0027; wireframe has \u0027CREATE / CONTINUE\u0027 and \u0027BACK / CANCEL\u0027.",
+          "whyIncorrect": "Button labels differ, and wireframe uses slashes indicating alternatives, which does not match the precise requirements.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Extra Title",
+          "requirement": "FR-UI-SCREEN-CREATE-LOBBY",
+          "expected": "No application-level title outside the screen title.",
+          "actual": "Wireframe includes \u0027RiskyStars Fleet command interface\u0027 at the top, absent in actual.",
+          "whyIncorrect": "Extra element in wireframe not specified in requirements, causing mismatch in layout and content.",
+          "severity": "low",
+          "confidence": 0.95
+        },
+        {
+          "element": "Layout and Geometry",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Fixed screen-relative geometry at 1536x832 with precise panel placement.",
+          "actual": "Actual panel is narrower and positioned differently; wireframe has a large text block in the center instead of controls.",
+          "whyIncorrect": "Differences in bounds and nesting prevent accurate validation of spatial UI requirements.",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Subtitle/Description",
+          "requirement": "FR-UI-SCREEN-CREATE-LOBBY",
+          "expected": "Concise subtitle or instructions.",
+          "actual": "Actual has subtitle \u0027Define the session shell before inviting commanders\u0027; wireframe has long descriptive paragraph.",
+          "whyIncorrect": "Content and presentation differ significantly, with wireframe not using terminal-style labels properly.",
+          "severity": "medium",
+          "confidence": 0.8
+        },
+        {
+          "element": "Residual Validation Limitation",
+          "requirement": "FR-UI-WIREFRAME-SUITABILITY-001",
+          "expected": "Wireframe provides precise baseline for all elements.",
+          "actual": "Wireframe is text-heavy and lacks control representations.",
+          "whyIncorrect": "Even if actual matched closely, the abstract wireframe limits ability to validate DPI, scaling, and z-order precisely.",
+          "severity": "medium",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "unsuitable",
+        "why": "The wireframe primarily consists of textual descriptions rather than visual representations of UI controls like rectangles for inputs and selections, making it inadequate for precise layout and element validation against the screen description and global style requirements.",
+        "missingRequirements": [
+          "Visual depiction of maximum commanders selection",
+          "Visual depiction of lobby options",
+          "Precise control rectangles for map selection"
+        ],
+        "recommendedWireframeChanges": [
+          "Regenerate wireframe to include simple rectangles representing all specified controls (map selection, max commanders, lobby options).",
+          "Remove extraneous titles like \u0027RiskyStars Fleet command interface\u0027 unless specified.",
+          "Ensure button labels match the exact requirements without alternatives.",
+          "Use terminal-style labels and semi-transparent panels consistently for all elements."
+        ]
+      }
+    },
+    {
+      "screenId": "debug-info-window",
+      "summary": "The actual screenshot shows a gameplay map with a debug information window containing specific sections, but it deviates from the wireframe in content details, controls, and some layout aspects. The wireframe provides a basic layout but lacks sufficient detail for precise validation against the described requirements.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "evidence": "Both actual and wireframe feature a dark starfield/game-map background consistent with global style requirements.",
+          "confidence": 1
+        },
+        {
+          "element": "Top Status Bar",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "evidence": "Top bar present in both with turn, phase, and active player information, matching terminal-style labels.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Resource Indicators",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "evidence": "POP, MET, FUEL displays are present in similar positions and styles in both images.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Debug Information Window Title",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "evidence": "Title \u0027Debug Information\u0027 appears in both, with thin green borders and semi-transparent black panel.",
+          "confidence": 1
+        },
+        {
+          "element": "Map Elements (Sirius and Canopus)",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "evidence": "Circular map representations for Sirius and Canopus are visible in similar positions in both.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map Key Panel",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "evidence": "Map Key panel is present on the right side in both, though positioning varies slightly.",
+          "confidence": 0.8
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Phase Text in Top Bar",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "expected": "Production Phase",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "The phase text differs, which may indicate a mismatch in game state representation or wireframe accuracy for the screen description.",
+          "severity": "low",
+          "confidence": 1
+        },
+        {
+          "element": "Debug Window Content",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "expected": "Bounded scroll content placeholder",
+          "actual": "Detailed sections: Camera, Performance, Game State, Selection, UI Audit",
+          "whyIncorrect": "Actual content includes specific debug sections as per description, but wireframe uses a generic placeholder, leading to incomplete validation of required sections like camera, performance, game state, and visual tree inspection.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Debug Window Controls",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "expected": "BACK and NEXT / APPLY buttons at bottom",
+          "actual": "No buttons present",
+          "whyIncorrect": "Wireframe includes navigation buttons not present in actual screenshot, suggesting either extra elements in wireframe or missing functionality in actual UI.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Debug Window Bounds and Scroller",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Tall window with bounded scroll content and green borders matching 1536x832 geometry",
+          "actual": "Shorter window with detailed content, no visible scroller, slight border and positioning differences",
+          "whyIncorrect": "Bounds and nesting differ; actual appears to lack scroller and has different height, potentially affecting dockable behavior and fixed geometry.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Panels Status Text",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "expected": "Panels F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5",
+          "actual": "Panels F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5 Ref:Off F6 Tut:Off H Help:Off",
+          "whyIncorrect": "Actual has additional panel status items (Ref, Tut, Help), indicating extra controls or state not represented in wireframe.",
+          "severity": "low",
+          "confidence": 0.9
+        },
+        {
+          "element": "Selected Panel",
+          "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+          "expected": "Selected panel with content on right side",
+          "actual": "No distinct Selected panel; selection info integrated into debug window",
+          "whyIncorrect": "Wireframe shows a separate Selected panel, but actual incorporates selection into debug window, leading to layout mismatch.",
+          "severity": "medium",
+          "confidence": 0.8
+        },
+        {
+          "element": "Overall Layout Fidelity",
+          "requirement": "FR-UI-AUDIT-001",
+          "expected": "Precise match to wireframe at 1536x832",
+          "actual": "Close but with variances in element positions, sizes, and presence",
+          "whyIncorrect": "Residual risk: Potential DPI/scaling differences or z-order issues not fully verifiable from static images; audit limited to visual comparison without interaction testing.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the overall layout and style but uses generic placeholders instead of detailed representations of required sections (camera, performance, game state, visual tree inspection), limiting its effectiveness for validating specific content and scroller behavior. It includes extraneous buttons not mentioned in the screen description, and does not fully align with repository process requirements for precise baselines as per AGENTS-README-FIRST content emphasizing correctness and verification.",
+        "missingRequirements": [
+          "Detailed placeholders for camera, performance, game state, and visual tree inspection sections",
+          "Explicit indication of scroller functionality and content overflow",
+          "Alignment with dynamic game state elements like phase and panel statuses"
+        ],
+        "recommendedWireframeChanges": [
+          "Replace generic \u0027bounded scroll content\u0027 with structured section headers and sample data matching the screen description",
+          "Remove or justify the inclusion of BACK and NEXT/APPLY buttons if not part of the required UI behavior",
+          "Ensure exact matching of text and states (e.g., phase text) to a canonical game state for consistency",
+          "Incorporate validation markers for DPI, scaling, and z-order to better support TR-UI-AUDIT-HWND-001"
+        ]
+      }
+    },
+    {
+      "screenId": "dialog-manager",
+      "summary": "The actual screenshot shows a gameplay map with a centered modal dialog, but there are significant mismatches in dialog styling, button labels, colors, and additional UI elements compared to the wireframe. The wireframe provides a basic layout but uses placeholders, making it partially suitable for validation.",
+      "correctElements": [
+        {
+          "element": "Gameplay map background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both images feature a dark background with star systems like Sirius, Arcturus, and Canopus.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Centered modal dialog",
+          "requirement": "Screen description: Gameplay map with centered modal dialog",
+          "evidence": "Dialog is centered in both the actual screenshot and wireframe.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Dialog title",
+          "requirement": "Dialog contains title",
+          "evidence": "Actual has \u0027Confirm Title\u0027, wireframe has \u0027Dialog\u0027; presence matches.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Dialog message/content",
+          "requirement": "Dialog contains wrapped message",
+          "evidence": "Actual has \u0027Confirm Message\u0027, wireframe has \u0027bounded scroll content\u0027; content area present.",
+          "confidence": 0.8
+        },
+        {
+          "element": "Two action buttons",
+          "requirement": "Dialog contains two action buttons",
+          "evidence": "Both have two buttons at the bottom of the dialog.",
+          "confidence": 0.9
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Dialog background and border",
+          "requirement": "Global wireframe style requirements: thin green panel borders, semi-transparent black panels",
+          "expected": "Semi-transparent black panel with thin green border",
+          "actual": "Solid light green background without visible border",
+          "whyIncorrect": "Actual dialog uses a bright solid color instead of semi-transparent black with green border, violating style guidelines.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Button labels and colors",
+          "requirement": "Screen description: two action buttons",
+          "expected": "BACK (black) and NEXT / APPLY (green)",
+          "actual": "OK (black) and Cancel (red)",
+          "whyIncorrect": "Button texts and colors do not match; wireframe shows different actions and color scheme.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Top bar phase text",
+          "requirement": "FR-UI-SCREEN-DIALOG-MANAGER: visually satisfy screen description",
+          "expected": "Production Phase",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "Mismatch in game phase text, which may indicate incorrect screen state or dynamic content not captured in wireframe.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Resource indicators",
+          "requirement": "Global wireframe style requirements: terminal-style labels",
+          "expected": "POP 100, MET 50, FUEL 50 without increments",
+          "actual": "POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)",
+          "whyIncorrect": "Actual includes increment values not present in wireframe, adding extra text.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Dimmed backdrop",
+          "requirement": "Screen description: dimmed backdrop",
+          "expected": "Dimmed overlay on background map",
+          "actual": "No visible dimming; map fully visible behind dialog",
+          "whyIncorrect": "Actual lacks a dimmed backdrop, making the modal less distinct from the background.",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map Key panel",
+          "requirement": "FR-UI-SCREEN-DIALOG-MANAGER: expected user-facing UI behavior",
+          "expected": "Empty Map Key panel",
+          "actual": "Map Key with legend items (System orbit, Stellar body, etc.)",
+          "whyIncorrect": "Actual has populated legend, while wireframe shows empty; extra content not in wireframe.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Validation limitation",
+          "requirement": "TR-UI-AUDIT-HWND-001: screenshot at 1536x832",
+          "expected": "Exact pixel match for layout",
+          "actual": "Slight variations in positioning and scaling due to rendering differences",
+          "whyIncorrect": "Even with close match, image comparison may miss sub-pixel or DPI differences; residual risk in audit method.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the overall layout and key elements like the centered dialog and map background, but uses generic placeholders for text and does not specify exact colors, dynamic content, or interaction states, limiting its ability to fully validate visual and behavioral requirements.",
+        "missingRequirements": [
+          "Dynamic UI behavior such as button interactions or scrolling",
+          "Specific color palettes and transparency levels for panels"
+        ],
+        "recommendedWireframeChanges": [
+          "Incorporate example specific texts for titles, messages, and buttons to better match expected content",
+          "Add annotations for dimming effects and border styles",
+          "Include variations for different dialog types or states"
+        ]
+      }
+    },
+    {
+      "screenId": "encyclopedia-window",
+      "summary": "The actual screenshot depicts a full encyclopedia window with a left navigation list and right scrollable article body over a gameplay map background, aligning with the screen description. However, the wireframe shows a minimal placeholder window without the split layout, leading to significant mismatches in structure, content, and positioning. The wireframe is unsuitable for validating the requirements due to its incomplete representation.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both actual and wireframe feature a dark starfield background with map elements like stellar bodies and lines.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Panel Borders",
+          "requirement": "Global wireframe style requirements: thin green panel borders",
+          "evidence": "Panels in both images have thin green borders.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resource Indicators",
+          "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Visually satisfy documented screen description and UI behavior",
+          "evidence": "Top resource bars (POP, MET, FUEL) are present in similar positions and styles in both.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map Key Panel",
+          "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Gameplay map with Encyclopedia dockable window",
+          "evidence": "A \u0027Map Key\u0027 panel is visible in both, though positioned differently.",
+          "confidence": 0.8
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Encyclopedia Window Layout",
+          "requirement": "Screen description: Window is a split layout with navigation list at left and scrollable article body at right",
+          "expected": "Split layout with left navigation list and right content area",
+          "actual": "Wireframe shows a small central window with placeholder text and buttons, no split layout; actual has full split layout",
+          "whyIncorrect": "Wireframe does not depict the required split layout, making it mismatched for comparison",
+          "severity": "critical",
+          "confidence": 0.95
+        },
+        {
+          "element": "Navigation List",
+          "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Visually satisfy documented screen description",
+          "expected": "Left-side list with categories like \u0027Articles\u0027, \u0027Core Rules\u0027, \u0027Turn Flow\u0027",
+          "actual": "Missing in wireframe; present in actual",
+          "whyIncorrect": "Wireframe lacks the navigation component entirely",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Content Area",
+          "requirement": "Screen description: scrollable article body at right",
+          "expected": "Scrollable body with article text, headings like \u0027Turn Flow\u0027, \u0027Key Points\u0027",
+          "actual": "Wireframe has minimal placeholder \u0027bounded scroll content\u0027; actual has detailed content",
+          "whyIncorrect": "Wireframe uses generic placeholder instead of representative content",
+          "severity": "high",
+          "confidence": 0.85
+        },
+        {
+          "element": "Window Positioning and Size",
+          "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+          "expected": "Large dockable window covering much of the screen with split layout",
+          "actual": "Wireframe shows small centered window; actual spans most of the screen",
+          "whyIncorrect": "Mismatch in bounds and positioning affects layout validation",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Top Bar Text",
+          "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Expected user-facing UI behavior",
+          "expected": "Turn and phase indicators consistent with game state",
+          "actual": "Wireframe has \u0027Production Phase | Active: Cadet\u0027; actual has \u0027Purchase Phase | Active:\u0027 with encyclopedia title",
+          "whyIncorrect": "Inconsistent phase and active player text, potentially confusing state representation",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Buttons",
+          "requirement": "FR-UI-SCREEN-ENCYCLOPEDIA-WINDOW: Visually satisfy UI behavior",
+          "expected": "No prominent BACK/NEXT buttons in encyclopedia view",
+          "actual": "Wireframe includes BACK and NEXT/APPLY buttons; actual does not",
+          "whyIncorrect": "Extra controls in wireframe not present in actual or description, indicating wireframe mismatch",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map Elements Visibility",
+          "requirement": "Screen description: Gameplay map with Encyclopedia dockable window",
+          "expected": "Map elements partially visible behind window",
+          "actual": "Wireframe shows more prominent map with named stars (Sirius, Arcturus, Canopus); actual has subtle map elements",
+          "whyIncorrect": "Difference in map detail and visibility could affect occlusion and z-order validation",
+          "severity": "low",
+          "confidence": 0.75
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "unsuitable",
+        "why": "The wireframe does not accurately represent the described split layout for the encyclopedia window, using placeholders instead of specific elements, which prevents effective validation of the functional requirements. It appears to depict a different or incomplete screen state, missing key components like the navigation list and detailed content.",
+        "missingRequirements": [
+          "Representation of left navigation list",
+          "Scrollable article body with sample content",
+          "Accurate window sizing and positioning relative to the map"
+        ],
+        "recommendedWireframeChanges": [
+          "Update to include split layout with left list and right content",
+          "Add representative text and headings to match screen description",
+          "Remove extraneous buttons like BACK/NEXT if not part of encyclopedia view",
+          "Ensure consistent top bar and resource indicators"
+        ]
+      }
+    },
+    {
+      "screenId": "game-mode-selector",
+      "summary": "The actual screenshot shows a game mode selector with a single mode card and navigation buttons on a dark starfield background, but it deviates from the wireframe and requirements by having only one mode card instead of two, a narrow left-aligned panel instead of a wide framed deck, and differing text and header elements. The wireframe itself is partially suitable as it captures style but not structural details.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Both actual and wireframe feature a dark starfield background.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Panel Borders",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Thin green panel borders are present in both.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Header Title",
+          "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+          "evidence": "\u0027Select Game Mode\u0027 header is visible in both, matching the screen description.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Navigation Buttons",
+          "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+          "evidence": "Continue/Primary Action and Back buttons are present under the main content.",
+          "confidence": 0.8
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Mode Cards",
+          "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+          "expected": "Two large mode cards in the main panel.",
+          "actual": "Only one mode card (\u0027Multiplayer\u0027) is present.",
+          "whyIncorrect": "The screen description requires two mode cards, but the actual UI shows only one, missing options like single-player.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Panel Layout",
+          "requirement": "Global wireframe style requirements",
+          "expected": "Wide framed command deck with fixed screen-relative geometry.",
+          "actual": "Narrow left-aligned panel occupying less than half the screen width.",
+          "whyIncorrect": "The panel is not wide as described, leading to poor use of space and deviation from the \u0027wide framed command deck\u0027 requirement.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Button Labels",
+          "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+          "expected": "Continue and Back buttons (per description).",
+          "actual": "CONTINUE and BACK in actual, but wireframe shows PRIMARY ACTION and BACK.",
+          "whyIncorrect": "Labels differ from wireframe placeholders, potentially confusing validation of exact UI behavior.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Additional Header",
+          "requirement": "FR-UI-SCREEN-GAME-MODE-SELECTOR",
+          "expected": "Header at top as per description, without extra title.",
+          "actual": "Wireframe has \u0027RiskyStars Fleet command interface\u0027 at top, but actual does not.",
+          "whyIncorrect": "Extra header in wireframe not present in actual, indicating inconsistency in layout validation.",
+          "severity": "medium",
+          "confidence": 0.8
+        },
+        {
+          "element": "Content Text",
+          "requirement": "Global wireframe style requirements",
+          "expected": "Terminal-style labels with specific content.",
+          "actual": "Actual has specific mode description, wireframe has placeholder description text inside panel.",
+          "whyIncorrect": "Wireframe uses descriptive text block instead of actual UI elements, limiting precise comparison.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Screenshot Dimensions",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Captured at 1536x832.",
+          "actual": "Appears to match, but potential DPI/scaling differences not verifiable from image alone.",
+          "whyIncorrect": "As per instructions, include at least one residual risk; inability to confirm exact pixel dimensions and scaling in audit introduces validation limitation.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the overall style (background, borders, terminal-style) and provides a baseline, but it uses placeholder text and does not visually depict the two mode cards or wide deck structure, making it insufficient for precise layout validation against the screen description.",
+        "missingRequirements": [],
+        "recommendedWireframeChanges": [
+          "Add visual representations of two large mode cards with placeholders for titles and descriptions.",
+          "Specify exact positions and dimensions for panels and controls to enforce fixed geometry.",
+          "Replace placeholder button labels with expected ones like \u0027Continue\u0027."
+        ]
+      }
+    },
+    {
+      "screenId": "gameplay-hud-legend",
+      "summary": "The actual screenshot shows a close but not perfect match to the wireframe, with differences in text content, panel layout, resource display, and minor visual elements. The wireframe is partially suitable for validation but lacks detail on dynamic behaviors.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both actual and wireframe feature a dark background with starfield and map elements.",
+          "confidence": 1
+        },
+        {
+          "element": "Map Systems",
+          "requirement": "Screen description: In-game map with system orbit, stellar body, region marker, and lane mouth",
+          "evidence": "Systems like Sirius, Arcturus, Canopus are present with orbits and connections in both.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Map Key Panel",
+          "requirement": "Screen description: right-side Map Key panel docked under the selection panel area. Legend rows show system orbit, stellar body, region marker, and lane mouth",
+          "evidence": "Map Key panel is on the right with legend items matching the description.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Top Bar",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-LEGEND: The Gameplay HUD legend screen must visually satisfy the documented screen description",
+          "evidence": "Top bar with turn, phase, and active player info is present in both.",
+          "confidence": 1
+        },
+        {
+          "element": "Resource Indicators",
+          "requirement": "Global wireframe style requirements: terminal-style labels",
+          "evidence": "POP, MET, FUEL labels are present in a terminal-style format.",
+          "confidence": 0.95
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Phase Text",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-LEGEND: Visually satisfy the documented screen description and expected user-facing UI behavior",
+          "expected": "Production Phase",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "The phase displayed differs, which may indicate a mismatch in game state or incorrect wireframe representation.",
+          "severity": "medium",
+          "confidence": 1
+        },
+        {
+          "element": "Resource Display",
+          "requirement": "Global wireframe style requirements: simple rectangles for controls, terminal-style labels",
+          "expected": "POP 100, MET 50, FUEL 50 without increments",
+          "actual": "POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)",
+          "whyIncorrect": "Actual includes increment values not present in wireframe, affecting visual match and potentially indicating dynamic elements not captured.",
+          "severity": "low",
+          "confidence": 0.95
+        },
+        {
+          "element": "Selection Panel",
+          "requirement": "Screen description: right-side Map Key panel docked under the selection panel area",
+          "expected": "Separate \u0027Selected\u0027 panel above Map Key",
+          "actual": "No visible separate selection panel; Map Key appears standalone",
+          "whyIncorrect": "Missing selection panel in actual screenshot, which is present in wireframe, suggesting docking or visibility issue.",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Debug Text",
+          "requirement": "TR-UI-AUDIT-HWND-001: The actual screenshot must be captured from the RiskyStars client HWND",
+          "expected": "Panels F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5 Ref:Off F6 Tut:Off H Help",
+          "actual": "Planets F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5 Ref:Off F6 Tut:Off H Help (partial match)",
+          "whyIncorrect": "Slight text difference (\u0027Planets\u0027 vs \u0027Panels\u0027), possibly indicating version or state mismatch.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Bottom Labels",
+          "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+          "expected": "Prompt baseline label at bottom",
+          "actual": "top=107 labels at bottom left and right",
+          "whyIncorrect": "Extra debug labels in actual not in wireframe, and wireframe has its own baseline label not expected in actual.",
+          "severity": "low",
+          "confidence": 0.95
+        },
+        {
+          "element": "Map Details",
+          "requirement": "Screen description: Legend rows show system orbit, stellar body, region marker, and lane mouth",
+          "expected": "Detailed icons in systems like multiple planets in Sirius",
+          "actual": "Simpler icons and fewer details in system representations",
+          "whyIncorrect": "Visual details in map elements do not fully match, potentially due to rendering differences or incomplete wireframe.",
+          "severity": "medium",
+          "confidence": 0.8
+        },
+        {
+          "element": "Validation Limitation",
+          "requirement": "FR-UI-AUDIT-001: Every documented UI screen must have a direct prompt-rendered wireframe for screenshot comparison",
+          "expected": "Exact pixel-perfect match for audit",
+          "actual": "Close visual match but with noted differences",
+          "whyIncorrect": "Residual risk from potential DPI/scaling or anti-aliasing differences not detectable in image comparison.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the overall layout and key elements but lacks representation of dynamic content like resource increments and selection states, and does not fully align with repository process requirements for verification as per AGENTS-README-FIRST.yaml.",
+        "missingRequirements": [
+          "Dynamic UI behavior validation (e.g., selection panel visibility)",
+          "Exact color and icon matching for legend symbols",
+          "Integration with repository tools for automated verification as suggested in agentsReadmeFirstContent"
+        ],
+        "recommendedWireframeChanges": [
+          "Include variations for different game phases and states",
+          "Add annotations for dynamic elements",
+          "Ensure wireframe includes all possible debug overlays or make them optional"
+        ]
+      }
+    },
+    {
+      "screenId": "gameplay-hud-top-bar",
+      "summary": "The actual screenshot shows a close visual match to the wireframe in overall layout, including the top bar, resource indicators, map viewport, and right-side panels. However, there are discrepancies in text content, such as phase naming and resource display formats, as well as minor positioning and additional elements in the actual UI. The wireframe is partially suitable but lacks detail on dynamic content and exact styling.",
+      "correctElements": [
+        {
+          "element": "Top bar layout",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+          "evidence": "Full-width top bar present with turn/status text on left and hints on right, matching screen description and wireframe.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Resource indicators",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+          "evidence": "POP, MET, FUEL chips displayed below top bar text, consistent with wireframe placement and style.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map viewport",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+          "evidence": "Central map area with star systems (Sirius, Arcturus, Canopus) connected by lines, matching wireframe\u0027s dark starfield background and layout.",
+          "confidence": 0.92
+        },
+        {
+          "element": "Right docking rail with Map Key",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+          "evidence": "Map Key panel on right with legends for system orbit, stellar body, etc., present in both actual and wireframe with thin green borders.",
+          "confidence": 0.88
+        },
+        {
+          "element": "Overall style",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Dark starfield background, semi-transparent panels, terminal-style labels, and thin green borders observed in actual screenshot matching wireframe.",
+          "confidence": 0.85
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Phase text in top bar",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+          "expected": "Production Phase",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "Text mismatch in game phase label, which may indicate a discrepancy in game state representation or wireframe accuracy for dynamic content.",
+          "severity": "medium",
+          "confidence": 0.98
+        },
+        {
+          "element": "Resource display format",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+          "expected": "Simple values like POP 100, MET 50, FUEL 50",
+          "actual": "Values with deltas like POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)",
+          "whyIncorrect": "Actual includes production deltas not present in wireframe, affecting visual comparison for resource UI behavior.",
+          "severity": "low",
+          "confidence": 0.95
+        },
+        {
+          "element": "Shortcut hints text",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+          "expected": "Panels F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5",
+          "actual": "Planets F1 Dbg:Off F2 Cmd:Off F3 AI:Off F4 UI:Off F5 Ref:Off F6 Tut:Off H Help",
+          "whyIncorrect": "Different shortcut keys and states, with actual having more items and \u0027Off\u0027 states vs wireframe\u0027s mix, indicating dynamic or version differences.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map system positions and labels",
+          "requirement": "Global wireframe style requirements",
+          "expected": "Fixed positions with labels directly below orbits like in wireframe",
+          "actual": "Slightly different diagonal alignments and additional labels like \u0027Black\u0027 in actual",
+          "whyIncorrect": "Minor bounds and nesting differences in map elements, potentially due to rendering or scaling variations.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Left docking rail",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+          "expected": "Visible left rail with placeholder elements",
+          "actual": "Appears as dark empty space without clear controls or borders",
+          "whyIncorrect": "Missing or indistinct left docking rail in actual compared to wireframe\u0027s implied structure.",
+          "severity": "high",
+          "confidence": 0.8
+        },
+        {
+          "element": "Additional top bar hint",
+          "requirement": "FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR",
+          "expected": "No separate hint line above resources",
+          "actual": "Extra \u0027Your turn: Buy armies or advance to reinforcement.\u0027 text",
+          "whyIncorrect": "Extra control/text not present in wireframe, representing unaccounted dynamic UI element.",
+          "severity": "medium",
+          "confidence": 0.92
+        },
+        {
+          "element": "Bottom debug text",
+          "requirement": "Global wireframe style requirements",
+          "expected": "Clean baseline without debug artifacts",
+          "actual": "Presence of \u0027top=107\u0027 labels at bottom",
+          "whyIncorrect": "Extra debug or positioning text in actual, likely a development artifact not intended for final UI.",
+          "severity": "low",
+          "confidence": 0.7
+        },
+        {
+          "element": "Validation limitation",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Pixel-perfect match at 1536x832",
+          "actual": "Visual inspection shows close but not exact match due to anti-aliasing and rendering differences",
+          "whyIncorrect": "Residual risk from manual visual audit vs automated pixel diff; actual may have DPI/scaling variances not captured.",
+          "severity": "low",
+          "confidence": 0.6
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a good static baseline for layout and major elements, aligning with FR-UI-AUDIT-001 and global style requirements. However, it lacks representation of dynamic content like variable text, production deltas, and interactive states, making it insufficient for fully validating FR-UI-SCREEN-GAMEPLAY-HUD-TOP-BAR\u0027s user-facing behavior. It does not incorporate repository process requirements from AGENTS-README-FIRST.yaml, such as session logging for audits, but this is not directly relevant to wireframe design.",
+        "missingRequirements": [
+          "Dynamic state variations (e.g., different game phases, resource deltas)",
+          "Interactive elements and hover/selection states",
+          "Exact font and color specifications beyond high-level style"
+        ],
+        "recommendedWireframeChanges": [
+          "Include multiple variants for dynamic text and states",
+          "Add annotations for expected behaviors and tolerances",
+          "Incorporate pixel-exact bounds and z-order specifications"
+        ]
+      }
+    },
+    {
+      "screenId": "legacy-player-dashboard",
+      "summary": "The actual screenshot shows a detailed gameplay dashboard with resources, army purchase, and hero assignment panels over a star map, while the wireframe is a simplistic placeholder with mismatched content and layout. Several visual and structural mismatches exist, and the wireframe is only partially suitable due to its lack of detail for precise validation.",
+      "correctElements": [
+        {
+          "element": "Dark starfield background",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "evidence": "Both images feature a dark background with star systems, matching the global wireframe style requirements for dark starfield/game-map background.",
+          "confidence": 1
+        },
+        {
+          "element": "Left-side narrow command panel",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "evidence": "Actual has a vertical panel on the left with resources and actions, similar to the wireframe\u0027s left panel, aligning with the screen description of a narrow command panel.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Star system representations",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "evidence": "Both include circular orbits with labels like \u0027Sirius\u0027 and \u0027Canopus\u0027, consistent with gameplay map elements.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resource indicators",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "evidence": "Top resource bars for POP, MET, FUEL are present in both, though details differ, satisfying basic resource display in the screen description.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map Key panel",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "evidence": "A Map Key is present on the right in both, though content varies, matching the need for gameplay map visibility.",
+          "confidence": 0.8
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Number of star systems",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "expected": "Wireframe shows three systems (Sirius, Arcturus, Canopus)",
+          "actual": "Actual shows two systems (Sirius, Canopus)",
+          "whyIncorrect": "Mismatch in map content; Arcturus is missing in actual, which may indicate incomplete implementation or different game state not captured in wireframe.",
+          "severity": "medium",
+          "confidence": 1
+        },
+        {
+          "element": "Phase text",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "expected": "Production Phase (as in wireframe)",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "Text mismatch in turn phase description, potentially affecting user-facing behavior and not matching the documented screen description.",
+          "severity": "high",
+          "confidence": 1
+        },
+        {
+          "element": "Panel content and buttons",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "expected": "Placeholder \u0027Legacy Player...\u0027 with bounded scroll content, BACK and NEXT/APPLY buttons",
+          "actual": "Detailed sections: Resources with \u002B increments, Army Purchase with Buy buttons, Hero Assignment with Assign buttons",
+          "whyIncorrect": "Wireframe uses placeholders while actual has specific functional content; this indicates the wireframe is too abstract for validating detailed UI behavior.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Panel width and borders",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Narrow panel with thin green borders, fixed geometry at 1536x832",
+          "actual": "Panel is narrow but borders are thin green in wireframe; actual appears semi-transparent black with green highlights, slight bounds differences",
+          "whyIncorrect": "Minor bounds and styling mismatches, including DPI/scaling or z-order differences, affecting precise screenshot comparison.",
+          "severity": "low",
+          "confidence": 0.9
+        },
+        {
+          "element": "Extra top-right text",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "expected": "No debug or panel toggle text",
+          "actual": "Text like \u0027Panels F1 Dbg:Off F2 Cmd:On\u0027 etc.",
+          "whyIncorrect": "Extra controls or debug info not present in wireframe, potentially violating clean user-facing UI behavior.",
+          "severity": "medium",
+          "confidence": 1
+        },
+        {
+          "element": "Map Key content",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "expected": "Empty or minimal Map Key",
+          "actual": "Detailed key with symbols for System orbit, Stellar body, etc.",
+          "whyIncorrect": "Content mismatch; wireframe lacks details present in actual, limiting validation of map elements.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Bottom text",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "expected": "\u0027Prompt baseline: Legacy player dashboard\u0027",
+          "actual": "\u0027top=107\u0027 and other elements",
+          "whyIncorrect": "Wireframe has baseline label, actual has different annotations, indicating residual debug artifacts.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Resource increments",
+          "requirement": "FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD",
+          "expected": "Static resources without \u002B increments",
+          "actual": "Resources show \u002B2m, \u002B1m, etc.",
+          "whyIncorrect": "Actual includes dynamic increments not represented in wireframe, a material mismatch for validating player resources.",
+          "severity": "medium",
+          "confidence": 1
+        },
+        {
+          "element": "Validation limitation",
+          "requirement": "TR-UI-AUDIT-SCHEMA-001",
+          "expected": "Pixel-perfect match at 1536x832",
+          "actual": "Visual similarities but not exact due to rendering differences",
+          "whyIncorrect": "Even with close match, image-based comparison has limitations like compression artifacts or anti-aliasing, representing residual risk.",
+          "severity": "low",
+          "confidence": 0.8
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a basic layout baseline with correct resolution and style elements, but it uses too many placeholders and lacks detail on functional content, making it inadequate for fully validating detailed UI behavior and requirements like specific buttons or dynamic elements.",
+        "missingRequirements": [
+          "Detailed representation of army purchase and hero assignment sections as per screen description",
+          "Dynamic elements like resource increments and territories/armies counts",
+          "Accurate map content including all expected star systems"
+        ],
+        "recommendedWireframeChanges": [
+          "Replace placeholders with specific labels, buttons, and sections matching the actual expected UI",
+          "Include dynamic placeholders for variable text like phase names and increments",
+          "Ensure all map elements (e.g., exact number of systems) match the baseline game state",
+          "Remove or standardize debug annotations for cleaner validation"
+        ]
+      }
+    },
+    {
+      "screenId": "lobby-browser",
+      "summary": "The actual screenshot partially matches the wireframe in terms of overall structure and style, including dark starfield background and panel layout, but shows significant deviations in content, controls, and visual details. The wireframe itself is not a precise visual baseline, reducing its suitability for detailed validation.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both actual and wireframe feature a dark starfield background with stars and subtle gradients.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Main Title",
+          "requirement": "Screen description: Game lobby browser with title",
+          "evidence": "Both display \u0027Game Lobbies\u0027 as the primary title in green terminal-style text.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Panel Borders",
+          "requirement": "Global wireframe style requirements: thin green panel borders",
+          "evidence": "Actual has thin borders around panels, matching the wireframe\u0027s green border style, though color appears slightly off due to rendering.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Semi-transparent Panels",
+          "requirement": "Global wireframe style requirements: semi-transparent black panels",
+          "evidence": "Panels in actual are semi-transparent black, overlaying the background similarly to the wireframe.",
+          "confidence": 0.9
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Lobby List Table",
+          "requirement": "Screen description: lobby list table occupying most of the center",
+          "expected": "A table or list occupying most of the center with multiple lobby entries, as described in wireframe text.",
+          "actual": "A single lobby entry is shown with host, mode, map, and player count, but the list does not occupy most of the center; large empty space below.",
+          "whyIncorrect": "The list is not fully implemented or populated, leading to incomplete occupancy of the central area and missing multi-entry representation.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Action Buttons",
+          "requirement": "Screen description: Create Lobby, Join Lobby, Refresh actions",
+          "expected": "Buttons for Create Lobby, Join Lobby, Refresh at the bottom or appropriate location.",
+          "actual": "No clear Create, Join, or Refresh buttons; only a \u00272/4\u0027 indicator and no bottom buttons matching wireframe\u0027s \u0027CREATE / CONTINUE\u0027 and \u0027BACK / CANCEL\u0027.",
+          "whyIncorrect": "Missing key interactive controls, which are essential for user actions in the lobby browser.",
+          "severity": "critical",
+          "confidence": 0.98
+        },
+        {
+          "element": "App Header",
+          "requirement": "Global wireframe style requirements: terminal-style labels",
+          "expected": "App-level header like \u0027RiskyStars Fleet command interface\u0027 at the top.",
+          "actual": "No app header; starts directly with \u0027Game Lobbies\u0027 and subtitle.",
+          "whyIncorrect": "Mismatch in overall screen structure, omitting global header present in wireframe.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Descriptive Text",
+          "requirement": "FR-UI-SCREEN-LOBBY-BROWSER: Visually satisfy the documented screen description",
+          "expected": "Concise subtitle or no large descriptive block; wireframe has descriptive text as placeholder.",
+          "actual": "Has subtitle \u0027Review active multiplayer sessions and join a command room\u0027, but wireframe has a large block of prompt text instead of UI elements.",
+          "whyIncorrect": "Actual has appropriate subtitle, but wireframe uses raw prompt text, leading to content mismatch.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Lobby Status Indicators",
+          "requirement": "Screen description: lobby list table",
+          "expected": "Table with columns for host, mode, map, etc., as implied.",
+          "actual": "Shows \u0027Available Lobbies: 1\u0027 and \u0027Showing 1 active multiplayer sessions.\u0027, with one row, but no full table structure or headers.",
+          "whyIncorrect": "Lacks proper table formatting, headers, or multi-row support visualization.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resolution and Scaling",
+          "requirement": "TR-UI-AUDIT-HWND-001: captured at 1536x832",
+          "expected": "Exact 1536x832 resolution with no scaling issues.",
+          "actual": "Appears to match resolution, but potential DPI or scaling differences in rendering of borders and text sharpness.",
+          "whyIncorrect": "Subtle differences in element sharpness and positioning suggest possible scaling or rendering variations between actual HWND and wireframe PNG.",
+          "severity": "low",
+          "confidence": 0.8
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a basic framed structure and style guidelines but primarily consists of textual description rather than a precise visual layout of UI elements like the lobby table and buttons, making it inadequate for detailed pixel-level or functional validation against requirements.",
+        "missingRequirements": [
+          "Detailed depiction of lobby list table structure, including sample rows and columns (FR-UI-SCREEN-LOBBY-BROWSER)",
+          "Explicit placement and styling of action buttons (Create, Join, Refresh) (Screen description)",
+          "Validation of dynamic elements like player counts or status indicators (FR-UI-WIREFRAME-SUITABILITY-001)"
+        ],
+        "recommendedWireframeChanges": [
+          "Replace textual description block with actual wireframe elements: a sample lobby table with headers and rows.",
+          "Add precise rectangles for buttons with labels like \u0027Create Lobby\u0027, \u0027Join Lobby\u0027, \u0027Refresh\u0027.",
+          "Ensure wireframe uses simple rectangles for controls and fixed geometry to match global style requirements."
+        ]
+      }
+    },
+    {
+      "screenId": "main-menu",
+      "summary": "The actual screenshot closely matches the wireframe in overall layout, including title, sector brief, and command actions panel with buttons. However, there are mismatches in text completeness, footer presence, extra wireframe annotations, and subtle styling differences. The wireframe is partially suitable for validation but has limitations in representing full requirements.",
+      "correctElements": [
+        {
+          "element": "Title \u0027RiskyStars\u0027",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU",
+          "evidence": "Centered at top in green terminal-style text in both actual and wireframe.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Subtitle \u0027Fleet command interface\u0027",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU",
+          "evidence": "Present below title in both images.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Command Actions panel",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU",
+          "evidence": "Right-side panel with Multiplayer, Single Player, Tutorial Mode, Settings, and Exit buttons matches layout and labels.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Dark starfield background",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Present in both, with similar dark space theme.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Sector Brief header",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU",
+          "evidence": "\u0027SECTOR BRIEF\u0027 label on left in both.",
+          "confidence": 0.95
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Sector Brief text content",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU",
+          "expected": "Full text as per prompt: \u0027Chart a system. Build a faction. Risk the stars.\u0027 and complete descriptions.",
+          "actual": "Truncated in wireframe (\u0027Risk the...\u0027) but full in actual; actual has additional \u0027SYS\u0027 prefixes not in wireframe.",
+          "whyIncorrect": "Text is incomplete in wireframe, leading to mismatch; actual adds extra prefixes not expected from wireframe.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Footer",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU",
+          "expected": "Footer showing default uplink and build version.",
+          "actual": "Present in actual with \u0027Default uplink http://localhost:5000\u0027 and \u0027Build 1.0.0\u0027, missing entirely in wireframe.",
+          "whyIncorrect": "Wireframe lacks the footer element specified in the prompt description.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Extra annotation in wireframe",
+          "requirement": "Global wireframe style requirements",
+          "expected": "Clean wireframe without generation artifacts.",
+          "actual": "Wireframe has \u0027Prompt baseline: Main menu\u0027 at bottom, not present in actual.",
+          "whyIncorrect": "Extra text in wireframe not part of the UI design, affecting suitability for direct comparison.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Panel borders",
+          "requirement": "Global wireframe style requirements",
+          "expected": "Thin green panel borders, including around Command Actions.",
+          "actual": "Actual has subtle borders, but wireframe shows explicit green border only around Command Actions panel.",
+          "whyIncorrect": "Inconsistent border visibility and application between actual and wireframe.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Background details",
+          "requirement": "Global wireframe style requirements",
+          "expected": "Consistent dark starfield with fixed geometry.",
+          "actual": "Actual has more detailed stars, gradient at bottom, and small star points not exactly matching wireframe\u0027s plainer background.",
+          "whyIncorrect": "Residual risk of background rendering differences due to dynamic generation or DPI variations, even if layout matches.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the core layout and elements but has truncated text, missing footer, and extra annotation, making it incomplete for fully validating the screen description and style requirements. It is suitable for basic structure but not for detailed content or footer validation.",
+        "missingRequirements": [
+          "Full representation of sector brief text content (FR-UI-SCREEN-MAIN-MENU)",
+          "Footer with uplink and build info (FR-UI-SCREEN-MAIN-MENU)"
+        ],
+        "recommendedWireframeChanges": [
+          "Fix text truncation in sector brief to show complete content.",
+          "Add footer with default uplink and build version.",
+          "Remove extra \u0027Prompt baseline\u0027 annotation.",
+          "Ensure consistent background rendering without generation artifacts."
+        ]
+      }
+    },
+    {
+      "screenId": "main-menu-connecting",
+      "summary": "The actual screenshot shows a connecting screen with a centered uplink panel on a starfield background, matching some global style requirements but differing significantly in text content, layout, and additional elements compared to the wireframe. The wireframe appears to incorrectly render the prompt description text instead of visualizing the intended UI, making it unsuitable for validation.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both images feature a dark starfield background with scattered stars and cosmic elements.",
+          "confidence": 1
+        },
+        {
+          "element": "Panel Borders",
+          "requirement": "Global wireframe style requirements: thin green panel borders",
+          "evidence": "The centered panel in both has thin green borders.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Panel Transparency",
+          "requirement": "Global wireframe style requirements: semi-transparent black panels",
+          "evidence": "The main panel appears semi-transparent black in both, allowing the starfield to show through.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Text Style",
+          "requirement": "Global wireframe style requirements: terminal-style labels",
+          "evidence": "Text in both uses a green, monospace-like font consistent with terminal style.",
+          "confidence": 0.85
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Title Text",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-CONNECTING: The Main menu connecting screen must visually satisfy the documented screen description",
+          "expected": "No top title like \u0027RiskyStars Fleet command interface\u0027",
+          "actual": "Wireframe has \u0027RiskyStars Fleet command interface\u0027 at the top, absent in actual",
+          "whyIncorrect": "Extra title in wireframe not present in actual screenshot or screen description, indicating mismatch in layout.",
+          "severity": "high",
+          "confidence": 1
+        },
+        {
+          "element": "Panel Content Text",
+          "requirement": "Screen description: The panel contains Establishing Uplink and a progress/status line",
+          "expected": "\u0027Establishing Uplink\u0027, \u0027Preparing the next command surface\u0027, \u0027Connecting to the sector network...\u0027, \u0027The multiplayer lobby browser will appear when the uplink is ready.\u0027",
+          "actual": "Wireframe shows prompt description text like \u0027Connecting state. Same framed command deck...\u0027 instead of intended UI text",
+          "whyIncorrect": "Wireframe renders the prompt text literally rather than visualizing the described UI elements, leading to incorrect content validation.",
+          "severity": "critical",
+          "confidence": 1
+        },
+        {
+          "element": "Buttons",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-CONNECTING: expected user-facing UI behavior",
+          "expected": "No buttons in connecting state per description",
+          "actual": "Wireframe includes \u0027PRIMARY ACTION\u0027 and \u0027BACK\u0027 buttons at bottom, absent in actual",
+          "whyIncorrect": "Extra controls in wireframe not matching the connecting state description, which implies a passive progress display.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Panel Size and Position",
+          "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+          "expected": "Large centered panel spanning most of the screen height",
+          "actual": "Wireframe has a smaller centered panel with buttons below, while actual has a wider, taller panel without buttons",
+          "whyIncorrect": "Differences in panel bounds and nesting affect layout validation.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Progress/Status Line",
+          "requirement": "Screen description: a progress/status line",
+          "expected": "Dynamic status text with ellipsis indicating ongoing process",
+          "actual": "Wireframe shows static prompt text, no actual progress indicator",
+          "whyIncorrect": "Wireframe does not represent the dynamic nature of the status, limiting validation of behavioral requirements.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Bottom Label",
+          "requirement": "Global wireframe style requirements: The output is a precise layout baseline, not a Mermaid flowchart",
+          "expected": "No extraneous labels like \u0027Prompt baseline: Main menu connecting\u0027",
+          "actual": "Wireframe has bottom label \u0027Prompt baseline: Main menu connecting\u0027, absent in actual",
+          "whyIncorrect": "Wireframe includes meta-information not part of the UI, which pollutes the baseline for comparison.",
+          "severity": "low",
+          "confidence": 0.95
+        },
+        {
+          "element": "Validation Limitation",
+          "requirement": "TR-UI-AUDIT-HWND-001: The actual screenshot must be captured from the RiskyStars client HWND at 1536x832",
+          "expected": "Exact pixel match possible with wireframe",
+          "actual": "Slight variations in starfield rendering and anti-aliasing may occur due to runtime generation",
+          "whyIncorrect": "Even in close matches, dynamic backgrounds introduce residual validation risks without pixel-perfect comparison tools.",
+          "severity": "low",
+          "confidence": 0.8
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "unsuitable",
+        "why": "The wireframe incorrectly renders the prompt description text as UI content instead of visualizing the intended connecting screen elements, making it ineffective for validating the functional and technical requirements. It includes extraneous elements like titles, buttons, and meta-labels not in the screen description.",
+        "missingRequirements": [
+          "Dynamic progress indication (e.g., animation or updating status)",
+          "Behavioral aspects like button enablement during connecting state"
+        ],
+        "recommendedWireframeChanges": [
+          "Regenerate wireframe to accurately depict the described UI with correct text and no prompt literals",
+          "Remove extra titles, buttons, and meta-labels to match screen description",
+          "Include placeholders for dynamic elements like progress bars or spinners"
+        ]
+      }
+    },
+    {
+      "screenId": "main-menu-settings",
+      "summary": "The actual screenshot depicts a detailed settings UI with sections for server endpoint and visual palette, matching the screen description but differing significantly from the wireframe, which appears to be a placeholder rendering of the prompt text rather than a visual layout. Major mismatches in content, layout, and elements indicate implementation deviations or wireframe inaccuracies.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+          "evidence": "Both actual and wireframe feature a dark starfield background consistent with the global style requirements.",
+          "confidence": 1
+        },
+        {
+          "element": "Title",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+          "evidence": "Both show \u0027Command Settings\u0027 as the main title in green terminal-style text.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Back Button",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+          "evidence": "Both include a \u0027BACK\u0027 button at the bottom of the panel.",
+          "confidence": 0.9
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Panel Content",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+          "expected": "Centered settings panel with server endpoint, display profile, and visual palette sections in a bounded scroller.",
+          "actual": "Left-aligned panel with server endpoint and visual palette sections, but wireframe shows only descriptive text block instead of actual controls.",
+          "whyIncorrect": "Wireframe does not depict the required UI elements like input fields and sections; instead, it renders the prompt description as text, leading to no match for functional controls.",
+          "severity": "critical",
+          "confidence": 1
+        },
+        {
+          "element": "Additional Top Titles",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+          "expected": "No additional top titles outside the settings panel.",
+          "actual": "Wireframe includes \u0027RiskyStars\u0027 and \u0027Fleet command interface\u0027 at the top, which are absent in the actual screenshot.",
+          "whyIncorrect": "Extra elements in wireframe not present in actual UI, violating the screen description and global style for a clean settings screen.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Primary Action Button",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+          "expected": "Fixed \u0027Save Settings\u0027 button at the bottom.",
+          "actual": "Wireframe shows \u0027PRIMARY ACTION\u0027 placeholder, while actual shows \u0027SAVE SETTINGS\u0027.",
+          "whyIncorrect": "Button text mismatch; wireframe uses generic placeholder instead of specific label from description.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Panel Positioning and Size",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+          "expected": "Centered settings panel.",
+          "actual": "Actual panel is left-aligned and larger, wireframe shows smaller centered panel with borders.",
+          "whyIncorrect": "Layout bounds and positioning differ, potentially affecting usability and fixed geometry requirements.",
+          "severity": "high",
+          "confidence": 0.85
+        },
+        {
+          "element": "Bottom Prompt Text",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+          "expected": "No extraneous text at screen bottom.",
+          "actual": "Wireframe includes \u0027Prompt baseline: Main menu settings\u0027 at bottom, absent in actual.",
+          "whyIncorrect": "Extra debug or generation artifact in wireframe not part of the UI requirements.",
+          "severity": "low",
+          "confidence": 1
+        },
+        {
+          "element": "Scroller and Sections",
+          "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+          "expected": "Bounded scroller with multiple sections including display profile.",
+          "actual": "Actual shows sections but wireframe lacks scroller, controls, and display profile section entirely.",
+          "whyIncorrect": "Missing key elements in wireframe prevent validation of scrolling behavior and complete section presence; residual risk that display profile is unimplemented.",
+          "severity": "critical",
+          "confidence": 0.95
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "unsuitable",
+        "why": "The wireframe fails to visually represent the described UI elements, instead rendering the prompt text literally within a panel, making it inadequate for validating layout, controls, and behavior against the functional requirements.",
+        "missingRequirements": [
+          "Display profile section not depicted",
+          "Bounded scroller not visualized",
+          "Actual controls like input fields and palette selectors absent"
+        ],
+        "recommendedWireframeChanges": [
+          "Regenerate wireframe to include visual representations of sections, input fields, scroller, and specific button labels",
+          "Remove placeholder text and extra titles to match screen description",
+          "Ensure centered panel with thin green borders and semi-transparent panels as per global style"
+        ]
+      }
+    },
+    {
+      "screenId": "multiplayer-lobby",
+      "summary": "The actual screenshot closely matches the described multiplayer lobby UI with metadata, slots, and actions, but the provided wireframe is a poor representation that merely echoes the prompt text instead of depicting the required elements, resulting in significant mismatches.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both the actual screenshot and wireframe feature a dark background with starfield elements.",
+          "confidence": 1
+        },
+        {
+          "element": "Title Text",
+          "requirement": "FR-UI-SCREEN-MULTIPLAYER-LOBBY: The Multiplayer lobby screen must visually satisfy the documented screen description",
+          "evidence": "Both images display \u0027Multiplayer Lobby\u0027 as the main title in a similar terminal-style font and green color.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Panel Borders",
+          "requirement": "Global wireframe style requirements: thin green panel borders",
+          "evidence": "Both images use thin green borders around primary panels.",
+          "confidence": 0.9
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Lobby Metadata Section",
+          "requirement": "FR-UI-SCREEN-MULTIPLAYER-LOBBY: Wide framed panel with lobby metadata at top",
+          "expected": "Top section with lobby metadata like Host, Map, Game Mode",
+          "actual": "Top section contains \u0027RiskyStars Fleet command interface\u0027 and prompt description text, no metadata",
+          "whyIncorrect": "Wireframe does not depict the required metadata elements; instead, it shows unrelated title and prompt text.",
+          "severity": "high",
+          "confidence": 1
+        },
+        {
+          "element": "Commander Slot Table",
+          "requirement": "FR-UI-SCREEN-MULTIPLAYER-LOBBY: commander slot table in the middle",
+          "expected": "Table with player slots, types, and remove buttons",
+          "actual": "Empty space with no table or slots present",
+          "whyIncorrect": "Wireframe lacks the central commander slot table entirely, which is a key component of the lobby screen.",
+          "severity": "critical",
+          "confidence": 1
+        },
+        {
+          "element": "Ready Buttons",
+          "requirement": "FR-UI-SCREEN-MULTIPLAYER-LOBBY: ready buttons at the right",
+          "expected": "Ready buttons positioned at the right of the slots",
+          "actual": "No ready buttons; instead, bottom buttons are \u0027CREATE / CONTINUE\u0027 and \u0027BACK / CANCEL\u0027",
+          "whyIncorrect": "Wireframe omits ready buttons and includes incorrect bottom actions not matching the description.",
+          "severity": "high",
+          "confidence": 1
+        },
+        {
+          "element": "Bottom Lobby Actions",
+          "requirement": "FR-UI-SCREEN-MULTIPLAYER-LOBBY: bottom lobby actions",
+          "expected": "Actions like review note and launch controls",
+          "actual": "Bottom buttons \u0027CREATE / CONTINUE\u0027 and \u0027BACK / CANCEL\u0027, with no review note",
+          "whyIncorrect": "Wireframe shows generic buttons not aligned with described lobby actions; missing instructional note.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Overall Layout Fidelity",
+          "requirement": "FR-UI-AUDIT-001: Every documented UI screen must have a direct prompt-rendered wireframe at 1536x832 for screenshot comparison",
+          "expected": "Precise layout baseline matching screen description",
+          "actual": "Wireframe displays prompt text verbatim instead of rendered UI elements",
+          "whyIncorrect": "The wireframe fails to provide a visual baseline for comparison, as it does not render the described UI structure.",
+          "severity": "critical",
+          "confidence": 1
+        },
+        {
+          "element": "Residual Validation Limitation",
+          "requirement": "TR-UI-AUDIT-HWND-001: The actual screenshot must be captured from the RiskyStars client HWND at 1536x832",
+          "expected": "Exact pixel match possible with wireframe",
+          "actual": "Screenshots may have minor DPI or scaling differences not visible in provided images",
+          "whyIncorrect": "Even if layout matches, image attachments are scaled, introducing potential for undetected minor discrepancies in bounds or DPI.",
+          "severity": "low",
+          "confidence": 0.8
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "unsuitable",
+        "why": "The wireframe does not accurately represent the key UI elements described in the prompt, such as metadata, slot table, ready buttons, and actions; it instead renders the descriptive text itself, making it ineffective for validating the functional and technical requirements.",
+        "missingRequirements": [
+          "Visual depiction of lobby metadata at top",
+          "Commander slot table with slots, types, and remove actions",
+          "Ready buttons at the right",
+          "Bottom lobby actions and instructional notes",
+          "Absence of extraneous elements like \u0027RiskyStars Fleet command interface\u0027"
+        ],
+        "recommendedWireframeChanges": [
+          "Redraw the wireframe to include all described UI elements using simple rectangles and labels as per global style",
+          "Remove placeholder prompt text and replace with actual UI components",
+          "Ensure fixed screen-relative geometry matches the 1536x832 resolution precisely",
+          "Incorporate semi-transparent black panels and terminal-style labels consistently"
+        ]
+      }
+    },
+    {
+      "screenId": "player-dashboard-window",
+      "summary": "The actual screenshot shows a gameplay map with a Player Dashboard window that includes resources, army purchase, and hero assignment sections, overlaid on a starfield background. It closely matches the wireframe in overall layout and style but has several mismatches in content, labels, and elements, indicating partial conformance to the screen description and requirements. The wireframe is partially suitable but lacks detail for full validation.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Both images feature a dark starfield/game-map background with celestial bodies and connections.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Player Dashboard Window",
+          "requirement": "FR-UI-SCREEN-PLAYER-DASHBOARD-WINDOW",
+          "evidence": "A dockable window titled \u0027Player Dashboard\u0027 is present on the left side in both, with thin green borders and semi-transparent black panels.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resources Section",
+          "requirement": "Screen description",
+          "evidence": "Resources (Population, Metal, Fuel) are displayed in the dashboard with values, matching the wireframe\u0027s placement and style.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map Key",
+          "requirement": "Screen description",
+          "evidence": "A Map Key panel is present on the right side in both images.",
+          "confidence": 0.8
+        },
+        {
+          "element": "Top Bar",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Top bar with turn, phase, and active player info is present in both, using terminal-style labels.",
+          "confidence": 0.9
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Phase Label",
+          "requirement": "Screen description",
+          "expected": "Production Phase",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "The phase name differs, which may indicate a mismatch in game state or labeling convention not captured in the wireframe.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Map Systems",
+          "requirement": "Screen description",
+          "expected": "Systems labeled as Sirius, Arcturus, Canopus",
+          "actual": "Systems labeled as Sirius and Canopus, no Arcturus",
+          "whyIncorrect": "Wireframe includes an extra or mislabeled system (Arcturus instead of expected), leading to inconsistency in map representation.",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resource Increments",
+          "requirement": "FR-UI-SCREEN-PLAYER-DASHBOARD-WINDOW",
+          "expected": "Static values without increments",
+          "actual": "Values with \u002B increments (e.g., \u002B2m, \u002B1m)",
+          "whyIncorrect": "Actual includes dynamic increments not present in wireframe, affecting visual and functional validation.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Dashboard Content",
+          "requirement": "Screen description",
+          "expected": "Bounded scroll content placeholder",
+          "actual": "Detailed sections: Territories, Armies, Army Purchase with buy buttons, Hero Assignment with buttons",
+          "whyIncorrect": "Wireframe uses a placeholder instead of actual scrollable body with resources, purchase, and hero controls, limiting validation of nesting and controls.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Bottom Controls",
+          "requirement": "Global wireframe style requirements",
+          "expected": "BACK and NEXT / APPLY buttons at bottom",
+          "actual": "No such buttons; instead, debug text and top=107",
+          "whyIncorrect": "Missing controls in actual that are present in wireframe, or vice versa, indicating incomplete implementation or wireframe inaccuracy.",
+          "severity": "medium",
+          "confidence": 0.8
+        },
+        {
+          "element": "Debug Text",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Clean screenshot without debug overlays",
+          "actual": "Debug text like \u0027Panels F1 Dbg:On F2 Cmd:Off\u0027 present",
+          "whyIncorrect": "Actual screenshot includes debug elements not in wireframe, potentially due to development mode, affecting clean comparison at 1536x832.",
+          "severity": "low",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map Connection Lines",
+          "requirement": "Screen description",
+          "expected": "Straight lines connecting systems",
+          "actual": "Zigzag line between systems",
+          "whyIncorrect": "Minor visual difference in line style, but as a residual risk, it highlights potential DPI/scaling or rendering variations not validated by static wireframe.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a basic layout and style baseline matching the global requirements and screen description, but uses placeholders instead of detailed content, has inaccuracies in map labels and phase, and lacks representation of scrollable behavior or dynamic elements, making it insufficient for fully validating functional and technical requirements like FR-UI-SCREEN-PLAYER-DASHBOARD-WINDOW and TR-UI-AUDIT-HWND-001.",
+        "missingRequirements": [
+          "Dynamic elements like resource increments and button interactions",
+          "Scrollable body with specific nesting of controls",
+          "Validation of z-order and DPI/scaling in actual HWND capture"
+        ],
+        "recommendedWireframeChanges": [
+          "Replace placeholders with detailed representations of resources, purchase controls, and hero controls",
+          "Correct map system labels to match expected gameplay (e.g., remove Arcturus if not intended)",
+          "Include dynamic state examples (e.g., increments) and remove extraneous buttons like BACK/NEXT if not part of the screen",
+          "Add annotations for scrollable areas and expected behaviors"
+        ]
+      }
+    },
+    {
+      "screenId": "server-status-indicator",
+      "summary": "The actual screenshot shows a gameplay HUD with map and controls, but deviates from the wireframe in layout, text, and notably lacks the emphasized server status indicator. The wireframe itself inadequately represents the key server status feature, making it partially suitable for validation.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "evidence": "Both actual and wireframe feature a dark starfield/game-map background as per global style requirements.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Top Bar Turn Info",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "evidence": "Turn information is present in the top bar in both, with similar structure (e.g., \u0027Turn 1 | ... Phase | Active: Cadet\u0027).",
+          "confidence": 0.85
+        },
+        {
+          "element": "Resource Indicators",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "evidence": "Resource labels (POP, MET, FUEL) with values are present in the top left in both.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Star Map",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "evidence": "Central star map with systems like Sirius, Arcturus, Canopus connected by lines appears in both.",
+          "confidence": 0.92
+        },
+        {
+          "element": "Map Key Panel",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "evidence": "Right-side \u0027Map Key\u0027 panel with legend items is present in both.",
+          "confidence": 0.88
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Server Status Indicator",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "expected": "Visible server status indicator in left rail/top controls area with state dot, status text, and detail line.",
+          "actual": "No visible server status indicator; left area shows small dark squares instead of a panel with indicator.",
+          "whyIncorrect": "The key emphasized feature is missing, failing to satisfy the screen description for user-facing UI behavior.",
+          "severity": "critical",
+          "confidence": 0.98
+        },
+        {
+          "element": "Phase Text",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "expected": "Production Phase in top bar.",
+          "actual": "Purchase Phase in top bar.",
+          "whyIncorrect": "Text mismatch alters the represented game state, potentially confusing validation of behavior.",
+          "severity": "medium",
+          "confidence": 1
+        },
+        {
+          "element": "Resource Values",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "expected": "Plain values without increments (e.g., POP 100, MET 50, FUEL 50).",
+          "actual": "Values with increments (e.g., POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)).",
+          "whyIncorrect": "Extra increment text changes the visual representation, not matching wireframe.",
+          "severity": "low",
+          "confidence": 0.95
+        },
+        {
+          "element": "Debug Text",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "expected": "Panels F1 Dbg:On F2 Cmd:Off F3 Ai:Off F4 Ui:Off F5 Ref:Off F6 Tut:Off H Help",
+          "actual": "Planets F1 Dbg:Off F2 Cmd:Off F3 Ai:Off F4 Ui:Off F5 Ref:Off F6 Tut:Off H Help",
+          "whyIncorrect": "Slight text difference in debug string, indicating potential state or labeling inconsistency.",
+          "severity": "low",
+          "confidence": 0.9
+        },
+        {
+          "element": "Right Top Instruction Text",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "expected": "No instruction text in top right.",
+          "actual": "Your turn: Buy armies or advance to reinforcement.",
+          "whyIncorrect": "Extra text element not present in wireframe, adding unintended content.",
+          "severity": "medium",
+          "confidence": 0.92
+        },
+        {
+          "element": "Left Panel",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "expected": "Large semi-transparent panel with green border.",
+          "actual": "Three small dark squares, no border visible.",
+          "whyIncorrect": "Mismatch in size, shape, and bordering, affecting layout validation.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Selected Panel",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "expected": "Small \u0027Selected\u0027 panel above Map Key on right.",
+          "actual": "No \u0027Selected\u0027 panel present.",
+          "whyIncorrect": "Missing panel reduces fidelity to wireframe layout.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Bottom Text",
+          "requirement": "FR-UI-SCREEN-SERVER-STATUS-INDICATOR",
+          "expected": "Prompt baseline: Server status indicator",
+          "actual": "top=107 on left and right.",
+          "whyIncorrect": "Different bottom text, likely debug artifacts not matching wireframe.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map Layout Precision",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Exact fixed screen-relative geometry matching wireframe at 1536x832.",
+          "actual": "Slight differences in planet positions, line angles, and colors.",
+          "whyIncorrect": "Residual visual differences due to rendering or scaling, though close; highlights limitation in pixel-perfect validation without coordinate measurement.",
+          "severity": "low",
+          "confidence": 0.8
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures overall HUD layout and style but inadequately depicts the emphasized server status indicator (state dot, text, detail), which is central to the screen requirements. It satisfies basic FR-UI-WIREFRAME-SUITABILITY-001 but misses dynamic or detailed representation needed for full validation.",
+        "missingRequirements": [
+          "Detailed depiction of server status indicator components (state dot, status text, detail line) as per screen description.",
+          "Representation of potential dynamic states or behaviors for the indicator."
+        ],
+        "recommendedWireframeChanges": [
+          "Add explicit server status indicator in left rail with example state dot (e.g., green dot), status text (e.g., \u0027Connected\u0027), and detail line (e.g., \u0027Latency: 50ms\u0027).",
+          "Include variations for different status states (e.g., offline, connecting) to better validate behavior.",
+          "Remove or standardize debug text to focus on production UI."
+        ]
+      }
+    },
+    {
+      "screenId": "settings-window",
+      "summary": "The actual screenshot generally aligns with the wireframe\u0027s overall layout and style, including the settings window placement, background map, and basic structure. However, there are discrepancies in content details, button labels, and missing elements like tabs in the wireframe, which affect validation against the screen description. The wireframe is partially suitable but lacks specificity for full requirement validation.",
+      "correctElements": [
+        {
+          "element": "Settings window title bar",
+          "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+          "evidence": "Both actual and wireframe show \u0027Settings\u0027 title at the top of the center-left window, matching the documented title bar requirement.",
+          "confidence": 1
+        },
+        {
+          "element": "Bounded scroll body",
+          "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+          "evidence": "Actual has settings controls in a bounded area; wireframe shows \u0027bounded scroll content\u0027 placeholder, aligning with the screen description.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Fixed footer with buttons",
+          "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+          "evidence": "Both have a footer with buttons (actual: APPLY/CANCEL; wireframe: BACK/NEXT APPLY), satisfying the fixed footer requirement at a high level.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Dark starfield background and map elements",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Both images feature a dark background with star systems like Sirius and Canopus, thin green borders, and semi-transparent panels.",
+          "confidence": 1
+        },
+        {
+          "element": "Resolution (1536x832)",
+          "requirement": "FR-UI-AUDIT-001 and TR-UI-AUDIT-HWND-001",
+          "evidence": "Both screenshots are at 1536x832, matching the required wireframe and HWND capture dimensions.",
+          "confidence": 1
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Tabs in settings window",
+          "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+          "expected": "Tabs present as per screen description (e.g., Graphics, Audio, Controls, Server)",
+          "actual": "Tabs present in actual but absent in wireframe",
+          "whyIncorrect": "Wireframe lacks tabs, making it impossible to validate their presence, positioning, and styling against the description.",
+          "severity": "high",
+          "confidence": 1
+        },
+        {
+          "element": "Footer button labels",
+          "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+          "expected": "Fixed Apply/Cancel footer as per description",
+          "actual": "Wireframe shows BACK and NEXT / APPLY; actual shows APPLY and CANCEL",
+          "whyIncorrect": "Mismatch in button text and count prevents accurate validation of user-facing behavior.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Specific settings controls",
+          "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+          "expected": "Representative controls like resolution, window mode, UI scale, VSync",
+          "actual": "Actual has specific controls; wireframe has generic \u0027bounded scroll content\u0027 text",
+          "whyIncorrect": "Wireframe\u0027s placeholder does not allow validation of control nesting, text, or functionality.",
+          "severity": "high",
+          "confidence": 1
+        },
+        {
+          "element": "Top bar phase text",
+          "requirement": "Global wireframe style requirements",
+          "expected": "Consistent game state text (e.g., \u0027Production Phase\u0027)",
+          "actual": "Wireframe: \u0027Production Phase\u0027; actual: \u0027Purchase Phase\u0027",
+          "whyIncorrect": "Text mismatch could indicate inconsistent game state rendering or wireframe inaccuracy.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Map Key panel content",
+          "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+          "expected": "Detailed key items as in actual (e.g., System orbit, Stellar body)",
+          "actual": "Actual has detailed items; wireframe has empty or minimal \u0027Map Key\u0027 panel",
+          "whyIncorrect": "Wireframe lacks content details, limiting validation of persistent UI elements during settings view.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Close button (X)",
+          "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+          "expected": "Visible close button in title bar",
+          "actual": "Present and prominent in actual; present but small/subtle in wireframe",
+          "whyIncorrect": "Z-order and visibility difference may affect usability validation.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Residual validation limitation",
+          "requirement": "TR-UI-AUDIT-SCHEMA-001",
+          "expected": "Pixel-perfect match including DPI and scaling",
+          "actual": "Visual inspection shows close match, but no pixel-level diff performed",
+          "whyIncorrect": "Audit relies on visual comparison without automated tools, introducing risk of undetected minor bounds or scaling differences.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the basic layout, style, and geometry as a precise baseline, satisfying global requirements and FR-UI-AUDIT-001. However, it uses placeholders instead of specific elements like tabs and controls mentioned in the screen description, limiting its ability to fully validate FR-UI-SCREEN-SETTINGS-WINDOW and user-facing behavior. It does not incorporate repository process requirements from AGENTS-README-FIRST.yaml, such as session logging, but these are not directly relevant to wireframe design.",
+        "missingRequirements": [
+          "Explicit depiction of tabs (Graphics, Audio, Controls, Server)",
+          "Specific settings controls (e.g., Resolution dropdown, UI Scale slider, VSync checkbox)",
+          "Accurate footer buttons (Apply/Cancel instead of Back/Next Apply)"
+        ],
+        "recommendedWireframeChanges": [
+          "Add tab strip below title bar with representative tab labels",
+          "Replace \u0027bounded scroll content\u0027 placeholder with example settings controls matching the description",
+          "Update footer to show Apply and Cancel buttons explicitly",
+          "Ensure consistent game state text (e.g., standardize phase name)"
+        ]
+      }
+    },
+    {
+      "screenId": "side-panel-container",
+      "summary": "The actual screenshot shows a gameplay screen with a star map and right-side map key, but deviates from the wireframe in panel visibility, text content, and minor layout details. Overall, it partially aligns with the side panel container description emphasizing left and right panels, but the left panel is not prominently visible, and some elements like debug text are extra.",
+      "correctElements": [
+        {
+          "element": "Dark starfield background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both actual and wireframe feature a dark background with star-like elements, matching the specified style.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Top status bar",
+          "requirement": "FR-UI-SCREEN-SIDE-PANEL-CONTAINER: Visually satisfy screen description",
+          "evidence": "Top bar present in both with turn, phase, and active player info, aligning with gameplay screen needs.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Central star map",
+          "requirement": "Screen description: Gameplay screen with game-map background",
+          "evidence": "Map with systems (Sirius, Arcturus, Canopus) connected by lines and orbits appears in both, emphasizing the core gameplay area.",
+          "confidence": 0.92
+        },
+        {
+          "element": "Resource indicators",
+          "requirement": "FR-UI-SCREEN-SIDE-PANEL-CONTAINER: Expected user-facing UI behavior",
+          "evidence": "POP, MET, FUEL displays in top bar match in position and purpose, supporting resource management behavior.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Right-side map key panel",
+          "requirement": "Screen description: Right side panel container",
+          "evidence": "Map Key panel with legends is present on the right in both, fulfilling part of the side panel requirement.",
+          "confidence": 0.9
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Left side panel",
+          "requirement": "Screen description: Emphasizing left and right side panel containers",
+          "expected": "Visible left panel container as a fixed-height dock area, shown as a dark rectangle in wireframe",
+          "actual": "No visible left panel or content; area appears as empty dark space",
+          "whyIncorrect": "Missing left panel fails to emphasize side panel containers, potentially affecting scrollable content and tool buttons",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Top bar phase text",
+          "requirement": "FR-UI-SCREEN-SIDE-PANEL-CONTAINER: Visually satisfy documented screen description",
+          "expected": "\u0027Production Phase\u0027 as in wireframe",
+          "actual": "\u0027Purchase Phase\u0027",
+          "whyIncorrect": "Text mismatch may indicate incorrect game state or inconsistent rendering, not matching the wireframe baseline",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resource change indicators",
+          "requirement": "Global wireframe style requirements: Terminal-style labels, simple rectangles",
+          "expected": "Simple resource labels without deltas (e.g., POP 100, MET 50, FUEL 50)",
+          "actual": "Resources include deltas (e.g., POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1))",
+          "whyIncorrect": "Extra delta information adds complexity not present in wireframe, deviating from simple style",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Additional panels text",
+          "requirement": "TR-UI-AUDIT-HWND-001: Actual screenshot from client HWND",
+          "expected": "Clean UI without debug overlays",
+          "actual": "Extra text like \u0027Panels F1 Dbg:Off F2 Cmd:Off ...\u0027 above resources",
+          "whyIncorrect": "Debug or extra text not in wireframe suggests development artifacts in production screenshot, impacting visual fidelity",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Right-side selected panel",
+          "requirement": "Screen description: Right side panel container with content",
+          "expected": "\u0027Selected\u0027 panel above Map Key on right",
+          "actual": "No \u0027Selected\u0027 panel; only Map Key present",
+          "whyIncorrect": "Missing panel reduces right side container functionality, not matching wireframe\u0027s multi-panel setup",
+          "severity": "high",
+          "confidence": 0.92
+        },
+        {
+          "element": "Bottom debug text",
+          "requirement": "Global wireframe style requirements: Fixed screen-relative geometry",
+          "expected": "No bottom text; clean layout",
+          "actual": "\u0027top=107\u0027 text at bottom left and right",
+          "whyIncorrect": "Extra debug info disrupts clean geometry and is not part of the wireframe, indicating residual development elements",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Map element positioning",
+          "requirement": "Global wireframe style requirements: Fixed screen-relative geometry",
+          "expected": "Precise positions as in wireframe (e.g., systems aligned diagonally with specific spacing)",
+          "actual": "Slightly different spacing and positions, with Canopus lower and more elements",
+          "whyIncorrect": "Minor bounds and nesting differences could affect usability, though close; residual risk in pixel-perfect matching due to rendering variations",
+          "severity": "low",
+          "confidence": 0.75
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a good baseline for overall layout and style but lacks details on scrollable content, top tool buttons, and interactive elements, making it insufficient for fully validating behavioral requirements like scrolling and docking.",
+        "missingRequirements": [
+          "Indication of scrollable areas within side panels",
+          "Representation of small top tool buttons in panels",
+          "Details on content nesting and z-order for dynamic UI behavior"
+        ],
+        "recommendedWireframeChanges": [
+          "Add simple scrollbar placeholders in side panels to indicate scrollability",
+          "Include small rectangle buttons at panel tops labeled as tools",
+          "Annotate panels with notes on fixed-height docking and content overflow"
+        ]
+      }
+    },
+    {
+      "screenId": "single-player-lobby",
+      "summary": "The actual screenshot depicts a detailed single-player lobby UI with map selection, commander name, server status, and opponent lineup table, aligning with the screen description. However, the wireframe is a simplistic and inaccurate representation, showing meta text and incorrect elements instead of the expected layout, resulting in significant mismatches.",
+      "correctElements": [
+        {
+          "element": "Background",
+          "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+          "evidence": "Both actual and wireframe feature a dark starfield background.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Panel Borders",
+          "requirement": "Global wireframe style requirements: thin green panel borders",
+          "evidence": "Both show thin green borders around panels.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Title Text",
+          "requirement": "Screen description: Single-player game setup",
+          "evidence": "Both include \u0027Single Player Game Setup\u0027 as a prominent title.",
+          "confidence": 0.85
+        },
+        {
+          "element": "Action Buttons",
+          "requirement": "Screen description: Start Game/Back actions",
+          "evidence": "Both have primary action buttons (e.g., START GAME vs. CREATE / CONTINUE) and back/cancel buttons.",
+          "confidence": 0.8
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Map Selection Card",
+          "requirement": "Screen description: Wide framed panel with map/name cards at top",
+          "expected": "Map selection card with label and dropdown/control.",
+          "actual": "Present in actual with \u0027Map Selection\u0027 label and \u0027Default\u0027 dropdown; absent in wireframe, replaced by descriptive text.",
+          "whyIncorrect": "Wireframe does not depict the map card, preventing validation of this element.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Commander Name Card",
+          "requirement": "Screen description: Wide framed panel with map/name cards at top",
+          "expected": "Commander name input card with label and text field.",
+          "actual": "Present in actual with \u0027Commander Name\u0027 label and \u0027Player\u0027 input; absent in wireframe.",
+          "whyIncorrect": "Wireframe lacks the name card, missing key setup element.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Server Status Card",
+          "requirement": "Screen description: server status card",
+          "expected": "Server status display, e.g., \u0027Server: Stopped\u0027.",
+          "actual": "Present in actual; absent in wireframe.",
+          "whyIncorrect": "Wireframe does not include server status, hindering validation.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Opponent Lineup Table",
+          "requirement": "Screen description: scrollable opponent lineup table",
+          "expected": "Scrollable table with columns for commander, role, shuffle, assignment.",
+          "actual": "Detailed table present in actual with multiple rows; wireframe shows only descriptive text without table structure.",
+          "whyIncorrect": "Wireframe fails to represent the table, a core component, as a visual element.",
+          "severity": "critical",
+          "confidence": 0.98
+        },
+        {
+          "element": "Action Button Labels",
+          "requirement": "Screen description: Start Game/Back actions",
+          "expected": "START GAME and BACK buttons.",
+          "actual": "Actual has \u0027START GAME\u0027 and \u0027BACK\u0027; wireframe has \u0027CREATE / CONTINUE\u0027 and \u0027BACK / CANCEL\u0027.",
+          "whyIncorrect": "Button labels do not match, potentially confusing validation of user actions.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Extra Meta Text",
+          "requirement": "Global wireframe style requirements: The output is a precise layout baseline, not a Mermaid flowchart",
+          "expected": "No meta or instructional text in wireframe.",
+          "actual": "Actual has no meta text; wireframe includes descriptive paragraph and \u0027Prompt baseline\u0027 label.",
+          "whyIncorrect": "Wireframe contains extraneous text not part of the UI, violating precise layout baseline.",
+          "severity": "high",
+          "confidence": 0.95
+        },
+        {
+          "element": "Overall Layout Geometry",
+          "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+          "expected": "Wide framed panel spanning screen with top cards, middle table, bottom actions.",
+          "actual": "Actual follows expected geometry; wireframe has stacked panels with incorrect positioning and no table.",
+          "whyIncorrect": "Wireframe layout does not match described geometry, limiting spatial validation.",
+          "severity": "critical",
+          "confidence": 0.95
+        },
+        {
+          "element": "Validation Limitation",
+          "requirement": "FR-UI-AUDIT-001: Every documented UI screen must have a direct prompt-rendered wireframe at 1536x832 for screenshot comparison",
+          "expected": "Wireframe accurately renders described elements for comparison.",
+          "actual": "Wireframe is inaccurate, but actual matches description; residual risk of DPI/scaling differences not verifiable due to wireframe quality.",
+          "whyIncorrect": "Even though actual appears correct, poor wireframe quality introduces uncertainty in pixel-perfect validation.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "unsuitable",
+        "why": "The wireframe does not visually represent the key elements described in the screen description, such as the opponent lineup table, map and name cards, and server status. Instead, it displays the prompt text literally, making it ineffective for validating the functional and technical requirements.",
+        "missingRequirements": [
+          "FR-UI-SCREEN-SINGLE-PLAYER-LOBBY: Visual satisfaction of screen description including table and cards",
+          "TR-UI-AUDIT-HWND-001: Accurate baseline for 1536x832 screenshot comparison",
+          "FR-UI-WIREFRAME-SUITABILITY-001: Suitability for validating screen requirements"
+        ],
+        "recommendedWireframeChanges": [
+          "Regenerate wireframe to visually depict map/name cards, server status, scrollable table, and precise action buttons without meta text.",
+          "Ensure adherence to global style: semi-transparent panels, terminal-style labels, simple rectangles.",
+          "Verify fixed geometry and include all described elements for precise comparison."
+        ]
+      }
+    },
+    {
+      "screenId": "tutorial-mode-window",
+      "summary": "The actual screenshot closely matches the wireframe in overall layout and style, including the docked tutorial window, map, and key. However, there are mismatches in content details, button labels, phase naming, and map elements, indicating some deviations from the expected wireframe and requirements.",
+      "correctElements": [
+        {
+          "element": "Tutorial Mode Window Position",
+          "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+          "evidence": "The tutorial window is docked to the left edge of the map content, right of any left rail, matching the wireframe\u0027s left-side panel placement.",
+          "confidence": 1
+        },
+        {
+          "element": "Fixed Title",
+          "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+          "evidence": "The window has a fixed title \u0027Tutorial Mode\u0027 at the top, consistent with the wireframe.",
+          "confidence": 1
+        },
+        {
+          "element": "Map Background and Style",
+          "requirement": "Global wireframe style requirements",
+          "evidence": "Dark starfield background with green borders and semi-transparent panels, matching the specified style in both actual and wireframe.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Footer Buttons Presence",
+          "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+          "evidence": "Stable footer buttons (Back, Next, End) are present at the bottom of the tutorial window, aligning with the wireframe\u0027s button placement.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map Key Panel",
+          "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+          "evidence": "Map Key is positioned on the right side, matching the wireframe\u0027s right panel.",
+          "confidence": 1
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "Phase Name in Top Bar",
+          "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+          "expected": "Production Phase (as in wireframe)",
+          "actual": "Purchase Phase",
+          "whyIncorrect": "The phase name differs, which may indicate a mismatch in the game state or tutorial context, affecting visual satisfaction of the screen description.",
+          "severity": "medium",
+          "confidence": 1
+        },
+        {
+          "element": "Footer Buttons Labels",
+          "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+          "expected": "BACK, NEXT / APPLY (as in wireframe)",
+          "actual": "Back, Next, End",
+          "whyIncorrect": "Button labels and count do not match; wireframe shows \u0027NEXT / APPLY\u0027 combined, while actual has separate \u0027Next\u0027 and \u0027End\u0027, potentially altering user-facing behavior.",
+          "severity": "high",
+          "confidence": 1
+        },
+        {
+          "element": "Tutorial Content",
+          "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+          "expected": "Bounded scroll content placeholder",
+          "actual": "Detailed text sections including \u0027Step 1 of 14\u0027, \u0027Boot the command deck\u0027, actions, and path list",
+          "whyIncorrect": "Wireframe uses a generic placeholder, but actual has specific content; while layout matches, the wireframe lacks detail to validate exact text and sections.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Map Elements",
+          "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+          "expected": "Sirius, Arcturus, Canopus with connections",
+          "actual": "Arcturus, Canopus with connection, no Sirius",
+          "whyIncorrect": "Map in actual screenshot misses \u0027Sirius\u0027 present in wireframe, indicating a content mismatch in the gameplay map visualization.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "Close Button",
+          "requirement": "Global wireframe style requirements",
+          "expected": "No close button shown in wireframe",
+          "actual": "X close button present in title bar",
+          "whyIncorrect": "Actual includes an extra control not represented in the wireframe, which could affect z-order or user interaction not accounted for in the baseline.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Resource Indicators",
+          "requirement": "FR-UI-SCREEN-TUTORIAL-MODE-WINDOW",
+          "expected": "POP 100, MET 50, FUEL 50 (static in wireframe)",
+          "actual": "POP 100 (\u002B2), MET 50 (\u002B1), FUEL 50 (\u002B1)",
+          "whyIncorrect": "Actual includes increment indicators not present in wireframe, adding extra text that may imply dynamic behavior not validated by the static wireframe.",
+          "severity": "low",
+          "confidence": 0.85
+        },
+        {
+          "element": "Validation Limitation",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Exact pixel match at 1536x832",
+          "actual": "Visual similarity but potential DPI/scaling differences or minor rendering artifacts",
+          "whyIncorrect": "As a residual risk, image comparison may not detect subtle DPI or scaling issues without pixel-level analysis, even though visuals appear close.",
+          "severity": "low",
+          "confidence": 0.7
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe captures the overall layout, docking, and style effectively for basic validation, but uses placeholders instead of specific content, has incorrect button labels, and mismatched map details, limiting its ability to fully validate detailed user-facing behavior and exact text requirements.",
+        "missingRequirements": [
+          "Detailed tutorial text and section boundaries for content validation",
+          "Accurate representation of dynamic elements like resource increments",
+          "Exact footer button configuration including \u0027End\u0027 vs \u0027APPLY\u0027"
+        ],
+        "recommendedWireframeChanges": [
+          "Replace placeholders with sample tutorial content to match expected sections",
+          "Update buttons to Back/Next/End for consistency with requirements",
+          "Correct phase name to \u0027Purchase Phase\u0027 if that\u0027s the intended tutorial state",
+          "Include close button in title bar if it\u0027s a required element"
+        ]
+      }
+    },
+    {
+      "screenId": "ui-scale-window",
+      "summary": "The actual screenshot shows a gameplay map with a UI Scale window, but it deviates from the wireframe in window position, content, and missing controls. The wireframe is a rough sketch that partially aligns with requirements but lacks detail for full validation.",
+      "correctElements": [
+        {
+          "element": "Background starfield and map",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "evidence": "Both images feature a dark starfield background with stellar systems and connecting lines, matching the global wireframe style.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Top status bar",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "evidence": "Turn information and phase displayed at the top in both, with similar styling.",
+          "confidence": 0.9
+        },
+        {
+          "element": "Resource panels",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "evidence": "POP, MET, FUEL indicators present in top-left, consistent with wireframe.",
+          "confidence": 0.9
+        },
+        {
+          "element": "UI Scale window presence",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "evidence": "A compact window titled \u0027UI Scale\u0027 is visible in both, overlaid on the map.",
+          "confidence": 0.95
+        },
+        {
+          "element": "Map Key panel",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "evidence": "Map Key on the right side matches in position and purpose.",
+          "confidence": 0.85
+        }
+      ],
+      "incorrectElements": [
+        {
+          "element": "UI Scale window position",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "expected": "Positioned near Sirius system on the left side of the map",
+          "actual": "Centered between Sirius and Canopus",
+          "whyIncorrect": "Window bounds do not match the fixed screen-relative geometry specified in the global style.",
+          "severity": "medium",
+          "confidence": 0.95
+        },
+        {
+          "element": "UI Scale window controls",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "expected": "Scale slider, preset controls, Apply, and Reset buttons",
+          "actual": "Only slider visible; no presets, Apply, or Reset",
+          "whyIncorrect": "Missing required controls from the screen description, affecting user-facing behavior.",
+          "severity": "high",
+          "confidence": 0.9
+        },
+        {
+          "element": "Window content text",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "expected": "Placeholder text like \u0027bounded scroll content\u0027 and buttons \u0027BACK\u0027, \u0027NEXT / APPLY\u0027",
+          "actual": "Specific text \u0027Command Deck Scale\u0027, description, and \u0027100%\u0027 label",
+          "whyIncorrect": "Text mismatch; actual has implemented content but wireframe uses placeholders, not validating exact labels.",
+          "severity": "medium",
+          "confidence": 0.85
+        },
+        {
+          "element": "Map layout",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "expected": "Three systems: Sirius, Arcturus, Canopus with zigzag connection",
+          "actual": "Two systems: Sirius, Canopus with straight connection",
+          "whyIncorrect": "Map elements differ, potentially due to dynamic game state, but wireframe assumes fixed geometry for validation.",
+          "severity": "low",
+          "confidence": 0.8
+        },
+        {
+          "element": "Debug text",
+          "requirement": "TR-UI-AUDIT-HWND-001",
+          "expected": "Clean screenshot without debug overlays",
+          "actual": "Debug text present in top bar (e.g., \u0027Panels F1 Dbg:On F2 Cmd:Off ...\u0027)",
+          "whyIncorrect": "Extra elements not in wireframe, indicating incomplete HWND capture or development artifacts.",
+          "severity": "medium",
+          "confidence": 0.9
+        },
+        {
+          "element": "Window borders and style",
+          "requirement": "FR-UI-SCREEN-UI-SCALE-WINDOW",
+          "expected": "Thin green panel borders, semi-transparent black panels",
+          "actual": "Subtle borders without green outline, semi-transparent but not matching wireframe\u0027s diagram style",
+          "whyIncorrect": "Style differences due to wireframe being a mockup; residual risk that actual rendering varies by DPI or scaling.",
+          "severity": "low",
+          "confidence": 0.85
+        }
+      ],
+      "wireframeSuitability": {
+        "rating": "partially_suitable",
+        "why": "The wireframe provides a basic layout and position baseline but uses placeholders instead of detailed controls, making it insufficient for validating interactive elements and exact text as per the screen description.",
+        "missingRequirements": [
+          "Detailed representation of scale slider, preset controls, Apply, and Reset",
+          "Validation of dynamic behavior or user interactions",
+          "Matching to actual map state for precise overlap checks"
+        ],
+        "recommendedWireframeChanges": [
+          "Incorporate exact control elements and labels from the screen description",
+          "Use a more representative map layout matching typical gameplay",
+          "Add annotations for z-order and transparency levels"
+        ]
+      }
+    }
+  ]
+}

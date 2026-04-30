@@ -26,10 +26,10 @@ internal static class TutorialHighlightTargets
         return completion switch
         {
             TutorialStepCompletion.WorldSynced => [TutorialHighlightTarget.TopBar],
-            TutorialStepCompletion.OwnTurn => [TutorialHighlightTarget.TopBar, TutorialHighlightTarget.ResourceChips],
+            TutorialStepCompletion.OwnTurn => [TutorialHighlightTarget.TopBar],
             TutorialStepCompletion.AnySelection => [TutorialHighlightTarget.MapViewport, TutorialHighlightTarget.SelectionPanel],
             TutorialStepCompletion.HelpOpen => [TutorialHighlightTarget.TopBar, TutorialHighlightTarget.HelpPanel],
-            TutorialStepCompletion.PurchasePhase => [TutorialHighlightTarget.TopBar, TutorialHighlightTarget.ResourceChips],
+            TutorialStepCompletion.PurchasePhase => [TutorialHighlightTarget.TopBar],
             TutorialStepCompletion.DashboardOpen => [TutorialHighlightTarget.TopBar, TutorialHighlightTarget.PlayerDashboard],
             TutorialStepCompletion.ArmyPurchased => [TutorialHighlightTarget.PlayerDashboard],
             TutorialStepCompletion.ReinforcementPhase => [TutorialHighlightTarget.TopBar],
@@ -65,7 +65,7 @@ internal static class TutorialHighlightTargets
         return target switch
         {
             TutorialHighlightTarget.TopBar => GameUiVisualElementIds.TopBar,
-            TutorialHighlightTarget.ResourceChips => GameUiVisualElementIds.ResourceChips,
+            TutorialHighlightTarget.ResourceChips => GameUiVisualElementIds.TopBar,
             TutorialHighlightTarget.MapViewport => GameUiVisualElementIds.MapSelectionTarget,
             TutorialHighlightTarget.HelpPanel => GameUiVisualElementIds.HelpPanel,
             TutorialHighlightTarget.PlayerDashboard => GameUiVisualElementIds.PlayerDashboard,

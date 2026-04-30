@@ -22,7 +22,6 @@ public class SidePanelContainer
     private bool _isCollapsed;
     private readonly int _collapsedWidth = 60; // Wider for clickability
     private int _currentTopOffset;
-    private Label? _debugLabel;
 
     public int Width => _isCollapsed ? _collapsedWidth : _savedExpandedWidth;
     public string Side => _side;
@@ -43,12 +42,12 @@ public class SidePanelContainer
         _currentTopOffset = topOffset;
         MethodLogger.LogInfo($"[{_side}] Constructor: defaultWidth={defaultWidth}, savedExpanded={_savedExpandedWidth}");
 
-        var stackPanel = new VerticalStackPanel
-        {
-            Spacing = 0,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Top
-        };
+        var panelLayout = ThemedUIFactory.CreateGrid(0, 0);
+        panelLayout.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        panelLayout.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        panelLayout.RowsProportions.Add(new Proportion(ProportionType.Fill));
+        panelLayout.HorizontalAlignment = HorizontalAlignment.Stretch;
+        panelLayout.VerticalAlignment = VerticalAlignment.Stretch;
 
         _containerPanel = new Panel
         {
@@ -56,20 +55,11 @@ public class SidePanelContainer
             VerticalAlignment = VerticalAlignment.Top,
             Background = ThemeManager.CreateSolidBrush(new Color(20, 25, 30, 230))
         };
-        _containerPanel.Widgets.Add(stackPanel);
-
-        _debugLabel = new Label
-        {
-            Text = "L",
-            TextColor = Microsoft.Xna.Framework.Color.Yellow,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Bottom,
-            Margin = new Thickness(4)
-        };
-        _containerPanel.Widgets.Insert(0, _debugLabel);
+        _containerPanel.Widgets.Add(panelLayout);
 
         _headerPanel = new Panel
         {
+            GridRow = 0,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
             Height = ThemeManager.ScalePixels(40),
@@ -85,8 +75,9 @@ public class SidePanelContainer
 
         var contentWrapper = new Panel
         {
+            GridRow = 1,
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Top,
+            VerticalAlignment = VerticalAlignment.Stretch,
             Margin = new Thickness(ThemeManager.ScalePixels(8))
         };
 
@@ -96,11 +87,11 @@ public class SidePanelContainer
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top
         };
-        contentWrapper.Widgets.Add(_contentPanel);
+        contentWrapper.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(_contentPanel));
 
         RebuildHeader();
-        stackPanel.Widgets.Add(_headerPanel);
-        stackPanel.Widgets.Add(contentWrapper);
+        panelLayout.Widgets.Add(_headerPanel);
+        panelLayout.Widgets.Add(contentWrapper);
         System.Diagnostics.Debug.WriteLine($"[SidePanelCtor] {_side}: screen={screenWidth}x{screenHeight}, topOff={topOffset}");
         UpdatePosition(screenWidth, screenHeight, topOffset);
     }
@@ -195,8 +186,6 @@ public class SidePanelContainer
     {
         System.Diagnostics.Debug.WriteLine($"[SidePanel] UpdatePosition: side={_side}, topOffset={topOffset}, isCollapsed={_isCollapsed}, collapsedWidth={_collapsedWidth}");
         _currentTopOffset = topOffset;
-        if (_debugLabel != null)
-            _debugLabel.Text = $"top={topOffset}";
         _containerPanel.Width = Width;
         _containerPanel.Height = screenHeight - topOffset;
         _containerPanel.HorizontalAlignment = HorizontalAlignment.Left;

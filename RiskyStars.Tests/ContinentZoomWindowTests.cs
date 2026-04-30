@@ -188,6 +188,7 @@ public class ContinentZoomWindowTests
         {
             LabelStyle = new LabelStyle(),
             ButtonStyle = new ButtonStyle(),
+            ScrollViewerStyle = new ScrollViewerStyle(),
             WindowStyle = new WindowStyle()
         };
         ThemeManager.Initialize();

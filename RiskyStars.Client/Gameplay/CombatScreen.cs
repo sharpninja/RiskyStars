@@ -7,7 +7,7 @@ namespace RiskyStars.Client;
 
 public class CombatScreen
 {
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly GraphicsDevice? _graphicsDevice;
     private Texture2D? _pixelTexture;
     private SpriteFont? _font;
     private int _screenWidth;
@@ -29,7 +29,7 @@ public class CombatScreen
     public bool IsActive { get; private set; }
     public bool IsComplete { get; private set; }
 
-    public CombatScreen(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
+    public CombatScreen(GraphicsDevice? graphicsDevice, int screenWidth, int screenHeight)
     {
         _graphicsDevice = graphicsDevice;
         _screenWidth = screenWidth;
@@ -44,6 +44,11 @@ public class CombatScreen
 
     private void CreatePixelTexture()
     {
+        if (_graphicsDevice == null)
+        {
+            return;
+        }
+
         _pixelTexture = new Texture2D(_graphicsDevice, 1, 1);
         _pixelTexture.SetData(new[] { Color.White });
     }

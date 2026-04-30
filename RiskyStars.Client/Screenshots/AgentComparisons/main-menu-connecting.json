@@ -1,0 +1,108 @@
+{
+  "screenId": "main-menu-connecting",
+  "summary": "The actual screenshot shows a connecting screen with a centered uplink panel on a starfield background, matching some global style requirements but differing significantly in text content, layout, and additional elements compared to the wireframe. The wireframe appears to incorrectly render the prompt description text instead of visualizing the intended UI, making it unsuitable for validation.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+      "evidence": "Both images feature a dark starfield background with scattered stars and cosmic elements.",
+      "confidence": 1
+    },
+    {
+      "element": "Panel Borders",
+      "requirement": "Global wireframe style requirements: thin green panel borders",
+      "evidence": "The centered panel in both has thin green borders.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Panel Transparency",
+      "requirement": "Global wireframe style requirements: semi-transparent black panels",
+      "evidence": "The main panel appears semi-transparent black in both, allowing the starfield to show through.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Text Style",
+      "requirement": "Global wireframe style requirements: terminal-style labels",
+      "evidence": "Text in both uses a green, monospace-like font consistent with terminal style.",
+      "confidence": 0.85
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Title Text",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-CONNECTING: The Main menu connecting screen must visually satisfy the documented screen description",
+      "expected": "No top title like \u0027RiskyStars Fleet command interface\u0027",
+      "actual": "Wireframe has \u0027RiskyStars Fleet command interface\u0027 at the top, absent in actual",
+      "whyIncorrect": "Extra title in wireframe not present in actual screenshot or screen description, indicating mismatch in layout.",
+      "severity": "high",
+      "confidence": 1
+    },
+    {
+      "element": "Panel Content Text",
+      "requirement": "Screen description: The panel contains Establishing Uplink and a progress/status line",
+      "expected": "\u0027Establishing Uplink\u0027, \u0027Preparing the next command surface\u0027, \u0027Connecting to the sector network...\u0027, \u0027The multiplayer lobby browser will appear when the uplink is ready.\u0027",
+      "actual": "Wireframe shows prompt description text like \u0027Connecting state. Same framed command deck...\u0027 instead of intended UI text",
+      "whyIncorrect": "Wireframe renders the prompt text literally rather than visualizing the described UI elements, leading to incorrect content validation.",
+      "severity": "critical",
+      "confidence": 1
+    },
+    {
+      "element": "Buttons",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-CONNECTING: expected user-facing UI behavior",
+      "expected": "No buttons in connecting state per description",
+      "actual": "Wireframe includes \u0027PRIMARY ACTION\u0027 and \u0027BACK\u0027 buttons at bottom, absent in actual",
+      "whyIncorrect": "Extra controls in wireframe not matching the connecting state description, which implies a passive progress display.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Panel Size and Position",
+      "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+      "expected": "Large centered panel spanning most of the screen height",
+      "actual": "Wireframe has a smaller centered panel with buttons below, while actual has a wider, taller panel without buttons",
+      "whyIncorrect": "Differences in panel bounds and nesting affect layout validation.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Progress/Status Line",
+      "requirement": "Screen description: a progress/status line",
+      "expected": "Dynamic status text with ellipsis indicating ongoing process",
+      "actual": "Wireframe shows static prompt text, no actual progress indicator",
+      "whyIncorrect": "Wireframe does not represent the dynamic nature of the status, limiting validation of behavioral requirements.",
+      "severity": "medium",
+      "confidence": 0.85
+    },
+    {
+      "element": "Bottom Label",
+      "requirement": "Global wireframe style requirements: The output is a precise layout baseline, not a Mermaid flowchart",
+      "expected": "No extraneous labels like \u0027Prompt baseline: Main menu connecting\u0027",
+      "actual": "Wireframe has bottom label \u0027Prompt baseline: Main menu connecting\u0027, absent in actual",
+      "whyIncorrect": "Wireframe includes meta-information not part of the UI, which pollutes the baseline for comparison.",
+      "severity": "low",
+      "confidence": 0.95
+    },
+    {
+      "element": "Validation Limitation",
+      "requirement": "TR-UI-AUDIT-HWND-001: The actual screenshot must be captured from the RiskyStars client HWND at 1536x832",
+      "expected": "Exact pixel match possible with wireframe",
+      "actual": "Slight variations in starfield rendering and anti-aliasing may occur due to runtime generation",
+      "whyIncorrect": "Even in close matches, dynamic backgrounds introduce residual validation risks without pixel-perfect comparison tools.",
+      "severity": "low",
+      "confidence": 0.8
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "unsuitable",
+    "why": "The wireframe incorrectly renders the prompt description text as UI content instead of visualizing the intended connecting screen elements, making it ineffective for validating the functional and technical requirements. It includes extraneous elements like titles, buttons, and meta-labels not in the screen description.",
+    "missingRequirements": [
+      "Dynamic progress indication (e.g., animation or updating status)",
+      "Behavioral aspects like button enablement during connecting state"
+    ],
+    "recommendedWireframeChanges": [
+      "Regenerate wireframe to accurately depict the described UI with correct text and no prompt literals",
+      "Remove extra titles, buttons, and meta-labels to match screen description",
+      "Include placeholders for dynamic elements like progress bars or spinners"
+    ]
+  }
+}

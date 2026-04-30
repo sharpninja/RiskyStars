@@ -19,6 +19,7 @@
     <Protobuf Include="Protos\game.proto" GrpcServices="Both" />
     <Protobuf Include="Protos\risky_stars.proto" GrpcServices="Both" />
     <Protobuf Include="Protos\turn_based_game.proto" GrpcServices="Both" />
+    <Protobuf Include="Protos\client_debug.proto" GrpcServices="Both" />
   </ItemGroup>
 
 </Project>

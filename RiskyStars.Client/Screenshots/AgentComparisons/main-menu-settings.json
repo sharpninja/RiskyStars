@@ -1,0 +1,94 @@
+{
+  "screenId": "main-menu-settings",
+  "summary": "The actual screenshot depicts a detailed settings UI with sections for server endpoint and visual palette, matching the screen description but differing significantly from the wireframe, which appears to be a placeholder rendering of the prompt text rather than a visual layout. Major mismatches in content, layout, and elements indicate implementation deviations or wireframe inaccuracies.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+      "evidence": "Both actual and wireframe feature a dark starfield background consistent with the global style requirements.",
+      "confidence": 1
+    },
+    {
+      "element": "Title",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+      "evidence": "Both show \u0027Command Settings\u0027 as the main title in green terminal-style text.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Back Button",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+      "evidence": "Both include a \u0027BACK\u0027 button at the bottom of the panel.",
+      "confidence": 0.9
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Panel Content",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+      "expected": "Centered settings panel with server endpoint, display profile, and visual palette sections in a bounded scroller.",
+      "actual": "Left-aligned panel with server endpoint and visual palette sections, but wireframe shows only descriptive text block instead of actual controls.",
+      "whyIncorrect": "Wireframe does not depict the required UI elements like input fields and sections; instead, it renders the prompt description as text, leading to no match for functional controls.",
+      "severity": "critical",
+      "confidence": 1
+    },
+    {
+      "element": "Additional Top Titles",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+      "expected": "No additional top titles outside the settings panel.",
+      "actual": "Wireframe includes \u0027RiskyStars\u0027 and \u0027Fleet command interface\u0027 at the top, which are absent in the actual screenshot.",
+      "whyIncorrect": "Extra elements in wireframe not present in actual UI, violating the screen description and global style for a clean settings screen.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Primary Action Button",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+      "expected": "Fixed \u0027Save Settings\u0027 button at the bottom.",
+      "actual": "Wireframe shows \u0027PRIMARY ACTION\u0027 placeholder, while actual shows \u0027SAVE SETTINGS\u0027.",
+      "whyIncorrect": "Button text mismatch; wireframe uses generic placeholder instead of specific label from description.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Panel Positioning and Size",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+      "expected": "Centered settings panel.",
+      "actual": "Actual panel is left-aligned and larger, wireframe shows smaller centered panel with borders.",
+      "whyIncorrect": "Layout bounds and positioning differ, potentially affecting usability and fixed geometry requirements.",
+      "severity": "high",
+      "confidence": 0.85
+    },
+    {
+      "element": "Bottom Prompt Text",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+      "expected": "No extraneous text at screen bottom.",
+      "actual": "Wireframe includes \u0027Prompt baseline: Main menu settings\u0027 at bottom, absent in actual.",
+      "whyIncorrect": "Extra debug or generation artifact in wireframe not part of the UI requirements.",
+      "severity": "low",
+      "confidence": 1
+    },
+    {
+      "element": "Scroller and Sections",
+      "requirement": "FR-UI-SCREEN-MAIN-MENU-SETTINGS",
+      "expected": "Bounded scroller with multiple sections including display profile.",
+      "actual": "Actual shows sections but wireframe lacks scroller, controls, and display profile section entirely.",
+      "whyIncorrect": "Missing key elements in wireframe prevent validation of scrolling behavior and complete section presence; residual risk that display profile is unimplemented.",
+      "severity": "critical",
+      "confidence": 0.95
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "unsuitable",
+    "why": "The wireframe fails to visually represent the described UI elements, instead rendering the prompt text literally within a panel, making it inadequate for validating layout, controls, and behavior against the functional requirements.",
+    "missingRequirements": [
+      "Display profile section not depicted",
+      "Bounded scroller not visualized",
+      "Actual controls like input fields and palette selectors absent"
+    ],
+    "recommendedWireframeChanges": [
+      "Regenerate wireframe to include visual representations of sections, input fields, scroller, and specific button labels",
+      "Remove placeholder text and extra titles to match screen description",
+      "Ensure centered panel with thin green borders and semi-transparent panels as per global style"
+    ]
+  }
+}

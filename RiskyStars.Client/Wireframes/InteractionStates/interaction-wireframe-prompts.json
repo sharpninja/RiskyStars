@@ -1,0 +1,74 @@
+{
+  "resolution": {
+    "width": 1536,
+    "height": 832
+  },
+  "screens": [
+    {
+      "id": "main-menu-settings-click-before",
+      "title": "Main menu Settings click - before",
+      "mode": "commandDeck",
+      "hidePromptBaseline": true,
+      "prompt": "Before state for invoking Settings from the main menu. Show the RiskyStars command deck over the same dark starfield backdrop used by the live main menu, with the sector brief text on the left, the Command Actions panel on the right, and the Multiplayer, Single Player, Tutorial Mode, Settings, and Exit buttons. Include the implemented sector brief copy: A framed command deck for multiplayer campaigns, fast single-player setup, and in-game ship-console tooling, plus the three uppercase SYS bullet rows.",
+      "focus": {
+        "type": "interactionActions",
+        "label": "Command Actions"
+      }
+    },
+    {
+      "id": "main-menu-settings-click-after",
+      "title": "Main menu Settings click - after",
+      "mode": "commandDeck",
+      "hidePromptBaseline": true,
+      "prompt": "After state for invoking Settings from the main menu. The same outer command deck frame remains visible over the dark starfield backdrop, while the settings view replaces the main menu content inside the frame. RiskyStars title, sector brief, and the Command Actions button column are not visible. Command Settings shows the implemented subtitle, Server Endpoint, Display Profile with Resolution, Window Mode, and UI Scale controls, Visual Palette with Accent Color and Warning Tone, a bounded scroll area, a scrollbar, and fixed Save Settings and Back buttons at the bottom.",
+      "focus": {
+        "type": "interactionSettings",
+        "label": "Command Settings"
+      }
+    },
+    {
+      "id": "main-menu-settings-back-click-before",
+      "title": "Main menu Settings Back click - before",
+      "mode": "commandDeck",
+      "hidePromptBaseline": true,
+      "prompt": "Before state for invoking Back from Command Settings. The settings view is active inside the command deck frame over the dark starfield backdrop, with Command Settings, the subtitle Display, server, session, and theme controls, Server Endpoint, Display Profile, Visual Palette, a bounded scroll area, a scrollbar, Save Settings, and Back controls visible.",
+      "focus": {
+        "type": "interactionSettings",
+        "label": "Command Settings"
+      }
+    },
+    {
+      "id": "main-menu-settings-back-click-after",
+      "title": "Main menu Settings Back click - after",
+      "mode": "commandDeck",
+      "hidePromptBaseline": true,
+      "prompt": "After state for invoking Back from Command Settings. The command deck returns to the main menu over the dark starfield backdrop with RiskyStars title, Fleet command interface, sector brief, Command Actions, and the Multiplayer, Single Player, Tutorial Mode, Settings, and Exit buttons visible. Command Settings is not visible.",
+      "focus": {
+        "type": "interactionActions",
+        "label": "Command Actions"
+      }
+    },
+    {
+      "id": "main-menu-settings-save-click-before",
+      "title": "Main menu Settings Save click - before",
+      "mode": "commandDeck",
+      "hidePromptBaseline": true,
+      "prompt": "Before state for invoking Save Settings from Command Settings. The settings view is active inside the command deck frame over the dark starfield backdrop, with Command Settings, the subtitle Display, server, session, and theme controls, Server Endpoint, Display Profile, Visual Palette, a bounded scroll area, a scrollbar, Save Settings, and Back controls visible.",
+      "focus": {
+        "type": "interactionSettings",
+        "label": "Command Settings"
+      }
+    },
+    {
+      "id": "main-menu-settings-save-click-after",
+      "title": "Main menu Settings Save click - after",
+      "mode": "commandDeck",
+      "hidePromptBaseline": true,
+      "prompt": "After state for invoking Save Settings from Command Settings. The command deck returns to the main menu over the dark starfield backdrop with RiskyStars title, Fleet command interface, sector brief, Command Actions, and the Multiplayer, Single Player, Tutorial Mode, Settings, and Exit buttons visible. Command Settings and Save Settings are not visible.",
+      "focus": {
+        "type": "interactionActions",
+        "label": "Command Actions"
+      }
+    }
+  ]
+}

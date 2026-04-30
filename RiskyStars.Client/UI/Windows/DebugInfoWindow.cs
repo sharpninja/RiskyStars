@@ -56,7 +56,7 @@ public class DebugInfoWindow : DockableWindow
         mainLayout.Widgets.Add(BuildSelectionPanel());
         mainLayout.Widgets.Add(BuildUiAuditPanel());
         
-        _window.Content = mainLayout;
+        SetScrollableContent(mainLayout);
     }
     
     private Widget BuildCameraPanel()
@@ -407,7 +407,7 @@ public class DebugInfoWindow : DockableWindow
         return button;
     }
 
-    private void SelectVisualElement(string id)
+    public void SelectVisualElement(string id)
     {
         if (string.Equals(_selectedVisualElementId, id, StringComparison.Ordinal))
         {
@@ -465,5 +465,13 @@ internal static class DebugUiAuditText
             : $" [{string.Join(", ", entry.Warnings)}]";
 
         return $"{entry.Id}: {entry.Source} {bounds.Width}x{bounds.Height} @ {bounds.X},{bounds.Y}{warningSuffix}";
+    }
+}
+
+internal static class DebugWindowContentLayout
+{
+    public static bool WouldClipWithoutScroll(int contentHeight, int viewportHeight)
+    {
+        return contentHeight > Math.Max(0, viewportHeight);
     }
 }

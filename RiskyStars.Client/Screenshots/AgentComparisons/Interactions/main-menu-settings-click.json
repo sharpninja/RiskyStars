@@ -1,0 +1,130 @@
+{
+  "interactionId": "main-menu-settings-click",
+  "summary": "The actual UI transitions from the main menu to the settings view as expected, but the after state is incomplete, missing several sections like Display Profile and UI Scale compared to the wireframe. The outer frame remains consistent.",
+  "correctStateChanges": [
+    {
+      "element": "Main Title \u0027RiskyStars\u0027",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expectedBefore": "Visible at the top",
+      "expectedAfter": "Not visible",
+      "actualBefore": "Visible at the top",
+      "actualAfter": "Not visible",
+      "evidence": "Title present in before images, absent in after images",
+      "confidence": 1
+    },
+    {
+      "element": "Sector Brief",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expectedBefore": "Visible with text content",
+      "expectedAfter": "Not visible",
+      "actualBefore": "Visible with text content",
+      "actualAfter": "Not visible",
+      "evidence": "Brief text present in before, replaced in after",
+      "confidence": 1
+    },
+    {
+      "element": "Command Actions Panel",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expectedBefore": "Visible on the right with buttons",
+      "expectedAfter": "Not visible",
+      "actualBefore": "Visible on the right with buttons",
+      "actualAfter": "Not visible",
+      "evidence": "Panel and buttons present in before, absent in after",
+      "confidence": 1
+    },
+    {
+      "element": "Settings View Title \u0027Command Settings\u0027",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expectedBefore": "Not visible",
+      "expectedAfter": "Visible at the top",
+      "actualBefore": "Not visible",
+      "actualAfter": "Visible at the top",
+      "evidence": "Title appears in after images",
+      "confidence": 1
+    },
+    {
+      "element": "Server Endpoint Section",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expectedBefore": "Not visible",
+      "expectedAfter": "Visible with input field",
+      "actualBefore": "Not visible",
+      "actualAfter": "Visible with input field",
+      "evidence": "Section appears in after images matching wireframe",
+      "confidence": 1
+    },
+    {
+      "element": "Save Settings and Back Buttons",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expectedBefore": "Not visible",
+      "expectedAfter": "Visible at the bottom",
+      "actualBefore": "Not visible",
+      "actualAfter": "Visible at the bottom",
+      "evidence": "Buttons appear in after images",
+      "confidence": 1
+    },
+    {
+      "element": "Settings Scrollbar",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expectedBefore": "Not visible",
+      "expectedAfter": "Visible on the right",
+      "actualBefore": "Not visible",
+      "actualAfter": "Visible on the right",
+      "evidence": "Scrollbar appears in after images",
+      "confidence": 1
+    },
+    {
+      "element": "Outer Command Deck Frame",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expectedBefore": "Visible",
+      "expectedAfter": "Visible",
+      "actualBefore": "Visible",
+      "actualAfter": "Visible",
+      "evidence": "Frame remains consistent across before and after images",
+      "confidence": 1
+    }
+  ],
+  "incorrectStateChanges": [
+    {
+      "element": "Display Profile Section",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expected": "Visible in after state with resolution, window mode",
+      "actual": "Not visible in after screenshot",
+      "whyIncorrect": "The full Command Settings view should include Display Profile, but it is missing, resulting in incomplete transition",
+      "severity": "high",
+      "confidence": 1
+    },
+    {
+      "element": "UI Scale Section",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expected": "Visible in after state with slider",
+      "actual": "Not visible in after screenshot",
+      "whyIncorrect": "Expected UI Scale controls are absent, indicating incomplete settings view",
+      "severity": "high",
+      "confidence": 1
+    },
+    {
+      "element": "Visual Palette Section",
+      "requirement": "FR-UI-INTERACTION-MAIN-MENU-SETTINGS-001",
+      "expected": "Positioned below UI Scale with full controls",
+      "actual": "Appears directly after empty space following Server Endpoint, partially matching but out of order due to missing sections",
+      "whyIncorrect": "Position and context incorrect due to missing preceding sections",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Overall Content Layout",
+      "requirement": "TR-UI-INTERACTION-HWND-001",
+      "expected": "Full settings content fitting without excessive empty space at 1536x832",
+      "actual": "Large empty space between sections, suggesting missing content or layout issue",
+      "whyIncorrect": "Layout does not match wireframe dimensions and content density",
+      "severity": "medium",
+      "confidence": 0.95
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "suitable",
+    "why": "The before and after wireframes accurately depict the expected states, including all required elements and transitions, allowing effective validation against the functional and technical requirements.",
+    "missingRequirements": [],
+    "recommendedWireframeChanges": []
+  }
+}

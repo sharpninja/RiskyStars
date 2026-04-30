@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+option csharp_namespace = "RiskyStars.Shared";
+
+package risky_stars.client_debug;
+
+service ClientDebugProtocol {
+  rpc DumpVisualTree (DumpVisualTreeRequest) returns (DumpVisualTreeResponse);
+  rpc FocusElement (FocusElementRequest) returns (ClientDebugActionResponse);
+  rpc GetElementText (ClientDebugElementRequest) returns (ElementTextResponse);
+  rpc SetElementText (SetElementTextRequest) returns (ClientDebugActionResponse);
+  rpc SetElementProperty (SetElementPropertyRequest) returns (ClientDebugActionResponse);
+  rpc InvokeClick (ClientDebugElementRequest) returns (ClientDebugActionResponse);
+  rpc NavigateToScreen (NavigateToScreenRequest) returns (ClientDebugActionResponse);
+  rpc GetTutorialState (TutorialStateRequest) returns (TutorialStateResponse);
+  rpc SeedTutorialScenario (SeedTutorialScenarioRequest) returns (ClientDebugActionResponse);
+  rpc InvokeTutorialAction (InvokeTutorialActionRequest) returns (ClientDebugActionResponse);
+}
+
+message DumpVisualTreeRequest {
+  bool include_hidden = 1;
+}
+
+message DumpVisualTreeResponse {
+  ClientDebugActionResponse result = 1;
+  string json = 2;
+}
+
+message FocusElementRequest {
+  string element_id = 1;
+  bool show_debug_window = 2;
+}
+
+message ClientDebugElementRequest {
+  string element_id = 1;
+}
+
+message ElementTextResponse {
+  ClientDebugActionResponse result = 1;
+  string text = 2;
+}
+
+message SetElementTextRequest {
+  string element_id = 1;
+  string text = 2;
+}
+
+message SetElementPropertyRequest {
+  string element_id = 1;
+  string property_name = 2;
+  string value = 3;
+}
+
+message NavigateToScreenRequest {
+  string screen_id = 1;
+}
+
+message TutorialStateRequest {
+}
+
+message SeedTutorialScenarioRequest {
+}
+
+message InvokeTutorialActionRequest {
+  string expected_step_id = 1;
+  string action = 2;
+}
+
+message TutorialHighlightBound {
+  string target = 1;
+  int32 x = 2;
+  int32 y = 3;
+  int32 width = 4;
+  int32 height = 5;
+  bool visible = 6;
+}
+
+message TutorialStateResponse {
+  ClientDebugActionResponse result = 1;
+  int32 step_index = 2;
+  int32 step_count = 3;
+  string step_id = 4;
+  string title = 5;
+  string objective = 6;
+  string status = 7;
+  string next_button_text = 8;
+  bool is_complete = 9;
+  bool tutorial_visible = 10;
+  repeated string highlight_targets = 11;
+  repeated TutorialHighlightBound highlight_bounds = 12;
+  string phase = 13;
+  string current_player_id = 14;
+  string selection_type = 15;
+  string selected_owner_id = 16;
+  bool help_visible = 17;
+  bool dashboard_visible = 18;
+  bool encyclopedia_visible = 19;
+  bool context_menu_open = 20;
+  int32 own_army_count = 21;
+  int32 moved_army_count = 22;
+  int32 population = 23;
+  int32 metal = 24;
+  int32 fuel = 25;
+}
+
+message ClientDebugActionResponse {
+  bool success = 1;
+  string message = 2;
+}

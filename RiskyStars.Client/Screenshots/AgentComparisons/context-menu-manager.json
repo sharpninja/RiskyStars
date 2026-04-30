@@ -1,0 +1,118 @@
+{
+  "screenId": "context-menu-manager",
+  "summary": "The actual screenshot partially matches the wireframe for the context menu manager screen, with correct overall layout and style but notable differences in menu positioning, content, map details, and text labels. The wireframe is partially suitable but lacks specificity in dynamic elements and anchoring behavior.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "evidence": "Both images feature a dark starfield/game-map background consistent with the global wireframe style requirements.",
+      "confidence": 1
+    },
+    {
+      "element": "Top Status Bar",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "evidence": "Present in both with turn information, phase, active player, and resource indicators, matching the expected gameplay map layout.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Context Menu Panel",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "evidence": "A semi-transparent black panel with thin green borders and terminal-style labels is visible near a selected region in both, listing contextual actions.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Map Elements",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "evidence": "Circular region representations with labels and icons are present in both, anchored to map positions.",
+      "confidence": 0.85
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Context Menu Position",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "expected": "Menu anchored to the side of the selected region (e.g., right or left of the circle).",
+      "actual": "Menu anchored below the selected region.",
+      "whyIncorrect": "Mismatch in anchoring position relative to the click point, potentially affecting usability and not matching the wireframe\u0027s fixed geometry.",
+      "severity": "medium",
+      "confidence": 0.95
+    },
+    {
+      "element": "Context Menu Content",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "expected": "Title \u0027Context Menu\u0027 with items \u0027View Info\u0027, \u0027Reinforce\u0027, \u0027Diplomacy\u0027.",
+      "actual": "Title \u0027Lankhmar\u0027 with items \u0027View Info\u0027, \u0027Reinforce Location\u0027.",
+      "whyIncorrect": "Different title and menu items; missing \u0027Diplomacy\u0027, altered \u0027Reinforce\u0027 text, which may not fully represent contextual actions.",
+      "severity": "high",
+      "confidence": 1
+    },
+    {
+      "element": "Map Details",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "expected": "Multiple connected regions like \u0027Arcturus\u0027 and \u0027Canopus\u0027 with lines.",
+      "actual": "Single region \u0027Lankhmar\u0027 without connections visible.",
+      "whyIncorrect": "Wireframe shows a more populated map, while actual has minimal elements, possibly due to game state, but this limits validation of full map interactions.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Right Side Panels",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "expected": "\u0027Selected . .\u0027 and \u0027Map Key\u0027 panels.",
+      "actual": "\u0027Selected Region Name: Lankhmar\u0027 panel.",
+      "whyIncorrect": "Mismatch in panel content and presence; missing \u0027Map Key\u0027, different selected info format.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Debug/Extra Text",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "Clean screenshot without debug overlays.",
+      "actual": "Additional text like \u0027Planets F1 Dbg:On F2 Cmd:Off\u0027 and \u0027top=107\u0027 visible.",
+      "whyIncorrect": "Extra elements not in wireframe, likely debug artifacts, affecting clean comparison at 1536x832 resolution.",
+      "severity": "low",
+      "confidence": 0.95
+    },
+    {
+      "element": "Phase Text",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "expected": "\u0027Production Phase\u0027",
+      "actual": "\u0027Purchase Phase\u0027",
+      "whyIncorrect": "Textual mismatch in phase name, which could indicate inconsistency in game state representation between wireframe and actual.",
+      "severity": "low",
+      "confidence": 1
+    },
+    {
+      "element": "Resource Indicators",
+      "requirement": "FR-UI-SCREEN-CONTEXT-MENU-MANAGER",
+      "expected": "Simple values like \u0027POP 100\u0027, \u0027MET 50\u0027, \u0027FUEL 50\u0027.",
+      "actual": "Values with increments like \u0027POP 100 (\u002B2)\u0027, \u0027MET 50 (\u002B1)\u0027, \u0027FUEL 50 (\u002B1)\u0027.",
+      "whyIncorrect": "Additional increment details not present in wireframe, representing dynamic data not accounted for in static wireframe.",
+      "severity": "low",
+      "confidence": 0.9
+    },
+    {
+      "element": "Validation Limitation",
+      "requirement": "FR-UI-WIREFRAME-SUITABILITY-001",
+      "expected": "Pixel-perfect match for all visible elements.",
+      "actual": "Visual inspection shows close but not exact match due to rendering differences.",
+      "whyIncorrect": "Residual risk from image-based comparison without pixel-level analysis; minor DPI or scaling variances possible.",
+      "severity": "low",
+      "confidence": 0.8
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the overall layout, style, and key elements like the context menu and map, but uses placeholder text, a specific game state with multiple regions, and lacks details on dynamic anchoring or variable content, making it incomplete for fully validating behavioral requirements.",
+    "missingRequirements": [
+      "Dynamic anchoring behavior based on click position is not explicitly demonstrated or annotated.",
+      "Variations in menu items or game states (e.g., different phases or resource displays) are not represented.",
+      "Absence of annotations for semi-transparency levels, exact font styles, or z-order priorities."
+    ],
+    "recommendedWireframeChanges": [
+      "Add annotations for dynamic positioning and possible menu item variations.",
+      "Include multiple variants showing different game states or menu configurations.",
+      "Specify exact bounds and geometry for all elements to ensure fixed screen-relative validation."
+    ]
+  }
+}

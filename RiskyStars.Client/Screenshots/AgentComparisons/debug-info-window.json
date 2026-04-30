@@ -1,0 +1,122 @@
+{
+  "screenId": "debug-info-window",
+  "summary": "The actual screenshot shows a gameplay map with a debug information window containing specific sections, but it deviates from the wireframe in content details, controls, and some layout aspects. The wireframe provides a basic layout but lacks sufficient detail for precise validation against the described requirements.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "evidence": "Both actual and wireframe feature a dark starfield/game-map background consistent with global style requirements.",
+      "confidence": 1
+    },
+    {
+      "element": "Top Status Bar",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "evidence": "Top bar present in both with turn, phase, and active player information, matching terminal-style labels.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Resource Indicators",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "evidence": "POP, MET, FUEL displays are present in similar positions and styles in both images.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Debug Information Window Title",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "evidence": "Title \u0027Debug Information\u0027 appears in both, with thin green borders and semi-transparent black panel.",
+      "confidence": 1
+    },
+    {
+      "element": "Map Elements (Sirius and Canopus)",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "evidence": "Circular map representations for Sirius and Canopus are visible in similar positions in both.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Map Key Panel",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "evidence": "Map Key panel is present on the right side in both, though positioning varies slightly.",
+      "confidence": 0.8
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Phase Text in Top Bar",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "expected": "Production Phase",
+      "actual": "Purchase Phase",
+      "whyIncorrect": "The phase text differs, which may indicate a mismatch in game state representation or wireframe accuracy for the screen description.",
+      "severity": "low",
+      "confidence": 1
+    },
+    {
+      "element": "Debug Window Content",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "expected": "Bounded scroll content placeholder",
+      "actual": "Detailed sections: Camera, Performance, Game State, Selection, UI Audit",
+      "whyIncorrect": "Actual content includes specific debug sections as per description, but wireframe uses a generic placeholder, leading to incomplete validation of required sections like camera, performance, game state, and visual tree inspection.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Debug Window Controls",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "expected": "BACK and NEXT / APPLY buttons at bottom",
+      "actual": "No buttons present",
+      "whyIncorrect": "Wireframe includes navigation buttons not present in actual screenshot, suggesting either extra elements in wireframe or missing functionality in actual UI.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Debug Window Bounds and Scroller",
+      "requirement": "TR-UI-AUDIT-HWND-001",
+      "expected": "Tall window with bounded scroll content and green borders matching 1536x832 geometry",
+      "actual": "Shorter window with detailed content, no visible scroller, slight border and positioning differences",
+      "whyIncorrect": "Bounds and nesting differ; actual appears to lack scroller and has different height, potentially affecting dockable behavior and fixed geometry.",
+      "severity": "medium",
+      "confidence": 0.85
+    },
+    {
+      "element": "Panels Status Text",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "expected": "Panels F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5",
+      "actual": "Panels F1 Dbg:On F2 Cmd:Off F3 AI:Off F4 UI:Off F5 Ref:Off F6 Tut:Off H Help:Off",
+      "whyIncorrect": "Actual has additional panel status items (Ref, Tut, Help), indicating extra controls or state not represented in wireframe.",
+      "severity": "low",
+      "confidence": 0.9
+    },
+    {
+      "element": "Selected Panel",
+      "requirement": "FR-UI-SCREEN-DEBUG-INFO-WINDOW",
+      "expected": "Selected panel with content on right side",
+      "actual": "No distinct Selected panel; selection info integrated into debug window",
+      "whyIncorrect": "Wireframe shows a separate Selected panel, but actual incorporates selection into debug window, leading to layout mismatch.",
+      "severity": "medium",
+      "confidence": 0.8
+    },
+    {
+      "element": "Overall Layout Fidelity",
+      "requirement": "FR-UI-AUDIT-001",
+      "expected": "Precise match to wireframe at 1536x832",
+      "actual": "Close but with variances in element positions, sizes, and presence",
+      "whyIncorrect": "Residual risk: Potential DPI/scaling differences or z-order issues not fully verifiable from static images; audit limited to visual comparison without interaction testing.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the overall layout and style but uses generic placeholders instead of detailed representations of required sections (camera, performance, game state, visual tree inspection), limiting its effectiveness for validating specific content and scroller behavior. It includes extraneous buttons not mentioned in the screen description, and does not fully align with repository process requirements for precise baselines as per AGENTS-README-FIRST content emphasizing correctness and verification.",
+    "missingRequirements": [
+      "Detailed placeholders for camera, performance, game state, and visual tree inspection sections",
+      "Explicit indication of scroller functionality and content overflow",
+      "Alignment with dynamic game state elements like phase and panel statuses"
+    ],
+    "recommendedWireframeChanges": [
+      "Replace generic \u0027bounded scroll content\u0027 with structured section headers and sample data matching the screen description",
+      "Remove or justify the inclusion of BACK and NEXT/APPLY buttons if not part of the required UI behavior",
+      "Ensure exact matching of text and states (e.g., phase text) to a canonical game state for consistency",
+      "Incorporate validation markers for DPI, scaling, and z-order to better support TR-UI-AUDIT-HWND-001"
+    ]
+  }
+}

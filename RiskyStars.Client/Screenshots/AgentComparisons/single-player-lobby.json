@@ -1,0 +1,118 @@
+{
+  "screenId": "single-player-lobby",
+  "summary": "The actual screenshot depicts a detailed single-player lobby UI with map selection, commander name, server status, and opponent lineup table, aligning with the screen description. However, the wireframe is a simplistic and inaccurate representation, showing meta text and incorrect elements instead of the expected layout, resulting in significant mismatches.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+      "evidence": "Both actual and wireframe feature a dark starfield background.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Panel Borders",
+      "requirement": "Global wireframe style requirements: thin green panel borders",
+      "evidence": "Both show thin green borders around panels.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Title Text",
+      "requirement": "Screen description: Single-player game setup",
+      "evidence": "Both include \u0027Single Player Game Setup\u0027 as a prominent title.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Action Buttons",
+      "requirement": "Screen description: Start Game/Back actions",
+      "evidence": "Both have primary action buttons (e.g., START GAME vs. CREATE / CONTINUE) and back/cancel buttons.",
+      "confidence": 0.8
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Map Selection Card",
+      "requirement": "Screen description: Wide framed panel with map/name cards at top",
+      "expected": "Map selection card with label and dropdown/control.",
+      "actual": "Present in actual with \u0027Map Selection\u0027 label and \u0027Default\u0027 dropdown; absent in wireframe, replaced by descriptive text.",
+      "whyIncorrect": "Wireframe does not depict the map card, preventing validation of this element.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Commander Name Card",
+      "requirement": "Screen description: Wide framed panel with map/name cards at top",
+      "expected": "Commander name input card with label and text field.",
+      "actual": "Present in actual with \u0027Commander Name\u0027 label and \u0027Player\u0027 input; absent in wireframe.",
+      "whyIncorrect": "Wireframe lacks the name card, missing key setup element.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Server Status Card",
+      "requirement": "Screen description: server status card",
+      "expected": "Server status display, e.g., \u0027Server: Stopped\u0027.",
+      "actual": "Present in actual; absent in wireframe.",
+      "whyIncorrect": "Wireframe does not include server status, hindering validation.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Opponent Lineup Table",
+      "requirement": "Screen description: scrollable opponent lineup table",
+      "expected": "Scrollable table with columns for commander, role, shuffle, assignment.",
+      "actual": "Detailed table present in actual with multiple rows; wireframe shows only descriptive text without table structure.",
+      "whyIncorrect": "Wireframe fails to represent the table, a core component, as a visual element.",
+      "severity": "critical",
+      "confidence": 0.98
+    },
+    {
+      "element": "Action Button Labels",
+      "requirement": "Screen description: Start Game/Back actions",
+      "expected": "START GAME and BACK buttons.",
+      "actual": "Actual has \u0027START GAME\u0027 and \u0027BACK\u0027; wireframe has \u0027CREATE / CONTINUE\u0027 and \u0027BACK / CANCEL\u0027.",
+      "whyIncorrect": "Button labels do not match, potentially confusing validation of user actions.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Extra Meta Text",
+      "requirement": "Global wireframe style requirements: The output is a precise layout baseline, not a Mermaid flowchart",
+      "expected": "No meta or instructional text in wireframe.",
+      "actual": "Actual has no meta text; wireframe includes descriptive paragraph and \u0027Prompt baseline\u0027 label.",
+      "whyIncorrect": "Wireframe contains extraneous text not part of the UI, violating precise layout baseline.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Overall Layout Geometry",
+      "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+      "expected": "Wide framed panel spanning screen with top cards, middle table, bottom actions.",
+      "actual": "Actual follows expected geometry; wireframe has stacked panels with incorrect positioning and no table.",
+      "whyIncorrect": "Wireframe layout does not match described geometry, limiting spatial validation.",
+      "severity": "critical",
+      "confidence": 0.95
+    },
+    {
+      "element": "Validation Limitation",
+      "requirement": "FR-UI-AUDIT-001: Every documented UI screen must have a direct prompt-rendered wireframe at 1536x832 for screenshot comparison",
+      "expected": "Wireframe accurately renders described elements for comparison.",
+      "actual": "Wireframe is inaccurate, but actual matches description; residual risk of DPI/scaling differences not verifiable due to wireframe quality.",
+      "whyIncorrect": "Even though actual appears correct, poor wireframe quality introduces uncertainty in pixel-perfect validation.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "unsuitable",
+    "why": "The wireframe does not visually represent the key elements described in the screen description, such as the opponent lineup table, map and name cards, and server status. Instead, it displays the prompt text literally, making it ineffective for validating the functional and technical requirements.",
+    "missingRequirements": [
+      "FR-UI-SCREEN-SINGLE-PLAYER-LOBBY: Visual satisfaction of screen description including table and cards",
+      "TR-UI-AUDIT-HWND-001: Accurate baseline for 1536x832 screenshot comparison",
+      "FR-UI-WIREFRAME-SUITABILITY-001: Suitability for validating screen requirements"
+    ],
+    "recommendedWireframeChanges": [
+      "Regenerate wireframe to visually depict map/name cards, server status, scrollable table, and precise action buttons without meta text.",
+      "Ensure adherence to global style: semi-transparent panels, terminal-style labels, simple rectangles.",
+      "Verify fixed geometry and include all described elements for precise comparison."
+    ]
+  }
+}

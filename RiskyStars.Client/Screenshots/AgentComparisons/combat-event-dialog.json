@@ -1,0 +1,144 @@
+{
+  "screenId": "combat-event-dialog",
+  "summary": "The actual screenshot depicts a gameplay map with a centered, large combat event modal displaying summary details, which aligns more closely with the screen description than the wireframe. However, significant mismatches exist in modal size, content, buttons, and additional elements, indicating the actual UI has evolved beyond the wireframe baseline. The wireframe is partially suitable as a style reference but inadequate for detailed layout validation.",
+  "correctElements": [
+    {
+      "element": "Background",
+      "requirement": "Global wireframe style requirements: Dark starfield/game-map background",
+      "evidence": "Both actual and wireframe show a dark background with star systems and connections.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Top Bar",
+      "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: Gameplay map with centered combat event modal",
+      "evidence": "Top bar present in both with turn, phase, and active player information.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Resource Panels",
+      "requirement": "TR-UI-AUDIT-HWND-001: Actual screenshot at 1536x832",
+      "evidence": "Resource indicators (POP, MET, FUEL) visible in both, positioned similarly at top-left.",
+      "confidence": 0.85
+    },
+    {
+      "element": "Map Key Panel",
+      "requirement": "Global wireframe style requirements: semi-transparent black panels, thin green borders",
+      "evidence": "Map key panel on right side with green border in both.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Centered Modal Dialog",
+      "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: Centered combat event modal",
+      "evidence": "Modal dialog is centered in both actual and wireframe.",
+      "confidence": 0.95
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Modal Size and Layout",
+      "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: Larger dialog with combat summary, region/body context",
+      "expected": "Small modal with bounded scroll content",
+      "actual": "Large modal spanning much of the screen with detailed combat summary and graphics",
+      "whyIncorrect": "Actual modal is significantly larger and includes integrated graphics and text not present in wireframe, deviating from wireframe baseline.",
+      "severity": "high",
+      "confidence": 0.98
+    },
+    {
+      "element": "Modal Title",
+      "requirement": "Global wireframe style requirements: terminal-style labels",
+      "expected": "Combat Event",
+      "actual": "Combat Initiated",
+      "whyIncorrect": "Title text differs, which may indicate a change in UI flow or event triggering.",
+      "severity": "medium",
+      "confidence": 0.95
+    },
+    {
+      "element": "Modal Content",
+      "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: combat summary, region/body context",
+      "expected": "bounded scroll content (placeholder)",
+      "actual": "Specific combat details including attackers, defenders, and region",
+      "whyIncorrect": "Wireframe uses generic placeholder, while actual has dynamic content; this mismatch limits validation of content structure.",
+      "severity": "high",
+      "confidence": 0.97
+    },
+    {
+      "element": "Modal Buttons",
+      "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: OK/Start action",
+      "expected": "BACK and NEXT / APPLY buttons",
+      "actual": "VIEW, Ok, and Cancel buttons",
+      "whyIncorrect": "Button labels and actions differ, suggesting a different interaction model not captured in wireframe.",
+      "severity": "critical",
+      "confidence": 0.98
+    },
+    {
+      "element": "Map Systems",
+      "requirement": "Global wireframe style requirements: fixed screen-relative geometry",
+      "expected": "Systems including Sirius, Arcturus, Canopus",
+      "actual": "Systems including Sirius and Canopus, no Arcturus; additional graphics",
+      "whyIncorrect": "Missing system in actual and extra elements like pointers, affecting geometric comparison.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Resource Values",
+      "requirement": "TR-UI-AUDIT-001: Validate against wireframe",
+      "expected": "Static values (POP 100, MET 50, FUEL 50)",
+      "actual": "Values with increments (POP 100 (\u002B2), etc.)",
+      "whyIncorrect": "Actual includes dynamic increments not in wireframe, potentially indicating unvalidated data binding.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Debug Text",
+      "requirement": "Global wireframe style requirements: simple rectangles for controls",
+      "expected": "No debug text",
+      "actual": "Debug text at top (e.g., Planets F1 Dbg:Off ...)",
+      "whyIncorrect": "Extra debug elements in actual not present in wireframe, which could be a development artifact but affects cleanliness.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Selected Panel",
+      "requirement": "FR-UI-SCREEN-COMBAT-EVENT-DIALOG: Expected user-facing UI behavior",
+      "expected": "Selected panel on right with content",
+      "actual": "No selected panel; map key instead",
+      "whyIncorrect": "Wireframe includes a selected panel not in actual, indicating missing or changed UI component.",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "element": "Phase Label",
+      "requirement": "Global wireframe style requirements: terminal-style labels",
+      "expected": "Production Phase",
+      "actual": "Purchase Phase",
+      "whyIncorrect": "Phase name differs, which might be contextual but highlights wireframe not representing current game state.",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Validation Limitation",
+      "requirement": "TR-UI-AUDIT-AGENTS-001: Consider AGENTS-README-FIRST for process requirements",
+      "expected": "Wireframe as precise layout baseline",
+      "actual": "Actual includes dynamic elements like debug text and increments",
+      "whyIncorrect": "Residual risk: Wireframe lacks dynamic state representation, limiting validation of runtime behaviors as per repository process in AGENTS-README-FIRST.",
+      "severity": "medium",
+      "confidence": 0.9
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe provides a basic style and layout baseline at the correct resolution, satisfying FR-UI-AUDIT-001, but it uses placeholders and incorrect buttons/size, making it inadequate for validating the detailed combat summary and actions in FR-UI-SCREEN-COMBAT-EVENT-DIALOG. It does not fully represent the screen description, reducing its effectiveness for precise comparison.",
+    "missingRequirements": [
+      "Detailed representation of combat summary and region/body context",
+      "Correct button actions (OK/Start instead of BACK/NEXT)",
+      "Dynamic elements like resource increments and debug visibility"
+    ],
+    "recommendedWireframeChanges": [
+      "Increase modal size to match \u0027larger dialog\u0027 description",
+      "Update content to include example combat summary and graphics",
+      "Change buttons to VIEW/Ok/Cancel or equivalent per requirements",
+      "Remove placeholders and add representative dynamic content",
+      "Ensure map systems and panels match expected game state"
+    ]
+  }
+}

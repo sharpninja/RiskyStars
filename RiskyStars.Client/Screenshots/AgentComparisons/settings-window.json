@@ -1,0 +1,116 @@
+{
+  "screenId": "settings-window",
+  "summary": "The actual screenshot generally aligns with the wireframe\u0027s overall layout and style, including the settings window placement, background map, and basic structure. However, there are discrepancies in content details, button labels, and missing elements like tabs in the wireframe, which affect validation against the screen description. The wireframe is partially suitable but lacks specificity for full requirement validation.",
+  "correctElements": [
+    {
+      "element": "Settings window title bar",
+      "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+      "evidence": "Both actual and wireframe show \u0027Settings\u0027 title at the top of the center-left window, matching the documented title bar requirement.",
+      "confidence": 1
+    },
+    {
+      "element": "Bounded scroll body",
+      "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+      "evidence": "Actual has settings controls in a bounded area; wireframe shows \u0027bounded scroll content\u0027 placeholder, aligning with the screen description.",
+      "confidence": 0.95
+    },
+    {
+      "element": "Fixed footer with buttons",
+      "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+      "evidence": "Both have a footer with buttons (actual: APPLY/CANCEL; wireframe: BACK/NEXT APPLY), satisfying the fixed footer requirement at a high level.",
+      "confidence": 0.9
+    },
+    {
+      "element": "Dark starfield background and map elements",
+      "requirement": "Global wireframe style requirements",
+      "evidence": "Both images feature a dark background with star systems like Sirius and Canopus, thin green borders, and semi-transparent panels.",
+      "confidence": 1
+    },
+    {
+      "element": "Resolution (1536x832)",
+      "requirement": "FR-UI-AUDIT-001 and TR-UI-AUDIT-HWND-001",
+      "evidence": "Both screenshots are at 1536x832, matching the required wireframe and HWND capture dimensions.",
+      "confidence": 1
+    }
+  ],
+  "incorrectElements": [
+    {
+      "element": "Tabs in settings window",
+      "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+      "expected": "Tabs present as per screen description (e.g., Graphics, Audio, Controls, Server)",
+      "actual": "Tabs present in actual but absent in wireframe",
+      "whyIncorrect": "Wireframe lacks tabs, making it impossible to validate their presence, positioning, and styling against the description.",
+      "severity": "high",
+      "confidence": 1
+    },
+    {
+      "element": "Footer button labels",
+      "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+      "expected": "Fixed Apply/Cancel footer as per description",
+      "actual": "Wireframe shows BACK and NEXT / APPLY; actual shows APPLY and CANCEL",
+      "whyIncorrect": "Mismatch in button text and count prevents accurate validation of user-facing behavior.",
+      "severity": "medium",
+      "confidence": 0.95
+    },
+    {
+      "element": "Specific settings controls",
+      "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+      "expected": "Representative controls like resolution, window mode, UI scale, VSync",
+      "actual": "Actual has specific controls; wireframe has generic \u0027bounded scroll content\u0027 text",
+      "whyIncorrect": "Wireframe\u0027s placeholder does not allow validation of control nesting, text, or functionality.",
+      "severity": "high",
+      "confidence": 1
+    },
+    {
+      "element": "Top bar phase text",
+      "requirement": "Global wireframe style requirements",
+      "expected": "Consistent game state text (e.g., \u0027Production Phase\u0027)",
+      "actual": "Wireframe: \u0027Production Phase\u0027; actual: \u0027Purchase Phase\u0027",
+      "whyIncorrect": "Text mismatch could indicate inconsistent game state rendering or wireframe inaccuracy.",
+      "severity": "low",
+      "confidence": 0.8
+    },
+    {
+      "element": "Map Key panel content",
+      "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+      "expected": "Detailed key items as in actual (e.g., System orbit, Stellar body)",
+      "actual": "Actual has detailed items; wireframe has empty or minimal \u0027Map Key\u0027 panel",
+      "whyIncorrect": "Wireframe lacks content details, limiting validation of persistent UI elements during settings view.",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "element": "Close button (X)",
+      "requirement": "FR-UI-SCREEN-SETTINGS-WINDOW",
+      "expected": "Visible close button in title bar",
+      "actual": "Present and prominent in actual; present but small/subtle in wireframe",
+      "whyIncorrect": "Z-order and visibility difference may affect usability validation.",
+      "severity": "low",
+      "confidence": 0.85
+    },
+    {
+      "element": "Residual validation limitation",
+      "requirement": "TR-UI-AUDIT-SCHEMA-001",
+      "expected": "Pixel-perfect match including DPI and scaling",
+      "actual": "Visual inspection shows close match, but no pixel-level diff performed",
+      "whyIncorrect": "Audit relies on visual comparison without automated tools, introducing risk of undetected minor bounds or scaling differences.",
+      "severity": "low",
+      "confidence": 0.7
+    }
+  ],
+  "wireframeSuitability": {
+    "rating": "partially_suitable",
+    "why": "The wireframe captures the basic layout, style, and geometry as a precise baseline, satisfying global requirements and FR-UI-AUDIT-001. However, it uses placeholders instead of specific elements like tabs and controls mentioned in the screen description, limiting its ability to fully validate FR-UI-SCREEN-SETTINGS-WINDOW and user-facing behavior. It does not incorporate repository process requirements from AGENTS-README-FIRST.yaml, such as session logging, but these are not directly relevant to wireframe design.",
+    "missingRequirements": [
+      "Explicit depiction of tabs (Graphics, Audio, Controls, Server)",
+      "Specific settings controls (e.g., Resolution dropdown, UI Scale slider, VSync checkbox)",
+      "Accurate footer buttons (Apply/Cancel instead of Back/Next Apply)"
+    ],
+    "recommendedWireframeChanges": [
+      "Add tab strip below title bar with representative tab labels",
+      "Replace \u0027bounded scroll content\u0027 placeholder with example settings controls matching the description",
+      "Update footer to show Apply and Cancel buttons explicitly",
+      "Ensure consistent game state text (e.g., standardize phase name)"
+    ]
+  }
+}

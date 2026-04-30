@@ -6,7 +6,7 @@ namespace RiskyStars.Client;
 
 public class AIActionIndicator
 {
-    private readonly GraphicsDevice _graphicsDevice;
+    private readonly GraphicsDevice? _graphicsDevice;
     private Texture2D? _pixelTexture;
     private SpriteFont? _font;
 
@@ -18,7 +18,7 @@ public class AIActionIndicator
     private readonly List<GameLogEntry> _gameLog = new();
     private const int MaxLogEntries = 5;
 
-    public AIActionIndicator(GraphicsDevice graphicsDevice, int screenWidth, int screenHeight)
+    public AIActionIndicator(GraphicsDevice? graphicsDevice, int screenWidth, int screenHeight)
     {
         _graphicsDevice = graphicsDevice;
         CreatePixelTexture();
@@ -26,6 +26,11 @@ public class AIActionIndicator
 
     private void CreatePixelTexture()
     {
+        if (_graphicsDevice == null)
+        {
+            return;
+        }
+
         _pixelTexture = new Texture2D(_graphicsDevice, 1, 1);
         _pixelTexture.SetData(new[] { Color.White });
     }

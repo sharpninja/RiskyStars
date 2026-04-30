@@ -16,9 +16,10 @@ public class EncyclopediaWindow : DockableWindow
     public EncyclopediaWindow(WindowPreferences preferences, int screenWidth, int screenHeight)
         : base("encyclopedia", "In-Game Encyclopedia", preferences, screenWidth, screenHeight, 920, 620)
     {
+        bool hasSavedState = _preferences.GetWindowState(_windowId) != null;
         BuildContent();
         DockTo(DockPosition.Left);
-        if (_preferences.GetWindowState(_windowId) == null)
+        if (!hasSavedState)
         {
             Hide();
         }
@@ -47,10 +48,13 @@ public class EncyclopediaWindow : DockableWindow
 
     private Widget BuildArticleNavigator()
     {
-        var stack = ThemedUIFactory.CreateCompactVerticalStack();
-        stack.Spacing = ThemeManager.Spacing.Small;
+        var stack = ThemedUIFactory.CreateGrid(ThemeManager.Spacing.Small, 0);
+        stack.ColumnsProportions.Add(new Proportion(ProportionType.Fill));
+        stack.RowsProportions.Add(new Proportion(ProportionType.Auto));
+        stack.RowsProportions.Add(new Proportion(ProportionType.Fill));
 
         var heading = ThemedUIFactory.CreateHeadingLabel("Articles");
+        heading.GridRow = 0;
         heading.TextColor = ThemeManager.Colors.TextAccent;
         stack.Widgets.Add(heading);
 
@@ -75,7 +79,9 @@ public class EncyclopediaWindow : DockableWindow
             navContent.Widgets.Add(ThemedUIFactory.CreateHorizontalSeparator());
         }
 
-        stack.Widgets.Add(ThemedUIFactory.CreateAutoScrollViewer(navContent));
+        var navScroller = ThemedUIFactory.CreateAutoScrollViewer(navContent);
+        navScroller.GridRow = 1;
+        stack.Widgets.Add(navScroller);
         return stack;
     }
 

@@ -1,0 +1,87 @@
+screenId: legacy-player-dashboard
+title: Legacy player dashboard
+prompt: |-
+  Compare the actual HWND screenshot against the prompt wireframe for screen 'legacy-player-dashboard'.
+  Screen description: Gameplay map with legacy XNA player dashboard panel visible. Narrow command panel with player resources and actions.
+  Global wireframe style requirements: RiskyStars spatial UI wireframe at 1536x832. Dark starfield/game-map background, thin green panel borders, semi-transparent black panels, terminal-style labels, simple rectangles for controls, and fixed screen-relative geometry. The output is a precise layout baseline, not a Mermaid flowchart.
+  Validate whether the actual UI satisfies the listed FR and TR entries, and whether the wireframe is suitable for those requirements.
+functionalRequirements:
+- id: FR-UI-AUDIT-001
+  text: Every documented UI screen must have a direct prompt-rendered wireframe at 1536x832 for screenshot comparison.
+- id: FR-UI-SCREEN-LEGACY-PLAYER-DASHBOARD
+  text: The Legacy player dashboard screen must visually satisfy the documented screen description and expected user-facing UI behavior.
+- id: FR-UI-WIREFRAME-SUITABILITY-001
+  text: The audit must evaluate whether the wireframe itself is suitable for validating the screen requirements.
+technicalRequirements:
+- id: TR-UI-AUDIT-YAML-001
+  text: Each AI comparison must be driven by a YAML scenario containing prompt, image paths, schema, FRs, TRs, and AGENTS path.
+- id: TR-UI-AUDIT-HWND-001
+  text: The actual screenshot must be captured from the RiskyStars client HWND at 1536x832.
+- id: TR-UI-AUDIT-SCHEMA-001
+  text: The model result must conform exactly to the resultSchema JSON schema and invalid JSON is test-fail behavior.
+- id: TR-UI-AUDIT-AGENTS-001
+  text: The model must consider AGENTS-README-FIRST.yaml content when validating process and correctness requirements.
+agentsReadmeFirstPath: AGENTS-README-FIRST.yaml
+actualScreenshotPath: RiskyStars.Client/Screenshots/Actual/legacy-player-dashboard.png
+wireframeScreenshotPath: RiskyStars.Client/Wireframes/PromptWireframes/legacy-player-dashboard.png
+resultSchema: |-
+  {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["screenId", "summary", "correctElements", "incorrectElements", "wireframeSuitability"],
+    "properties": {
+      "screenId": { "type": "string", "minLength": 1 },
+      "summary": { "type": "string", "minLength": 1 },
+      "correctElements": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["element", "requirement", "evidence", "confidence"],
+          "properties": {
+            "element": { "type": "string", "minLength": 1 },
+            "requirement": { "type": "string", "minLength": 1 },
+            "evidence": { "type": "string", "minLength": 1 },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      },
+      "incorrectElements": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["element", "requirement", "expected", "actual", "whyIncorrect", "severity", "confidence"],
+          "properties": {
+            "element": { "type": "string", "minLength": 1 },
+            "requirement": { "type": "string", "minLength": 1 },
+            "expected": { "type": "string", "minLength": 1 },
+            "actual": { "type": "string", "minLength": 1 },
+            "whyIncorrect": { "type": "string", "minLength": 1 },
+            "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      },
+      "wireframeSuitability": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rating", "why", "missingRequirements", "recommendedWireframeChanges"],
+        "properties": {
+          "rating": { "type": "string", "enum": ["suitable", "partially_suitable", "unsuitable"] },
+          "why": { "type": "string", "minLength": 1 },
+          "missingRequirements": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "recommendedWireframeChanges": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  }

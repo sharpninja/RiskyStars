@@ -1,0 +1,38 @@
+interactionId: main-menu-settings-save-click
+description: Command Settings Save Settings click should save settings and return to the main menu Command Actions view.
+startScreenId: main-menu-settings
+actionText: Save Settings
+beforeContainsText:
+- Command Settings
+- Server Endpoint
+- Save Settings
+beforeRejectsText:
+- Command Actions
+afterContainsText:
+- Command Actions
+- Settings
+- Tutorial Mode
+afterRejectsText:
+- Command Settings
+- Save Settings
+- Server Endpoint
+stateChanges:
+- description: Command Settings disappears after Save Settings.
+  beforeText: Command Settings
+  beforePresent: true
+  afterText: Command Settings
+  afterPresent: false
+- description: Command Actions returns after Save Settings.
+  beforeText: Command Actions
+  beforePresent: false
+  afterText: Command Actions
+  afterPresent: true
+badBehaviorValidations:
+- text: Command Settings
+  phase: after
+  rejectedPresent: true
+  reason: The Save Settings click must not leave the settings panel active.
+- text: Command Actions
+  phase: after
+  rejectedPresent: false
+  reason: The Save Settings click must restore the main menu command actions.
